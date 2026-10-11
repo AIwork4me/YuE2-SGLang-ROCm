@@ -30,7 +30,7 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-WS = Path("/home/amd/Desktop/YuE2")
+WS = Path(os.environ.get("WS", "/home/amd/Desktop/YuE2"))
 sys.path.insert(0, str(WS / "upstream" / "sglang" / "python"))
 sys.path.insert(0, str(WS / "benchmark" / "WildSongBench" / "wsb_metrics"))
 
