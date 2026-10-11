@@ -20,7 +20,7 @@ verify_result per candidate), never from driver status lines alone.**
 | Checkpoint | verified | pending | truncated | failed(open) | notes |
 |---|---|---|---|---|---|
 | 10/384 (auto) | 10 | 374 | 1 | 0 | `evidence/checkpoint_10.json` |
-| 2026-10-12 07:15 | 36 | 348 | 1 | 0 | audit after incident recovery (below) |
+| 2026-10-12 07:04 audit | 36 | 348 | 1 | 0 | post-INCIDENT-1 recovery; 3 recovered-finalize classified |
 
 Audit command (strict full mode):
 `python scripts/verify_wsb_artifacts.py --runs runs/wsb_full` → PARTIAL until

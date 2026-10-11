@@ -229,3 +229,21 @@ def test_recovered_driver_failure_is_not_an_open_defect(run10):
     report = json.loads((runs / "audit.json").read_text())
     assert report["verdict"] == "FULL"
     assert report["classification"].get("driver:finalize_failed (recovered)") == 1
+
+
+def test_duplicate_selection_rows_rejected(run10):
+    """Two rows for the same (prompt, candidate) must not silently collapse."""
+    runs, _ = run10
+    inputs = runs / "evaluation_inputs.jsonl"
+    rows = [l for l in inputs.read_text().splitlines() if l.strip()]
+    inputs.write_text("\n".join(rows + [rows[0]]) + "\n")
+    proc = _run(["--runs", str(runs), "--mode", "subset", "--expect", "11"])
+    assert proc.returncode != 0
+    assert "duplicate (prompt_index, candidate_index)" in (proc.stderr + proc.stdout)
+
+
+def test_subset_mode_requires_expect(run10):
+    runs, _ = run10
+    proc = _run(["--runs", str(runs), "--mode", "subset"])
+    assert proc.returncode != 0
+    assert "requires an explicit --expect" in (proc.stderr + proc.stdout)

@@ -3,8 +3,10 @@
 # at 10/50/100/192/300/384 complete candidates, commits+pushes evidence.
 # Also watchdogs: restarts nothing (run_wsb.py is resumable) but records
 # failures; exits when 384 complete or generation process is gone twice.
+# NOTE: the live workspace copy stayed frozen while the 384-candidate run
+# executes (bash re-reads scripts mid-run); this repo copy is configurable.
 set -uo pipefail
-WS=/home/amd/Desktop/YuE2
+WS="${WS:-/home/amd/Desktop/YuE2}"
 EV="$WS/evidence/YuE2-SGLang-ROCm"
 LOG="$WS/logs/milestone_watcher.log"
 NEXT=10

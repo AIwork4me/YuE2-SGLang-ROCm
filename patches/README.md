@@ -111,7 +111,7 @@ torchaudio, torchvision, triton, vllm 0.14.0, …) and refuses any deviation.
 **Problem:** those wheels are CUDA-only; AMD publishes no ROCm build of those
 versions. On gfx1151 the evaluator cannot start at all ("Found no NVIDIA
 driver").
-**Patch:** under `WSB_ROCM_TORCH_OVERRIDE=1`, the torch-family quartet
+**Patch** (additive; `verify_environment` gains a gated exemption branch): under `WSB_ROCM_TORCH_OVERRIDE=1`, the torch-family quartet
 (torch/torchaudio/torchvision/triton) is exempted from the equality check;
 the environment receipt still records the ACTUAL versions plus a
 `rocm_torch_override` marker, every other package must still match exactly,
@@ -146,3 +146,9 @@ same phonemization/scoring code.
 **Accuracy risk:** decode-level equivalence is expected (greedy, same
 checkpoint/processor); batching differs (HF batching vs vLLM continuous
 batching) which can change floating-point reduction order only.
+
+### release.json formatting note
+The hash-update script rewrote `release.json` with uniform JSON indentation, so
+a plain `diff` shows more churn than the semantic change (2 hash values + 1
+disclosure key). Semantic delta only: `code_files["wsb_eval.py"]`,
+`code_files["src/mot_infer/eval_worker.py"]`, added `rocm_override_note`.

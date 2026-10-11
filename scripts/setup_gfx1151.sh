@@ -23,10 +23,10 @@ if [ ! -x "$VENV/bin/python" ]; then
   echo "--- creating fresh venv at $VENV ---"
   uv venv --python 3.12 "$VENV"
 fi
-# shellcheck disable=SC1091
-source "$VENV/bin/activate"
 exec >>"$LOG" 2>&1
 echo "=== setup_gfx1151.sh started: $(date -Is) ==="
+# shellcheck disable=SC1091
+source "$VENV/bin/activate"
 
 command -v uv >/dev/null || python -m pip install -q uv
 

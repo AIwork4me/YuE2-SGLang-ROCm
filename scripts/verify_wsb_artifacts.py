@@ -223,13 +223,20 @@ def main() -> int:
             raise SystemExit("--expect is not valid in full mode; the frozen protocol implies 384")
         expected = expected_from_manifest(rows)
     else:
+        if args.expect is None:
+            raise SystemExit("subset mode requires an explicit --expect (the "
+                             "declared scope of the pilot); full mode needs none")
         inputs_path = args.runs / "evaluation_inputs.jsonl"
         if not inputs_path.is_file():
             raise SystemExit(f"subset mode requires {inputs_path}")
         selected = [json.loads(l) for l in inputs_path.read_text().splitlines() if l.strip()]
-        if args.expect is not None and args.expect != len(selected):
+        if args.expect != len(selected):
             raise SystemExit(f"--expect {args.expect} != {len(selected)} selected rows; "
                              "the expectation is never adjusted silently")
+        keys = [(e["prompt_index"], e["candidate_index"]) for e in selected]
+        if len(set(keys)) != len(keys):
+            raise SystemExit("duplicate (prompt_index, candidate_index) rows in "
+                             "evaluation_inputs.jsonl; refusing to collapse silently")
         expected = expected_from_selection(rows, selected)
 
     report = audit(args.runs, expected, args.mode)
