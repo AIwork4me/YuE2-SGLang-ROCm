@@ -1,0 +1,168 @@
+diff --git a/python/sglang/srt/layers/quantization/quark/schemes/quark_w4a4_mxfp4.py b/python/sglang/srt/layers/quantization/quark/schemes/quark_w4a4_mxfp4.py
+index f860a3f..b096cc3 100644
+--- a/python/sglang/srt/layers/quantization/quark/schemes/quark_w4a4_mxfp4.py
++++ b/python/sglang/srt/layers/quantization/quark/schemes/quark_w4a4_mxfp4.py
+@@ -83,14 +83,25 @@ def _dequant_mxfp4_to_bf16(
+ 
+ 
+ if _is_hip:
+-    from aiter.ops.triton.gemm.fused.fused_gemm_afp4wfp4_split_cat import (
+-        fused_gemm_afp4wfp4_split_cat as _fused_gemm_afp4wfp4_split_cat_orig,
+-    )
+-    from aiter.ops.triton.gemm_afp4wfp4 import gemm_afp4wfp4 as _gemm_afp4wfp4_orig
+-    from aiter.ops.triton.gemm_afp4wfp4_pre_quant_atomic import (
+-        gemm_afp4wfp4_pre_quant as _gemm_afp4wfp4_pre_quant_orig,
+-    )
+-    from aiter.ops.triton.quant import dynamic_mxfp4_quant as _dynamic_mxfp4_quant_orig
++    # ROCm portability guard: aiter only ships for Instinct CDNA targets
++    # (gfx94x/gfx95x). On other HIP devices (e.g. gfx1151) the package is absent;
++    # import failure must not break module import for unrelated models. The
++    # registered ops raise at call time if the W4A4-MXFP4 scheme is actually
++    # requested without aiter, which YuE2 (bf16) never does.
++    try:
++        from aiter.ops.triton.gemm.fused.fused_gemm_afp4wfp4_split_cat import (
++            fused_gemm_afp4wfp4_split_cat as _fused_gemm_afp4wfp4_split_cat_orig,
++        )
++        from aiter.ops.triton.gemm_afp4wfp4 import gemm_afp4wfp4 as _gemm_afp4wfp4_orig
++        from aiter.ops.triton.gemm_afp4wfp4_pre_quant_atomic import (
++            gemm_afp4wfp4_pre_quant as _gemm_afp4wfp4_pre_quant_orig,
++        )
++        from aiter.ops.triton.quant import dynamic_mxfp4_quant as _dynamic_mxfp4_quant_orig
++    except ImportError:
++        _fused_gemm_afp4wfp4_split_cat_orig = None
++        _gemm_afp4wfp4_orig = None
++        _gemm_afp4wfp4_pre_quant_orig = None
++        _dynamic_mxfp4_quant_orig = None
+ 
+     def _aiter_gemm_afp4wfp4(
+         x: torch.Tensor,
+diff --git a/python/sglang/srt/layers/quantization/quark/schemes/quark_w4a4_mxfp4_moe.py b/python/sglang/srt/layers/quantization/quark/schemes/quark_w4a4_mxfp4_moe.py
+index b2dfbe7..9f8c2a8 100644
+--- a/python/sglang/srt/layers/quantization/quark/schemes/quark_w4a4_mxfp4_moe.py
++++ b/python/sglang/srt/layers/quantization/quark/schemes/quark_w4a4_mxfp4_moe.py
+@@ -80,7 +80,13 @@ _shuffle_moe_gfx1250 = (
+ )
+ 
+ if _is_hip:
+-    from aiter.ops.triton.quant import dynamic_mxfp4_quant
++    # ROCm portability guard: aiter ships only for Instinct CDNA targets; on
++    # other HIP devices (gfx1151) it is absent and the scheme must import to
++    # None exactly as on the non-HIP branch.
++    try:
++        from aiter.ops.triton.quant import dynamic_mxfp4_quant
++    except ImportError:
++        dynamic_mxfp4_quant = None
+ else:
+     dynamic_mxfp4_quant = None
+ 
+diff --git a/python/sglang/srt/layers/quantization/quark_int4fp8_moe.py b/python/sglang/srt/layers/quantization/quark_int4fp8_moe.py
+index 8fb1bee..8c4d066 100644
+--- a/python/sglang/srt/layers/quantization/quark_int4fp8_moe.py
++++ b/python/sglang/srt/layers/quantization/quark_int4fp8_moe.py
+@@ -27,9 +27,15 @@ _is_hip = is_hip()
+ 
+ 
+ if _is_hip:
+-    from aiter.ops.shuffle import shuffle_weight
+-
+-    ON_GFX950 = "gfx950" in torch.cuda.get_device_properties("cuda").gcnArchName
++    # ROCm portability guard: aiter ships only for Instinct CDNA targets
++    # (gfx94x/gfx95x); on gfx1151 it is absent and shuffle_weight stays None.
++    try:
++        from aiter.ops.shuffle import shuffle_weight
++
++        ON_GFX950 = "gfx950" in torch.cuda.get_device_properties("cuda").gcnArchName
++    except ImportError:
++        shuffle_weight = None
++        ON_GFX950 = False
+ 
+ logger = logging.getLogger(__name__)
+ 
+diff --git a/python/sglang/srt/models/yue2/batched.py b/python/sglang/srt/models/yue2/batched.py
+index be66e36..63b59cc 100644
+--- a/python/sglang/srt/models/yue2/batched.py
++++ b/python/sglang/srt/models/yue2/batched.py
+@@ -36,7 +36,15 @@ default_batched_pool = GraphSessionPool(max_sessions_per_key=int(
+ 
+ 
+ def batched_ar_enabled() -> bool:
+-    return os.environ.get("SGLANG_YUE2_BATCHED_AR", "1") == "1"
++    if os.environ.get("SGLANG_YUE2_BATCHED_AR", "1") != "1":
++        return False
++    # The batched sampler builds on the DeepSelect topk kernel; the wrapper
++    # imports on any platform but the CUDA JIT kernel cannot run on devices
++    # like ROCm gfx1151. Gate here so unsupported platforms stay on the
++    # per-request looped path instead of relying on runtime fallbacks.
++    from .fastpath import fast_sampler_available
++
++    return fast_sampler_available()
+ 
+ 
+ class BatchedUnsupported(Exception):
+diff --git a/python/sglang/srt/models/yue2/fa3.py b/python/sglang/srt/models/yue2/fa3.py
+index f4a5a87..70ef573 100644
+--- a/python/sglang/srt/models/yue2/fa3.py
++++ b/python/sglang/srt/models/yue2/fa3.py
+@@ -54,8 +54,17 @@ def varlen_attention(q, k, v, cu_seqlens_q, cu_seqlens_k, max_q, max_k,
+     """
+     varlen = _load_varlen()
+     if varlen is not None:
+-        return varlen(q, k, v, cu_seqlens_q, cu_seqlens_k, max_q, max_k,
+-                      seqused_k=seqused_k, causal=False, ver=3)
++        try:
++            return varlen(q, k, v, cu_seqlens_q, cu_seqlens_k, max_q, max_k,
++                          seqused_k=seqused_k, causal=False, ver=3)
++        except Exception:
++            # The shared wrapper imports on non-CUDA platforms but its kernels
++            # (FA3 -> flash_attn FA2 fallback) may be missing or unsupported at
++            # call time (e.g. ROCm gfx1151 without flash_attn). Fall through to
++            # PyTorch's native variable-length FlashAttention, which honours
++            # seqused_k and GQA on this stack (validated against an fp32 manual
++            # reference in tests/test_yue2_rocm_fallbacks.py).
++            pass
+     return torch.ops.aten._flash_attention_forward(
+         q, k, v, cu_seqlens_q, cu_seqlens_k, max_q, max_k, 0.0, False, False,
+         seqused_k=seqused_k)[0]
+diff --git a/python/sglang/srt/models/yue2/fastpath.py b/python/sglang/srt/models/yue2/fastpath.py
+index 56c7671..3875c61 100644
+--- a/python/sglang/srt/models/yue2/fastpath.py
++++ b/python/sglang/srt/models/yue2/fastpath.py
+@@ -54,7 +54,15 @@ def fast_sampler_available() -> bool:
+     if not backend:
+         return False
+     try:
+-        return torch.cuda.is_available()
++        if not torch.cuda.is_available():
++            return False
++        # The DeepSelect kernel is a CUDA-only JIT build (SM 9.0/10.0/10.3).
++        # Importability alone says nothing about runnability: on ROCm/HIP the
++        # wrapper module imports fine but topk() raises at call time, which
++        # would otherwise surface mid-decode instead of at selection time.
++        from sglang.kernels.ops.deep_select import is_deepselect_supported
++
++        return is_deepselect_supported()
+     except Exception:
+         return False
+ 
+diff --git a/python/sglang/srt/models/yue2/song.py b/python/sglang/srt/models/yue2/song.py
+index aa37de8..51e2038 100644
+--- a/python/sglang/srt/models/yue2/song.py
++++ b/python/sglang/srt/models/yue2/song.py
+@@ -79,6 +79,17 @@ def _generate_song_tokens_step_graph(model, session, tokenizer, request: SongReq
+     """
+     if _load_topk_backend() is None:
+         raise _StepGraphUnavailable("DeepSelect backend missing")
++    # Importable is not runnable: DeepSelect is a CUDA-only JIT kernel and
++    # raises at call time on unsupported devices (e.g. ROCm gfx1151). Detect
++    # that here so the request falls back to the looped path instead of dying
++    # inside graph capture.
++    try:
++        from sglang.kernels.ops.deep_select import is_deepselect_supported
++
++        if not is_deepselect_supported():
++            raise _StepGraphUnavailable("DeepSelect kernel unsupported on this device")
++    except ImportError:
++        pass
+ 
+     device = session.device
+     

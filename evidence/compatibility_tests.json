@@ -1,0 +1,59 @@
+{
+  "captured": "2026-10-11T19:09:40",
+  "platform": "gfx1151 / torch 2.12.0+rocm7.14.1",
+  "total": 10,
+  "passed": 10,
+  "failed": null,
+  "tests": [
+    {
+      "name": "test_quantization_chain_imports",
+      "outcome": "passed",
+      "duration_s": 0
+    },
+    {
+      "name": "test_deepselect_fallback",
+      "outcome": "passed",
+      "duration_s": 0
+    },
+    {
+      "name": "test_aten_flash_varlen_numerics",
+      "outcome": "passed",
+      "duration_s": 0
+    },
+    {
+      "name": "test_masked_sdpa_math_fallback",
+      "outcome": "passed",
+      "duration_s": 0
+    },
+    {
+      "name": "test_hip_graph_capture_replay",
+      "outcome": "passed",
+      "duration_s": 0
+    },
+    {
+      "name": "test_model_loads_on_gfx1151",
+      "outcome": "passed",
+      "duration_s": 0
+    },
+    {
+      "name": "test_ar_graph_vs_eager_logits",
+      "outcome": "passed",
+      "duration_s": 0
+    },
+    {
+      "name": "test_reference_sampler_distribution_matches_fastpath_semantics",
+      "outcome": "passed",
+      "duration_s": 0
+    },
+    {
+      "name": "test_nar_solver_finite",
+      "outcome": "passed",
+      "duration_s": 0
+    },
+    {
+      "name": "test_vae_decode_finite",
+      "outcome": "passed",
+      "duration_s": 0
+    }
+  ]
+}
