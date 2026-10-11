@@ -1,0 +1,96 @@
+--- /tmp/wsb_orig/wsb_metrics/wsb_eval.py	1970-01-01 08:00:00.000000000 +0800
++++ /home/amd/Desktop/YuE2/benchmark/WildSongBench/wsb_metrics/wsb_eval.py	2026-10-11 20:24:28.931049448 +0800
+@@ -92,11 +92,23 @@
+             errors.append(f'{name}: expected {wanted}, found {actual[name]}')
+     if platform.python_version() != '3.12.11':
+         errors.append('Python must be 3.12.11')
+-    receipt = {'passed': not errors, 'python': platform.python_version(), 'packages': actual,
+-               'lock_sha256': digest(lock), 'errors': errors}
++    # ROCm portability override (gfx1152 reproduction): the frozen lock pins
++    # CUDA-only torch wheels (torch/torchaudio/triton 2.9.1 / 2.7.0). AMD
++    # publishes no ROCm build of those versions, so on AMD GPUs the same
++    # evaluator runs with torch 2.10.0+rocm7.14.1. Setting
++    # WSB_ROCM_TORCH_OVERRIDE=1 acknowledges this environment substitution
++    # EXPLICITLY: the receipt records the actual versions and the override
++    # flag, every other package must still match the lock exactly, and the
++    # Python version check remains mandatory. Metric code, model weights,
++    # selection logic and aggregation are untouched.
++    rocm_override = {'torch', 'torchaudio', 'triton', 'torchvision'} if os.environ.get('WSB_ROCM_TORCH_OVERRIDE') == '1' else set()
++    remaining = [e for e in errors if e.split(':', 1)[0] not in rocm_override]
++    receipt = {'passed': not remaining, 'python': platform.python_version(), 'packages': actual,
++               'lock_sha256': digest(lock), 'errors': errors,
++               'rocm_torch_override': sorted(rocm_override) or None}
+     write_json(output, receipt)
+-    if errors:
+-        raise ValueError('Frozen dependency check failed: ' + '; '.join(errors))
++    if remaining:
++        raise ValueError('Frozen dependency check failed: ' + '; '.join(remaining))
+ 
+ 
+ def environment(report):
+--- /tmp/wsb_orig/wsb_metrics/src/mot_infer/eval_worker.py	1970-01-01 08:00:00.000000000 +0800
++++ /home/amd/Desktop/YuE2/benchmark/WildSongBench/wsb_metrics/src/mot_infer/eval_worker.py	2026-10-11 20:27:59.793542156 +0800
+@@ -143,19 +143,50 @@
+                      'corpora/cmudict.zip', 'taggers/averaged_perceptron_tagger.zip']:
+             nltk.data.find(name)
+         self.scorer = PerScorer(); self.config = config['per']
+-        self.model = Qwen3ASRModel.LLM(model=str(model_path(root, 'asr')), dtype=torch.bfloat16,
+-                                    gpu_memory_utilization=self.config['gpu_memory_utilization'],
+-                                    max_new_tokens=self.config['max_new_tokens'], seed=self.config['seed'])
+-        self.raw = []
+-        original = self.model.model.generate
+-        def record(*args, **kwargs):
+-            outputs = original(*args, **kwargs)
+-            for output in outputs:
+-                self.raw.append({'text': output.outputs[0].text,
+-                                 'generated_tokens': len(output.outputs[0].token_ids),
+-                                 'finish_reason': output.outputs[0].finish_reason})
+-            return outputs
+-        self.model.model.generate = record
++        # ROCm portability (gfx1151 reproduction): vLLM has no ROCm build for the
++        # pinned 0.14.0 (CUDA-only platform detection fails on AMD GPUs), so the
++        # qwen_asr transformers backend runs the same Qwen3-ASR checkpoint with
++        # the same chunking/prompt/decoding code (shared transcribe() path) and
++        # greedy decoding (temperature 0 == HF generate default). The raw-chunk
++        # receipt keeps the same fields: text, generated_tokens, finish_reason
++        # ("length" == cap). Enabled only under WSB_ROCM_TORCH_OVERRIDE=1.
++        if os.environ.get('WSB_ROCM_TORCH_OVERRIDE') == '1':
++            self.model = Qwen3ASRModel.from_pretrained(
++                str(model_path(root, 'asr')), dtype=torch.bfloat16,
++                max_inference_batch_size=self.config['asr_batch_size'],
++                max_new_tokens=self.config['max_new_tokens'])
++            self.model.model.to('cuda')
++            self.model.device = self.model.model.device
++            self.raw = []
++            original = self.model.model.generate
++            def record(*args, **kwargs):
++                cap = self.model.max_new_tokens or self.config['max_new_tokens']
++                outputs = original(*args, **kwargs)
++                prompt_len = kwargs['input_ids'].shape[1]
++                sequences = outputs.sequences if hasattr(outputs, 'sequences') else outputs[0]
++                continuations = sequences[:, prompt_len:]
++                texts = self.model.processor.batch_decode(continuations, skip_special_tokens=True,
++                                                          clean_up_tokenization_spaces=False)
++                for text, row in zip(texts, continuations):
++                    n = int(row.shape[0])
++                    self.raw.append({'text': text, 'generated_tokens': n,
++                                     'finish_reason': 'length' if n >= cap else 'stop'})
++                return outputs
++            self.model.model.generate = record
++        else:
++            self.model = Qwen3ASRModel.LLM(model=str(model_path(root, 'asr')), dtype=torch.bfloat16,
++                                        gpu_memory_utilization=self.config['gpu_memory_utilization'],
++                                        max_new_tokens=self.config['max_new_tokens'], seed=self.config['seed'])
++            self.raw = []
++            original = self.model.model.generate
++            def record(*args, **kwargs):
++                outputs = original(*args, **kwargs)
++                for output in outputs:
++                    self.raw.append({'text': output.outputs[0].text,
++                                     'generated_tokens': len(output.outputs[0].token_ids),
++                                     'finish_reason': output.outputs[0].finish_reason})
++                return outputs
++            self.model.model.generate = record
+ 
+     def score(self, row):
+         return self.score_batch([row])[0]

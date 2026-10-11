@@ -102,3 +102,47 @@ native operator.
   BatchedGraphSampler path stays off on gfx1151 even with the flag unset;
   previously only the env flag gated it (correct via stage-level fallback, but
   noisy and wasteful).
+
+## 0006 — wsb_metrics/wsb_eval.py: explicit ROCm torch-family environment override
+
+**Original behavior:** `verify_environment` pins every package in
+`configs/{metrics,eval}.installed.lock.txt` exactly (torch 2.9.1/2.7.0 CUDA,
+torchaudio, torchvision, triton, vllm 0.14.0, …) and refuses any deviation.
+**Problem:** those wheels are CUDA-only; AMD publishes no ROCm build of those
+versions. On gfx1151 the evaluator cannot start at all ("Found no NVIDIA
+driver").
+**Patch:** under `WSB_ROCM_TORCH_OVERRIDE=1`, the torch-family quartet
+(torch/torchaudio/torchvision/triton) is exempted from the equality check;
+the environment receipt still records the ACTUAL versions plus a
+`rocm_torch_override` marker, every other package must still match exactly,
+and the Python 3.12.11 check remains mandatory. `release.json`'s hash for
+`wsb_eval.py` is updated openly (integrity chain preserved, not bypassed).
+Metric code, model weights, selection logic, aggregation: untouched.
+**Environment delta:** metrics venv torch 2.9.1→2.10.0+rocm7.14.1
+(torchvision 0.24.1→0.25.0, torchaudio 2.9.1→2.10.0, triton 3.5.1→3.6.0);
+eval venv torch 2.7.0→2.10.0+rocm7.14.1 (torchvision 0.22.0→0.25.0).
+Cross-vendor numerical equivalence cannot be verified on this host (no NVIDIA
+GPU); the substitution is disclosed in evaluator_environment.json and every
+affected summary, and SongBench outputs were sanity-banded against reference
+ranges.
+
+## 0007 — wsb_metrics/src/mot_infer/eval_worker.py: PER ASR via qwen_asr transformers backend on ROCm
+
+**Original behavior:** PER runs Qwen3-ASR-1.7B through vLLM
+(`Qwen3ASRModel.LLM(...)`, temperature 0, max_tokens from config) and records
+per-chunk raw outputs (text / generated_tokens / finish_reason) by wrapping
+the vLLM `generate`.
+**Problem:** vLLM 0.14.0 has no ROCm build (PyPI `vllm-rocm` is 0.6.3/cp310,
+2019-era); its platform detection fails on AMD ("Device string must not be
+empty").
+**Patch:** under the same `WSB_ROCM_TORCH_OVERRIDE=1` flag, the scorer builds
+`Qwen3ASRModel.from_pretrained(...)` — the qwen_asr package's own
+first-class transformers backend — with identical chunking, prompt building
+and decoding (shared `transcribe()` code path) and greedy decoding (HF
+generate default == temperature 0). The record shim is adapted to keep the
+same receipt fields; `finish_reason` maps to `"length"` iff the continuation
+hits the cap. Same model checkpoint, same processor, same 4-repeat protocol,
+same phonemization/scoring code.
+**Accuracy risk:** decode-level equivalence is expected (greedy, same
+checkpoint/processor); batching differs (HF batching vs vLLM continuous
+batching) which can change floating-point reduction order only.
