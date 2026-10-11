@@ -175,18 +175,25 @@ def main() -> int:
                 if cand.exists():
                     import shutil
                     shutil.rmtree(cand)  # stale/partial: never mix runs
+                # Per-candidate WAV name: a shared name would let a later
+                # request overwrite an earlier candidate's audio before
+                # finalization.
+                wav_name = f"{ident}.wav"
                 payload = {
                     "style": row["style"], "lyrics": row["lyrics"],
                     "seed": seed, "output_path": str(songs),
-                    "output_file_name": "audio.wav",
+                    "output_file_name": wav_name,
                     "artifacts_dir": str(cand), "id": ident, **OFFICIAL,
                 }
                 t0 = time.time()
                 ok, err = False, ""
+                wav = None
                 for attempt in range(args.max_retries + 1):
                     try:
                         resp = post_generation(args.server, payload, args.timeout)
-                        ok = (resp.get("audio") or "").endswith("audio.wav")
+                        audio_field = resp.get("audio") or ""
+                        wav = (songs / wav_name) if audio_field else None
+                        ok = wav is not None and wav.is_file()
                         if not ok:
                             err = f"unexpected response: {str(resp)[:300]}"
                         break
@@ -196,8 +203,7 @@ def main() -> int:
                         time.sleep(10)
                 record["wall_s"] = round(time.time() - t0, 2)
 
-                wav = cand / "audio.wav"
-                if ok and wav.is_file():
+                if ok and wav is not None and wav.is_file():
                     fin = subprocess.run(
                         [sys.executable, str(WS / "scripts" / "finalize_candidate.py"),
                          str(cand), str(wav), str(MODEL_DIR), str(VAE_DIR)],

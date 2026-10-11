@@ -1,0 +1,52 @@
+{
+  "pilot_stages": [
+    {
+      "scope": "1 prompt (0, zh) x2",
+      "complete": 2,
+      "failed": 0,
+      "wall_s": 745.7,
+      "peak_gtt_bytes": 23993032704
+    },
+    {
+      "scope": "5 prompts {0,1 zh; 2,76,77 en} x2",
+      "complete": 10,
+      "failed": 0,
+      "wall_s": 6348.0,
+      "peak_gtt_bytes": 28563648512,
+      "resumed_from_stage1": 2
+    }
+  ],
+  "artifact_audit": {
+    "verified_complete": 10,
+    "missing_or_invalid": 0,
+    "truncated_but_complete": 2,
+    "verdict": "FULL",
+    "tool": "scripts/verify_wsb_artifacts.py (official verify_result per candidate)"
+  },
+  "official_evaluator_pilot": {
+    "mode": "shard (standard refuses subsets by design)",
+    "metrics": "per,songbench",
+    "prompt0_zh_2candidates": {
+      "per": 0.19479495268138802,
+      "songbench_global_avg": 6.776798861367362,
+      "songbench": {
+        "Melody": 6.741937875747681,
+        "Arrangement": 7.121258974075317,
+        "Musicality": 5.994098424911499,
+        "Vocal": 7.19859766960544,
+        "Instrumental": 7.047266244888306,
+        "Mixing": 6.867673397064209,
+        "Structure": 6.466759443283081
+      },
+      "complete": true,
+      "errors": []
+    },
+    "note_8candidate_rescore": "an 8-candidate re-score was started and deliberately aborted after ~2h to return the GPU to the 384-candidate critical path; the 2-candidate shard run above is the pilot-evaluator evidence; all 384 candidates are scored in Phase 7",
+    "comparability": "pilot-scale only; NOT comparable to 192-prompt aggregates"
+  },
+  "portability_patches_required": [
+    "0006 torch-family env override",
+    "0007 PER ASR transformers backend"
+  ],
+  "candidate_records": 12
+}

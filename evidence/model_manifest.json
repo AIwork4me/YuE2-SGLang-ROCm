@@ -41,5 +41,11 @@
     "base": "ba68306256d64c53d302dc5d2f3be9e388af0738",
     "checkout_mode": "shallow fetch of the head commit only (blob history omitted; GitHub throttling). The PR's 3 commits per the GitHub API are 6bd2ad33, 8367a579, ced0ef7d; the local git object store contains only ced0ef7d."
   },
-  "authors_validated_commit": "e0683229e755d60af70ad52af036e6386a8d60d1 - NOT present in PR head's 3-commit list; pending identification in multimodal-art-projection/YuE (fetch in progress) or a force-pushed-away PR head; resolution recorded when determined"
+  "authors_validated_commit": {
+    "sha": "e0683229e755d60af70ad52af036e6386a8d60d1",
+    "identity": "sgl-project/sglang commit, message 'add YuE 2 e2e test', 2026-10-01T17:25:50Z — a pre-force-push head of PR #42106 (branch add_yue2 from yiakwy-xpu-ml-framework-team/AMD-sglang-benchmark-fork). The current PR head rebased/rewrote it into 8367a579 (same message).",
+    "fetched_into_local_clone": true,
+    "yue2_delta_to_our_head": "+1116/-97 across 14 files; notable additions: batched.py (+383, batched-AR path), fastpath.py (+150), nar_fast.py (+195), fa3.py (+61), cuda_graph.py (23), modeling_yue2.py (+14), storage.py (+31)",
+    "interpretation": "The YuE2 authors' October 4 validation ran an earlier, smaller implementation. Our ROCm configuration disables the post-validation additions (batched-AR, DeepSelect fast sampler, fused NAR) and runs the reference paths that are common to both revisions; deltas are disclosed for the Phase 8 comparison."
+  }
 }

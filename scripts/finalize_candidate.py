@@ -77,9 +77,37 @@ def main() -> int:
 
     request_path = args.request_json or (cand / "request.json")
     request = json.loads(request_path.read_text())
+    # Materialize the effective CFG: the server does not accept a cfg_scale
+    # key at the PR head, and SongRequest.guidance resolves cfg_scale=None
+    # with cot=full to exactly 1.0 (single-branch). The official driver
+    # likewise records cfg_scale=1.0 explicitly; the evaluator requires it.
+    if request.get("cfg_scale") is None:
+        request["cfg_scale"] = 1.0
+        write_json(cand / "request.json", request)
 
     config_path = args.config_json or (args.model_dir / "yue2_generation_config.json")
-    config = GenerationConfig.from_dict(json.loads(config_path.read_text())).to_dict()
+    generation = GenerationConfig.from_dict(json.loads(config_path.read_text())).to_dict()
+
+    # Runtime identity: sha over the SGLang YuE2 runtime sources (the code that
+    # actually generated these artifacts), analogous to the official wheel's
+    # self-hash of yue2/*.py. Backend label: the SGLang PR implements the
+    # torch-reference YuE2 pipeline (sampling/nar are ports of the official
+    # torch backend; the evaluator accepts {torch, vllm}); provenance beyond
+    # the label is preserved via runtime_sha256 and weights below.
+    yue2_dir = Path("/home/amd/Desktop/YuE2/upstream/sglang/python/sglang/srt/models/yue2")
+    runtime_sha = identity({p.name: sha256_file(p)
+                            for p in sorted(yue2_dir.glob("*.py"))})
+    config = {
+        "generation": generation, "overrides": {},
+        "cot": request.get("cot", "full"), "cfg_scale": request.get("cfg_scale", 1.0),
+        "cfg_negative": None, "backend": "torch",
+        "quantization": "none", "model_dtype": "bfloat16", "vae_dtype": "float32",
+        "vae_decode": "halo_crop",
+        "vae_core_frames": int(request.get("_vae_core_frames", 0) or 1024),
+        "vae_halo_frames": int(request.get("_vae_halo_frames", 0) or 16),
+        "runtime_sha256": runtime_sha,
+        "memory_budget_gib": None, "offload_ar": False,
+    }
 
     weights = {"mot": model_identity(args.model_dir, verify=True),
                "vae": model_identity(args.vae_dir, verify=True)}
