@@ -1,0 +1,12 @@
+torch.__version__ = 2.12.0+rocm7.14.1
+torch.version.hip = 7.14.60850
+torch.cuda.is_available() = True
+device_count = 1
+device 0 name = AMD Radeon 8060S Graphics
+device capability (arch) = (11, 5)
+reported total GPU memory = 100.00 GiB
+fp32: matmul OK, finite=True, max|diff vs fp32|=0.000e+00
+fp16: matmul OK, finite=True, max|diff vs fp32|=4.904e-04
+bf16: matmul OK, finite=True, max|diff vs fp32|=3.907e-03
+peak allocated GPU memory during test = 104.0 MiB
+SMOKE_RESULT: PASS

@@ -1,0 +1,86 @@
+{
+  "capture_time": "2026-10-11T18:07:42+08:00",
+  "mission": "YuE2 x SGLang x AMD ROCm - WildSongBench reproduction on gfx1151",
+  "os": {
+    "distribution": "Ubuntu",
+    "description": "Ubuntu 24.04.4 LTS",
+    "release": "24.04",
+    "kernel": "6.17.0-1033-oem",
+    "hostname": "amd-HP-ZBook-Ultra"
+  },
+  "cpu": {
+    "model": "AMD RYZEN AI MAX+ PRO 395 w/ Radeon 8060S",
+    "threads": "32",
+    "max_freq_mhz": null
+  },
+  "gpu": {
+    "name": "AMD Radeon 8060S Graphics (integrated, Strix Halo)",
+    "gfx_arch": "gfx1151",
+    "gfx_source": "rocminfo agent 2: amdgcn-amd-amdhsa--gfx1151",
+    "dedicated_vram_bytes": 34359738368,
+    "dedicated_vram_gib": 32.0,
+    "torch_reported_total_gib": 100.0,
+    "torch_reported_note": "PyTorch reports the GTT (unified memory) pool of 100 GiB, not the 32 GiB BIOS dedicated carveout; allocations beyond dedicated VRAM spill to system RAM.",
+    "torchsplash": null
+  },
+  "rocm": {
+    "host_userspace_version": "7.2.1 (/opt/rocm-7.2.1, rocm-core 7.2.1.70201-81~24.04)",
+    "kfd_runtime": "1.18",
+    "driver": "in-tree amdgpu kernel module (kernel 6.17.0-1033-oem); no amdgpu-dkms installed; NOT modified per mission rules",
+    "pytorch_bundled_rocm": "7.14.1 (torch wheels from repo.amd.com/rocm/whl-multi-arch)"
+  },
+  "memory": {
+    "system_total": "94Gi",
+    "system_available": "90Gi",
+    "swap_total": "8.0Gi",
+    "memtotal_kib": 98634036,
+    "memavailable_kib": 94507256
+  },
+  "disk": {
+    "filesystem": "/dev/nvme0n1p2",
+    "total": "1.9T",
+    "total_source": "df -h /dev/nvme0n1p2 (size column)",
+    "free_at_capture": "262G",
+    "inodes_free": "116759059",
+    "inodes_free_source": "df -i /dev/nvme0n1p2 (not tmpfs /run)"
+  },
+  "python": {
+    "system": "3.12.3 (/usr/bin/python3.12)",
+    "mission_venv": "/home/amd/Desktop/YuE2/environments/yue2 (uv, Python 3.12.3)"
+  },
+  "network": {
+    "github_com": "INTERMITTENT - TLS resets on large transfers; retries required",
+    "huggingface_co": "UNREACHABLE - connection timeout",
+    "hf_mirror_com": "REACHABLE - used as HF_ENDPOINT for all HF downloads",
+    "repo_amd_com": "REACHABLE",
+    "pypi_org": "REACHABLE (slow)"
+  },
+  "git_github": {
+    "git": "git version 2.43.0",
+    "gh_account": "AIwork4me (active, scopes: gist, read:org, repo, workflow)",
+    "evidence_repo": "AIwork4me/YuE2-SGLang-ROCm (did not exist at capture; creation authorized)"
+  },
+  "gpu_smoke_test": {
+    "ok": true,
+    "errors": [],
+    "torch_version": "2.12.0+rocm7.14.1",
+    "torch_hip": "7.14.60850",
+    "cuda_available": true,
+    "device_name": "AMD Radeon 8060S Graphics",
+    "gcn_arch_name": "gfx1151",
+    "total_memory_gb": 100.0,
+    "fp32": {
+      "finite": true,
+      "max_abs_err_vs_fp32": 0.0
+    },
+    "fp16": {
+      "finite": true,
+      "max_abs_err_vs_fp32": 0.0004906654357910156
+    },
+    "bf16": {
+      "finite": true,
+      "max_abs_err_vs_fp32": 0.003906965255737305
+    },
+    "peak_alloc_mib": 104.00048828125
+  }
+}

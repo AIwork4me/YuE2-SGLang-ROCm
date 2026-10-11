@@ -1,0 +1,17 @@
+# No large binaries, weights, caches, venvs, audio dumps or secrets in git.
+*.wav
+*.mp3
+*.flac
+*.pt
+*.pth
+*.safetensors
+*.ckpt
+*.tar.gz
+*.zip
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+*.log.large
+hf_token*
