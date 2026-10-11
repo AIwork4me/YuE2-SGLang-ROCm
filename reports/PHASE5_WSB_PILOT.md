@@ -36,8 +36,11 @@ official driver (`wsb_{i:03d}_r{j}_s{seed}`).
   transformers backend (vLLM has no ROCm build). Both are env-gated
   (`WSB_ROCM_TORCH_OVERRIDE=1`), recorded in every environment receipt, and
   the release.json integrity hashes were updated openly.
-- `per,songbench` scored 10/10 with zero errors; per-candidate receipts in
-  `runs/wsb_pilot/scores/` (pilot-scale, unselected-candidate scope).
+- `per,songbench` was scored on the stage-1 pair (2/10 candidates, shard
+  mode, zero errors; receipts in `runs/wsb_pilot/scores/`). An 8-candidate
+  re-score was started and deliberately aborted after ~2 h to return the GPU
+  to the 384-candidate critical path — all candidates are scored in Phase 7
+  regardless.
 
 ### Pilot-scale observations (NOT 192-prompt aggregates)
 
