@@ -206,11 +206,26 @@ def test_tampered_artifact_fails_official_check(run10):
 
 
 def test_driver_failures_are_reported(run10):
+    """A driver failure whose bundle does NOT verify stays an open defect."""
     runs, _ = run10
+    shutil.rmtree(runs / "songs" / "wsb_001_r0_s831002")
     with (runs / "generation_manifest.jsonl").open("a") as f:
         f.write(json.dumps({"id": "wsb_001_r0_s831002", "status": "generation_failed",
                             "error": "x"}) + "\n")
     proc = _run(["--runs", str(runs), "--mode", "subset", "--expect", "10"])
     assert proc.returncode != 0
-    assert any("driver status 'generation_failed'" in p
-               for p in json.loads((runs / "audit.json").read_text())["problems"])
+    problems = json.loads((runs / "audit.json").read_text())["problems"]
+    assert any("driver status 'generation_failed'" in p for p in problems)
+
+
+def test_recovered_driver_failure_is_not_an_open_defect(run10):
+    """A finalize failure followed by a now-verifying bundle counts as
+    recovered (classified, not a problem) -- immutable artifacts rule."""
+    runs, _ = run10
+    with (runs / "generation_manifest.jsonl").open("a") as f:
+        f.write(json.dumps({"id": "wsb_001_r0_s831002", "status": "finalize_failed",
+                            "error": "NameError (simulated)"}) + "\n")
+    proc = _run(["--runs", str(runs), "--mode", "subset", "--expect", "10"])
+    report = json.loads((runs / "audit.json").read_text())
+    assert report["verdict"] == "FULL"
+    assert report["classification"].get("driver:finalize_failed (recovered)") == 1

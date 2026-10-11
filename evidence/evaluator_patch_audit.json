@@ -1,0 +1,54 @@
+{
+  "captured": "2026-10-12T07:10+08:00",
+  "modified_files_vs_pristine": [
+    "wsb_eval.py (verify_environment only)",
+    "src/mot_infer/eval_worker.py (PerScorer.__init__ only)",
+    "release.json (2 hashes + disclosure)"
+  ],
+  "env_gate": "WSB_ROCM_TORCH_OVERRIDE=1",
+  "venv_substitutions": {
+    "metrics": {
+      "torch": "2.9.1->2.10.0+rocm7.14.1",
+      "torchaudio": "2.9.1->2.10.0+rocm7.14.1",
+      "torchvision": "0.24.1->0.25.0+rocm7.14.1",
+      "triton": "3.5.1->3.6.0+rocm7.14.1"
+    },
+    "eval": {
+      "torch": "2.7.0->2.10.0+rocm7.14.1",
+      "torchaudio": "2.7.0->2.10.0+rocm7.14.1",
+      "torchvision": "0.22.0->0.25.0+rocm7.14.1"
+    },
+    "all_other_lock_entries": "match exactly (224-line locks, Python 3.12.11 unchanged)"
+  },
+  "scoring_formula_selection_aggregation_changes": "NONE (3-file diff; functions enumerated in patches/EVALUATOR_PATCH_AUDIT.md)",
+  "same_audio_comparison": {
+    "runA_vs_runB": {
+      "design": "2 candidates scored alone (A) vs inside a 10-candidate set (B)",
+      "result": {
+        "wsb_000_r0_s831001": "A per 0.17350/110 edits, B per 0.16719/106 edits -> DIFFERENT",
+        "wsb_000_r1_s831019": "identical"
+      },
+      "interpretation": "batch-composition sensitivity: padding changes float accumulation, near-tie greedy tokens flip"
+    },
+    "runB_vs_runC": {
+      "design": "identical 10-candidate set, order and batch size, scored twice ~1h apart",
+      "result": "10/10 candidates bit-identical (per and edits)",
+      "within_set_deterministic": true
+    },
+    "empty_transcript_cases": [
+      {
+        "id": "wsb_076_r1_s831095",
+        "per": 1.0,
+        "edits": 505,
+        "phonemes": 505,
+        "cause": "Qwen3-ASR emitted only 'language None<asr_text>' (4/4 repeats); audio bundle verified independently; retained unfiltered per protocol"
+      }
+    ]
+  },
+  "equivalence_claim": "NOT CLAIMED. Cross-backend (transformers-ROCm vs vLLM-CUDA) equivalence requires a controlled same-audio comparison on a CUDA host; protocol defined in patches/EVALUATOR_PATCH_AUDIT.md section 4. All published PER values are labeled 'ASR backend: qwen_asr/transformers on ROCm'.",
+  "artifacts": [
+    "evidence/evaluator_audit/per_runA_2candidates.jsonl",
+    "evidence/evaluator_audit/per_runB_10candidates.jsonl",
+    "evidence/evaluator_audit/per_runC_10candidates_repeat.jsonl"
+  ]
+}

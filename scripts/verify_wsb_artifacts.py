@@ -171,7 +171,10 @@ def audit(runs: Path, expected: dict[tuple[int, int], dict], mode: str) -> dict:
         except Exception as exc:
             problems.append(f"{ident}: identity recompute failed: {exc}")
 
-    # Driver-side failures (from generation_manifest.jsonl), reported alongside
+    # Driver-side failures (from generation_manifest.jsonl), reported alongside.
+    # A failure record whose candidate NOW verifies complete on disk documents
+    # a recovered incident (e.g. re-finalization), not an open defect: the
+    # immutable artifacts are authoritative over driver bookkeeping.
     driver = runs / "generation_manifest.jsonl"
     if driver.is_file():
         for line in driver.read_text().splitlines():
@@ -181,6 +184,14 @@ def audit(runs: Path, expected: dict[tuple[int, int], dict], mode: str) -> dict:
             status = str(rec.get("status", ""))
             if status.startswith("complete"):
                 continue
+            cand = songs / str(rec.get("id", ""))
+            if cand.is_dir() and (cand / "result.json").is_file():
+                try:
+                    verify_result(cand)
+                    classification[f"driver:{status} (recovered)"] += 1
+                    continue
+                except Exception:
+                    pass
             classification[f"driver:{status}"] += 1
             problems.append(f"{rec.get('id')}: driver status {status!r} ({str(rec.get('error', ''))[:120]})")
 
