@@ -41,9 +41,15 @@ every claim must have evidence.
 
 | Phase | Topic | Status |
 |---|---|---|
-| 0 | Environment capture | PASS (see reviews/PHASE0_REVIEW.md) |
-| 1 | ROCm 7.14.1 environment | in progress |
-| 2–12 | — | pending |
+| 0 | Environment capture | PASS (reviews/PHASE0_REVIEW.md) |
+| 1 | ROCm 7.14.1 environment | PASS (reviews/PHASE1_REVIEW.md) |
+| 2 | Source + benchmark integrity | PASS (reviews/PHASE2_REVIEW.md) |
+| 3 | ROCm compatibility RCA + patches 0001–0005 | PASS (reviews/PHASE3_REVIEW.md) |
+| 4 | First end-to-end audio (HTTP) | PASS (reviews/PHASE4_REVIEW.md) |
+| 5 | WSB pilot (5 prompts × 2, official shard scoring) | PASS (reviews/PHASE5_REVIEW.md) |
+| 6 | Full 384-candidate generation | RUNNING (checkpoints in evidence/) |
+| 7 | Official scoring (env ready; Q3O NOT RUN — flash_attn/CUDA) | pending full run |
+| 8–12 | comparison, perf, final reviews, upstream package | pending |
 
 Environment constraints recorded: huggingface.co unreachable (hf-mirror.com
 used); github.com intermittently reachable (retry strategy documented).
