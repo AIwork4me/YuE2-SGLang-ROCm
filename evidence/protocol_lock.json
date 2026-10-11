@@ -1,0 +1,175 @@
+{
+  "schema": "wildsongbench-yue2-reproduction-v1 (frozen by dataset authors, evidence_date 2026-09-05)",
+  "dataset": {
+    "repo": "m-a-p/WildSongBench",
+    "revision": "e361b85a8d7365d3079fa9647641a87ce3c8c5b5",
+    "downloaded_via": "hf-mirror.com (huggingface.co unreachable from this network)",
+    "reproduction_manifest_sha256": "859e5225d319912efb64d587d1d5eb6cf0abc9fb162cc3d5f02d1688cff2edc0",
+    "prompts_count": 192,
+    "manifest_rows": 192,
+    "prompt_indices": "0..191 unique contiguous (verified)",
+    "candidates_per_prompt": 2,
+    "expected_total_candidates": 384,
+    "seed_formula": "candidate_ar_seeds[:2] == [831001+i, 831019+i] for row i (verified all 192 rows; manifest carries 8 seeds per row for optional best-of-8)",
+    "sha256sums_verified": {
+      "README.md": {
+        "expected": "2fb2a42c2db7b6300e2f04e6711d86308da79863853e5ad12fa20b0b030488e5",
+        "actual": "f9595f297c88f5c5423d5b76748aa46c96db4a5dd3d0093f510f78f6e38f2fe4",
+        "match": false
+      },
+      "benchmark/benchmark-results.csv": {
+        "expected": "579ffb6b9b069f6d3cdd32a76788998ec633a12426a0ebb7c9f83e6fb0d5b1fc",
+        "actual": "579ffb6b9b069f6d3cdd32a76788998ec633a12426a0ebb7c9f83e6fb0d5b1fc",
+        "match": true
+      },
+      "benchmark/benchmark-results.json": {
+        "expected": "e6d5ffb2bed50ec59ea784cfe5be80a79c9b0d4f6275b6ed28513cb7fdf656cf",
+        "actual": "e6d5ffb2bed50ec59ea784cfe5be80a79c9b0d4f6275b6ed28513cb7fdf656cf",
+        "match": true
+      },
+      "benchmark/comparison_summary.csv": {
+        "expected": "c0b605b0e9d4ba59f5c95273319ab68dd0d1ffe1958342d98b1d2049076d947d",
+        "actual": "c0b605b0e9d4ba59f5c95273319ab68dd0d1ffe1958342d98b1d2049076d947d",
+        "match": true
+      },
+      "benchmark/frontier-composites.json": {
+        "expected": "faee507e246ab6ce0e0c06ea1b1ddc790193c0538aaa3be7ee1d33f8f9e7f086",
+        "actual": "faee507e246ab6ce0e0c06ea1b1ddc790193c0538aaa3be7ee1d33f8f9e7f086",
+        "match": true
+      },
+      "benchmark/frontier-teaser.pdf": {
+        "expected": "58d5f5ce6195e63561bc3fc051e233845581056cf2cebfbdee05bba7cd935cd6",
+        "actual": "58d5f5ce6195e63561bc3fc051e233845581056cf2cebfbdee05bba7cd935cd6",
+        "match": true
+      },
+      "benchmark/frontier-teaser.png": {
+        "expected": "0f7e859bfee94eb456a1c38650eb6474568721356349ef490ac4a7e8bc49c68f",
+        "actual": "0f7e859bfee94eb456a1c38650eb6474568721356349ef490ac4a7e8bc49c68f",
+        "match": true
+      },
+      "benchmark/frontier-teaser.svg": {
+        "expected": "bf4f12a2e8178e42461046a6b6294ca52303b55d487b3d07db91bc2e3585d036",
+        "actual": "bf4f12a2e8178e42461046a6b6294ca52303b55d487b3d07db91bc2e3585d036",
+        "match": true
+      },
+      "benchmark/reproduction_manifest.jsonl": {
+        "expected": "859e5225d319912efb64d587d1d5eb6cf0abc9fb162cc3d5f02d1688cff2edc0",
+        "actual": "859e5225d319912efb64d587d1d5eb6cf0abc9fb162cc3d5f02d1688cff2edc0",
+        "match": true
+      },
+      "benchmark/results.md": {
+        "expected": "0b7de7a88ab98800bf4a99fcfc06ad951eb7dd95af91a46d3db9b41945a49980",
+        "actual": "0b7de7a88ab98800bf4a99fcfc06ad951eb7dd95af91a46d3db9b41945a49980",
+        "match": true
+      },
+      "code/generate.py": {
+        "expected": "41e069ed0f9d7fde27b277de40fe69d31fd0f5eed7a481b0af00e6486a6229c1",
+        "actual": "41e069ed0f9d7fde27b277de40fe69d31fd0f5eed7a481b0af00e6486a6229c1",
+        "match": true
+      },
+      "code/install_inference.py": {
+        "expected": "872a7c3e4a3ac5f842847f2909b82de59221d399ef3879a8310249f3ae11d81a",
+        "actual": "872a7c3e4a3ac5f842847f2909b82de59221d399ef3879a8310249f3ae11d81a",
+        "match": true
+      },
+      "evaluation/wsb_metrics.tar.gz": {
+        "expected": "bd550b36f1fc43cad3254a9897dd3a078e50c4eb9e8d4f295ac4b5e81d1fc4fd",
+        "actual": "bd550b36f1fc43cad3254a9897dd3a078e50c4eb9e8d4f295ac4b5e81d1fc4fd",
+        "match": true
+      },
+      "prompts.jsonl": {
+        "expected": "1b554a824eba8e02eabe02299e48ed2215764931b8f05535cf8c6d250ddf8326",
+        "actual": "1b554a824eba8e02eabe02299e48ed2215764931b8f05535cf8c6d250ddf8326",
+        "match": true
+      }
+    },
+    "sha256sums_exceptions": {
+      "README.md": "SHA256SUMS entry does not match the file served at the pinned revision; local file is byte-identical to the official raw file at revision e361b85a (sha f9595f297c88f5c5423d5b76748aa46c96db4a5dd3d0093f510f78f6e38f2fe4). All 13 protocol-bearing files (prompts.jsonl, reproduction_manifest.jsonl, code/*, evaluation/wsb_metrics.tar.gz, benchmark results) verify OK. Recorded as an upstream dataset-card discrepancy; no protocol content affected."
+    }
+  },
+  "models": {
+    "ar_model": {
+      "repo": "m-a-p/YuE2-3B",
+      "revision": "1a96eca688d6ae5d7f0feb88573fec89920fcd19",
+      "model.safetensors.sha256": "1d55c42c1a9875c34f5d736e15078449992b044e807ce2a138e6cf289a1e59e9",
+      "verified_local": true
+    },
+    "vae_decoder": {
+      "repo": "m-a-p/YuE2-Vae-legacy",
+      "revision": "b54118f0fc462f08999d1ec07e88817f4ee3f770",
+      "model.safetensors.sha256": "b6d283628913bb41145ba99e2314eef613905ee95f690eb70e8212d5f4965044",
+      "verified_local": true,
+      "note": "benchmark-compatible legacy decoder per official README; NOT substituted with m-a-p/YuE2-Vae"
+    },
+    "inference_wheel": {
+      "name": "yue2_infer-0.1.3-py3-none-any.whl",
+      "sha256": "156d6b8b7e46c3bd23cf22a50d3c20c403e5dc7f4a315582a224a840b01f4f07",
+      "verified_local": true,
+      "role": "official artifact-storage/identity semantics for candidate finalization; generation itself uses SGLang PR #42106"
+    }
+  },
+  "generation_parameters": {
+    "cot": "full",
+    "cfg_scale": 1.0,
+    "ode_steps": 32,
+    "ode_method": "midpoint",
+    "semantic_max_tokens": 9000,
+    "abc_max_tokens": 4096,
+    "vae_core_frames": 1024,
+    "vae_halo_frames": 16,
+    "context": 24576,
+    "abc_sampling": {
+      "temperature": 0.7,
+      "top_p": 0.9,
+      "top_k": 30,
+      "repetition_penalty": 1.005,
+      "penalty_window": 100,
+      "min_tokens": 32,
+      "max_tokens": 4096
+    },
+    "semantic_sampling": {
+      "temperature": 1.0,
+      "top_p": 0.95,
+      "top_k": 100,
+      "repetition_penalty": 1.2,
+      "penalty_window": 50,
+      "min_tokens": 200,
+      "max_tokens": 9000
+    },
+    "seed_application": "reset ABC, semantic and NAR stages to actual_seed = base + prompt_index separately",
+    "nar_noise": "torch.randn entire song on CPU fp32, Generator(device=cpu).manual_seed(actual_seed), shape [semantic_frames, 64], sliced at chunk cuts",
+    "decode": {
+      "dtype": "float32",
+      "sample_rate": 48000,
+      "channels": 2,
+      "clamp": [
+        -1,
+        1
+      ],
+      "flac_subtype": "PCM_24",
+      "scored_audio": "MP3 192k libmp3lame (performed by evaluator on audio.flac)"
+    }
+  },
+  "selection": {
+    "procedure": "PER of both candidates (Qwen3-ASR-1.7B @ 7278e1e70fe206f11671096ffdd38061171dd6e5, 4 repeats)",
+    "keys_in_order": [
+      "minimum candidate PER",
+      "minimum edits",
+      "minimum |hypothesis-reference phoneme-count difference|",
+      "minimum candidate_index"
+    ],
+    "note": "same selected candidate reused across all applicable metrics; truncated and high-PER outputs retained, no filtering"
+  },
+  "source_of_truth_disagreements": [
+    "generation_protocol.json hf_models cites repos a43992899/YuE2-3B @ 321eed2a and a43992899/YuE2-Vae-legacy @ f1c0dad4, while code/generate.py pins m-a-p/YuE2-3B @ 1a96eca6 and m-a-p/YuE2-Vae-legacy @ b54118f. The model.safetensors sha256 values are IDENTICAL (1d55c42c.../b6d28362...), i.e. mirrored repos with the same weights; we pin the m-a-p revisions used by code/generate.py.",
+    "generation_protocol.json generation_wheel.sha256 (15e0f6cb...) differs from code/install_inference.py's asserted wheel sha (156d6b8b...). Our downloaded wheel matches install_inference.py's assertion; the protocol file may hash a different artifact (e.g. unpacked sources). Recorded; wheel content verified against install_inference.py.",
+    "README languages (94 zh / 98 en) vs our CJK-lyrics heuristic count (95): one row classifies differently under naive CJK detection; the evaluator's language handling is authoritative and unaffected.",
+    "SGLang PR prose references sgl-kernel 0.4.7; pyproject at head pins sglang-kernel==0.4.9. Neither installs on ROCm; irrelevant to the ROCm fallback configuration."
+  ],
+  "machine_specific_paths_removed_from_pr_recipe": [
+    "/raid/yiakwy (model paths)",
+    "/home/yiakwy (YuE examples)",
+    "/tmp/opencode (scratch)",
+    "CUDA_VISIBLE_DEVICES=5 (device index; runtime-discovered on gfx1151)"
+  ]
+}

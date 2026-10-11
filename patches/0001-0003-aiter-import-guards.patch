@@ -1,0 +1,80 @@
+diff --git a/python/sglang/srt/layers/quantization/quark/schemes/quark_w4a4_mxfp4.py b/python/sglang/srt/layers/quantization/quark/schemes/quark_w4a4_mxfp4.py
+index f860a3f..b096cc3 100644
+--- a/python/sglang/srt/layers/quantization/quark/schemes/quark_w4a4_mxfp4.py
++++ b/python/sglang/srt/layers/quantization/quark/schemes/quark_w4a4_mxfp4.py
+@@ -83,14 +83,25 @@ def _dequant_mxfp4_to_bf16(
+ 
+ 
+ if _is_hip:
+-    from aiter.ops.triton.gemm.fused.fused_gemm_afp4wfp4_split_cat import (
+-        fused_gemm_afp4wfp4_split_cat as _fused_gemm_afp4wfp4_split_cat_orig,
+-    )
+-    from aiter.ops.triton.gemm_afp4wfp4 import gemm_afp4wfp4 as _gemm_afp4wfp4_orig
+-    from aiter.ops.triton.gemm_afp4wfp4_pre_quant_atomic import (
+-        gemm_afp4wfp4_pre_quant as _gemm_afp4wfp4_pre_quant_orig,
+-    )
+-    from aiter.ops.triton.quant import dynamic_mxfp4_quant as _dynamic_mxfp4_quant_orig
++    # ROCm portability guard: aiter only ships for Instinct CDNA targets
++    # (gfx94x/gfx95x). On other HIP devices (e.g. gfx1151) the package is absent;
++    # import failure must not break module import for unrelated models. The
++    # registered ops raise at call time if the W4A4-MXFP4 scheme is actually
++    # requested without aiter, which YuE2 (bf16) never does.
++    try:
++        from aiter.ops.triton.gemm.fused.fused_gemm_afp4wfp4_split_cat import (
++            fused_gemm_afp4wfp4_split_cat as _fused_gemm_afp4wfp4_split_cat_orig,
++        )
++        from aiter.ops.triton.gemm_afp4wfp4 import gemm_afp4wfp4 as _gemm_afp4wfp4_orig
++        from aiter.ops.triton.gemm_afp4wfp4_pre_quant_atomic import (
++            gemm_afp4wfp4_pre_quant as _gemm_afp4wfp4_pre_quant_orig,
++        )
++        from aiter.ops.triton.quant import dynamic_mxfp4_quant as _dynamic_mxfp4_quant_orig
++    except ImportError:
++        _fused_gemm_afp4wfp4_split_cat_orig = None
++        _gemm_afp4wfp4_orig = None
++        _gemm_afp4wfp4_pre_quant_orig = None
++        _dynamic_mxfp4_quant_orig = None
+ 
+     def _aiter_gemm_afp4wfp4(
+         x: torch.Tensor,
+diff --git a/python/sglang/srt/layers/quantization/quark/schemes/quark_w4a4_mxfp4_moe.py b/python/sglang/srt/layers/quantization/quark/schemes/quark_w4a4_mxfp4_moe.py
+index b2dfbe7..9f8c2a8 100644
+--- a/python/sglang/srt/layers/quantization/quark/schemes/quark_w4a4_mxfp4_moe.py
++++ b/python/sglang/srt/layers/quantization/quark/schemes/quark_w4a4_mxfp4_moe.py
+@@ -80,7 +80,13 @@ _shuffle_moe_gfx1250 = (
+ )
+ 
+ if _is_hip:
+-    from aiter.ops.triton.quant import dynamic_mxfp4_quant
++    # ROCm portability guard: aiter ships only for Instinct CDNA targets; on
++    # other HIP devices (gfx1151) it is absent and the scheme must import to
++    # None exactly as on the non-HIP branch.
++    try:
++        from aiter.ops.triton.quant import dynamic_mxfp4_quant
++    except ImportError:
++        dynamic_mxfp4_quant = None
+ else:
+     dynamic_mxfp4_quant = None
+ 
+diff --git a/python/sglang/srt/layers/quantization/quark_int4fp8_moe.py b/python/sglang/srt/layers/quantization/quark_int4fp8_moe.py
+index 8fb1bee..8c4d066 100644
+--- a/python/sglang/srt/layers/quantization/quark_int4fp8_moe.py
++++ b/python/sglang/srt/layers/quantization/quark_int4fp8_moe.py
+@@ -27,9 +27,15 @@ _is_hip = is_hip()
+ 
+ 
+ if _is_hip:
+-    from aiter.ops.shuffle import shuffle_weight
+-
+-    ON_GFX950 = "gfx950" in torch.cuda.get_device_properties("cuda").gcnArchName
++    # ROCm portability guard: aiter ships only for Instinct CDNA targets
++    # (gfx94x/gfx95x); on gfx1151 it is absent and shuffle_weight stays None.
++    try:
++        from aiter.ops.shuffle import shuffle_weight
++
++        ON_GFX950 = "gfx950" in torch.cuda.get_device_properties("cuda").gcnArchName
++    except ImportError:
++        shuffle_weight = None
++        ON_GFX950 = False
+ 
+ logger = logging.getLogger(__name__)
+ 

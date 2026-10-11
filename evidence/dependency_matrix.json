@@ -1,0 +1,56 @@
+{
+  "captured": "2026-10-11T19:05:00+08:00",
+  "environment": "environments/yue2 (uv, Python 3.12.3)",
+  "install_source": {
+    "torch_stack": "https://repo.amd.com/rocm/whl-multi-arch/ (AMD official multi-arch wheels)",
+    "sglang": "editable, --no-deps, from upstream/sglang @ ced0ef7d1bbbe703607b302ec86bb20a5c06bc8f (SGLang PR #42106 head, branch add_yue2)"
+  },
+  "installed": {
+    "torch": "2.12.0+rocm7.14.1",
+    "torchvision": "0.27.0+rocm7.14.1",
+    "torchaudio": "2.11.0+rocm7.14.1",
+    "triton": "3.8.0+git4cff872c.rocm7.14.1",
+    "sglang": "0.0.0.dev1+gced0ef7d1 (editable)",
+    "transformers": "5.17.0",
+    "tokenizers": "0.23.2",
+    "numpy": "2.3.5",
+    "scipy": "1.18.1",
+    "soundfile": "0.13.1",
+    "diffusers": "0.41.0",
+    "imageio": "2.38.1",
+    "huggingface-hub": "1.33.0",
+    "tiktoken": "0.14.0",
+    "xgrammar": "0.2.7",
+    "outlines": "0.1.11",
+    "numba": "0.65.1",
+    "compressed-tensors": "0.18.0"
+  },
+  "deliberately_not_installed": {
+    "flashinfer_python[cu13]==0.7.0.post1": "CUDA-only wheel flavor; no ROCm build for this version. YuE2 fast paths that use it run behind env-gated fallbacks (Phase 3 adds/validates those fallbacks).",
+    "sglang-kernel==0.4.9 (metadata) / sgl-kernel 0.4.7 (PR text)": "CUDA kernel package; no ROCm wheel. Fallback paths required (Phase 3). Note version drift between PR prose (0.4.7) and pyproject at head (0.4.9).",
+    "aiter": "AMD Instinct CDNA (gfx94x/gfx95x) kernel library; no gfx1151 build exists (verified: absent from repo.amd.com multi-arch index; PyPI 'aiter' is an unrelated 2019 package). Module-level `if _is_hip:` imports of aiter break import on gfx1151; patched with import guards (patches/0001-0003).",
+    "cuda-python, cuda-tile, nvidia-cutlass-dsl, nvidia-mathdx, nvshmem4py-cu13, humming-kernels, quack-kernels, flash-attn-4": "NVIDIA-only packages.",
+    "sgl-deep-ep, sgl-deep-gemm": "DeepEP/DeepGEMM CUDA kernels (multi-GPU EP path); single-GPU mission does not need them.",
+    "tokenspeed_mla, torch_memory_saver, torchcodec": "MLA-speed kernel (CUDA), CUDA memory saver, and codec package with CUDA-flavored wheels; not required by the YuE2 path."
+  },
+  "conflicts_with_upstream_metadata": {
+    "torch": "sglang pins torch==2.14.1 (CUDA); we run torch==2.12.0+rocm7.14.1 per mission rule 7 (never replace ROCm torch with CUDA torch). torchaudio==2.11.0 matches upstream's pin exactly; torchvision unpinned upstream (we use 0.27.0+rocm).",
+    "diffusers": "sglang diffusion extra pins 0.37.0; auto-resolver installed 0.41.0 (imported only for multimodal_gen vision utils; no version-sensitive usage on the YuE2 path; recorded, not silent)."
+  },
+  "build_notes": {
+    "rust_extensions": "sglang build requires cargo for Rust extensions; installed with SGLANG_BUILD_RUST_EXTS=none (documented in logs/phase1.log). If a Rust-gated feature turns out to be required by the YuE2 serving path, revisit with a rustup toolchain.",
+    "sglang_install_mode": "uv pip install --no-deps -e upstream/sglang/python"
+  },
+  "verification": {
+    "import_torch": "ok (2.12.0+rocm7.14.1, hip 7.14.60850, device AMD Radeon 8060S)",
+    "import_sglang": "ok",
+    "yue2_model_modules": "ok (sglang.srt.models.yue2.modeling_yue2, modeling_vae, sglang.multimodal_gen.runtime.pipelines.yue2_pipeline)",
+    "bf16_gpu_matmul": "ok (Phase 0 smoke; re-verified in setup script)",
+    "uv_pip_check": "17 incompatibilities, all attributable to the deliberately-excluded CUDA-only packages listed above; no ROCm-relevant conflict"
+  },
+  "patches_applied_for_import": [
+    "0001: quark_w4a4_mxfp4.py - guard module-level aiter imports (try/except ImportError)",
+    "0002: quark_w4a4_mxfp4_moe.py - dynamic_mxfp4_quant falls back to None without aiter",
+    "0003: quark_int4fp8_moe.py - guard shuffle_weight import + ON_GFX950 probe"
+  ]
+}
