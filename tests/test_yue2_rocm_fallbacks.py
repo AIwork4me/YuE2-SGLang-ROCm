@@ -1,13 +1,13 @@
-"""Phase 3: ROCm fallback correctness tests for YuE2/SGLang on gfx1151.
+"""ROCm fallback correctness tests for YuE2/SGLang (gfx1151 + gfx1100).
 
-Run:  source environments/yue2/bin/activate && python -m pytest tests/test_yue2_rocm_fallbacks.py -v
+Run:  source environments/<env>/bin/activate && YUE2_WORKSPACE=<ws> python -m pytest tests/test_yue2_rocm_fallbacks.py -v
 (requires models/YuE2-3B and models/YuE2-Vae-legacy downloaded; ~7 GB GPU use)
 
 Covers, in order:
 1. aiter import guards (patches 0001-0003) make the quantization chain importable
 2. DeepSelect fast sampler is unavailable and the reference sampler takes over
 3. torch.ops.aten._flash_attention_forward (private ATen op reached via
-   SGLANG_YUE2_FA3=0) is numerically correct on gfx1151 for the exact
+   SGLANG_YUE2_FA3=0) is numerically correct on this gfx target for the exact
    varlen/GQA/seqused_k pattern GraphAR uses
 4. masked SDPA (GraphAR's non-flash fallback) falls back to MATH and is correct
 5. HIP (CUDA) graph capture+replay works
@@ -20,15 +20,27 @@ from __future__ import annotations
 import math
 import os
 import sys
+from pathlib import Path
 
 import pytest
 import torch
 
-WS = "/home/amd/Desktop/YuE2"
+WS = os.environ.get("YUE2_WORKSPACE",
+                   str(Path(__file__).resolve().parents[2]))
 MODEL_DIR = f"{WS}/models/YuE2-3B"
 VAE_DIR = f"{WS}/models/YuE2-Vae-legacy"
 
 os.environ.setdefault("SGLANG_YUE2_VAE_DIR", VAE_DIR)
+
+
+def test_kvcacheio_import_guards():
+    """Patches (kvcacheio guards): host-KV modules import without sgl_kernel."""
+    import importlib
+    assert importlib.util.find_spec("sgl_kernel") is None, "precondition: sgl_kernel absent"
+    for mod in ("sglang.srt.mem_cache.hisparse_memory_pool",
+                "sglang.srt.mem_cache.memory_pool_host",
+                "sglang.srt.mem_cache.pool_host.mha"):
+        importlib.import_module(mod)
 
 
 def test_quantization_chain_imports():
@@ -50,8 +62,8 @@ def test_deepselect_fallback():
 
     # The in-tree wrapper is importable everywhere (pure Python)...
     assert fastpath._load_topk_backend() is not None
-    # ...but the CUDA JIT kernel cannot run on gfx1151 (torch.version.cuda None
-    # on ROCm; capability (11,5) outside SM 9.0/10.0/10.3 either way).
+    # ...but the CUDA JIT kernel cannot run on this ROCm target
+    # (torch.version.cuda None on ROCm; gfx capability outside SM 9/10 either way).
     assert is_deepselect_supported() is False
     # Therefore the fast sampler must not be selected (patch 0004)...
     assert fastpath.fast_sampler_available() is False
@@ -69,7 +81,7 @@ def _manual_varlen_attn(q, k, v, hq, hkv, scale):
 
 
 def test_aten_flash_varlen_numerics():
-    """The private ATen flash op (SGLANG_YUE2_FA3=0 path) honors varlen+GQA+seqused_k on gfx1151."""
+    """The private ATen flash op (SGLANG_YUE2_FA3=0 path) honors varlen+GQA+seqused_k on this ROCm target."""
     from sglang.srt.models.yue2 import fa3
 
     torch.manual_seed(0)
@@ -141,7 +153,7 @@ def runtime():
     torch.cuda.empty_cache()
 
 
-def test_model_loads_on_gfx1151(runtime):
+def test_model_loads_on_gpu(runtime):
     model = runtime.model
     assert next(model.parameters()).device.type == "cuda"
     assert next(model.parameters()).dtype == torch.bfloat16

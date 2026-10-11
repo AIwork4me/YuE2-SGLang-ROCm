@@ -1,0 +1,36 @@
+{
+  "target": "gfx1100 (AMD Radeon Pro W7900D, 48 GB)",
+  "torch": "2.12.0+rocm7.14.1",
+  "sglang_source": "sgl-project/sglang PR #42106 head ced0ef7d1bbbe703607b302ec86bb20a5c06bc8f (codeload tarball; git-inited locally)",
+  "patches_applied": ["0001-0005 (gfx1151 series, applies clean, verified on gfx1100)", "0008 (new: sgl_kernel.kvcacheio import guards)"],
+  "date": "2026-10-11T23:20:00Z",
+  "command": "YUE2_WORKSPACE=<ws> python -m pytest tests/test_yue2_rocm_fallbacks.py -v",
+  "result": "11 passed",
+  "tests": {
+    "test_kvcacheio_import_guards": {"verdict": "PASS", "note": "patch 0008; sgl_kernel absent, host-KV modules import"},
+    "test_quantization_chain_imports": {"verdict": "PASS", "note": "patches 0001-0003; aiter absent -> None"},
+    "test_deepselect_fallback": {"verdict": "PASS", "note": "patch 0004; is_deepselect_supported()=False on gfx1100; fast_sampler_available()=False"},
+    "test_aten_flash_varlen_numerics": {"verdict": "PASS", "note": "torch.ops.aten._flash_attention_forward varlen+GQA+seqused_k bf16; max|diff| vs fp32 manual ref < 0.02"},
+    "test_masked_sdpa_math_fallback": {"verdict": "PASS", "note": "bool-mask+GQA SDPA via MATH backend correct"},
+    "test_hip_graph_capture_replay": {"verdict": "PASS", "note": "torch.cuda.CUDAGraph capture+replay functional on gfx1100"},
+    "test_model_loads_on_gpu": {"verdict": "PASS", "note": "YuE2-3B bf16 on cuda + VAE + tokenizer"},
+    "test_ar_graph_vs_eager_logits": {"verdict": "PASS", "note": "backend=flash; prefill_max|diff|=0.0000 step_max|diff|=0.0000 logit_scale=33.75 (exact match on this stack)"},
+    "test_reference_sampler_distribution_matches_fastpath_semantics": {"verdict": "PASS", "note": "phase masks at vocab 184704"},
+    "test_nar_solver_finite": {"verdict": "PASS", "note": "reference NAR 2-step probe, fp32 latents [n,64] finite"},
+    "test_vae_decode_finite": {"verdict": "PASS", "note": "tiled fp32 decode -> stereo finite, |x|<=1+1e-3"}
+  },
+  "capability_matrix_gfx1100": {
+    "reference_AR(GraphAR flash via ATen)": "TESTED PASS",
+    "GraphAR_step/HIP_graph_capture_replay": "TESTED PASS",
+    "fast_sampler_DeepSelect": "TESTED FAIL -> fallback (reference sampler) by design",
+    "fused_decode_sgl_kernel": "ABSENT -> fallback (reference decode)",
+    "batched_AR": "TESTED OFF (gate: fast_sampler_available false; patch 0004)",
+    "reference_NAR": "TESTED PASS",
+    "fused_NAR_sgl_kernel": "ABSENT -> fallback (reference nar.synthesize)",
+    "ATen_flash_varlen": "TESTED PASS (numerics locked)",
+    "SDPA_masked_MATH": "TESTED PASS",
+    "VAE_fp32_tiled": "TESTED PASS",
+    "cudnn_attention_branch": "NOT TESTED (never auto-selected; known no-kernel on ROCm per gfx1151 RCA)"
+  },
+  "raw_log": "evidence/gfx1100/phase4_compat_tests.log"
+}
