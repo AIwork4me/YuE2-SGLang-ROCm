@@ -1,0 +1,74 @@
+{
+  "captured": "2026-10-11T19:34:21+08:00",
+  "server": {
+    "endpoint": "http://127.0.0.1:30065/v1/audio/generations",
+    "alias_endpoint": "/v1/audio/music/generations",
+    "launch": "scripts/serve_yue2_rocm.sh (sglang serve, num-gpus 1, warmup-mode off)",
+    "flags": {
+      "FAST_SAMPLER": 0,
+      "STEP_GRAPH": 0,
+      "FUSED_DECODE": 0,
+      "FAST_NAR": 0,
+      "FA3": 0,
+      "BATCHED_AR": 0,
+      "SESSION": 1
+    }
+  },
+  "requests": {
+    "smoke1": {
+      "budget": "ode8/300/256/256f",
+      "http": 200,
+      "wall_s": 64.27,
+      "audio_s": 12.0
+    },
+    "full1": {
+      "budget": "ode32/9000/4096/1024f+16h (official)",
+      "http": 200,
+      "wall_s": 337.89,
+      "audio_s": 68.76,
+      "abc_tokens": 607,
+      "semantic_tokens": 1720,
+      "truncated": false,
+      "ar_seconds": {
+        "abc": 20.67,
+        "semantic": 82.26
+      },
+      "sampler": "reference",
+      "execution": "cuda_graph",
+      "attention": "flash"
+    },
+    "full1_repeat": {
+      "http": 200,
+      "wall_s": 134.65,
+      "byte_identical_to_full1": true
+    },
+    "alias1": {
+      "http": 200,
+      "wall_s": 21.21,
+      "audio_s": 4.0
+    }
+  },
+  "audio_validation": {
+    "format": "WAV PCM_16 written by soundfile",
+    "sample_rate": 48000,
+    "channels": 2,
+    "checks": [
+      "decodable",
+      "positive duration",
+      "RMS 0.05-0.11",
+      "no NaN/Inf",
+      "clip fraction 0.0"
+    ],
+    "sha256": {
+      "full1": "17860c64cb1cb8a13f4c5d5127e8a25fe8f3e19b006ea2b420851caedb1d81d2",
+      "full1_repeat": "17860c64cb1cb8a13f4c5d5127e8a25fe8f3e19b006ea2b420851caedb1d81d2",
+      "smoke1": "b204a0556b9696ea4b76fc8566595f81a64e73eb26528f99407491bb76692882"
+    }
+  },
+  "memory": {
+    "gtt_used_after_generation_bytes": 11564871680,
+    "gtt_total_bytes": 107374182400,
+    "note": "response peak_memory_mb field returns 0.0 (not wired in this PR build); GTT sampled post-run via rocm-smi; per-candidate peak polling added in Phase 6 driver"
+  },
+  "artifacts": "runs/phase4/full1_artifacts/{latent,semantic,prefix,abc_tokens}.npy + plan.json + plan_manifest.json + request.json"
+}
