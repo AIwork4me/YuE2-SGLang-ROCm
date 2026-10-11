@@ -15,3 +15,12 @@ venv/
 .env
 *.log.large
 hf_token*
+# Machine-local trees that must never enter evidence git
+models/
+runs/
+environments/
+upstream/
+benchmark/
+scratch/
+*.npy
+API_GIT_STATE.json
