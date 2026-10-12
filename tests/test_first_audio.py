@@ -20,7 +20,7 @@ import numpy as np
 import pytest
 import soundfile as sf
 
-RUNS = Path("/home/amd/Desktop/YuE2/runs/phase4")
+RUNS = Path(os.environ.get("YUE2_WORKSPACE", "/home/amd/Desktop/YuE2")) / "runs/phase4"
 
 
 def _meta(path: Path):
