@@ -163,6 +163,8 @@ def main() -> int:
     # 3) unexpected candidate directories (cross-run contamination)
     known = {ident for (_, ident) in expected.values()}
     for p in sorted(songs.glob("wsb_*")):
+        if not p.is_dir():
+            continue  # per-candidate .wav exports are expected byproducts
         if p.name not in known:
             problems.append(f"unexpected candidate dir: {p.name} (not in this run's "
                             f"evaluation_inputs)")

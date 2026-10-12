@@ -220,8 +220,13 @@ def main() -> int:
     ap.add_argument("--timeout", type=int, default=3600)
     ap.add_argument("--max-retries", type=int, default=2)
     ap.add_argument("--run-id", default=None)
+    ap.add_argument("--wav-archive", type=Path,
+                    default=Path(os.environ.get("YUE2_WAV_ARCHIVE", "")) or None,
+                    help="move per-candidate WAVs here after verified finalize "
+                         "( FLAC is the official artifact; WAV is intermediate)")
     args = ap.parse_args()
 
+    args.runs = args.runs.resolve()  # payloads embed absolute paths (server cwd differs)
     rows = [json.loads(l) for l in MANIFEST.read_text().splitlines() if l.strip()]
     assert len(rows) == 192 and [r["prompt_index"] for r in rows] == list(range(192)), \
         "frozen manifest shape violated"
@@ -360,6 +365,13 @@ def main() -> int:
                                       truncated=detail["truncated"],
                                       codec_frames=detail["codec_frames"],
                                       identity=detail["identity"])
+                        if args.wav_archive:
+                            # FLAC (official artifact) verified; archive the
+                            # bulky intermediate WAV to large storage
+                            arc = args.wav_archive / run_id
+                            arc.mkdir(parents=True, exist_ok=True)
+                            shutil.move(str(wav), str(arc / wav_name))
+                            record["wav_archived"] = str(arc / wav_name)
                         done += 1
                         print(f"[{done}/{len(inputs)}] {ident_str} ok "
                               f"({record['wall_s']}s, {record['audio_seconds']:.1f}s audio"
