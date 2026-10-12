@@ -44,6 +44,9 @@ git add evidence/gfx1100
 if git diff --cached --quiet; then echo "nothing new to commit"; else
   git commit -qm "checkpoint(gfx1100): milestone $NAME - $(python3 -c "import json;d=json.load(open('evidence/gfx1100/milestone_${NAME}.json'));print(d['complete_records'],'complete /',d['manifest_records'],'records')")"
   git fetch origin "$BRANCH" 2>/dev/null || true
-  git push origin "$BRANCH"
+  for i in 1 2 3 4 5 6 7 8; do
+    git push origin "$BRANCH" 2>/dev/null && break
+    echo "[checkpoint] push retry $i (proxy flake)"; sleep 15
+  done
 fi
 gh api "repos/AIwork4me/YuE2-SGLang-ROCm/git/ref/heads/validation%2Fgfx1100-rocm7141" --jq '.object.sha'
