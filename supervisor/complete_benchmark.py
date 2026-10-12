@@ -194,6 +194,160 @@ def run_scoring() -> dict:
     return {"ok": True}
 
 
+def cross_validate() -> dict:
+    """Independent recomputation and cross-check of the official scoring.
+
+    Checks (all must pass; every check records its evidence):
+      1. coverage: 384 PER rows, 384 songbench receipts, standard mode, complete
+      2. selection: recompute the official min-key selection (per, edits,
+         |asr-phonemes - reference-phonemes|, candidate_index) from raw
+         receipts and compare to the evaluator's recorded selected_candidates
+      3. PER aggregates: sum(edits)/sum(reference_phonemes) over the 384 and
+         over the 192 selected, vs the evaluator's summary values
+      4. SongBench means: recompute the 7 dimension means + Global Avg over
+         the 192 selected from receipts/<id>/songbench.json vs summary
+      5. additional metrics (mulan, allmusiccaps): coverage + selected-set
+         identity vs the PER selection; means recomputed when the receipt
+         exposes a simple scalar field
+    """
+    import math
+    checks, problems = [], []
+
+    def check(name, ok, detail=""):
+        checks.append({"check": name, "passed": bool(ok), "detail": str(detail)[:300]})
+        if not ok:
+            problems.append(f"{name}: {str(detail)[:200]}")
+
+    per_rows = [json.loads(l) for l in (RUNS / "scores/per_song.jsonl").read_text().splitlines() if l.strip()]
+    summary = json.loads((RUNS / "scores/summary.json").read_text())
+    check("per coverage 384", len(per_rows) == 384, len(per_rows))
+    check("scores summary complete", summary.get("complete") is True, summary.get("errors"))
+    check("standard mode + full coverage flag",
+          summary.get("mode") == "standard" and summary.get("full_192_standard_candidate_coverage") is True,
+          (summary.get("mode"), summary.get("full_192_standard_candidate_coverage")))
+
+    # selection recompute with the official key
+    def official_key(r):
+        m = r["metrics"]["per"]
+        repeat = m["asr_repeats"][m["selected_asr_repeat"]]
+        return (m["per"], m["edits"],
+                abs(len(repeat["phonemes"]) - m["reference_phonemes"]),
+                r["candidate_index"])
+
+    by_prompt = {}
+    for r in per_rows:
+        by_prompt.setdefault(r["prompt_index"], []).append(r)
+    selected_ids = []
+    for i in range(192):
+        rows = by_prompt.get(i, [])
+        if len(rows) == 2:
+            selected_ids.append(min(rows, key=official_key)["id"])
+        else:
+            problems.append(f"selection: prompt {i} has {len(rows)} candidates")
+    evaluator_pick = [f"wsb_{r['prompt_index']:03d}_r{r['candidate_index']}_s{r['seed']}"
+                      for r in summary.get("selected_candidates", [])]
+    check("selection identical to evaluator (192)", selected_ids == evaluator_pick,
+          f"recomputed {len(selected_ids)}, evaluator {len(evaluator_pick)}, "
+          f"mismatches {sum(a != b for a, b in zip(selected_ids, evaluator_pick))}")
+
+    # PER aggregates
+    def per_micro(rows):
+        return sum(r["metrics"]["per"]["edits"] for r in rows) / \
+               sum(r["metrics"]["per"]["reference_phonemes"] for r in rows)
+    sel_rows = [r for r in per_rows if r["id"] in set(selected_ids)]
+    groups = summary.get("unselected_candidates", {}).get("groups", {}).get("all", {}).get("per", {})
+    ev_micro_all = groups.get("per_micro")
+    check("PER micro (384) recomputed == evaluator",
+          ev_micro_all is not None and math.isclose(per_micro(per_rows), ev_micro_all, rel_tol=1e-9),
+          f"recomputed {per_micro(per_rows):.10f} vs {ev_micro_all}")
+    sel_groups = summary.get("standard_selected", {}).get("groups", {}).get("all", {}).get("per", {})
+    ev_micro_sel = sel_groups.get("per_micro")
+    check("PER micro (192 selected) recomputed == evaluator",
+          ev_micro_sel is not None and math.isclose(per_micro(sel_rows), ev_micro_sel, rel_tol=1e-9),
+          f"recomputed {per_micro(sel_rows):.10f} vs {ev_micro_sel}")
+
+    # SongBench means over selected 192 from raw receipts
+    dims = None
+    acc = {}
+    n_sb = 0
+    for ident in selected_ids:
+        receipt = RUNS / "scores" / "receipts" / ident / "songbench.json"
+        if not receipt.is_file():
+            problems.append(f"songbench receipt missing: {ident}")
+            continue
+        sb = json.loads(receipt.read_text())
+        sb = sb.get("result", sb)
+        raw = sb.get("songbench") or sb.get("songbench_raw") or {}
+        if not raw:
+            continue
+        n_sb += 1
+        for k, v in raw.items():
+            if isinstance(v, (int, float)):
+                acc[k] = acc.get(k, 0.0) + v
+        dims = dims or sorted(k for k, v in raw.items() if isinstance(v, (int, float)))
+    check("songbench receipts for all 192 selected", n_sb == 192, n_sb)
+    ev_sb = summary.get("standard_selected", {}).get("groups", {}).get("all", {}).get("songbench", {}).get("means", {})
+    recomputed_means = {k: acc[k] / n_sb for k in dims} if dims and n_sb else {}
+    for k, ev in ev_sb.items():
+        if k in recomputed_means:
+            # receipts store 4-decimal rounded scores; the summary is full
+            # precision -> compare at rounding tolerance, not bit tolerance
+            check(f"songbench mean {k}",
+                  math.isclose(recomputed_means[k], ev, rel_tol=1e-9, abs_tol=1e-4),
+                  f"recomputed {recomputed_means[k]:.6f} vs {ev} (delta {abs(recomputed_means[k]-ev):.2e})")
+    if "Global Avg" in ev_sb and dims:
+        ga = sum(recomputed_means.values()) / len(recomputed_means)
+        check("songbench mean Global Avg",
+              math.isclose(ga, ev_sb["Global Avg"], rel_tol=1e-9, abs_tol=2e-4),
+              f"recomputed {ga:.6f} vs {ev_sb['Global Avg']} (delta {abs(ga-ev_sb['Global Avg']):.2e})")
+
+    # additional metrics: coverage + selected-set identity (+ means when scalar detectable)
+    add_summary_path = RUNS / "additional/summary.json"
+    if add_summary_path.is_file():
+        add = json.loads(add_summary_path.read_text())
+        check("additional summary complete", add.get("complete") is True, add.get("errors"))
+        add_sel = [f"wsb_{r['prompt_index']:03d}_r{r['candidate_index']}_s{r['seed']}"
+                   for r in add.get("selected_candidates", [])]
+        check("additional selected-set identical to PER selection", add_sel == selected_ids,
+              f"{len(add_sel)} vs {len(selected_ids)}")
+        for metric in ("mulan", "allmusiccaps"):
+            receipts = sorted((RUNS / "additional/receipts").glob(f"*/{metric}.json")) \
+                if (RUNS / "additional/receipts").is_dir() else []
+            check(f"{metric} receipts coverage", len(receipts) == 192, len(receipts))
+            vals = []
+            for rp in receipts:
+                d = json.loads(rp.read_text())
+                d = d.get("result", d)
+                m = d.get("metrics", {}).get(metric, d.get(metric, {}))
+                if isinstance(m, dict):
+                    scal = [v for v in m.values() if isinstance(v, (int, float))]
+                    if len(scal) == 1:
+                        vals.append(scal[0])
+                    elif "mean" in m:
+                        vals.append(m["mean"])
+                elif isinstance(m, (int, float)):
+                    vals.append(m)
+            if vals and len(vals) == 192:
+                ev = add.get("standard_selected", {}).get("groups", {}).get("all", {}).get(metric, {})
+                ev_mean = ev.get("mean") if isinstance(ev, dict) else ev
+                if isinstance(ev_mean, (int, float)):
+                    check(f"{metric} mean recomputed == evaluator",
+                          math.isclose(sum(vals) / len(vals), ev_mean, rel_tol=1e-6, abs_tol=1e-9),
+                          f"recomputed {sum(vals)/len(vals):.8f} vs {ev_mean}")
+            else:
+                checks.append({"check": f"{metric} mean recomputed",
+                               "passed": None,
+                               "detail": f"scalar not auto-detectable from receipts ({len(vals)} values); "
+                                         "means compared only via evaluator summary; counts verified"})
+    else:
+        problems.append("additional/summary.json missing")
+
+    return {"at": time.strftime("%F %T"),
+            "checks": checks,
+            "problems": problems,
+            "passed": not problems}
+
+
 def build_selection_audit() -> dict:
     """Mechanical extraction of the official PER selection for all 192 prompts."""
     per = [json.loads(l) for l in (RUNS / "scores/per_song.jsonl").read_text().splitlines() if l.strip()]
@@ -325,7 +479,22 @@ def main() -> int:
             log(f"SCORING FAILED: {json.dumps(result)} — attempts preserved; retry-safe")
             return 1
 
-        record(state, "scoring complete; packaging evidence")
+        record(state, "scoring complete; running cross-validation")
+        state["phase"] = "CROSS_VALIDATION"
+        save_state(state)
+        cv = cross_validate()
+        (SUP / "cross_validation.json").write_text(json.dumps(cv, indent=2) + "\n")
+        shutil.copyfile(SUP / "cross_validation.json",
+                        EV / "evidence/cross_validation.json")
+        if not cv["passed"]:
+            state["phase"] = "BLOCKED_CROSSVAL_MISMATCH"
+            state["crossval_problems"] = cv["problems"][:20]
+            save_state(state)
+            log(f"BLOCKED: cross-validation mismatches: {cv['problems'][:5]}")
+            return 1
+        record(state, f"cross-validation passed ({len(cv['checks'])} checks)")
+
+        record(state, "packaging evidence")
         package_evidence()
         # Commit to evidence repo main only (never the validation branch).
         subprocess.run(["git", "checkout", "main"], cwd=EV, capture_output=True)

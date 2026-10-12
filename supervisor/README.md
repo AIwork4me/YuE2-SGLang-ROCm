@@ -25,6 +25,14 @@
   verified, (G) ≥20 GiB GTT free and ≥16 GiB RAM available.
 - Any gate failure ⇒ no scoring, evidence preserved, blocker recorded in
   `state.json` + `gate_report.json`.
+- After scoring, an automatic CROSS-VALIDATION stage independently recomputes
+  and cross-checks the official results (coverage 384/192, the exact official
+  min-key PER selection incl. phoneme tie-break vs the evaluator's recorded
+  selection, PER micro aggregates, SongBench dimension means from raw
+  receipts — 4-decimal rounding tolerance — and additional-metric coverage
+  + selected-set identity). Any mismatch => BLOCKED_CROSSVAL_MISMATCH, no
+  evidence commit of results as final. Output: supervisor/cross_validation.json
+  (copied to evidence/).
 - Scoring is retry-safe: completed score outputs are skipped idempotently;
   incomplete attempts are moved aside (`*.attempt_<ts>.bak`), never
   overwritten silently.
