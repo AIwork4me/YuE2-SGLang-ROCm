@@ -19,7 +19,6 @@ hf_token*
 models/
 runs/
 environments/
-upstream/
 benchmark/
 scratch/
 *.npy
