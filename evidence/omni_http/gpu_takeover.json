@@ -1,0 +1,79 @@
+{
+  "takeover_completed_at_utc": "2026-10-13T07:47:19Z",
+  "gpu": "AMD Radeon PRO W7900 (gfx1100, 48GB)",
+  "run_id": "wsbfull20261012T0041Z",
+  "run_dir": "/workspace/yue2-sglang-rocm-w7900/runs/gfx1100/wsbfull20261012T0041Z/wsb_full",
+  "before": {
+    "vram_used_mib": 21258,
+    "vram_used_bytes": 22291005440,
+    "gpu_util_pct": 100,
+    "verified_complete": 311
+  },
+  "after": {
+    "vram_used_mib": 26.7,
+    "vram_used_bytes": 28028928,
+    "gpu_util_pct": 0,
+    "power_w": 9.0,
+    "verified_complete": 312
+  },
+  "stopped_processes": [
+    {
+      "pid": 404144,
+      "command": "python -u scripts/run_wsb.py --runs .../wsb_full --server http://127.0.0.1:31000 --run-id wsbfull20261012T0041Z --wav-archive /root/yue2-wav-archive",
+      "owner": "root (authorized user-owned benchmark driver)",
+      "mechanism": "SIGINT (graceful handler, run_wsb.py:276-279)",
+      "result": "finished in-flight candidate [312/384] wsb_155_r1_s831174 ok (277.91s), finalizer committed, stopped_by_signal=true, finished_at 2026-10-13T07:40:43Z, exited as zombie (cmdline cleared)"
+    },
+    {
+      "pid": 404419,
+      "command": "bash scripts/run_wsb_scoring.sh <run_dir>",
+      "owner": "root (benchmark scheduler)",
+      "mechanism": "natural exit (no signal) after observing driver exit below 384",
+      "result": "log: DRIVER EXITED below 384 (312 complete) - NOT scoring; partial evidence preserved; final checkpoint milestone_driver_exit_312of384.json pushed"
+    },
+    {
+      "pid": 404440,
+      "command": "bash scripts/watch_milestones.sh <run_dir> full",
+      "owner": "root (benchmark milestone watcher)",
+      "mechanism": "natural exit (no signal) after final partial checkpoint",
+      "result": "milestone_final_partial_0741.json committed (complete=312)"
+    },
+    {
+      "pid": 70945,
+      "command": "sglang serve --model-path .../models/YuE2-3B --host 127.0.0.1 --port 31000 --num-gpus 1 --ulysses-degree 1 --ring-degree 1 --warmup-mode off",
+      "owner": "root (authorized old benchmark server)",
+      "mechanism": "SIGINT at 2026-10-13T07:46:28Z",
+      "result": "exited within 45s; identity verified: executable sglang serve, model YuE2-3B, port 31000, last request completed 07:40:32 (200 OK)"
+    },
+    {
+      "pid": 71344,
+      "command": "python -c from multiprocessing.resource_tracker import main;main(9)",
+      "owner": "root (child of 70945)",
+      "mechanism": "exited with parent",
+      "result": "gone"
+    }
+  ],
+  "signal_sequence": ["SIGINT 404144 (driver)", "wait finalizer + supervisor natural exit", "SIGINT 70945 (server)"],
+  "supervisor_safety": {
+    "unsafe_pkill_stage_reached": false,
+    "evidence": "scoring_pipeline.log: exit path 'DRIVER EXITED below 384' taken before stage 3; pkill stage requires 384/384 + FULL audit (was 312/384)",
+    "restart_hazard": "none - neither scheduler nor watcher contains restart logic"
+  },
+  "benchmark_preserved": {
+    "verified_complete_before_takeover": 311,
+    "verified_complete_after_driver_stop": 312,
+    "in_flight_candidate_finalized": "wsb_155_r1_s831174 (counted, ok)",
+    "failed": 0,
+    "pending": 72,
+    "run_id_unchanged": true,
+    "immutable_config_sha256": {
+      "run_config.json": "806eb07511d9f7ab6eb08046b0f14b9c27331ce38bd5b36d9e3da4b83aac2361",
+      "evaluation_inputs.jsonl": "a906ab391bf80992549fafd4b12631ec335963676d67fd790d30c39d588ac100"
+    },
+    "remote_checkpoint_sha": "41427c7ae6769568bb3c4eea29490e5c328bec97",
+    "resumable": true
+  },
+  "remaining_blockers": "none - VRAM ~26.7 MiB residual is driver/system reservation; no old workload processes; disk 63G free",
+  "independent_ops_review": "GPU_TAKEOVER_PLAN_PASS (pre-signal review of stop order); GPU_TAKEOVER_PASS (post-execution, see reviews/omni_http/GPU_SAFETY_REVIEW.md)",
+  "verdict": "GPU_TAKEOVER_PASS"
+}

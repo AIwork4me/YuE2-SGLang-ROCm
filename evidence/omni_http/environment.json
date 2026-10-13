@@ -1,0 +1,42 @@
+{
+  "gpu": "AMD Radeon Pro W7900D (gfx1100, 47.98 GiB)",
+  "hip_runtime": "ROCm 7.14.1 (torch hip 7.14.60850)",
+  "torch": "2.12.0+rocm7.14.1",
+  "torchvision": "0.27.0+rocm7.14.1",
+  "torchaudio": "2.11.0+rocm7.14.1",
+  "python": "3.12",
+  "os": "Linux (native, container j-4s7l75qngxo2pvww4zkw6ytsnu)",
+  "torch_checks": {
+    "cuda_available": true,
+    "version_hip": "7.14.60850",
+    "version_cuda_attr": null,
+    "device_name": "AMD Radeon Pro W7900D",
+    "gcn_arch": "gfx1100"
+  },
+  "venv": "/workspace/yue2-omni-pr/env-omni-rocm",
+  "packages": {
+    "sglang": {"version": "0.0.0", "file": "/workspace/yue2-omni-pr/sglang-src/python/sglang/__init__.py", "source": "pristine upstream checkout ccae40c, empty diff"},
+    "sglang_omni": {"version": "0.1.7", "file": "/workspace/yue2-omni-pr/repo/sglang_omni/__init__.py"},
+    "transformers": "5.12.1",
+    "python-multipart": "0.0.32 (installed during this session; was undeclared - see environment_fixes)"
+  },
+  "environment_fixes": [
+    {
+      "issue": "sgl-omni serve failed at FastAPI route registration: Form data requires python-multipart",
+      "category": "G (packaging/dependency)",
+      "root_cause": "sglang_omni/serve/openai_api.py:365-369 and speech_to_text.py:68-69 declare File/Form parameters; python-multipart is not declared in omni packaging",
+      "fix": "pip install python-multipart (environment-only, no code change; upstream packaging note prepared, out of PR #1 scope)"
+    },
+    {
+      "issue": "harmless interactive trust_remote_code prompt at startup (stdin=/dev/null auto-answers N; local classes used; model loaded 628/628 tensors)",
+      "category": "observation, no action required"
+    }
+  ],
+  "server": {
+    "pid": 481124,
+    "command": "SGLANG_YUE2_BATCH_MAX_SIZE=1 SGLANG_YUE2_VAE_DIR=/workspace/yue2-sglang-rocm-w7900/models/YuE2-Vae-legacy sgl-omni serve --model-path /workspace/yue2-sglang-rocm-w7900/models/YuE2-3B --host 127.0.0.1 --port 32100 --log-level info",
+    "endpoint": "POST /v1/audio/speech",
+    "health": "GET /health 200",
+    "placement": "yue2_synth process on GPU 0 (AMD Radeon Pro W7900D), stages preprocessing+yue2_synth"
+  }
+}

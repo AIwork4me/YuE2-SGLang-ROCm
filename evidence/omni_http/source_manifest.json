@@ -1,0 +1,36 @@
+{
+  "omni_repo": {
+    "path": "/workspace/yue2-omni-pr/repo",
+    "remote_fork": "http://github.com/AIwork4me/sglang-omni.git",
+    "head": "50c91c0888312ae784d3c42d9536665aa517dd9d",
+    "head_subject": "fix(yue2): enable ROCm reference path without regressing CUDA fast paths",
+    "parent_author_commit": "85ae4b733144fdc8746c5cbc131bdd1a92a8d5a9 (yiakwy-xpu-ml-framework-team, branch add_yue2)",
+    "expected_patch_sha_match": true,
+    "expected_author_sha_match": true,
+    "worktree_clean": true
+  },
+  "sglang_source": {
+    "path": "/workspace/yue2-omni-pr/sglang-src",
+    "head": "ccae40c (base)",
+    "diff_stat": "(empty - pristine upstream)",
+    "note": "no compatibility patches applied; runtime evidence did not require any"
+  },
+  "model": {
+    "path": "/workspace/yue2-sglang-rocm-w7900/models/YuE2-3B",
+    "revision": "m-a-p/YuE2-3B@1a96eca688d6ae5d7f0feb88573fec89920fcd19",
+    "weights_loaded": "628/628 tensors"
+  },
+  "vae": {
+    "path": "/workspace/yue2-sglang-rocm-w7900/models/YuE2-Vae-legacy",
+    "revision": "m-a-p/YuE2-Vae-legacy@b54118f0fc462f08999d1ec07e88817f4ee3f770"
+  },
+  "execution_paths_on_rocm": {
+    "ar": "looped reference generator (song.py:44-51 gates _generate_song_tokens_step_graph off via current_platform.is_rocm())",
+    "attention": "native ATen varlen path (fa3.py:31-33 skips shared FA3/flash_attn op on ROCm)",
+    "deepselect": "disabled on ROCm (CUDA-only kernels)",
+    "fast_sampler": "disabled on ROCm (fastpath.py:75)",
+    "step_graph": "bypassed on ROCm (song.py:45)",
+    "nar": "velocity graph capture via torch.cuda (HIP) graph API, SGLANG_YUE2_VELOCITY_GRAPH=1 default; executed ode_steps=32 solve successfully - demonstrably ROCm-compatible at runtime",
+    "vae_decoder": "real YuE2VAE decode on device (runtime.py loads VAE to cuda, float32); outputs 982976/2267456 samples"
+  }
+}

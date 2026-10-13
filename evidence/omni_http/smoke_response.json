@@ -1,0 +1,22 @@
+{
+ "http_status": 200,
+ "content_type": "audio/wav",
+ "content_length": 3931948,
+ "content_disposition": "attachment; filename=\"speech.wav\"",
+ "x_request_id": "speech-9b3177ff-0f68-4b97-abfd-cf0e37a60490",
+ "x_finish_reason": "stop",
+ "request_wall_s": 15,
+ "server_synth_elapsed_s": 15.25,
+ "audio": {
+  "sample_rate": 48000,
+  "channels": 2,
+  "frames": 982976,
+  "duration_s": 20.479,
+  "rms": 0.08595326886256857,
+  "peak": 0.711090087890625,
+  "sha256": "358ffc66b6d899231dc75fc5c9bcef0b0f1840e2c2532dff4363357d2882feed",
+  "bytes": 3931948,
+  "dtype": "float64"
+ },
+ "gpu_trace_note": "gpu_trace.log covers only the full-config window (monitor restarted at 08:18:37 after a tooling fault); smoke-window GPU util is inferential from server.log synth elapsed 15.25s on the same server/GPU instance"
+}

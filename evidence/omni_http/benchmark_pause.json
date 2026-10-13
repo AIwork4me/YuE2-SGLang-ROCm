@@ -1,0 +1,38 @@
+{
+  "benchmark": "WildSongBench full run (WSB)",
+  "run_id": "wsbfull20261012T0041Z",
+  "run_dir": "/workspace/yue2-sglang-rocm-w7900/runs/gfx1100/wsbfull20261012T0041Z/wsb_full",
+  "paused_at_utc": "2026-10-13T07:40:43Z",
+  "paused_by": "this mission (authorized user-approved GPU takeover)",
+  "mechanism": "SIGINT to driver PID 404144 (graceful handler); in-flight candidate [312/384] wsb_155_r1_s831174 finalized and counted",
+  "verified_complete_before_takeover": 311,
+  "verified_complete_after_pause": 312,
+  "expected_total": 384,
+  "failed": 0,
+  "pending": 72,
+  "stopped_by_signal": true,
+  "driver_exit_code_note": "nonzero exit expected on intentional stop below 384; recovery readiness judged on verified artifacts + immutable metadata + safe exit",
+  "immutable_config_sha256": {
+    "run_config.json": "806eb07511d9f7ab6eb08046b0f14b9c27331ce38bd5b36d9e3da4b83aac2361",
+    "evaluation_inputs.jsonl": "a906ab391bf80992549fafd4b12631ec335963676d67fd790d30c39d588ac100"
+  },
+  "checkpoint_evidence": {
+    "milestones_fired": ["milestone_final_partial_0741.json (watcher)", "milestone_driver_exit_312of384.json (scheduler)"],
+    "remote_branch": "validation/gfx1100-rocm7141 @ AIwork4me/YuE2-SGLang-ROCm",
+    "remote_sha": "41427c7ae6769568bb3c4eea29490e5c328bec97"
+  },
+  "automation_state_at_pause": {
+    "run_wsb_scoring.sh": "exited 1 (safe path: 'DRIVER EXITED below 384 - NOT scoring'); unsafe pkill stage never reached (requires 384/384 + FULL audit)",
+    "watch_milestones.sh": "exited after final partial checkpoint",
+    "restart_hazards": "none - no supervisor restarts processes"
+  },
+  "resume_prerequisites": {
+    "same_run_id": "required and preserved",
+    "same_frozen_config": "hashes above",
+    "same_server_endpoint": "http://127.0.0.1:31000 via scripts/serve_yue2_gfx1100.sh",
+    "driver_command": "python -u scripts/run_wsb.py --runs /workspace/yue2-sglang-rocm-w7900/runs/gfx1100/wsbfull20261012T0041Z/wsb_full --server http://127.0.0.1:31000 --run-id wsbfull20261012T0041Z --wav-archive /root/yue2-wav-archive (cwd: evidence-repo)",
+    "resume_safety": "manifest dedupes by candidate id, last record wins; verified candidates are re-recorded as complete(resumed), never regenerated",
+    "warning": "when the run later reaches 384/384, the scoring scheduler WILL pkill 'sglang serve' by design - no unrelated sglang-serve instance may be running at that moment"
+  },
+  "status": "SAFELY_PAUSED"
+}

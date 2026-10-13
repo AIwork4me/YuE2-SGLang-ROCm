@@ -1,0 +1,6 @@
+{
+ "model": "/workspace/yue2-sglang-rocm-w7900/models/YuE2-3B",
+ "voice": "default",
+ "response_format": "wav",
+ "input": "{\"style\": \"Melodic electronic pop, gentle piano, warm vocals, moderate tempo\", \"lyrics\": \"[Verse]\\nCity lights are fading away\\nWe will find a brighter day\\n[Chorus]\\nSing with me into the night\\nEvery star will shine so bright\", \"cot\": \"full\", \"seed\": 831001, \"cfg_scale\": 1.0, \"abc_max_tokens\": 256, \"semantic_max_tokens\": 512, \"ode_steps\": 8, \"vae_core_frames\": 256, \"vae_halo_frames\": 16}"
+}

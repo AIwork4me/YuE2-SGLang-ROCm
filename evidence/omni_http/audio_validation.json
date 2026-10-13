@@ -1,0 +1,11 @@
+{
+ "sample_rate": 48000,
+ "channels": 2,
+ "frames": 982976,
+ "duration_s": 20.479,
+ "rms": 0.08595326886256857,
+ "peak": 0.711090087890625,
+ "sha256": "358ffc66b6d899231dc75fc5c9bcef0b0f1840e2c2532dff4363357d2882feed",
+ "bytes": 3931948,
+ "dtype": "float64"
+}

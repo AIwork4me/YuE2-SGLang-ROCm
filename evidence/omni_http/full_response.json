@@ -1,0 +1,32 @@
+{
+ "http_status": 200,
+ "content_type": "audio/wav",
+ "content_length": 9069868,
+ "x_request_id": "speech-ac6f8565-ee83-45a1-8085-84703b799659",
+ "x_finish_reason": "stop",
+ "request_wall_s": 39,
+ "server_synth_elapsed_s": 38.11,
+ "audio": {
+  "sample_rate": 48000,
+  "channels": 2,
+  "frames": 2267456,
+  "duration_s": 47.239,
+  "rms": 0.147005,
+  "peak": 0.776245,
+  "sha256": "218634d46abfe48f1aa27c3dd43d6d84e1776fc6c64e6c0dc772fd52330526bd",
+  "bytes": 9069868
+ },
+ "config": {
+  "style": "Melodic electronic pop, gentle piano, warm vocals, moderate tempo",
+  "lyrics": "[Verse]\nCity lights are fading away\nWe will find a brighter day\n[Chorus]\nSing with me into the night\nEvery star will shine so bright",
+  "cot": "full",
+  "seed": 831001,
+  "cfg_scale": 1.0,
+  "abc_max_tokens": 4096,
+  "semantic_max_tokens": 9000,
+  "ode_steps": 32,
+  "vae_core_frames": 1024,
+  "vae_halo_frames": 16
+ },
+ "note": "abc_max_tokens/semantic_max_tokens are upper bounds; generation stopped at natural EOS (47.24s audio from short prompt)"
+}
