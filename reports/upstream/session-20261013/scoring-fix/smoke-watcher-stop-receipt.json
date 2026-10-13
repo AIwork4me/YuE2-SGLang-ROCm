@@ -1,0 +1,18 @@
+{
+  "receipt_type": "redundant_gpu_smoke_watcher_stop",
+  "recorded_at_utc": "2026-10-13T12:21:04Z",
+  "pid": 430873,
+  "cmdline": "bash -c exec >>/workspace/yue2-omni-pr/smoke-out/watcher.log 2>&1; while pgrep -f run_wsb.py > /dev/null 2>&1; do sleep 300; done; /workspace/yue2-omni-pr/smoke_test_omni_yue2_rocm.sh",
+  "state_before": "S (sleeping in 'while pgrep run_wsb.py; sleep 300' wait loop; no GPU work)",
+  "reason": "Queued one-shot GPU smoke test would fire exactly when run_wsb.py exits at 384/384, racing the official scoring pipeline for the W7900 GPU (smoke server on port 8123 vs scoring stages 4-6). Its purpose is already fulfilled: HTTP E2E short+full PASS at 2026-10-13T08:19Z with sha256 358ffc66...2feed / 218634d4...526bd, published on PR #1 and pushed on evidence branch evidence/omni-http-gfx1100 (f000a8596af91f9ed102f42ddbe3fc5f3ff1d180).",
+  "safety_conditions": {
+    "A_exact_pid_identified": true,
+    "B_state_understood": "sleeping wait loop, polls pgrep every 300s, no side effects",
+    "C_not_executing_scoring_or_final_writes": true,
+    "D_safely_interruptible": true,
+    "E_replacement_ready": "not required - evidence already delivered"
+  },
+  "signal": "SIGTERM to exact PID 430873 only",
+  "result": "process terminated; reaped state Zs (defunct, no runnable code); no GPU-side effect",
+  "untouched": ["generation driver 493545", "sglang server 487670", "scheduler 494132", "watcher 494130"]
+}

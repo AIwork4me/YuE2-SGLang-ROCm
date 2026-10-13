@@ -1,0 +1,36 @@
+{
+ "receipt_type": "generation_server_identity",
+ "captured_at_utc": "2026-10-13T12:27:32Z",
+ "pid": 487670,
+ "uid": "0",
+ "starttime": "918563136",
+ "state_at_capture": "S",
+ "argv": [
+  "/workspace/yue2-sglang-rocm-w7900/environments/yue2-gfx1100/bin/python",
+  "/workspace/yue2-sglang-rocm-w7900/environments/yue2-gfx1100/bin/sglang",
+  "serve",
+  "--model-path",
+  "/workspace/yue2-sglang-rocm-w7900/models/YuE2-3B",
+  "--host",
+  "127.0.0.1",
+  "--port",
+  "31000",
+  "--num-gpus",
+  "1",
+  "--ulysses-degree",
+  "1",
+  "--ring-degree",
+  "1",
+  "--warmup-mode",
+  "off"
+ ],
+ "argv_sha256": "c963a670acafaeae831f3c187bc776c18b2cbd6c1808f63c72724a467b1ac6ac",
+ "model_path": "/workspace/yue2-sglang-rocm-w7900/models/YuE2-3B",
+ "host": "127.0.0.1",
+ "port": 31000,
+ "listen_inodes": [
+  "1561116563"
+ ],
+ "run_id": "wsbfull20261012T0041Z",
+ "expect_uid": 0
+}
