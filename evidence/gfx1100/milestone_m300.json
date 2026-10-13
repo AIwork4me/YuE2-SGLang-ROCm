@@ -1,39 +1,26 @@
 {
  "milestone": "m300",
  "run": "/workspace/yue2-sglang-rocm-w7900/runs/gfx1100/wsbfull20261012T0041Z/wsb_full",
- "manifest_records": 624,
- "complete_records": 300,
- "unique_complete_candidates": 300,
- "unique_prompts_complete": 150,
- "truncated_complete": 2,
+ "manifest_records": 948,
+ "complete_records": 312,
+ "unique_complete_candidates": 312,
+ "unique_prompts_complete": 156,
+ "truncated_complete": 0,
  "status_counts": {
-  "complete(resumed)": 264,
-  "complete": 36,
-  "skipped(disk)": 42
+  "complete(resumed)": 312,
+  "skipped(disk)": 36
  },
  "audit": {
   "run": "/workspace/yue2-sglang-rocm-w7900/runs/gfx1100/wsbfull20261012T0041Z/wsb_full",
   "mode": "full",
   "dataset_revision_ok": true,
   "expected_candidates": 384,
-  "verified_complete": 300,
-  "missing_or_invalid": 84,
+  "verified_complete": 312,
+  "missing_or_invalid": 72,
   "truncated_but_complete": 3,
-  "unique_prompt_coverage": 150,
-  "problem_count": 84,
+  "unique_prompt_coverage": 156,
+  "problem_count": 72,
   "problems": [
-   "wsb_150_r0_s831151: missing result.json",
-   "wsb_150_r1_s831169: missing result.json",
-   "wsb_151_r0_s831152: missing result.json",
-   "wsb_151_r1_s831170: missing result.json",
-   "wsb_152_r0_s831153: missing result.json",
-   "wsb_152_r1_s831171: missing result.json",
-   "wsb_153_r0_s831154: missing result.json",
-   "wsb_153_r1_s831172: missing result.json",
-   "wsb_154_r0_s831155: missing result.json",
-   "wsb_154_r1_s831173: missing result.json",
-   "wsb_155_r0_s831156: missing result.json",
-   "wsb_155_r1_s831174: missing result.json",
    "wsb_156_r0_s831157: missing result.json",
    "wsb_156_r1_s831175: missing result.json",
    "wsb_157_r0_s831158: missing result.json",
@@ -109,5 +96,5 @@
   ],
   "verdict": "PARTIAL"
  },
- "recorded_at": "2026-10-13T06:42:18Z"
+ "recorded_at": "2026-10-13T08:39:17Z"
 }
