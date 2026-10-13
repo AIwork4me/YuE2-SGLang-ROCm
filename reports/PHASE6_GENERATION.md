@@ -21,6 +21,9 @@ verify_result per candidate), never from driver status lines alone.**
 |---|---|---|---|---|---|
 | 10/384 (auto) | 10 | 374 | 1 | 0 | `evidence/checkpoint_10.json` |
 | 2026-10-12 07:04 audit | 36 | 348 | 1 | 0 | post-INCIDENT-1 recovery; 3 recovered-finalize classified |
+| 50/384 (auto) | 50 | 334 | 1 | 0 | `evidence/checkpoint_50.json` (commit 8805c49) |
+| 100/384 (auto) | 100 | 284 | 1 | 0 | `evidence/checkpoint_100.json` (commit 7815458) |
+| 2026-10-13 11:15 audit | 188 | 196 | 5 | 0 | `evidence/midrun_audit_20261013.json`; truncated-retained per protocol; ETA ~10-15 early AM + scoring |
 
 Audit command (strict full mode):
 `python scripts/verify_wsb_artifacts.py --runs runs/wsb_full` → PARTIAL until

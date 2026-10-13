@@ -47,7 +47,7 @@ every claim must have evidence.
 | 3 | ROCm compatibility RCA + patches 0001–0005 | PASS (reviews/PHASE3_REVIEW.md) |
 | 4 | First end-to-end audio (HTTP) | PASS (reviews/PHASE4_REVIEW.md) |
 | 5 | WSB pilot (5 prompts × 2, official shard scoring) | PASS (reviews/PHASE5_REVIEW.md) |
-| 6 | Full 384-candidate generation | RUNNING (checkpoints in evidence/) |
+| 6 | Full 384-candidate generation | RUNNING — 188/384 verified at 2026-10-13 11:15 (midrun audit in evidence/), ETA ~10-15 |
 | 7 | Official scoring (env ready; Q3O NOT RUN — flash_attn/CUDA) | pending full run |
 | 8–12 | comparison, perf, final reviews, upstream package | pending |
 
