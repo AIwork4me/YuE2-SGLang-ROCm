@@ -1,0 +1,43 @@
+--- run_wsb_scoring.sh.orig	2026-10-13 11:53:25.840020247 +0000
++++ run_wsb_scoring.sh.fixed	2026-10-13 11:53:53.968866447 +0000
+@@ -56,14 +56,32 @@
+ log "strict audit: FULL (384/384, 192 prompts, seeds verified)"
+ 
+ # ---- 3) free the GPU: gracefully stop the generation server ---------------
+-if pgrep -f "sglang serve" > /dev/null; then
+-  pkill -INT -f "sglang serve" 2>/dev/null || true
+-  for i in $(seq 1 24); do
+-    pgrep -f "sglang serve" > /dev/null || break
+-    sleep 5
+-  done
+-  pkill -f "sglang serve" 2>/dev/null || true
+-  log "generation server stopped (SIGINT, then cleanup)"
++# PID-scoped stop: only signal the generation server owned by THIS run.
++# Primary: the run's server.pid artifact (written by serve_yue2_gfx1100.sh).
++# Fallback: match this run's exact port, then verify this run's model path.
++SERVER_PID=""
++if [ -f "$RUNS/server.pid" ]; then
++  SERVER_PID=$(cat "$RUNS/server.pid" 2>/dev/null || true)
++fi
++if [ -z "$SERVER_PID" ] || ! kill -0 "$SERVER_PID" 2>/dev/null; then
++  SERVER_PID=$(pgrep -f "sglang serve .*--port 31000" | head -n 1 || true)
++fi
++if [ -n "$SERVER_PID" ] && kill -0 "$SERVER_PID" 2>/dev/null; then
++  if tr '\0' ' ' < "/proc/$SERVER_PID/cmdline" | grep -q "YuE2-3B"; then
++    kill -INT "$SERVER_PID" 2>/dev/null || true
++    for i in $(seq 1 24); do
++      kill -0 "$SERVER_PID" 2>/dev/null || break
++      sleep 5
++    done
++    if kill -0 "$SERVER_PID" 2>/dev/null; then
++      kill "$SERVER_PID" 2>/dev/null || true
++    fi
++    log "generation server stopped (PID-scoped SIGINT, then cleanup): $SERVER_PID"
++  else
++    log "REFUSED to signal PID $SERVER_PID: cmdline does not match this run's YuE2-3B server"
++  fi
++else
++  log "no run-owned generation server found; nothing to stop"
+ fi
+ sleep 10
+ 
