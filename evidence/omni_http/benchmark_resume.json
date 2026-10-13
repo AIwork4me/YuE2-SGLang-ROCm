@@ -1,0 +1,19 @@
+{
+  "resumed_at_utc": "2026-10-13T08:57:24Z",
+  "first_verified_completion_after_resume": "[313/384] wsb_156_r0_s831157 ok (301.11s, 246.0s audio) at ~2026-10-13T09:07Z",
+  "run_id": "wsbfull20261012T0041Z",
+  "same_run_identity": true,
+  "driver_pid": 493545,
+  "driver_command": "source environments/yue2-gfx1100/bin/activate && cd evidence-repo && python -u scripts/run_wsb.py --runs .../wsb_full --server http://127.0.0.1:31000 --run-id wsbfull20261012T0041Z --wav-archive /root/yue2-wav-archive",
+  "driver_env_verified": "VIRTUAL_ENV=/workspace/yue2-sglang-rocm-w7900/environments/yue2-gfx1100 (checked via /proc/493545/environ)",
+  "server_pid": 487670,
+  "server": "scripts/serve_yue2_gfx1100.sh -> sglang serve 127.0.0.1:31000 (original endpoint, original flag matrix)",
+  "supervisors": {"watch_milestones": 494130, "run_wsb_scoring": 494132},
+  "verified_complete_at_pause": 312,
+  "incident": {
+    "description": "first driver relaunch omitted benchmark venv activation; driver finalize step failed on ModuleNotFoundError: orjson for candidates wsb_156_r0/wsb_156_r1 (2x FAIL-finalize)",
+    "impact": "no corruption: failed finalizes are not recorded complete; run paused again via SIGINT (stopped_by_signal=true); driver relaunched with venv; both affected candidates re-attempted, wsb_156_r0 verified [313/384] ok",
+    "wasted_generation_cost": "2 server-side generations re-run"
+  },
+  "status": "RESUMED_AND_PROGRESSING"
+}
