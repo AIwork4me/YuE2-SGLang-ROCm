@@ -63,3 +63,57 @@ Omni YuE2 PR per the minimal-diff constraint.
 - Staged smoke test: /workspace/yue2-omni-pr/smoke_test_omni_yue2_rocm.sh
   (refuses to run while run_wsb.py holds the GPU; validates 48 kHz stereo,
   finite samples, non-zero RMS). Results will be appended to the PR.
+
+---
+
+# Closure update — 2026-10-13 (merge readiness pass)
+
+## Clean dependency verification (Phase 2 of closure mission)
+
+Pristine upstream sglang (author's pinned tree, local ROCm guards stashed):
+
+| import chain | result |
+|---|---|
+| sglang / sglang.srt.platforms / sglang_omni.cli / serve.launcher / pipeline stage workers / every models/yue2 module | PASS (gfx1100) |
+| sglang.srt.layers.quantization chain | FAIL: module-level `aiter` import (quark_w4a4_mxfp4.py:86 et al.) |
+| sglang.srt.mem_cache kvcacheio paths | FAIL: `sgl_kernel.kvcacheio` module-level imports |
+
+Blocker classification: **B** (shared-infra module-level HIP imports assume
+aiter/sgl_kernel exist) + **C** (no consumer-Radeon aiter/sgl_kernel builds).
+**A (Omni YuE2 patch defect): none found.** The Omni YuE2 pipeline never
+imports the failing chains (verified live via sys.modules audit by independent
+reviewer #1): **no sglang patches are required for the Omni YuE2 path.** The
+guards remain mandatory only for the original SGLang server (#42106) or other
+Omni models that build a full sglang engine.
+
+The isolated env now runs sglang PRISTINE; local guards preserved at
+/workspace/yue2-omni-pr/sglang-local-patches.keep (git stash) for instant
+restore if the e2e run surfaces a deeper blocker.
+
+## Reviews (Phase 4)
+
+- #1 ROCm runtime correctness: launch/import audit VERIFIED; runtime trace
+  VERIFIED; smoke-script contract VERIFIED (raw WAV, request shape, /health).
+  Findings fixed: script exit-code false-pass (P1), grep guard, literal \n,
+  port hardcoding. Remaining accepted risk: native-ATen varlen under HIP graph
+  capture inside GraphAR — de-risked by the prior real gfx1100 varlen run and
+  by the original evidence runs (SESSION=1, FA3=0) of the same GraphAR code.
+- #2 NVIDIA regression + minimal diff: APPROVE-WITH-NITS (P3 only). Executable
+  51-case A/B matrix base-vs-patched on simulated CUDA: byte-identical.
+  Blast radius: exactly 4 source files + 1 test file; sampling.py untouched.
+- #3 merge readiness: KEEP-DRAFT (doc fixes applied to PR body today:
+  +30/-6 stat, real H800 log-line expectation, accurate external-prerequisites
+  wording). Zero code blockers; MERGEABLE; no force-push; maintainerCanModify.
+
+## Test battery re-run (pristine sglang)
+
+49/49 PASS (12 yue2 platform gates + 37 model capabilities); ruff check clean;
+check_if_else clean.
+
+## Status
+
+- PR #1 remains DRAFT pending the real Omni ROCm e2e run; evidence script v2
+  (manifest / GPU trace / short + full-config requests / SHA256 / verdict)
+  armed via idle-watcher at /workspace/yue2-omni-pr/smoke_test_omni_yue2_rocm.sh.
+- WSB full run still in progress at check time (~302/384); no interference.
+- H800 execution remains NOT TESTED locally — never claimed as such.
