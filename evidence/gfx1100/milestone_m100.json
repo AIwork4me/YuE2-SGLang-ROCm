@@ -1,14 +1,16 @@
 {
  "milestone": "m100",
  "run": "/workspace/yue2-sglang-rocm-w7900/runs/gfx1100/wsbfull20261012T0041Z/wsb_full",
- "manifest_records": 948,
+ "manifest_records": 1263,
  "complete_records": 312,
  "unique_complete_candidates": 312,
  "unique_prompts_complete": 156,
  "truncated_complete": 0,
  "status_counts": {
   "complete(resumed)": 312,
-  "skipped(disk)": 36
+  "quarantined(partial)": 1,
+  "skipped(disk)": 35,
+  "finalize_failed": 1
  },
  "audit": {
   "run": "/workspace/yue2-sglang-rocm-w7900/runs/gfx1100/wsbfull20261012T0041Z/wsb_full",
@@ -96,5 +98,5 @@
   ],
   "verdict": "PARTIAL"
  },
- "recorded_at": "2026-10-13T08:37:32Z"
+ "recorded_at": "2026-10-13T09:00:28Z"
 }
