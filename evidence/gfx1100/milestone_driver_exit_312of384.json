@@ -1,15 +1,15 @@
 {
  "milestone": "driver_exit_312of384",
  "run": "/workspace/yue2-sglang-rocm-w7900/runs/gfx1100/wsbfull20261012T0041Z/wsb_full",
- "manifest_records": 636,
+ "manifest_records": 950,
  "complete_records": 312,
  "unique_complete_candidates": 312,
  "unique_prompts_complete": 156,
- "truncated_complete": 2,
+ "truncated_complete": 0,
  "status_counts": {
-  "complete(resumed)": 264,
-  "complete": 48,
-  "skipped(disk)": 36
+  "complete(resumed)": 312,
+  "finalize_failed": 2,
+  "skipped(disk)": 35
  },
  "audit": {
   "run": "/workspace/yue2-sglang-rocm-w7900/runs/gfx1100/wsbfull20261012T0041Z/wsb_full",
@@ -97,5 +97,5 @@
   ],
   "verdict": "PARTIAL"
  },
- "recorded_at": "2026-10-13T07:44:27Z"
+ "recorded_at": "2026-10-13T08:52:07Z"
 }
