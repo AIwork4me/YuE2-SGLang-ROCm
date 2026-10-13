@@ -1,15 +1,15 @@
 {
  "milestone": "m100",
- "run": "/workspace/yue2-sglang-rocm-w7900/runs/gfx1100/wsbfull20261012T0041Z/wsb_full",
- "manifest_records": 588,
- "complete_records": 528,
- "unique_complete_candidates": 264,
- "unique_prompts_complete": 132,
- "truncated_complete": 1,
+ "run": "runs/gfx1100/wsbfull20261012T0041Z/wsb_full",
+ "manifest_records": 589,
+ "complete_records": 265,
+ "unique_complete_candidates": 265,
+ "unique_prompts_complete": 133,
+ "truncated_complete": 0,
  "status_counts": {
-  "complete": 264,
-  "skipped(disk)": 60,
-  "complete(resumed)": 264
+  "complete(resumed)": 264,
+  "complete": 1,
+  "skipped(disk)": 59
  },
  "audit": {
   "run": "/workspace/yue2-sglang-rocm-w7900/runs/gfx1100/wsbfull20261012T0041Z/wsb_full",
@@ -145,5 +145,6 @@
   ],
   "verdict": "PARTIAL"
  },
- "recorded_at": "2026-10-13T03:35:55Z"
+ "recorded_at": "2026-10-13T03:39:43Z",
+ "correction": "regenerated with id-deduped counting after a resume-inflated first version (528/588) was pushed; see m192_resumed for the fix provenance"
 }

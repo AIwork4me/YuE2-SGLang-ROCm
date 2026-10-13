@@ -22,9 +22,13 @@ import json, sys, time
 from pathlib import Path
 runs, name = Path(sys.argv[1]), sys.argv[2]
 manifest = [json.loads(l) for l in (runs/"generation_manifest.jsonl").read_text().splitlines()] if (runs/"generation_manifest.jsonl").is_file() else []
-complete = [m for m in manifest if m.get("status","").startswith("complete")]
+# dedupe by candidate id, LAST record wins (resume appends re-records)
+last = {}
+for m in manifest:
+    last[m["id"]] = m
+complete = [m for m in last.values() if m.get("status","").startswith("complete")]
 from collections import Counter
-c = Counter(m.get("status") for m in manifest)
+c = Counter(m.get("status") for m in last.values())
 milestone = {
     "milestone": name, "run": str(runs),
     "manifest_records": len(manifest),
