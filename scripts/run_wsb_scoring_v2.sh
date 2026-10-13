@@ -268,6 +268,10 @@ if [ "$CUR_BRANCH" != "$BRANCH" ]; then
     die "evidence repo on '$CUR_BRANCH' with local changes - refusing to commit to wrong branch; resolve manually" 8
   fi
 fi
+# fast-forward to remote first: milestone checkpoints may have advanced it
+git fetch -q origin "$BRANCH" >> "$LOG" 2>&1 || die "cannot fetch origin/$BRANCH" 8
+git pull --ff-only origin "$BRANCH" >> "$LOG" 2>&1 \
+  || die "evidence branch $BRANCH cannot fast-forward to origin (diverged?); resolve manually" 8
 git add evidence/gfx1100 >> "$LOG" 2>&1 || die "git add evidence/gfx1100 failed" 8
 if git diff --cached --quiet; then
   log "nothing new to commit (idempotent re-run)"
