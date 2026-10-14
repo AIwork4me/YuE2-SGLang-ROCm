@@ -242,34 +242,51 @@ else
 fi
 state MULAN_ALLMUSICCAPS_COMPLETE
 
-# ---- 7) performance baseline + GPU-arm parity (non-fatal) -------------------
+# ---- 7) performance baseline + GPU-arm parity (non-fatal, idempotent) ------
+if [ -s "$RUNS/performance_baseline.json" ] && [ -s "$RUNS/per_parity_study.json" ]; then
+  log "stage 7 outputs already present (performance_baseline.json + per_parity_study.json) - skipping"
+else
 cd "$REPO"
 python scripts/collect_performance.py --runs "$RUNS" \
   --server-log "$WS/logs/server_yue2_gfx1100.log" >> "$LOG" 2>&1 || log "perf collect rc=$?"
 WSB_ROCM_TORCH_OVERRIDE=1 YUE2_WORKSPACE="$WS" HF_HOME="$WS/.cache/huggingface" \
   "$VENV_METRICS" scripts/per_parity_study.py --runs "$RUNS" --samples 6 >> "$LOG" 2>&1 \
   || log "parity GPU arm rc=$?"
+fi
 
 # ---- 8) evidence snapshot + local commit (failures are fatal: H6) -----------
 SNAP_FILE="evidence/gfx1100/scoring_snapshot.json"
 python3 - "$RUNS" <<'SNAPpy' >> "$LOG" 2>&1 || die "evidence snapshot generation FAILED - refusing to commit/push incomplete evidence" 8
 import json, sys, pathlib
 runs = pathlib.Path(sys.argv[1])
-snap = {}
-for name in ("scores/summary.json", "additional/summary.json", "scores/per_song.jsonl"):
-    p = runs / name
-    if p.is_file():
-        snap[name] = json.loads(p.read_text()) if name.endswith(".json") else \
-            [json.loads(l) for l in p.read_text().splitlines() if l.strip()][:5]
+CAP = 400000
+def build(per_rows):
+    snap = {}
+    for name in ("scores/summary.json", "additional/summary.json", "scores/per_song.jsonl"):
+        p = runs / name
+        if not p.is_file():
+            continue
+        if name.endswith(".json"):
+            snap[name] = json.loads(p.read_text())
+        else:
+            snap[name] = [json.loads(l) for l in p.read_text().splitlines() if l.strip()][:per_rows]
+    text = json.dumps(snap, indent=1, ensure_ascii=False)
+    return text + "\n"
+# 保证快照永远是合法 JSON: 逐步减少 per_song 行数直到低于容量上限
+for rows in (5, 2, 0):
+    text = build(rows)
+    if len(text) <= CAP:
+        break
 out = pathlib.Path("evidence/gfx1100/scoring_snapshot.json")
-out.write_text(json.dumps(snap, indent=1, ensure_ascii=False)[:200000] + "\n")
-print("scoring snapshot ->", out)
+out.write_text(text)
+assert len(text) <= CAP
+print(f"scoring snapshot -> {out} ({len(text)} bytes, per_song rows<={rows})")
 SNAPpy
 [ -s "$SNAP_FILE" ] || die "snapshot $SNAP_FILE missing/empty after generation" 8
 # assert we commit to the evidence branch, not whatever happens to be checked out
 CUR_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 if [ "$CUR_BRANCH" != "$BRANCH" ]; then
-  if [ -z "$(git status --porcelain)" ]; then
+  if [ -z "$(git status --porcelain -uno)" ]; then  # 未跟踪文件(如快照)可跨 checkout 携带,不构成脏树
     log "evidence repo on '$CUR_BRANCH' (clean) - switching to $BRANCH"
     git checkout -q "$BRANCH" >> "$LOG" 2>&1 || die "cannot checkout $BRANCH in evidence repo" 8
   else
