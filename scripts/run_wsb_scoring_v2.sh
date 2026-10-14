@@ -158,7 +158,15 @@ state STRICT_AUDIT_PASS
 if python3 - "$RECEIPT" <<'RCPTpy'
 import json, sys, pathlib
 r = json.loads(pathlib.Path(sys.argv[1]).read_text())
-raise SystemExit(0 if pathlib.Path(f"/proc/{r['pid']}").is_dir() else 1)
+d = pathlib.Path(f"/proc/{r['pid']}")
+if not d.is_dir():
+    raise SystemExit(1)  # gone -> already stopped
+try:
+    stat = (d / "stat").read_text()
+    state = stat[stat.rindex(")") + 1:].split()[0]
+except OSError:
+    raise SystemExit(1)
+raise SystemExit(0 if state != "Z" else 1)  # zombie = terminated, nothing to stop
 RCPTpy
 then
   # bounded drain of in-flight requests before signaling
@@ -192,7 +200,7 @@ ESTpy
     esac
   fi
 else
-  log "receipt pid not alive (server already stopped) - nothing to stop"
+  log "receipt pid not alive or zombie (server already stopped) - nothing to stop"
   state GENERATION_SERVER_STOPPED
 fi
 sleep 5
