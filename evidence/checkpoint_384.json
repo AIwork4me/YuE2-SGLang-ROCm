@@ -1,0 +1,15 @@
+{
+  "run": "/home/amd/Desktop/YuE2/runs/wsb_full",
+  "complete": 384,
+  "failed": 3,
+  "records_total": 387,
+  "pending": 0,
+  "truncated_complete": 13,
+  "wall_s_median": 657.4,
+  "wall_s_mean": 703.7,
+  "audio_s_mean": 224.6,
+  "eta_h_full_run": 0.0,
+  "gtt_used_bytes": 30857895936,
+  "disk_free": "176G",
+  "server_commit": "sglang ced0ef7d + patches 0001-0005"
+}
