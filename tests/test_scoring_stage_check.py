@@ -29,7 +29,11 @@ def write_summary(run, rel, metrics, *, complete=True, coverage=True,
     s = {
         "schema": 1, "complete": complete, "mode": mode,
         "candidate_count": rows, "prompt_count": 192, "errors": [],
-        "unselected_candidates": {"all": {m: block(m) for m in metrics}},
+        "unselected_candidates": {
+            "schema": 1, "complete": True, "samples": rows,
+            "groups": {"all": {m: block(m) for m in metrics}},
+            "metrics": list(metrics),
+        },
     }
     if mode == "standard":
         s["full_192_standard_candidate_coverage"] = coverage and len(metrics) >= 2

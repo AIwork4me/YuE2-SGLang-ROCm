@@ -38,16 +38,30 @@ def _load(p: Path):
 
 
 def _metric_blocks(summary: dict) -> set:
-    """Collect metric names present in any aggregate group."""
+    """Collect metric names present in the aggregate sections.
+
+    Real schema (extended_eval.summarize): section = {"schema", "complete",
+    "samples", "groups": {group: {metric: block}}, "metrics": [names]}.
+    We read both the explicit metric list and the group blocks."""
     names = set()
     for section in ("unselected_candidates", "standard_selected"):
-        groups = summary.get(section) or {}
-        if not isinstance(groups, dict):
+        agg = summary.get(section) or {}
+        if not isinstance(agg, dict):
             continue
-        for _, blocks in groups.items():
-            if isinstance(blocks, dict):
-                names |= {k for k, v in blocks.items()
-                          if isinstance(v, dict) and "scored" in v}
+        if isinstance(agg.get("metrics"), list):
+            names |= {str(m) for m in agg["metrics"]}
+        groups = agg.get("groups")
+        if isinstance(groups, dict):
+            for _, blocks in groups.items():
+                if isinstance(blocks, dict):
+                    names |= {k for k, v in blocks.items()
+                              if isinstance(v, dict) and "scored" in v}
+        elif isinstance(groups, dict) is False and isinstance(agg.get("groups"), dict) is False:
+            # tolerate legacy shape: section directly = {group: {metric: block}}
+            for _, blocks in agg.items():
+                if isinstance(blocks, dict):
+                    names |= {k for k, v in blocks.items()
+                              if isinstance(v, dict) and "scored" in v}
     return names
 
 
