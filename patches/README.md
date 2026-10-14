@@ -111,7 +111,7 @@ torchaudio, torchvision, triton, vllm 0.14.0, …) and refuses any deviation.
 **Problem:** those wheels are CUDA-only; AMD publishes no ROCm build of those
 versions. On gfx1151 the evaluator cannot start at all ("Found no NVIDIA
 driver").
-**Patch** (additive; `verify_environment` gains a gated exemption branch): under `WSB_ROCM_TORCH_OVERRIDE=1`, the torch-family quartet
+**Patch:** under `WSB_ROCM_TORCH_OVERRIDE=1`, the torch-family quartet
 (torch/torchaudio/torchvision/triton) is exempted from the equality check;
 the environment receipt still records the ACTUAL versions plus a
 `rocm_torch_override` marker, every other package must still match exactly,
@@ -147,8 +147,15 @@ same phonemization/scoring code.
 checkpoint/processor); batching differs (HF batching vs vLLM continuous
 batching) which can change floating-point reduction order only.
 
-### release.json formatting note
-The hash-update script rewrote `release.json` with uniform JSON indentation, so
-a plain `diff` shows more churn than the semantic change (2 hash values + 1
-disclosure key). Semantic delta only: `code_files["wsb_eval.py"]`,
-`code_files["src/mot_infer/eval_worker.py"]`, added `rocm_override_note`.
+## 0008 — mem_cache: guard sgl_kernel.kvcacheio imports (added on gfx1100)
+
+**Original behavior:** `hisparse_memory_pool.py`, `memory_pool_host.py` and
+`pool_host/mha.py` import `sgl_kernel.kvcacheio` symbols at module level under
+`_is_hip` — assuming a HIP sgl_kernel build exists. The serving import chain
+reaches these modules, so without sgl_kernel (no ROCm wheel for gfx1100/gfx1151)
+`sglang serve` crashed with ModuleNotFoundError before loading any model.
+**Patch:** try/except ImportError binding the names to loud call-time stubs
+(same shape the files already use for non-CUDA backends). HiSparse/host-KV
+transfer remains opt-in and unused by YuE2.
+**Verified on gfx1100:** `tests/test_yue2_rocm_fallbacks.py::
+test_kvcacheio_import_guards` + full 11/11 suite; `sglang serve --help` rc=0.

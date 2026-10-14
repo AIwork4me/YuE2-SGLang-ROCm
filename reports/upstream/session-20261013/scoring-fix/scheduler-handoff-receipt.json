@@ -1,0 +1,44 @@
+{
+ "receipt_type": "v1_to_v2_scheduler_safe_handoff",
+ "recorded_at_utc": "2026-10-13T12:44:51Z",
+ "old_scheduler": {
+  "pid": 494132,
+  "script": "/workspace/yue2-sglang-rocm-w7900/scripts/run_wsb_scoring.sh",
+  "state_at_stop": "Ss, stage-1 WAITING loop (child sleep 300), 355/384 complete, no scoring or final writes in progress",
+  "reason_for_replacement": "v1 stage 3 contains unsafe broad 'pkill -f sglang serve' and logs PIPELINE COMPLETE after failed pushes"
+ },
+ "conditions": {
+  "A_exact_old_scheduler_pid_identified": 494132,
+  "B_state_understood": "stage-1 wait loop verified via child process and completion count 355 < 384",
+  "C_not_executing_scoring_or_final_writes": true,
+  "D_safely_interruptible_wait_loop": true,
+  "E_replacement_ready_and_independently_reviewed": "run_wsb_scoring_v2.sh @ evidence-repo commit 64b16e9d5b1bc9c970a84c57b4d9e320dafbb1f4; 30 tests passing; 3 independent subagent reviews; all P1 findings fixed"
+ },
+ "preserved": [
+  "logs/scoring_pipeline.log",
+  "run-state/scoring_pipeline_v1_final_snapshot.log"
+ ],
+ "signal": "SIGTERM to exact PID 494132 only",
+ "untouched": [
+  "generation driver 493545",
+  "sglang server 487670",
+  "watcher 494130"
+ ],
+ "expected_next": "start exactly ONE run_wsb_scoring_v2.sh watching the same run_id and run dir; it will not regenerate candidates",
+ "result": {
+  "old_scheduler": "PID 494132 terminated (SIGTERM exact PID; confirmed exited)",
+  "v1_script": "renamed to scripts/run_wsb_scoring.sh.v1-retired-unsafe-pkill (preserved for forensics; not deletable while history retains evidence)",
+  "v2_scheduler_pid": 548480,
+  "v2_lock_owner": 548480,
+  "v2_state": "WAITING_FOR_384",
+  "v2_run_id_verified": "wsbfull20261012T0041Z",
+  "v2_run_dir_verified": "/workspace/yue2-sglang-rocm-w7900/runs/gfx1100/wsbfull20261012T0041Z/wsb_full",
+  "regenerates_candidates": false,
+  "generation_processes_untouched": [
+   "493545 driver",
+   "487670 server",
+   "494130 watcher"
+  ],
+  "completed_at_utc": "2026-10-13T12:45:28Z"
+ }
+}

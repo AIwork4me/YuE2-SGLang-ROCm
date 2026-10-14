@@ -1,0 +1,65 @@
+========================================================================================================================= test session starts =========================================================================================================================
+platform linux -- Python 3.12.3, pytest-9.1.1, pluggy-1.6.0 -- /workspace/yue2-sglang-rocm-w7900/environments/yue2-gfx1100/bin/python
+cachedir: .pytest_cache
+rootdir: /workspace/yue2-sglang-rocm-w7900/evidence-repo
+plugins: anyio-4.15.1
+collecting ... collected 11 items
+
+tests/test_yue2_rocm_fallbacks.py::test_kvcacheio_import_guards PASSED
+tests/test_yue2_rocm_fallbacks.py::test_quantization_chain_imports PASSED
+tests/test_yue2_rocm_fallbacks.py::test_deepselect_fallback PASSED
+tests/test_yue2_rocm_fallbacks.py::test_aten_flash_varlen_numerics PASSED
+tests/test_yue2_rocm_fallbacks.py::test_masked_sdpa_math_fallback PASSED
+tests/test_yue2_rocm_fallbacks.py::test_hip_graph_capture_replay PASSED
+tests/test_yue2_rocm_fallbacks.py::test_model_loads_on_gpu Loading weights:   0%|          | 0/628 [00:00<?, ?it/s]Loading weights: 100%|██████████| 628/628 [00:00<00:00, 10981.59it/s]
+PASSED
+tests/test_yue2_rocm_fallbacks.py::test_ar_graph_vs_eager_logits [transformers] `use_return_dict` is deprecated! Use `return_dict` instead!
+
+[ar-vs-eager] backend=flash prefill_max|diff|=0.0000 step_max|diff|=0.0000 logit_scale=33.75
+PASSED
+tests/test_yue2_rocm_fallbacks.py::test_reference_sampler_distribution_matches_fastpath_semantics PASSED
+tests/test_yue2_rocm_fallbacks.py::test_nar_solver_finite PASSED
+tests/test_yue2_rocm_fallbacks.py::test_vae_decode_finite MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 13762560, provided ptr: 0 size: 0
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 13762560, provided ptr: 0 size: 0
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 34392064, provided ptr: 0 size: 0
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 34392064, provided ptr: 0 size: 0
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 68784128, provided ptr: 0 size: 0
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 68784128, provided ptr: 0 size: 0
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 137568256, provided ptr: 0 size: 0
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 137568256, provided ptr: 0 size: 0
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 137568256, provided ptr: 0 size: 0
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 137568256, provided ptr: 0 size: 0
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 275136512, provided ptr: 0 size: 0
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 275136512, provided ptr: 0 size: 0
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 12386304, provided ptr: 0 size: 0
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 12386304, provided ptr: 0 size: 0
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 30951424, provided ptr: 0 size: 0
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 30951424, provided ptr: 0 size: 0
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 61902848, provided ptr: 0 size: 0
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 61902848, provided ptr: 0 size: 0
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 123805696, provided ptr: 0 size: 0
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 123805696, provided ptr: 0 size: 0
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 123805696, provided ptr: 0 size: 0
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 123805696, provided ptr: 0 size: 0
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 247611392, provided ptr: 0 size: 0
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 247611392, provided ptr: 0 size: 0
+PASSED
+
+========================================================================================================================== warnings summary ===========================================================================================================================
+tests/test_yue2_rocm_fallbacks.py::test_kvcacheio_import_guards
+  <frozen importlib._bootstrap>:488: DeprecationWarning: builtin type SwigPyPacked has no __module__ attribute
+
+tests/test_yue2_rocm_fallbacks.py::test_kvcacheio_import_guards
+  <frozen importlib._bootstrap>:488: DeprecationWarning: builtin type SwigPyObject has no __module__ attribute
+
+tests/test_yue2_rocm_fallbacks.py: 14 warnings
+  /workspace/yue2-sglang-rocm-w7900/environments/yue2-gfx1100/lib/python3.12/site-packages/torch/jit/_script.py:365: DeprecationWarning: `torch.jit.script_method` is deprecated. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+tests/test_yue2_rocm_fallbacks.py::test_model_loads_on_gpu
+  /workspace/yue2-sglang-rocm-w7900/environments/yue2-gfx1100/lib/python3.12/site-packages/torch/nn/utils/weight_norm.py:144: FutureWarning: `torch.nn.utils.weight_norm` is deprecated in favor of `torch.nn.utils.parametrizations.weight_norm`.
+    WeightNorm.apply(module, name, dim)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+================================================================================================================== 11 passed, 17 warnings in 25.43s ===================================================================================================================
+sys:1: DeprecationWarning: builtin type swigvarlink has no __module__ attribute

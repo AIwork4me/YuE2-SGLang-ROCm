@@ -36,8 +36,8 @@ import os
 import sys
 from pathlib import Path
 
-WS_DEFAULT = os.environ.get("WS", "/home/amd/Desktop/YuE2")
-sys.path.insert(0, os.path.join(WS_DEFAULT, "upstream/sglang/python"))
+WS = Path(os.environ.get("YUE2_WORKSPACE", Path(__file__).resolve().parents[2]))
+sys.path.insert(0, str(WS / "upstream" / "sglang" / "python"))
 
 import numpy as np
 import soundfile as sf
@@ -96,7 +96,7 @@ def main() -> int:
     # torch-reference YuE2 pipeline (sampling/nar are ports of the official
     # torch backend; the evaluator accepts {torch, vllm}); provenance beyond
     # the label is preserved via runtime_sha256 and weights below.
-    yue2_dir = Path(WS_DEFAULT) / "upstream/sglang/python/sglang/srt/models/yue2"
+    yue2_dir = WS / "upstream" / "sglang" / "python" / "sglang" / "srt" / "models" / "yue2"
     runtime_sha = identity({p.name: sha256_file(p)
                             for p in sorted(yue2_dir.glob("*.py"))})
     config = {

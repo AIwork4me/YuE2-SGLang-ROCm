@@ -1,0 +1,53 @@
+{
+ "date": "2026-10-11/12",
+ "routes_tested": {
+  "/v1/audio/generations": "HTTP 200",
+  "/v1/audio/music/generations": "HTTP 200"
+ },
+ "official_config": {
+  "cot": "full",
+  "effective_cfg": 1.0,
+  "ode_steps": 32,
+  "semantic_max_tokens": 9000,
+  "abc_max_tokens": 4096,
+  "vae_core_frames": 1024,
+  "vae_halo_frames": 16
+ },
+ "candidates": [
+  {
+   "id": "wsb_000_r0_s831001",
+   "seed": 831001,
+   "wall_s": 419.11,
+   "ar_s": 146.97,
+   "nar_s": 30.62,
+   "vae_s": 241.5,
+   "audio_s": 185.88,
+   "rms": 0.1666,
+   "peak": 0.99997,
+   "identity": "570c5ce90435fd1b2552c284d502d4eb3ea608dd3d65f24a8c00ea88076a9dc0",
+   "wav_sha256": "fbe5a7b735dcfef52d7d1f01059e55c28a04893a286a2290574d7265e8124824",
+   "truncated": false
+  },
+  {
+   "id": "wsb_000_r1_s831019",
+   "seed": 831019,
+   "wall_s": 190.48,
+   "route": "alias",
+   "audio_s": 146.0,
+   "rms": 0.1647,
+   "peak": 1.0,
+   "identity": "cc34b973ec2fcad96a9fb767d8568e2f6a31deb6f4f353d65ce22d24440a135e",
+   "wav_sha256": "89c5756621f10f14c6ebe3561dc5aa20c70116787953b620b6bf2b7648e30b78",
+   "truncated": false,
+   "note": "artifacts dir named wsb_000_r0_s831019_alias is the r1 candidate (manual phase-5 test naming slip; not part of scientific runs)"
+  }
+ ],
+ "smoke": {
+  "wall_s": 68.5,
+  "audio_s": 24.0,
+  "rms": 0.0781
+ },
+ "identity_crosscheck": "both identities byte-match evidence/pilot_manifest.jsonl (gfx1151) r0/r1 entries",
+ "telemetry_gaps": "response peak_memory_mb=0.0 and null yue2_stage_seconds on ROCm path; timings from server log; memory from rocm-smi",
+ "validation": "48kHz stereo, finite, RMS>0, <=1 sample at full scale, official verify_result PASS both"
+}

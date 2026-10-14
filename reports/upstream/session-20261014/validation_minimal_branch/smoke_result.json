@@ -1,0 +1,19 @@
+{
+  "name": "smoke",
+  "http_status": 200,
+  "wall_s": 35.7,
+  "wav": "/workspace/yue2-validation/http-out/smoke/smoke.wav",
+  "sample_rate": 48000,
+  "peak_memory_mb": 0.0,
+  "sha256": "d99ae6b00e5c1d6fd77c9ea46f92652daa53fd4bfc1af76df57776b8f676e06d",
+  "bytes": 2303788,
+  "wav_frames": 575936,
+  "wav_rate": 48000,
+  "wav_channels": 2,
+  "wav_width": 2,
+  "finite": true,
+  "rms_int16": 2225.7,
+  "non_silent": true,
+  "audio_seconds": 12.0,
+  "timing": {}
+}

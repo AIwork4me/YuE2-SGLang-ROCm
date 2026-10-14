@@ -1,0 +1,50 @@
+{
+  "started": "2026-10-11T22:27:57Z",
+  "endpoint": "https://hf-mirror.com",
+  "files": {
+    "YuE2-3B/model.safetensors": {
+      "sha256": "1d55c42c1a9875c34f5d736e15078449992b044e807ce2a138e6cf289a1e59e9",
+      "expected": "1d55c42c1a9875c34f5d736e15078449992b044e807ce2a138e6cf289a1e59e9",
+      "match": true,
+      "bytes": 7261441640
+    },
+    "YuE2-Vae-legacy/model.safetensors": {
+      "sha256": "b6d283628913bb41145ba99e2314eef613905ee95f690eb70e8212d5f4965044",
+      "expected": "b6d283628913bb41145ba99e2314eef613905ee95f690eb70e8212d5f4965044",
+      "match": true,
+      "bytes": 530512720
+    },
+    "WildSongBench/prompts.jsonl": {
+      "sha256": "1b554a824eba8e02eabe02299e48ed2215764931b8f05535cf8c6d250ddf8326",
+      "expected": "1b554a824eba8e02eabe02299e48ed2215764931b8f05535cf8c6d250ddf8326",
+      "match": true,
+      "bytes": 367690
+    },
+    "WildSongBench/benchmark/reproduction_manifest.jsonl": {
+      "sha256": "859e5225d319912efb64d587d1d5eb6cf0abc9fb162cc3d5f02d1688cff2edc0",
+      "expected": "859e5225d319912efb64d587d1d5eb6cf0abc9fb162cc3d5f02d1688cff2edc0",
+      "match": true,
+      "bytes": 773862
+    },
+    "WildSongBench/evaluation/wsb_metrics.tar.gz": {
+      "sha256": "bd550b36f1fc43cad3254a9897dd3a078e50c4eb9e8d4f295ac4b5e81d1fc4fd",
+      "expected": "bd550b36f1fc43cad3254a9897dd3a078e50c4eb9e8d4f295ac4b5e81d1fc4fd",
+      "match": true,
+      "bytes": 505834965
+    },
+    "WildSongBench/code/generate.py": {
+      "sha256": "41e069ed0f9d7fde27b277de40fe69d31fd0f5eed7a481b0af00e6486a6229c1",
+      "expected": "41e069ed0f9d7fde27b277de40fe69d31fd0f5eed7a481b0af00e6486a6229c1",
+      "match": true,
+      "bytes": 6281
+    },
+    "WildSongBench/code/install_inference.py": {
+      "sha256": "872a7c3e4a3ac5f842847f2909b82de59221d399ef3879a8310249f3ae11d81a",
+      "expected": "872a7c3e4a3ac5f842847f2909b82de59221d399ef3879a8310249f3ae11d81a",
+      "match": true,
+      "bytes": 904
+    }
+  },
+  "sglang_tarball_sha256": "bfc912d2bbd98da6c1f398dc1bdfc9eece65c5a0d57f9fd84cc2fe7e14d5cb8f",
+  "finished": "2026-10-11T22:28:03Z"
+}

@@ -1,0 +1,19 @@
+{
+  "name": "realistic",
+  "http_status": 200,
+  "wall_s": 338.3,
+  "wav": "/workspace/yue2-validation/http-out/realistic/realistic.wav",
+  "sample_rate": 48000,
+  "peak_memory_mb": 0.0,
+  "sha256": "570e4aa9f87e32f43b6a95798db7a6ac7a9309f2bdadfd938ac24d883bcd527f",
+  "bytes": 22072108,
+  "wav_frames": 5518016,
+  "wav_rate": 48000,
+  "wav_channels": 2,
+  "wav_width": 2,
+  "finite": true,
+  "rms_int16": 4820.3,
+  "non_silent": true,
+  "audio_seconds": 114.96,
+  "timing": {}
+}

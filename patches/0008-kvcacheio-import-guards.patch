@@ -1,0 +1,169 @@
+From f00d9fc1de3b4ccf28a0fde405c1d4da1343b0c9 Mon Sep 17 00:00:00 2001
+From: AIwork4me <AIwork4me@users.noreply.github.com>
+Date: Sun, 11 Oct 2026 23:16:00 +0000
+Subject: [PATCH] ROCm portability: guard sgl_kernel.kvcacheio imports
+ (gfx1100/gfx1151)
+
+hisparse_memory_pool.py, memory_pool_host.py, pool_host/mha.py assumed
+HIP implies an installable sgl_kernel; without a ROCm build the module-level
+imports crash unrelated model loading. Bind to loud call-time stubs on
+ImportError, mirroring the existing non-CUDA fallback shape.
+---
+ .../srt/mem_cache/hisparse_memory_pool.py     | 22 +++++---
+ .../sglang/srt/mem_cache/memory_pool_host.py  | 39 ++++++++++----
+ python/sglang/srt/mem_cache/pool_host/mha.py  | 54 ++++++++++++++-----
+ 3 files changed, 85 insertions(+), 30 deletions(-)
+
+diff --git a/python/sglang/srt/mem_cache/hisparse_memory_pool.py b/python/sglang/srt/mem_cache/hisparse_memory_pool.py
+index f3208a6..49ff657 100644
+--- a/python/sglang/srt/mem_cache/hisparse_memory_pool.py
++++ b/python/sglang/srt/mem_cache/hisparse_memory_pool.py
+@@ -22,15 +22,23 @@ logger = logging.getLogger(__name__)
+ _is_cuda = is_cuda()
+ _is_hip = is_hip()
+ _is_xpu = is_xpu()
++def _hisparse_kvcacheio_unavailable(*args, **kwargs):
++    raise RuntimeError(
++        "HiSparse device KV transfer requires sgl_kernel.kvcacheio "
++        "(CUDA/ROCm/XPU). It is not available on this backend."
++    )
++
++
+ if _is_cuda or _is_hip or _is_xpu:
+-    from sgl_kernel.kvcacheio import transfer_kv_all_layer_mla
++    # ROCm portability guard: no ROCm sgl_kernel build exists for this stack
++    # (gfx1100/gfx1151); an absent optional kernel package must not break the
++    # import of unrelated models. Fall through to the call-time stub.
++    try:
++        from sgl_kernel.kvcacheio import transfer_kv_all_layer_mla
++    except ImportError:
++        transfer_kv_all_layer_mla = _hisparse_kvcacheio_unavailable
+ else:
+-
+-    def transfer_kv_all_layer_mla(*args, **kwargs):
+-        raise RuntimeError(
+-            "HiSparse device KV transfer requires sgl_kernel.kvcacheio "
+-            "(CUDA/ROCm/XPU). It is not available on this backend."
+-        )
++    transfer_kv_all_layer_mla = _hisparse_kvcacheio_unavailable
+ 
+ 
+ class HiSparseDSATokenToKVPool(DSATokenToKVPool):
+diff --git a/python/sglang/srt/mem_cache/memory_pool_host.py b/python/sglang/srt/mem_cache/memory_pool_host.py
+index 3dfc668..1faee8d 100644
+--- a/python/sglang/srt/mem_cache/memory_pool_host.py
++++ b/python/sglang/srt/mem_cache/memory_pool_host.py
+@@ -24,15 +24,36 @@ if _is_xpu:
+ else:
+     from sglang.kernels.ops.kvcache.hisparse import transfer_cache_dsv4_mla
+ if _is_cuda or _is_hip or _is_xpu:
+-    from sgl_kernel.kvcacheio import (
+-        transfer_kv_all_layer_direct_lf_pf,
+-        transfer_kv_all_layer_mla,
+-        transfer_kv_all_layer_mla_lf_pf,
+-        transfer_kv_direct,
+-        transfer_kv_per_layer_direct_pf_lf,
+-        transfer_kv_per_layer_mla,
+-        transfer_kv_per_layer_mla_pf_lf,
+-    )
++    # ROCm portability guard: no ROCm sgl_kernel build for gfx1100/gfx1151;
++    # import failure must not crash unrelated models. Names bind to a loud
++    # call-time stub instead.
++    try:
++        from sgl_kernel.kvcacheio import (
++            transfer_kv_all_layer_direct_lf_pf,
++            transfer_kv_all_layer_mla,
++            transfer_kv_all_layer_mla_lf_pf,
++            transfer_kv_direct,
++            transfer_kv_per_layer_direct_pf_lf,
++            transfer_kv_per_layer_mla,
++            transfer_kv_per_layer_mla_pf_lf,
++        )
++    except ImportError as _kvcacheio_err:
++
++        def _kvcacheio_missing(*args, **kwargs):
++            raise RuntimeError(
++                f"sgl_kernel.kvcacheio unavailable on this backend "
++                f"({_kvcacheio_err}); host KV transfer is unsupported"
++            )
++
++        (
++            transfer_kv_all_layer_direct_lf_pf,
++            transfer_kv_all_layer_mla,
++            transfer_kv_all_layer_mla_lf_pf,
++            transfer_kv_direct,
++            transfer_kv_per_layer_direct_pf_lf,
++            transfer_kv_per_layer_mla,
++            transfer_kv_per_layer_mla_pf_lf,
++        ) = (_kvcacheio_missing,) * 7
+ 
+ if _is_npu:
+     from sgl_kernel_npu.kvcacheio import TransferDirection, transfer_kv_dim_exchange
+diff --git a/python/sglang/srt/mem_cache/pool_host/mha.py b/python/sglang/srt/mem_cache/pool_host/mha.py
+index a68ea51..ba7cc45 100644
+--- a/python/sglang/srt/mem_cache/pool_host/mha.py
++++ b/python/sglang/srt/mem_cache/pool_host/mha.py
+@@ -52,20 +52,46 @@ _is_npu = is_npu()
+ _is_xpu = is_xpu()
+ _is_mps = is_mps()
+ if _is_cuda or _is_hip:
+-    from sgl_kernel.kvcacheio import (
+-        transfer_kv_all_layer,
+-        transfer_kv_all_layer_direct_lf_pf,
+-        transfer_kv_all_layer_lf_pf,
+-        transfer_kv_all_layer_lf_ph,
+-        transfer_kv_all_layer_mla_lf_pf,
+-        transfer_kv_direct,
+-        transfer_kv_per_layer,
+-        transfer_kv_per_layer_direct_pf_lf,
+-        transfer_kv_per_layer_mla,
+-        transfer_kv_per_layer_mla_pf_lf,
+-        transfer_kv_per_layer_pf_lf,
+-        transfer_kv_per_layer_ph_lf,
+-    )
++    # ROCm portability guard: no ROCm sgl_kernel build for gfx1100/gfx1151;
++    # bind to a loud call-time stub on ImportError (same pattern as
++    # memory_pool_host.py) so unrelated models import normally.
++    try:
++        from sgl_kernel.kvcacheio import (
++            transfer_kv_all_layer,
++            transfer_kv_all_layer_direct_lf_pf,
++            transfer_kv_all_layer_lf_pf,
++            transfer_kv_all_layer_lf_ph,
++            transfer_kv_all_layer_mla_lf_pf,
++            transfer_kv_direct,
++            transfer_kv_per_layer,
++            transfer_kv_per_layer_direct_pf_lf,
++            transfer_kv_per_layer_mla,
++            transfer_kv_per_layer_mla_pf_lf,
++            transfer_kv_per_layer_pf_lf,
++            transfer_kv_per_layer_ph_lf,
++        )
++    except ImportError as _kvcacheio_err:
++
++        def _kvcacheio_missing(*args, **kwargs):
++            raise RuntimeError(
++                f"sgl_kernel.kvcacheio unavailable on this backend "
++                f"({_kvcacheio_err}); host KV transfer is unsupported"
++            )
++
++        (
++            transfer_kv_all_layer,
++            transfer_kv_all_layer_direct_lf_pf,
++            transfer_kv_all_layer_lf_pf,
++            transfer_kv_all_layer_lf_ph,
++            transfer_kv_all_layer_mla_lf_pf,
++            transfer_kv_direct,
++            transfer_kv_per_layer,
++            transfer_kv_per_layer_direct_pf_lf,
++            transfer_kv_per_layer_mla,
++            transfer_kv_per_layer_mla_pf_lf,
++            transfer_kv_per_layer_pf_lf,
++            transfer_kv_per_layer_ph_lf,
++        ) = (_kvcacheio_missing,) * 12
+ if _is_npu:
+     from sgl_kernel_npu.kvcacheio import TransferDirection, transfer_kv_dim_exchange
+ 
+-- 
+2.43.0
+

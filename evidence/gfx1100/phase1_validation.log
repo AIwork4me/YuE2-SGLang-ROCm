@@ -1,0 +1,80 @@
+=== versions ===
+torch = 2.12.0+rocm7.14.1
+torchvision = 0.27.0+rocm7.14.1
+torchaudio = 2.11.0+rocm7.14.1
+HIP = 7.14.60850
+CUDA build = None
+GPU = AMD Radeon Pro W7900D
+Properties = _CudaDeviceProperties(name='AMD Radeon Pro W7900D', major=11, minor=0, gcnArchName='gfx1100', total_memory=49136MB, multi_processor_count=48, uuid=64653466-3430-6130-3835-366635653031, pci_bus_id=195, pci_device_id=0, pci_domain_id=0, L2_cache_size=6MB)
+torch.float32 PASS torch.Size([1024, 1024])
+torch.float16 PASS torch.Size([1024, 1024])
+torch.bfloat16 PASS torch.Size([1024, 1024])
+W7900 ROCm PyTorch smoke test PASS
+=== extended: allocator, sync, memory stats, transfers, repeated launches ===
+{
+ "device_count": 1,
+ "device_name": "AMD Radeon Pro W7900D",
+ "gcnArchName": "gfx1100",
+ "total_mem_GiB": 47.98,
+ "max_split_ratio?": null,
+ "cudnn_available": true,
+ "peer_visibility": "single-device",
+ "50_launch_time_ms": 39.45
+}
+peak_memory_allocated_bytes: 138023936
+EXTENDED PASS
+=== wheel provenance / freeze ===
+amd-torch-device-gfx1100==2.12.0+rocm7.14.1
+amd-torch-device-gfx110x==2.12.0+rocm7.14.1
+amd-torchvision-device-gfx1100==0.27.0+rocm7.14.1
+numpy==2.4.4
+pillow==12.2.0
+rocm==7.14.1
+rocm-bootstrap==0.1.0
+rocm-sdk-core==7.14.1
+rocm-sdk-device-gfx1100==7.14.1
+rocm-sdk-libraries==7.14.1
+torch==2.12.0+rocm7.14.1
+torchaudio==2.11.0+rocm7.14.1
+torchvision==0.27.0+rocm7.14.1
+triton==3.8.0+git4cff872c.rocm7.14.1
+torch package root: /workspace/yue2-sglang-rocm-w7900/environments/yue2-gfx1100/lib/python3.12/site-packages/torch
+=== which ROCm userspace actually loads ===
+_C: /workspace/yue2-sglang-rocm-w7900/environments/yue2-gfx1100/lib/python3.12/site-packages/torch/_C.cpython-312-x86_64-linux-gnu.so
+libMIOpen.so.1                 /opt/rocm/lib/libMIOpen.so.1
+libamd_comgr.so.3              /opt/rocm/lib/libamd_comgr.so.3
+libamdhip64.so.7               /opt/rocm/lib/libamdhip64.so.7
+libaotriton_v2.so.0.13.50      /workspace/yue2-sglang-rocm-w7900/environments/yue2-gfx1100/lib/python3.12/site-packages/torch/lib/libaotriton_v2.so.0.13.50
+libc10.so                      /workspace/yue2-sglang-rocm-w7900/environments/yue2-gfx1100/lib/python3.12/site-packages/torch/lib/libc10.so
+libc10_hip.so                  /workspace/yue2-sglang-rocm-w7900/environments/yue2-gfx1100/lib/python3.12/site-packages/torch/lib/libc10_hip.so
+libdrm_amdgpu.so.1             /lib/x86_64-linux-gnu/libdrm_amdgpu.so.1
+libhipblas.so.3                /opt/rocm/lib/libhipblas.so.3
+libhipblaslt.so.1              /opt/rocm/lib/libhipblaslt.so.1
+libhipfft.so.0                 /opt/rocm/lib/libhipfft.so.0
+libhiprand.so.1                /opt/rocm/lib/libhiprand.so.1
+libhiprtc.so.7                 /opt/rocm/lib/libhiprtc.so.7
+libhipsolver.so.1              /opt/rocm/lib/libhipsolver.so.1
+libhipsparse.so.4              /opt/rocm/lib/libhipsparse.so.4
+libhipsparselt.so.0            /opt/rocm/lib/libhipsparselt.so.0
+libhsa-amd-aqlprofile64.so.1   /opt/rocm/lib/libhsa-amd-aqlprofile64.so.1
+libhsa-runtime64.so.1          /opt/rocm/lib/libhsa-runtime64.so.1
+librccl.so.1                   /opt/rocm/lib/librccl.so.1
+librocblas.so.5                /opt/rocm/lib/librocblas.so.5
+librocfft.so.0                 /opt/rocm/lib/librocfft.so.0
+librocm-core.so.1              /opt/rocm/lib/librocm-core.so.1
+librocm_smi64.so.1             /opt/rocm/lib/librocm_smi64.so.1
+librocprofiler-register.so.0   /opt/rocm/lib/librocprofiler-register.so.0
+librocprofiler-sdk.so.1        /opt/rocm/lib/librocprofiler-sdk.so.1
+librocrand.so.1                /opt/rocm/lib/librocrand.so.1
+librocroller.so.1              /opt/rocm/lib/librocroller.so.1
+librocsolver.so.0              /opt/rocm/lib/librocsolver.so.0
+librocsparse.so.1              /opt/rocm/lib/librocsparse.so.1
+libroctx64.so.4                /opt/rocm/lib/libroctx64.so.4
+libshm.so                      /workspace/yue2-sglang-rocm-w7900/environments/yue2-gfx1100/lib/python3.12/site-packages/torch/lib/libshm.so
+libtorch.so                    /workspace/yue2-sglang-rocm-w7900/environments/yue2-gfx1100/lib/python3.12/site-packages/torch/lib/libtorch.so
+libtorch_cpu.so                /workspace/yue2-sglang-rocm-w7900/environments/yue2-gfx1100/lib/python3.12/site-packages/torch/lib/libtorch_cpu.so
+libtorch_hip.so                /workspace/yue2-sglang-rocm-w7900/environments/yue2-gfx1100/lib/python3.12/site-packages/torch/lib/libtorch_hip.so
+libtorch_python.so             /workspace/yue2-sglang-rocm-w7900/environments/yue2-gfx1100/lib/python3.12/site-packages/torch/lib/libtorch_python.so
+libtorch_rocshmem.so           /workspace/yue2-sglang-rocm-w7900/environments/yue2-gfx1100/lib/python3.12/site-packages/torch/lib/libtorch_rocshmem.so
+venv-provided ROCm libs: 9, host-provided: 25
+PHASE1_VALIDATION_ALL_PASS
