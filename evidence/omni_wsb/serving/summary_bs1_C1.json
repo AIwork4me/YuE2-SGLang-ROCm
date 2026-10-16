@@ -1,0 +1,22 @@
+{
+  "tag": "bs1",
+  "concurrency": 1,
+  "issued": 24,
+  "completed_ok": 24,
+  "errors": 0,
+  "wall_s": 5249.472,
+  "rps": 0.0046,
+  "audio_s_total": 5352.736,
+  "audio_s_per_wall_s": 1.0197,
+  "latency_p50_s": 217.251,
+  "latency_p95_s": 274.931,
+  "latency_p99_s": 309.991,
+  "latency_mean_s": 218.725,
+  "audio_s_mean": 223.031,
+  "rtf_mean": 1.0296,
+  "peak_vram_bytes": 44043042816,
+  "peak_gtt_bytes": 35057664,
+  "gpu_util_mean_pct": 0,
+  "gpu_util_p90_pct": 0.0,
+  "error_detail": []
+}

@@ -1,0 +1,22 @@
+{
+  "tag": "sweep",
+  "concurrency": 8,
+  "issued": 24,
+  "completed_ok": 24,
+  "errors": 0,
+  "wall_s": 5230.093,
+  "rps": 0.0046,
+  "audio_s_total": 5352.736,
+  "audio_s_per_wall_s": 1.0234,
+  "latency_p50_s": 1736.032,
+  "latency_p95_s": 1804.234,
+  "latency_p99_s": 1811.009,
+  "latency_mean_s": 1493.728,
+  "audio_s_mean": 223.031,
+  "rtf_mean": 0.2041,
+  "peak_vram_bytes": 46347792384,
+  "peak_gtt_bytes": 89427968,
+  "gpu_util_mean_pct": 99.8,
+  "gpu_util_p90_pct": 100.0,
+  "error_detail": []
+}

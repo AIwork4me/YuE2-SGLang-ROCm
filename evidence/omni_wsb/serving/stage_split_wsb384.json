@@ -1,0 +1,13 @@
+{
+ "n": 384,
+ "ar_mean_s": 201.01198072255647,
+ "ar_median_s": 193.9684961102903,
+ "ar_p95_s": 317.65880600735545,
+ "e2e_mean_s": 214.38421875,
+ "e2e_median_s": 204.29,
+ "nar_vae_mean_s": 13.372238027443528,
+ "nar_vae_median_s": 11.695642129071047,
+ "audio_mean_s": 220.7554375,
+ "rtf_mean": 1.0583575317614144,
+ "source": "384 plan.json timing dicts + generation manifest wall (BS=1 serial serving)"
+}

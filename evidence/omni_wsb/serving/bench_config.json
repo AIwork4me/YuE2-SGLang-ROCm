@@ -1,0 +1,16 @@
+{
+  "server": "http://127.0.0.1:32100",
+  "mix_indices": [
+    0,
+    22,
+    63,
+    75,
+    100,
+    120,
+    150,
+    170
+  ],
+  "repeats": 3,
+  "warmup": 0,
+  "frozen_manifest_sha_rows": 192
+}

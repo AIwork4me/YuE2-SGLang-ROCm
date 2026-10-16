@@ -1,0 +1,55 @@
+{
+  "torch": "2.12.0+rocm7.14.1",
+  "hip": "7.14.60850",
+  "device": "AMD Radeon Pro W7900D",
+  "tests": {
+    "T1_variable_len_bf16": {
+      "max_abs_diff": 0.008566617965698242,
+      "tol": 0.02,
+      "pass": true
+    },
+    "T2_seqused_lt_alloc_bf16": {
+      "max_abs_diff": 0.007303714752197266,
+      "tol": 0.02,
+      "pass": true
+    },
+    "T3_padded_kv_garbage_bf16": {
+      "max_abs_diff": 0.0,
+      "pass": true
+    },
+    "T4_gqa_8to1_bf16": {
+      "max_abs_diff": 0.0058522820472717285,
+      "tol": 0.02,
+      "pass": true
+    },
+    "T7a_bfloat16_seqused": {
+      "max_abs_diff": 0.007496066391468048,
+      "tol": 0.02,
+      "pass": true
+    },
+    "T7b_float16_seqused": {
+      "max_abs_diff": 0.000985264778137207,
+      "tol": 0.02,
+      "pass": true
+    },
+    "T8_seqused_honored_control": {
+      "diff_vs_capped_ref_without_seqused": 1.5903443098068237,
+      "pass": true
+    }
+  },
+  "latency": {
+    "aten_small_kv": {
+      "p50_ms": 0.068,
+      "mean_ms": 0.072
+    },
+    "aten_long_kv": {
+      "p50_ms": 0.067,
+      "mean_ms": 0.07
+    }
+  },
+  "verdicts": {
+    "aten_path": "PASS"
+  },
+  "flash_attn": "unavailable: ModuleNotFoundError",
+  "overall_pass": true
+}
