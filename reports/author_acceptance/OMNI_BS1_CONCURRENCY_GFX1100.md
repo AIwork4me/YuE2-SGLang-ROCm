@@ -1,6 +1,6 @@
 # SGLang-Omni YuE2 Serving Performance on Radeon W7900 (gfx1100) — BS=1 Latency and Concurrency
 
-Benchmarks: 2026-10-16 · AMD Radeon W7900 48GB · ROCm 7.14.1 · torch
+Benchmarks: 2026-10-16 · AMD Radeon Pro W7900D 48GB (gfx1100) · ROCm 7.14.1 · torch
 2.12.0+rocm7.14.1 · sgl-omni 0.1.7 (bench/omni-wsb @ c4841f0c = PR#1 head
 50c91c08 + comment-only + bench-only artifacts export; serving tree
 byte-identical model code; the input-cap worktree was NOT used here — all mix
@@ -43,7 +43,7 @@ weights reload; torch 2.12+rocm7.14.1; log: server_omni_capfix.log
 | Generated audio mean | 223.0 s |
 | Audio seconds per wall second | 1.0197 |
 | RTF (audio_s / request wall_s) mean | 1.030 |
-| Peak VRAM | 44.04 GB |
+| Peak VRAM | 44.04 GB (decimal) |
 | GPU utilization (sweep C=1 re-measure) | mean 99.4% / P90 100% |
 
 ## 4. Stage separation (BS=1, 384-candidate WSB statistics)
@@ -59,7 +59,7 @@ Source: `benchmarks/stage_split_wsb384.json` (384 plan.json timing dicts).
 
 ## 5. Concurrency sweep (GPU batch = 1; client C = 1/2/4/8)
 
-| C | OK / issued | errors | RPS | audio-s/wall-s | P50 s | P95 s | P99 s | RTF mean | peak VRAM GB | GPU util mean |
+| C | OK / issued | errors | RPS | audio-s/wall-s | P50 s | P95 s | P99 s | RTF mean | peak VRAM GiB | GPU util mean |
 |---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|
 | 1 | 24/24 | 0 | 0.0046 | 1.0180 | 216.7 | 274.9 | 313.8 | 1.029 | 31.4 | 99.4% |
 | 2 | 24/24 | 0 | 0.0046 | 1.0230 | 449.5 | 510.7 | 525.9 | 0.533 | 43.1 | 99.7% |
@@ -68,7 +68,7 @@ Source: `benchmarks/stage_split_wsb384.json` (384 plan.json timing dicts).
 
 **Delivered concurrency = 1 (GPU-internal execution is serial).** RPS is
 constant at 0.0046 (one ~217 s song at a time) across C=1..8; P50 scales
-almost exactly linearly (216.7 → 449.5 → 896.0 → 1736.0 s ≈ ×2 per step)
+linearly (216.7 → 449.5 → 896.0 → 1736.0 s; C8/C1 = 8.01x)
 because additional client requests only deepen queue wait; throughput
 (audio-seconds per wall-second ≈ 1.02) is invariant; zero HTTP errors, zero
 timeouts, zero OOM at every C; VRAM stable at 43.1–43.2 GB from C≥2 (queued

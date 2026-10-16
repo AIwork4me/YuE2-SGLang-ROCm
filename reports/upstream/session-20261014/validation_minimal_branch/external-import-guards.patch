@@ -1,0 +1,230 @@
+diff --git a/python/sglang/srt/layers/quantization/quark/schemes/quark_w4a4_mxfp4.py b/python/sglang/srt/layers/quantization/quark/schemes/quark_w4a4_mxfp4.py
+index f860a3f..b096cc3 100644
+--- a/python/sglang/srt/layers/quantization/quark/schemes/quark_w4a4_mxfp4.py
++++ b/python/sglang/srt/layers/quantization/quark/schemes/quark_w4a4_mxfp4.py
+@@ -83,14 +83,25 @@ def _dequant_mxfp4_to_bf16(
+ 
+ 
+ if _is_hip:
+-    from aiter.ops.triton.gemm.fused.fused_gemm_afp4wfp4_split_cat import (
+-        fused_gemm_afp4wfp4_split_cat as _fused_gemm_afp4wfp4_split_cat_orig,
+-    )
+-    from aiter.ops.triton.gemm_afp4wfp4 import gemm_afp4wfp4 as _gemm_afp4wfp4_orig
+-    from aiter.ops.triton.gemm_afp4wfp4_pre_quant_atomic import (
+-        gemm_afp4wfp4_pre_quant as _gemm_afp4wfp4_pre_quant_orig,
+-    )
+-    from aiter.ops.triton.quant import dynamic_mxfp4_quant as _dynamic_mxfp4_quant_orig
++    # ROCm portability guard: aiter only ships for Instinct CDNA targets
++    # (gfx94x/gfx95x). On other HIP devices (e.g. gfx1151) the package is absent;
++    # import failure must not break module import for unrelated models. The
++    # registered ops raise at call time if the W4A4-MXFP4 scheme is actually
++    # requested without aiter, which YuE2 (bf16) never does.
++    try:
++        from aiter.ops.triton.gemm.fused.fused_gemm_afp4wfp4_split_cat import (
++            fused_gemm_afp4wfp4_split_cat as _fused_gemm_afp4wfp4_split_cat_orig,
++        )
++        from aiter.ops.triton.gemm_afp4wfp4 import gemm_afp4wfp4 as _gemm_afp4wfp4_orig
++        from aiter.ops.triton.gemm_afp4wfp4_pre_quant_atomic import (
++            gemm_afp4wfp4_pre_quant as _gemm_afp4wfp4_pre_quant_orig,
++        )
++        from aiter.ops.triton.quant import dynamic_mxfp4_quant as _dynamic_mxfp4_quant_orig
++    except ImportError:
++        _fused_gemm_afp4wfp4_split_cat_orig = None
++        _gemm_afp4wfp4_orig = None
++        _gemm_afp4wfp4_pre_quant_orig = None
++        _dynamic_mxfp4_quant_orig = None
+ 
+     def _aiter_gemm_afp4wfp4(
+         x: torch.Tensor,
+diff --git a/python/sglang/srt/layers/quantization/quark/schemes/quark_w4a4_mxfp4_moe.py b/python/sglang/srt/layers/quantization/quark/schemes/quark_w4a4_mxfp4_moe.py
+index b2dfbe7..9f8c2a8 100644
+--- a/python/sglang/srt/layers/quantization/quark/schemes/quark_w4a4_mxfp4_moe.py
++++ b/python/sglang/srt/layers/quantization/quark/schemes/quark_w4a4_mxfp4_moe.py
+@@ -80,7 +80,13 @@ _shuffle_moe_gfx1250 = (
+ )
+ 
+ if _is_hip:
+-    from aiter.ops.triton.quant import dynamic_mxfp4_quant
++    # ROCm portability guard: aiter ships only for Instinct CDNA targets; on
++    # other HIP devices (gfx1151) it is absent and the scheme must import to
++    # None exactly as on the non-HIP branch.
++    try:
++        from aiter.ops.triton.quant import dynamic_mxfp4_quant
++    except ImportError:
++        dynamic_mxfp4_quant = None
+ else:
+     dynamic_mxfp4_quant = None
+ 
+diff --git a/python/sglang/srt/layers/quantization/quark_int4fp8_moe.py b/python/sglang/srt/layers/quantization/quark_int4fp8_moe.py
+index 8fb1bee..8c4d066 100644
+--- a/python/sglang/srt/layers/quantization/quark_int4fp8_moe.py
++++ b/python/sglang/srt/layers/quantization/quark_int4fp8_moe.py
+@@ -27,9 +27,15 @@ _is_hip = is_hip()
+ 
+ 
+ if _is_hip:
+-    from aiter.ops.shuffle import shuffle_weight
+-
+-    ON_GFX950 = "gfx950" in torch.cuda.get_device_properties("cuda").gcnArchName
++    # ROCm portability guard: aiter ships only for Instinct CDNA targets
++    # (gfx94x/gfx95x); on gfx1151 it is absent and shuffle_weight stays None.
++    try:
++        from aiter.ops.shuffle import shuffle_weight
++
++        ON_GFX950 = "gfx950" in torch.cuda.get_device_properties("cuda").gcnArchName
++    except ImportError:
++        shuffle_weight = None
++        ON_GFX950 = False
+ 
+ logger = logging.getLogger(__name__)
+ 
+diff --git a/python/sglang/srt/mem_cache/hisparse_memory_pool.py b/python/sglang/srt/mem_cache/hisparse_memory_pool.py
+index f3208a6..49ff657 100644
+--- a/python/sglang/srt/mem_cache/hisparse_memory_pool.py
++++ b/python/sglang/srt/mem_cache/hisparse_memory_pool.py
+@@ -22,15 +22,23 @@ logger = logging.getLogger(__name__)
+ _is_cuda = is_cuda()
+ _is_hip = is_hip()
+ _is_xpu = is_xpu()
++def _hisparse_kvcacheio_unavailable(*args, **kwargs):
++    raise RuntimeError(
++        "HiSparse device KV transfer requires sgl_kernel.kvcacheio "
++        "(CUDA/ROCm/XPU). It is not available on this backend."
++    )
++
++
+ if _is_cuda or _is_hip or _is_xpu:
+-    from sgl_kernel.kvcacheio import transfer_kv_all_layer_mla
++    # ROCm portability guard: no ROCm sgl_kernel build exists for this stack
++    # (gfx1100/gfx1151); an absent optional kernel package must not break the
++    # import of unrelated models. Fall through to the call-time stub.
++    try:
++        from sgl_kernel.kvcacheio import transfer_kv_all_layer_mla
++    except ImportError:
++        transfer_kv_all_layer_mla = _hisparse_kvcacheio_unavailable
+ else:
+-
+-    def transfer_kv_all_layer_mla(*args, **kwargs):
+-        raise RuntimeError(
+-            "HiSparse device KV transfer requires sgl_kernel.kvcacheio "
+-            "(CUDA/ROCm/XPU). It is not available on this backend."
+-        )
++    transfer_kv_all_layer_mla = _hisparse_kvcacheio_unavailable
+ 
+ 
+ class HiSparseDSATokenToKVPool(DSATokenToKVPool):
+diff --git a/python/sglang/srt/mem_cache/memory_pool_host.py b/python/sglang/srt/mem_cache/memory_pool_host.py
+index 3dfc668..1faee8d 100644
+--- a/python/sglang/srt/mem_cache/memory_pool_host.py
++++ b/python/sglang/srt/mem_cache/memory_pool_host.py
+@@ -24,15 +24,36 @@ if _is_xpu:
+ else:
+     from sglang.kernels.ops.kvcache.hisparse import transfer_cache_dsv4_mla
+ if _is_cuda or _is_hip or _is_xpu:
+-    from sgl_kernel.kvcacheio import (
+-        transfer_kv_all_layer_direct_lf_pf,
+-        transfer_kv_all_layer_mla,
+-        transfer_kv_all_layer_mla_lf_pf,
+-        transfer_kv_direct,
+-        transfer_kv_per_layer_direct_pf_lf,
+-        transfer_kv_per_layer_mla,
+-        transfer_kv_per_layer_mla_pf_lf,
+-    )
++    # ROCm portability guard: no ROCm sgl_kernel build for gfx1100/gfx1151;
++    # import failure must not crash unrelated models. Names bind to a loud
++    # call-time stub instead.
++    try:
++        from sgl_kernel.kvcacheio import (
++            transfer_kv_all_layer_direct_lf_pf,
++            transfer_kv_all_layer_mla,
++            transfer_kv_all_layer_mla_lf_pf,
++            transfer_kv_direct,
++            transfer_kv_per_layer_direct_pf_lf,
++            transfer_kv_per_layer_mla,
++            transfer_kv_per_layer_mla_pf_lf,
++        )
++    except ImportError as _kvcacheio_err:
++
++        def _kvcacheio_missing(*args, **kwargs):
++            raise RuntimeError(
++                f"sgl_kernel.kvcacheio unavailable on this backend "
++                f"({_kvcacheio_err}); host KV transfer is unsupported"
++            )
++
++        (
++            transfer_kv_all_layer_direct_lf_pf,
++            transfer_kv_all_layer_mla,
++            transfer_kv_all_layer_mla_lf_pf,
++            transfer_kv_direct,
++            transfer_kv_per_layer_direct_pf_lf,
++            transfer_kv_per_layer_mla,
++            transfer_kv_per_layer_mla_pf_lf,
++        ) = (_kvcacheio_missing,) * 7
+ 
+ if _is_npu:
+     from sgl_kernel_npu.kvcacheio import TransferDirection, transfer_kv_dim_exchange
+diff --git a/python/sglang/srt/mem_cache/pool_host/mha.py b/python/sglang/srt/mem_cache/pool_host/mha.py
+index a68ea51..ba7cc45 100644
+--- a/python/sglang/srt/mem_cache/pool_host/mha.py
++++ b/python/sglang/srt/mem_cache/pool_host/mha.py
+@@ -52,20 +52,46 @@ _is_npu = is_npu()
+ _is_xpu = is_xpu()
+ _is_mps = is_mps()
+ if _is_cuda or _is_hip:
+-    from sgl_kernel.kvcacheio import (
+-        transfer_kv_all_layer,
+-        transfer_kv_all_layer_direct_lf_pf,
+-        transfer_kv_all_layer_lf_pf,
+-        transfer_kv_all_layer_lf_ph,
+-        transfer_kv_all_layer_mla_lf_pf,
+-        transfer_kv_direct,
+-        transfer_kv_per_layer,
+-        transfer_kv_per_layer_direct_pf_lf,
+-        transfer_kv_per_layer_mla,
+-        transfer_kv_per_layer_mla_pf_lf,
+-        transfer_kv_per_layer_pf_lf,
+-        transfer_kv_per_layer_ph_lf,
+-    )
++    # ROCm portability guard: no ROCm sgl_kernel build for gfx1100/gfx1151;
++    # bind to a loud call-time stub on ImportError (same pattern as
++    # memory_pool_host.py) so unrelated models import normally.
++    try:
++        from sgl_kernel.kvcacheio import (
++            transfer_kv_all_layer,
++            transfer_kv_all_layer_direct_lf_pf,
++            transfer_kv_all_layer_lf_pf,
++            transfer_kv_all_layer_lf_ph,
++            transfer_kv_all_layer_mla_lf_pf,
++            transfer_kv_direct,
++            transfer_kv_per_layer,
++            transfer_kv_per_layer_direct_pf_lf,
++            transfer_kv_per_layer_mla,
++            transfer_kv_per_layer_mla_pf_lf,
++            transfer_kv_per_layer_pf_lf,
++            transfer_kv_per_layer_ph_lf,
++        )
++    except ImportError as _kvcacheio_err:
++
++        def _kvcacheio_missing(*args, **kwargs):
++            raise RuntimeError(
++                f"sgl_kernel.kvcacheio unavailable on this backend "
++                f"({_kvcacheio_err}); host KV transfer is unsupported"
++            )
++
++        (
++            transfer_kv_all_layer,
++            transfer_kv_all_layer_direct_lf_pf,
++            transfer_kv_all_layer_lf_pf,
++            transfer_kv_all_layer_lf_ph,
++            transfer_kv_all_layer_mla_lf_pf,
++            transfer_kv_direct,
++            transfer_kv_per_layer,
++            transfer_kv_per_layer_direct_pf_lf,
++            transfer_kv_per_layer_mla,
++            transfer_kv_per_layer_mla_pf_lf,
++            transfer_kv_per_layer_pf_lf,
++            transfer_kv_per_layer_ph_lf,
++        ) = (_kvcacheio_missing,) * 12
+ if _is_npu:
+     from sgl_kernel_npu.kvcacheio import TransferDirection, transfer_kv_dim_exchange
+ 
