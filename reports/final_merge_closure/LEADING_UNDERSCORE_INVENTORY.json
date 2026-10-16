@@ -1,0 +1,3616 @@
+{
+ "_PrefixCache": {
+  "definition_sites": [
+   {
+    "file": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 62,
+    "kind": "class",
+    "owner": "<module>"
+   }
+  ],
+  "violation_count": 1,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 62,
+    "col": 0,
+    "kind": "class",
+    "name": "_PrefixCache"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/cuda_graph.py": 2
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 62,
+    "ctx": "classdef",
+    "text": "class _PrefixCache:"
+   },
+   {
+    "file": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 631,
+    "ctx": "name",
+    "text": "cache = _PrefixCache(self.keys, self.values, branch)"
+   }
+  ]
+ },
+ "_StepGraphUnavailable": {
+  "definition_sites": [
+   {
+    "file": "sglang_omni/models/yue2/song.py",
+    "line": 101,
+    "kind": "class",
+    "owner": "<module>"
+   }
+  ],
+  "violation_count": 1,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/song.py",
+    "line": 101,
+    "col": 0,
+    "kind": "class",
+    "name": "_StepGraphUnavailable"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/song.py": 4
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/song.py",
+    "line": 70,
+    "ctx": "name",
+    "text": "except _StepGraphUnavailable:"
+   },
+   {
+    "file": "sglang_omni/models/yue2/song.py",
+    "line": 101,
+    "ctx": "classdef",
+    "text": "class _StepGraphUnavailable(Exception):"
+   },
+   {
+    "file": "sglang_omni/models/yue2/song.py",
+    "line": 124,
+    "ctx": "name",
+    "text": "raise _StepGraphUnavailable(\"DeepSelect backend missing\")"
+   },
+   {
+    "file": "sglang_omni/models/yue2/song.py",
+    "line": 140,
+    "ctx": "name",
+    "text": "raise _StepGraphUnavailable(\"session already captured without a sampler\")"
+   }
+  ]
+ },
+ "_TorchTopKBackend": {
+  "definition_sites": [
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 31,
+    "kind": "class",
+    "owner": "<module>"
+   }
+  ],
+  "violation_count": 1,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 31,
+    "col": 0,
+    "kind": "class",
+    "name": "_TorchTopKBackend"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/fastpath.py": 2
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 31,
+    "ctx": "classdef",
+    "text": "class _TorchTopKBackend:"
+   },
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 43,
+    "ctx": "name",
+    "text": "_TORCH = _TorchTopKBackend()"
+   }
+  ]
+ },
+ "_VelocityGraph": {
+  "definition_sites": [
+   {
+    "file": "sglang_omni/models/yue2/nar_fast.py",
+    "line": 475,
+    "kind": "class",
+    "owner": "<module>"
+   }
+  ],
+  "violation_count": 1,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/nar_fast.py",
+    "line": 475,
+    "col": 0,
+    "kind": "class",
+    "name": "_VelocityGraph"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/nar_fast.py": 4
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/nar_fast.py",
+    "line": 475,
+    "ctx": "classdef",
+    "text": "class _VelocityGraph(SessionNAR):"
+   },
+   {
+    "file": "sglang_omni/models/yue2/nar_fast.py",
+    "line": 535,
+    "ctx": "name",
+    "text": "self._graphs: dict[tuple[int, int], _VelocityGraph] = {}"
+   },
+   {
+    "file": "sglang_omni/models/yue2/nar_fast.py",
+    "line": 543,
+    "ctx": "name",
+    "text": "graph = _VelocityGraph(model, session, ar_length, noise, branch=branch)"
+   },
+   {
+    "file": "sglang_omni/models/yue2/nar_fast.py",
+    "line": 624,
+    "ctx": "name",
+    "text": "if isinstance(engine, SessionNAR) and not isinstance(engine, _VelocityGraph):"
+   }
+  ]
+ },
+ "_abc_per_request": {
+  "definition_sites": [
+   {
+    "file": "sglang_omni/models/yue2/batched.py",
+    "line": 318,
+    "kind": "function",
+    "owner": "<module>"
+   }
+  ],
+  "violation_count": 1,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/batched.py",
+    "line": 318,
+    "col": 0,
+    "kind": "function",
+    "name": "_abc_per_request"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/batched.py": 2
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/batched.py",
+    "line": 318,
+    "ctx": "def",
+    "text": "def _abc_per_request(model, tokenizer, requests, configs, batches):"
+   },
+   {
+    "file": "sglang_omni/models/yue2/batched.py",
+    "line": 409,
+    "ctx": "name",
+    "text": "abc_ids_list, abc_truncated_list = _abc_per_request("
+   }
+  ]
+ },
+ "_ages": {
+  "definition_sites": [],
+  "violation_count": 6,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 273,
+    "col": 13,
+    "kind": "attribute",
+    "name": "_ages"
+   },
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 354,
+    "col": 57,
+    "kind": "attribute",
+    "name": "_ages"
+   },
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 355,
+    "col": 40,
+    "kind": "attribute",
+    "name": "_ages"
+   },
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 470,
+    "col": 13,
+    "kind": "attribute",
+    "name": "_ages"
+   },
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 580,
+    "col": 66,
+    "kind": "attribute",
+    "name": "_ages"
+   },
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 581,
+    "col": 40,
+    "kind": "attribute",
+    "name": "_ages"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/fastpath.py": 6
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 273,
+    "ctx": "attr:self",
+    "text": "self._ages = torch.empty(self.window_buf_cap, dtype=torch.int32, device=device)"
+   },
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 354,
+    "ctx": "attr:self",
+    "text": "torch.sub(self.step_buf, self.slot_seq, out=self._ages)"
+   },
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 355,
+    "ctx": "attr:self",
+    "text": "self._window_weights.copy_(self._ages <= self.window_len_buf)"
+   },
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 470,
+    "ctx": "attr:self",
+    "text": "self._ages = torch.empty("
+   },
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 580,
+    "ctx": "attr:self",
+    "text": "torch.sub(self.step_buf[:, None], self.slot_seq, out=self._ages)"
+   },
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 581,
+    "ctx": "attr:self",
+    "text": "self._window_weights.copy_(self._ages <= self.window_len_buf[:, None])"
+   }
+  ]
+ },
+ "_apply_rotary": {
+  "definition_sites": [
+   {
+    "file": "sglang_omni/models/yue2/modeling_yue2.py",
+    "line": 243,
+    "kind": "function",
+    "owner": "<module>"
+   }
+  ],
+  "violation_count": 1,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/modeling_yue2.py",
+    "line": 243,
+    "col": 0,
+    "kind": "function",
+    "name": "_apply_rotary"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/cuda_graph.py": 3,
+   "sglang_omni/models/yue2/modeling_yue2.py": 3
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 342,
+    "ctx": "import",
+    "text": "from .modeling_yue2 import _apply_rotary"
+   },
+   {
+    "file": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 365,
+    "ctx": "name",
+    "text": "q = _apply_rotary(q, cos.unsqueeze(2), sin.unsqueeze(2))"
+   },
+   {
+    "file": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 366,
+    "ctx": "name",
+    "text": "k = _apply_rotary(k, cos.unsqueeze(2), sin.unsqueeze(2))"
+   },
+   {
+    "file": "sglang_omni/models/yue2/modeling_yue2.py",
+    "line": 243,
+    "ctx": "def",
+    "text": "def _apply_rotary("
+   },
+   {
+    "file": "sglang_omni/models/yue2/modeling_yue2.py",
+    "line": 291,
+    "ctx": "name",
+    "text": "q = _apply_rotary(q, rc, rs)"
+   },
+   {
+    "file": "sglang_omni/models/yue2/modeling_yue2.py",
+    "line": 292,
+    "ctx": "name",
+    "text": "k = _apply_rotary(k, rc, rs)"
+   }
+  ]
+ },
+ "_attention": {
+  "definition_sites": [
+   {
+    "file": "sglang_omni/models/yue2/nar.py",
+    "line": 212,
+    "kind": "function",
+    "owner": "CachedNAR"
+   }
+  ],
+  "violation_count": 3,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/nar.py",
+    "line": 212,
+    "col": 4,
+    "kind": "function",
+    "name": "_attention"
+   },
+   {
+    "path": "sglang_omni/models/yue2/nar.py",
+    "line": 239,
+    "col": 21,
+    "kind": "attribute",
+    "name": "_attention"
+   },
+   {
+    "path": "sglang_omni/models/yue2/nar.py",
+    "line": 260,
+    "col": 21,
+    "kind": "attribute",
+    "name": "_attention"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/nar.py": 3
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/nar.py",
+    "line": 212,
+    "ctx": "def",
+    "text": "def _attention(self, q, k, v, causal=False):"
+   },
+   {
+    "file": "sglang_omni/models/yue2/nar.py",
+    "line": 239,
+    "ctx": "attr:self",
+    "text": "h = self._attention(q[0], k[0], v[0], causal=True)"
+   },
+   {
+    "file": "sglang_omni/models/yue2/nar.py",
+    "line": 260,
+    "ctx": "attr:self",
+    "text": "h = self._attention(q[0], k, v)"
+   }
+  ]
+ },
+ "_capture": {
+  "definition_sites": [
+   {
+    "file": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 548,
+    "kind": "function",
+    "owner": "GraphAR"
+   }
+  ],
+  "violation_count": 2,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 548,
+    "col": 4,
+    "kind": "function",
+    "name": "_capture"
+   },
+   {
+    "path": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 641,
+    "col": 17,
+    "kind": "attribute",
+    "name": "_capture"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/cuda_graph.py": 2
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 548,
+    "ctx": "def",
+    "text": "def _capture(self):"
+   },
+   {
+    "file": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 641,
+    "ctx": "attr:self",
+    "text": "self._capture()"
+   }
+  ]
+ },
+ "_causal_mask": {
+  "definition_sites": [
+   {
+    "file": "sglang_omni/models/yue2/modeling_yue2.py",
+    "line": 51,
+    "kind": "function",
+    "owner": "<module>"
+   }
+  ],
+  "violation_count": 1,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/modeling_yue2.py",
+    "line": 51,
+    "col": 0,
+    "kind": "function",
+    "name": "_causal_mask"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/modeling_yue2.py": 2
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/modeling_yue2.py",
+    "line": 51,
+    "ctx": "def",
+    "text": "def _causal_mask(attention_mask, cache_position, key_length, batch_size):"
+   },
+   {
+    "file": "sglang_omni/models/yue2/modeling_yue2.py",
+    "line": 752,
+    "ctx": "name",
+    "text": "_causal_mask(attention_mask, cache_position, key_length, batch_size)"
+   }
+  ]
+ },
+ "_decode": {
+  "definition_sites": [
+   {
+    "file": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 317,
+    "kind": "function",
+    "owner": "GraphAR"
+   }
+  ],
+  "violation_count": 6,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 317,
+    "col": 4,
+    "kind": "function",
+    "name": "_decode"
+   },
+   {
+    "path": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 542,
+    "col": 22,
+    "kind": "attribute",
+    "name": "_decode"
+   },
+   {
+    "path": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 559,
+    "col": 29,
+    "kind": "attribute",
+    "name": "_decode"
+   },
+   {
+    "path": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 578,
+    "col": 39,
+    "kind": "attribute",
+    "name": "_decode"
+   },
+   {
+    "path": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 619,
+    "col": 22,
+    "kind": "attribute",
+    "name": "_decode"
+   },
+   {
+    "path": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 692,
+    "col": 26,
+    "kind": "attribute",
+    "name": "_decode"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/audar_tts/stages.py": 2,
+   "sglang_omni/models/llada2_uni/stages.py": 2,
+   "sglang_omni/models/yue2/cuda_graph.py": 6
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 317,
+    "ctx": "def",
+    "text": "def _decode(self):"
+   },
+   {
+    "file": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 542,
+    "ctx": "attr:self",
+    "text": "logits = self._decode()"
+   },
+   {
+    "file": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 559,
+    "ctx": "attr:self",
+    "text": "self._decode()"
+   },
+   {
+    "file": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 578,
+    "ctx": "attr:self",
+    "text": "self.output = self._decode()"
+   },
+   {
+    "file": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 619,
+    "ctx": "attr:self",
+    "text": "result = self._decode()"
+   },
+   {
+    "file": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 692,
+    "ctx": "attr:self",
+    "text": "result = self._decode()"
+   },
+   {
+    "file": "sglang_omni/models/llada2_uni/stages.py",
+    "line": 168,
+    "ctx": "def",
+    "text": "def _decode(payload):"
+   },
+   {
+    "file": "sglang_omni/models/llada2_uni/stages.py",
+    "line": 228,
+    "ctx": "name",
+    "text": "return SimpleScheduler(_decode)"
+   },
+   {
+    "file": "sglang_omni/models/audar_tts/stages.py",
+    "line": 379,
+    "ctx": "def",
+    "text": "async def _decode(payload: StagePayload) -> StagePayload:"
+   },
+   {
+    "file": "sglang_omni/models/audar_tts/stages.py",
+    "line": 407,
+    "ctx": "name",
+    "text": "return SimpleScheduler[StagePayload, StagePayload](_decode)"
+   }
+  ]
+ },
+ "_decode_fused": {
+  "definition_sites": [
+   {
+    "file": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 422,
+    "kind": "function",
+    "owner": "GraphAR"
+   }
+  ],
+  "violation_count": 2,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 319,
+    "col": 24,
+    "kind": "attribute",
+    "name": "_decode_fused"
+   },
+   {
+    "path": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 422,
+    "col": 4,
+    "kind": "function",
+    "name": "_decode_fused"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/cuda_graph.py": 2
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 319,
+    "ctx": "attr:self",
+    "text": "return self._decode_fused()"
+   },
+   {
+    "file": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 422,
+    "ctx": "def",
+    "text": "def _decode_fused(self):"
+   }
+  ]
+ },
+ "_decode_loop": {
+  "definition_sites": [
+   {
+    "file": "sglang_omni/models/yue2/sampling.py",
+    "line": 125,
+    "kind": "function",
+    "owner": "<module>"
+   }
+  ],
+  "violation_count": 1,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/sampling.py",
+    "line": 125,
+    "col": 0,
+    "kind": "function",
+    "name": "_decode_loop"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/sampling.py": 2,
+   "sglang_omni/models/yue2/song.py": 3
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/song.py",
+    "line": 26,
+    "ctx": "import",
+    "text": "from .sampling import _decode_loop, synchronize"
+   },
+   {
+    "file": "sglang_omni/models/yue2/song.py",
+    "line": 368,
+    "ctx": "name",
+    "text": "abc_ids, abc_timing, abc_open, fed_abc = _decode_loop("
+   },
+   {
+    "file": "sglang_omni/models/yue2/song.py",
+    "line": 406,
+    "ctx": "name",
+    "text": "codec_ids, semantic_timing, semantic_open, fed_codec = _decode_loop("
+   },
+   {
+    "file": "sglang_omni/models/yue2/sampling.py",
+    "line": 125,
+    "ctx": "def",
+    "text": "def _decode_loop("
+   },
+   {
+    "file": "sglang_omni/models/yue2/sampling.py",
+    "line": 370,
+    "ctx": "name",
+    "text": "history, timing, truncated, _fed = _decode_loop("
+   }
+  ]
+ },
+ "_dependency_interval": {
+  "definition_sites": [
+   {
+    "file": "sglang_omni/models/yue2/modeling_vae.py",
+    "line": 438,
+    "kind": "function",
+    "owner": "<module>"
+   }
+  ],
+  "violation_count": 1,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/modeling_vae.py",
+    "line": 438,
+    "col": 0,
+    "kind": "function",
+    "name": "_dependency_interval"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/modeling_vae.py": 4
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/modeling_vae.py",
+    "line": 438,
+    "ctx": "def",
+    "text": "def _dependency_interval(module, low, high):"
+   },
+   {
+    "file": "sglang_omni/models/yue2/modeling_vae.py",
+    "line": 443,
+    "ctx": "name",
+    "text": "low, high = _dependency_interval(child, low, high)"
+   },
+   {
+    "file": "sglang_omni/models/yue2/modeling_vae.py",
+    "line": 448,
+    "ctx": "name",
+    "text": "a, b = _dependency_interval(module.layers, low, high)"
+   },
+   {
+    "file": "sglang_omni/models/yue2/modeling_vae.py",
+    "line": 777,
+    "ctx": "name",
+    "text": "low, high = _dependency_interval(self.decoder, 0, core_frames * ratio - 1)"
+   }
+  ]
+ },
+ "_enc": {
+  "definition_sites": [],
+  "violation_count": 4,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/tokenization_yue2.py",
+    "line": 43,
+    "col": 13,
+    "kind": "attribute",
+    "name": "_enc"
+   },
+   {
+    "path": "sglang_omni/models/yue2/tokenization_yue2.py",
+    "line": 51,
+    "col": 20,
+    "kind": "attribute",
+    "name": "_enc"
+   },
+   {
+    "path": "sglang_omni/models/yue2/tokenization_yue2.py",
+    "line": 54,
+    "col": 20,
+    "kind": "attribute",
+    "name": "_enc"
+   },
+   {
+    "path": "sglang_omni/models/yue2/tokenization_yue2.py",
+    "line": 55,
+    "col": 50,
+    "kind": "attribute",
+    "name": "_enc"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/tokenization_yue2.py": 4
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/tokenization_yue2.py",
+    "line": 43,
+    "ctx": "attr:self",
+    "text": "self._enc = tiktoken.Encoding("
+   },
+   {
+    "file": "sglang_omni/models/yue2/tokenization_yue2.py",
+    "line": 51,
+    "ctx": "attr:self",
+    "text": "return self._enc.encode_ordinary(unicodedata.normalize(\"NFC\", text))"
+   },
+   {
+    "file": "sglang_omni/models/yue2/tokenization_yue2.py",
+    "line": 54,
+    "ctx": "attr:self",
+    "text": "return self._enc.decode("
+   },
+   {
+    "file": "sglang_omni/models/yue2/tokenization_yue2.py",
+    "line": 55,
+    "ctx": "attr:self",
+    "text": "[int(i) for i in ids if 0 <= i < self._enc.n_vocab], errors=\"replace\""
+   }
+  ]
+ },
+ "_end_only": {
+  "definition_sites": [],
+  "violation_count": 5,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 465,
+    "col": 13,
+    "kind": "attribute",
+    "name": "_end_only"
+   },
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 468,
+    "col": 13,
+    "kind": "attribute",
+    "name": "_end_only"
+   },
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 504,
+    "col": 13,
+    "kind": "attribute",
+    "name": "_end_only"
+   },
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 505,
+    "col": 13,
+    "kind": "attribute",
+    "name": "_end_only"
+   },
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 578,
+    "col": 33,
+    "kind": "attribute",
+    "name": "_end_only"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/fastpath.py": 5
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 465,
+    "ctx": "attr:self",
+    "text": "self._end_only = torch.full("
+   },
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 468,
+    "ctx": "attr:self",
+    "text": "self._end_only[:, MUSIC_END] = 0.0"
+   },
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 504,
+    "ctx": "attr:self",
+    "text": "self._end_only.fill_(float(\"-inf\"))"
+   },
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 505,
+    "ctx": "attr:self",
+    "text": "self._end_only[:, int(end)] = 0.0"
+   },
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 578,
+    "ctx": "attr:self",
+    "text": "torch.where(forced, self._end_only, self.scores, out=self._mixed)"
+   }
+  ]
+ },
+ "_ends": {
+  "definition_sites": [],
+  "violation_count": 4,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 119,
+    "col": 13,
+    "kind": "attribute",
+    "name": "_ends"
+   },
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 138,
+    "col": 17,
+    "kind": "attribute",
+    "name": "_ends"
+   },
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 145,
+    "col": 20,
+    "kind": "attribute",
+    "name": "_ends"
+   },
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 165,
+    "col": 19,
+    "kind": "attribute",
+    "name": "_ends"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/fastpath.py": 4
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 119,
+    "ctx": "attr:self",
+    "text": "self._ends: dict[str, int] = {}"
+   },
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 138,
+    "ctx": "attr:self",
+    "text": "self._ends[phase] = end"
+   },
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 145,
+    "ctx": "attr:self",
+    "text": "return self._ends[phase]"
+   },
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 165,
+    "ctx": "attr:self",
+    "text": "end = self._ends[phase]"
+   }
+  ]
+ },
+ "_fill_scalars": {
+  "definition_sites": [
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 488,
+    "kind": "function",
+    "owner": "BatchedGraphSampler"
+   }
+  ],
+  "violation_count": 3,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 488,
+    "col": 4,
+    "kind": "function",
+    "name": "_fill_scalars"
+   },
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 521,
+    "col": 13,
+    "kind": "attribute",
+    "name": "_fill_scalars"
+   },
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 546,
+    "col": 13,
+    "kind": "attribute",
+    "name": "_fill_scalars"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/fastpath.py": 3
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 488,
+    "ctx": "def",
+    "text": "def _fill_scalars("
+   },
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 521,
+    "ctx": "attr:self",
+    "text": "self._fill_scalars("
+   },
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 546,
+    "ctx": "attr:self",
+    "text": "self._fill_scalars("
+   }
+  ]
+ },
+ "_flash_attention_forward": {
+  "definition_sites": [],
+  "violation_count": 2,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 196,
+    "col": 38,
+    "kind": "attribute",
+    "name": "_flash_attention_forward"
+   },
+   {
+    "path": "sglang_omni/models/yue2/fa3.py",
+    "line": 81,
+    "col": 26,
+    "kind": "attribute",
+    "name": "_flash_attention_forward"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/cuda_graph.py": 2,
+   "sglang_omni/models/yue2/fa3.py": 1,
+   "tests/unit_test/models/test_yue2_platform_gates.py": 1
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 193,
+    "ctx": "string:_flash_attention_forward",
+    "text": "and hasattr(torch.ops.aten, \"_flash_attention_forward\")"
+   },
+   {
+    "file": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 196,
+    "ctx": "attr:torch.ops.aten",
+    "text": "in str(torch.ops.aten._flash_attention_forward.default._schema)"
+   },
+   {
+    "file": "sglang_omni/models/yue2/fa3.py",
+    "line": 81,
+    "ctx": "attr:torch.ops.aten",
+    "text": "return torch.ops.aten._flash_attention_forward("
+   },
+   {
+    "file": "tests/unit_test/models/test_yue2_platform_gates.py",
+    "line": 206,
+    "ctx": "string:_flash_attention_forward",
+    "text": "monkeypatch.setattr(torch.ops.aten, \"_flash_attention_forward\", fake_aten_forward)"
+   }
+  ]
+ },
+ "_flash_varlen": {
+  "definition_sites": [
+   {
+    "file": "sglang_omni/models/yue2/nar_fast.py",
+    "line": 67,
+    "kind": "function",
+    "owner": "<module>"
+   }
+  ],
+  "violation_count": 1,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/nar_fast.py",
+    "line": 67,
+    "col": 0,
+    "kind": "function",
+    "name": "_flash_varlen"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/nar_fast.py": 3
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/nar_fast.py",
+    "line": 67,
+    "ctx": "def",
+    "text": "def _flash_varlen(q, k, v, cu_q, cu_k, max_q, max_k):"
+   },
+   {
+    "file": "sglang_omni/models/yue2/nar_fast.py",
+    "line": 200,
+    "ctx": "name",
+    "text": "h = _flash_varlen("
+   },
+   {
+    "file": "sglang_omni/models/yue2/nar_fast.py",
+    "line": 403,
+    "ctx": "name",
+    "text": "h = _flash_varlen("
+   }
+  ]
+ },
+ "_freq": {
+  "definition_sites": [],
+  "violation_count": 8,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 283,
+    "col": 13,
+    "kind": "attribute",
+    "name": "_freq"
+   },
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 353,
+    "col": 13,
+    "kind": "attribute",
+    "name": "_freq"
+   },
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 356,
+    "col": 13,
+    "kind": "attribute",
+    "name": "_freq"
+   },
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 357,
+    "col": 39,
+    "kind": "attribute",
+    "name": "_freq"
+   },
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 477,
+    "col": 13,
+    "kind": "attribute",
+    "name": "_freq"
+   },
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 579,
+    "col": 13,
+    "kind": "attribute",
+    "name": "_freq"
+   },
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 582,
+    "col": 13,
+    "kind": "attribute",
+    "name": "_freq"
+   },
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 583,
+    "col": 50,
+    "kind": "attribute",
+    "name": "_freq"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/fastpath.py": 8
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 283,
+    "ctx": "attr:self",
+    "text": "self._freq = torch.zeros(self.total, dtype=torch.float32, device=device)"
+   },
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 353,
+    "ctx": "attr:self",
+    "text": "self._freq.zero_()"
+   },
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 356,
+    "ctx": "attr:self",
+    "text": "self._freq.scatter_add_(0, self.window_buf, self._window_weights)"
+   },
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 357,
+    "ctx": "attr:self",
+    "text": "alpha = self.penalty_buf**self._freq"
+   },
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 477,
+    "ctx": "attr:self",
+    "text": "self._freq = torch.zeros(self.B, self.total, dtype=torch.float32, device=device)"
+   },
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 579,
+    "ctx": "attr:self",
+    "text": "self._freq.zero_()"
+   },
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 582,
+    "ctx": "attr:self",
+    "text": "self._freq.scatter_add_(1, self.window_buf, self._window_weights)"
+   },
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 583,
+    "ctx": "attr:self",
+    "text": "alpha = self.penalty_buf[:, None] ** self._freq"
+   }
+  ]
+ },
+ "_fused_enabled": {
+  "definition_sites": [
+   {
+    "file": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 29,
+    "kind": "function",
+    "owner": "<module>"
+   }
+  ],
+  "violation_count": 1,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 29,
+    "col": 0,
+    "kind": "function",
+    "name": "_fused_enabled"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/cuda_graph.py": 2
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 29,
+    "ctx": "def",
+    "text": "def _fused_enabled() -> bool:"
+   },
+   {
+    "file": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 296,
+    "ctx": "name",
+    "text": "_fused_enabled()"
+   }
+  ]
+ },
+ "_fused_layer_weights": {
+  "definition_sites": [],
+  "violation_count": 3,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 310,
+    "col": 13,
+    "kind": "attribute",
+    "name": "_fused_layer_weights"
+   },
+   {
+    "path": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 457,
+    "col": 36,
+    "kind": "attribute",
+    "name": "_fused_layer_weights"
+   },
+   {
+    "path": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 701,
+    "col": 13,
+    "kind": "attribute",
+    "name": "_fused_layer_weights"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/cuda_graph.py": 3
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 310,
+    "ctx": "attr:self",
+    "text": "self._fused_layer_weights = ("
+   },
+   {
+    "file": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 457,
+    "ctx": "attr:self",
+    "text": "qkv_w, gate_up_w = self._fused_layer_weights[index]"
+   },
+   {
+    "file": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 701,
+    "ctx": "attr:self",
+    "text": "self._fused_layer_weights = None"
+   }
+  ]
+ },
+ "_generate_song_tokens_looped": {
+  "definition_sites": [
+   {
+    "file": "sglang_omni/models/yue2/song.py",
+    "line": 303,
+    "kind": "function",
+    "owner": "<module>"
+   }
+  ],
+  "violation_count": 1,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/song.py",
+    "line": 303,
+    "col": 0,
+    "kind": "function",
+    "name": "_generate_song_tokens_looped"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/song.py": 2,
+   "tests/unit_test/models/test_yue2_platform_gates.py": 1
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/song.py",
+    "line": 75,
+    "ctx": "name",
+    "text": "return _generate_song_tokens_looped("
+   },
+   {
+    "file": "sglang_omni/models/yue2/song.py",
+    "line": 303,
+    "ctx": "def",
+    "text": "def _generate_song_tokens_looped("
+   },
+   {
+    "file": "tests/unit_test/models/test_yue2_platform_gates.py",
+    "line": 106,
+    "ctx": "string:_generate_song_tokens_looped",
+    "text": "monkeypatch.setattr(song, \"_generate_song_tokens_looped\", fake_looped)"
+   }
+  ]
+ },
+ "_generate_song_tokens_step_graph": {
+  "definition_sites": [
+   {
+    "file": "sglang_omni/models/yue2/song.py",
+    "line": 105,
+    "kind": "function",
+    "owner": "<module>"
+   }
+  ],
+  "violation_count": 1,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/song.py",
+    "line": 105,
+    "col": 0,
+    "kind": "function",
+    "name": "_generate_song_tokens_step_graph"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/song.py": 2,
+   "tests/unit_test/models/test_yue2_platform_gates.py": 1
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/song.py",
+    "line": 60,
+    "ctx": "name",
+    "text": "return _generate_song_tokens_step_graph("
+   },
+   {
+    "file": "sglang_omni/models/yue2/song.py",
+    "line": 105,
+    "ctx": "def",
+    "text": "def _generate_song_tokens_step_graph("
+   },
+   {
+    "file": "tests/unit_test/models/test_yue2_platform_gates.py",
+    "line": 105,
+    "ctx": "string:_generate_song_tokens_step_graph",
+    "text": "monkeypatch.setattr(song, \"_generate_song_tokens_step_graph\", fake_step_graph)"
+   }
+  ]
+ },
+ "_graphs": {
+  "definition_sites": [],
+  "violation_count": 5,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/nar_fast.py",
+    "line": 535,
+    "col": 13,
+    "kind": "attribute",
+    "name": "_graphs"
+   },
+   {
+    "path": "sglang_omni/models/yue2/nar_fast.py",
+    "line": 541,
+    "col": 25,
+    "kind": "attribute",
+    "name": "_graphs"
+   },
+   {
+    "path": "sglang_omni/models/yue2/nar_fast.py",
+    "line": 542,
+    "col": 42,
+    "kind": "attribute",
+    "name": "_graphs"
+   },
+   {
+    "path": "sglang_omni/models/yue2/nar_fast.py",
+    "line": 544,
+    "col": 21,
+    "kind": "attribute",
+    "name": "_graphs"
+   },
+   {
+    "path": "sglang_omni/models/yue2/nar_fast.py",
+    "line": 557,
+    "col": 42,
+    "kind": "attribute",
+    "name": "_graphs"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/nar_fast.py": 5
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/nar_fast.py",
+    "line": 535,
+    "ctx": "attr:self",
+    "text": "self._graphs: dict[tuple[int, int], _VelocityGraph] = {}"
+   },
+   {
+    "file": "sglang_omni/models/yue2/nar_fast.py",
+    "line": 541,
+    "ctx": "attr:self",
+    "text": "graph = self._graphs.get(key)"
+   },
+   {
+    "file": "sglang_omni/models/yue2/nar_fast.py",
+    "line": 542,
+    "ctx": "attr:self",
+    "text": "if graph is None and len(self._graphs) < self.max_shapes:"
+   },
+   {
+    "file": "sglang_omni/models/yue2/nar_fast.py",
+    "line": 544,
+    "ctx": "attr:self",
+    "text": "self._graphs[key] = graph"
+   },
+   {
+    "file": "sglang_omni/models/yue2/nar_fast.py",
+    "line": 557,
+    "ctx": "attr:self",
+    "text": "return {\"shapes\": sorted(self._graphs.keys())}"
+   }
+  ]
+ },
+ "_hf_fields": {
+  "definition_sites": [],
+  "violation_count": 4,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/modeling_vae.py",
+    "line": 326,
+    "col": 27,
+    "kind": "attribute",
+    "name": "_hf_fields"
+   },
+   {
+    "path": "sglang_omni/models/yue2/modeling_vae.py",
+    "line": 356,
+    "col": 77,
+    "kind": "attribute",
+    "name": "_hf_fields"
+   },
+   {
+    "path": "sglang_omni/models/yue2/modeling_yue2.py",
+    "line": 124,
+    "col": 27,
+    "kind": "attribute",
+    "name": "_hf_fields"
+   },
+   {
+    "path": "sglang_omni/models/yue2/modeling_yue2.py",
+    "line": 173,
+    "col": 77,
+    "kind": "attribute",
+    "name": "_hf_fields"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/modeling_vae.py": 3,
+   "sglang_omni/models/yue2/modeling_yue2.py": 3
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/modeling_yue2.py",
+    "line": 95,
+    "ctx": "name",
+    "text": "_hf_fields = frozenset("
+   },
+   {
+    "file": "sglang_omni/models/yue2/modeling_yue2.py",
+    "line": 124,
+    "ctx": "attr:self",
+    "text": "if key in self._hf_fields or key in self._inference_fields"
+   },
+   {
+    "file": "sglang_omni/models/yue2/modeling_yue2.py",
+    "line": 173,
+    "ctx": "attr:self",
+    "text": "kwargs = {key: value for key, value in kwargs.items() if key in self._hf_fields}"
+   },
+   {
+    "file": "sglang_omni/models/yue2/modeling_vae.py",
+    "line": 297,
+    "ctx": "name",
+    "text": "_hf_fields = frozenset("
+   },
+   {
+    "file": "sglang_omni/models/yue2/modeling_vae.py",
+    "line": 326,
+    "ctx": "attr:self",
+    "text": "if key in self._hf_fields or key in self._inference_fields"
+   },
+   {
+    "file": "sglang_omni/models/yue2/modeling_vae.py",
+    "line": 356,
+    "ctx": "attr:self",
+    "text": "kwargs = {key: value for key, value in kwargs.items() if key in self._hf_fields}"
+   }
+  ]
+ },
+ "_idle": {
+  "definition_sites": [],
+  "violation_count": 4,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 767,
+    "col": 13,
+    "kind": "attribute",
+    "name": "_idle"
+   },
+   {
+    "path": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 784,
+    "col": 24,
+    "kind": "attribute",
+    "name": "_idle"
+   },
+   {
+    "path": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 806,
+    "col": 24,
+    "kind": "attribute",
+    "name": "_idle"
+   },
+   {
+    "path": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 818,
+    "col": 57,
+    "kind": "attribute",
+    "name": "_idle"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/cuda_graph.py": 4
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 767,
+    "ctx": "attr:self",
+    "text": "self._idle: dict[tuple[int, int], list] = {}"
+   },
+   {
+    "file": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 784,
+    "ctx": "attr:self",
+    "text": "idle = self._idle.get(key)"
+   },
+   {
+    "file": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 806,
+    "ctx": "attr:self",
+    "text": "idle = self._idle.setdefault(key, [])"
+   },
+   {
+    "file": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 818,
+    "ctx": "attr:self",
+    "text": "\"idle\": {str(k): len(v) for k, v in self._idle.items()},"
+   }
+  ]
+ },
+ "_inference_fields": {
+  "definition_sites": [],
+  "violation_count": 2,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/modeling_vae.py",
+    "line": 326,
+    "col": 53,
+    "kind": "attribute",
+    "name": "_inference_fields"
+   },
+   {
+    "path": "sglang_omni/models/yue2/modeling_yue2.py",
+    "line": 124,
+    "col": 53,
+    "kind": "attribute",
+    "name": "_inference_fields"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/modeling_vae.py": 2,
+   "sglang_omni/models/yue2/modeling_yue2.py": 2
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/modeling_yue2.py",
+    "line": 124,
+    "ctx": "attr:self",
+    "text": "if key in self._hf_fields or key in self._inference_fields"
+   },
+   {
+    "file": "sglang_omni/models/yue2/modeling_yue2.py",
+    "line": 127,
+    "ctx": "name",
+    "text": "_inference_fields = frozenset("
+   },
+   {
+    "file": "sglang_omni/models/yue2/modeling_vae.py",
+    "line": 326,
+    "ctx": "attr:self",
+    "text": "if key in self._hf_fields or key in self._inference_fields"
+   },
+   {
+    "file": "sglang_omni/models/yue2/modeling_vae.py",
+    "line": 329,
+    "ctx": "name",
+    "text": "_inference_fields = frozenset("
+   }
+  ]
+ },
+ "_init_weights": {
+  "definition_sites": [
+   {
+    "file": "sglang_omni/models/yue2/modeling_yue2.py",
+    "line": 623,
+    "kind": "function",
+    "owner": "YuE2PreTrainedModel"
+   }
+  ],
+  "violation_count": 1,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/modeling_yue2.py",
+    "line": 623,
+    "col": 4,
+    "kind": "function",
+    "name": "_init_weights"
+   }
+  ],
+  "reference_files": {
+   "scripts/check_leading_underscore.py": 2,
+   "sglang_omni/models/fishaudio_s2_pro/fish_speech/models/dac/rvq.py": 2,
+   "sglang_omni/models/ming_omni/talker/audio_vae/modeling_audio_vae.py": 1,
+   "sglang_omni/models/yue2/modeling_yue2.py": 1
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/modeling_yue2.py",
+    "line": 623,
+    "ctx": "def",
+    "text": "def _init_weights(self, module):"
+   },
+   {
+    "file": "sglang_omni/models/fishaudio_s2_pro/fish_speech/models/dac/rvq.py",
+    "line": 285,
+    "ctx": "attr:self",
+    "text": "self.apply(self._init_weights)"
+   },
+   {
+    "file": "sglang_omni/models/fishaudio_s2_pro/fish_speech/models/dac/rvq.py",
+    "line": 296,
+    "ctx": "def",
+    "text": "def _init_weights(self, m):"
+   },
+   {
+    "file": "sglang_omni/models/ming_omni/talker/audio_vae/modeling_audio_vae.py",
+    "line": 45,
+    "ctx": "def",
+    "text": "def _init_weights(self, module):"
+   },
+   {
+    "file": "scripts/check_leading_underscore.py",
+    "line": 53,
+    "ctx": "string:_init_weights",
+    "text": "\"_init_weights\","
+   },
+   {
+    "file": "scripts/check_leading_underscore.py",
+    "line": 57,
+    "ctx": "string:_init_weights",
+    "text": "\"_init_weights\","
+   }
+  ]
+ },
+ "_integers": {
+  "definition_sites": [
+   {
+    "file": "sglang_omni/models/yue2/nar.py",
+    "line": 31,
+    "kind": "function",
+    "owner": "<module>"
+   }
+  ],
+  "violation_count": 1,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/nar.py",
+    "line": 31,
+    "col": 0,
+    "kind": "function",
+    "name": "_integers"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/nar.py": 3
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/nar.py",
+    "line": 31,
+    "ctx": "def",
+    "text": "def _integers(values, name):"
+   },
+   {
+    "file": "sglang_omni/models/yue2/nar.py",
+    "line": 44,
+    "ctx": "name",
+    "text": "prefix = _integers(prefix, \"prefix\")"
+   },
+   {
+    "file": "sglang_omni/models/yue2/nar.py",
+    "line": 45,
+    "ctx": "name",
+    "text": "codec = _integers(codec, \"codec\")"
+   }
+  ]
+ },
+ "_inv_freq": {
+  "definition_sites": [],
+  "violation_count": 5,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/modeling_yue2.py",
+    "line": 219,
+    "col": 13,
+    "kind": "attribute",
+    "name": "_inv_freq"
+   },
+   {
+    "path": "sglang_omni/models/yue2/modeling_yue2.py",
+    "line": 222,
+    "col": 16,
+    "kind": "attribute",
+    "name": "_inv_freq"
+   },
+   {
+    "path": "sglang_omni/models/yue2/modeling_yue2.py",
+    "line": 222,
+    "col": 42,
+    "kind": "attribute",
+    "name": "_inv_freq"
+   },
+   {
+    "path": "sglang_omni/models/yue2/modeling_yue2.py",
+    "line": 223,
+    "col": 17,
+    "kind": "attribute",
+    "name": "_inv_freq"
+   },
+   {
+    "path": "sglang_omni/models/yue2/modeling_yue2.py",
+    "line": 239,
+    "col": 28,
+    "kind": "attribute",
+    "name": "_inv_freq"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/modeling_yue2.py": 4
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/modeling_yue2.py",
+    "line": 219,
+    "ctx": "attr:self",
+    "text": "self._inv_freq: Optional[torch.Tensor] = None"
+   },
+   {
+    "file": "sglang_omni/models/yue2/modeling_yue2.py",
+    "line": 222,
+    "ctx": "attr:self",
+    "text": "if self._inv_freq is None or self._inv_freq.device != position_ids.device:"
+   },
+   {
+    "file": "sglang_omni/models/yue2/modeling_yue2.py",
+    "line": 223,
+    "ctx": "attr:self",
+    "text": "self._inv_freq = 1.0 / ("
+   },
+   {
+    "file": "sglang_omni/models/yue2/modeling_yue2.py",
+    "line": 239,
+    "ctx": "attr:self",
+    "text": "angles = pos * self._inv_freq"
+   }
+  ]
+ },
+ "_k": {
+  "definition_sites": [],
+  "violation_count": 6,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/batched.py",
+    "line": 118,
+    "col": 19,
+    "kind": "attribute",
+    "name": "_k"
+   },
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 291,
+    "col": 13,
+    "kind": "attribute",
+    "name": "_k"
+   },
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 362,
+    "col": 25,
+    "kind": "attribute",
+    "name": "_k"
+   },
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 484,
+    "col": 13,
+    "kind": "attribute",
+    "name": "_k"
+   },
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 500,
+    "col": 56,
+    "kind": "attribute",
+    "name": "_k"
+   },
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 588,
+    "col": 25,
+    "kind": "attribute",
+    "name": "_k"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/batched.py": 1,
+   "sglang_omni/models/yue2/fastpath.py": 5,
+   "tests/unit_test/fishaudio_s2_pro/test_pipeline.py": 1,
+   "tests/unit_test/ming_tts/test_stages.py": 1,
+   "tests/unit_test/serve/test_realtime_vad_boundary.py": 1
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 291,
+    "ctx": "attr:self",
+    "text": "self._k = MAX_GRAPH_TOPK"
+   },
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 362,
+    "ctx": "attr:self",
+    "text": "scores, self._k, sorted=True, indices_type=torch.int64, return_value=True"
+   },
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 484,
+    "ctx": "attr:self",
+    "text": "self._k = int(max_topk)"
+   },
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 500,
+    "ctx": "attr:self",
+    "text": "self.topk_buf.fill_(int(min(max(top_k, 1), self._k)))"
+   },
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 588,
+    "ctx": "attr:self",
+    "text": "scores, self._k, sorted=True, indices_type=torch.int64, return_value=True"
+   },
+   {
+    "file": "sglang_omni/models/yue2/batched.py",
+    "line": 118,
+    "ctx": "attr:sampler",
+    "text": "if sampler._k < max(1, int(semantic_sampling.top_k)):"
+   },
+   {
+    "file": "tests/unit_test/ming_tts/test_stages.py",
+    "line": 148,
+    "ctx": "comment-or-docstring",
+    "text": "monkeypatch.setattr(stages, \"load_ming_tts_audio_vae\", lambda *_a, **_k: object())"
+   },
+   {
+    "file": "tests/unit_test/serve/test_realtime_vad_boundary.py",
+    "line": 82,
+    "ctx": "comment-or-docstring",
+    "text": "async def empty(*_a: Any, **_k: Any):"
+   },
+   {
+    "file": "tests/unit_test/fishaudio_s2_pro/test_pipeline.py",
+    "line": 1674,
+    "ctx": "comment-or-docstring",
+    "text": "_k: torch.Tensor,"
+   }
+  ]
+ },
+ "_latent": {
+  "definition_sites": [
+   {
+    "file": "sglang_omni/models/yue2/modeling_vae.py",
+    "line": 691,
+    "kind": "function",
+    "owner": "YuE2VAE"
+   }
+  ],
+  "violation_count": 3,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/modeling_vae.py",
+    "line": 691,
+    "col": 4,
+    "kind": "function",
+    "name": "_latent"
+   },
+   {
+    "path": "sglang_omni/models/yue2/modeling_vae.py",
+    "line": 759,
+    "col": 22,
+    "kind": "attribute",
+    "name": "_latent"
+   },
+   {
+    "path": "sglang_omni/models/yue2/modeling_vae.py",
+    "line": 798,
+    "col": 22,
+    "kind": "attribute",
+    "name": "_latent"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/modeling_vae.py": 3
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/modeling_vae.py",
+    "line": 691,
+    "ctx": "def",
+    "text": "def _latent(self, latent):"
+   },
+   {
+    "file": "sglang_omni/models/yue2/modeling_vae.py",
+    "line": 759,
+    "ctx": "attr:self",
+    "text": "latent = self._latent(latent)"
+   },
+   {
+    "file": "sglang_omni/models/yue2/modeling_vae.py",
+    "line": 798,
+    "ctx": "attr:self",
+    "text": "latent = self._latent(latent)"
+   }
+  ]
+ },
+ "_live": {
+  "definition_sites": [],
+  "violation_count": 3,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 768,
+    "col": 13,
+    "kind": "attribute",
+    "name": "_live"
+   },
+   {
+    "path": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 796,
+    "col": 17,
+    "kind": "attribute",
+    "name": "_live"
+   },
+   {
+    "path": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 817,
+    "col": 38,
+    "kind": "attribute",
+    "name": "_live"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/cuda_graph.py": 3
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 768,
+    "ctx": "attr:self",
+    "text": "self._live = 0"
+   },
+   {
+    "file": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 796,
+    "ctx": "attr:self",
+    "text": "self._live += 1"
+   },
+   {
+    "file": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 817,
+    "ctx": "attr:self",
+    "text": "\"live_sessions\": self._live,"
+   }
+  ]
+ },
+ "_load_topk_backend": {
+  "definition_sites": [
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 47,
+    "kind": "function",
+    "owner": "<module>"
+   }
+  ],
+  "violation_count": 1,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 47,
+    "col": 0,
+    "kind": "function",
+    "name": "_load_topk_backend"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/fastpath.py": 5,
+   "sglang_omni/models/yue2/song.py": 2
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/song.py",
+    "line": 22,
+    "ctx": "import",
+    "text": "_load_topk_backend,"
+   },
+   {
+    "file": "sglang_omni/models/yue2/song.py",
+    "line": 123,
+    "ctx": "name",
+    "text": "if _load_topk_backend() is None:"
+   },
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 47,
+    "ctx": "def",
+    "text": "def _load_topk_backend():"
+   },
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 84,
+    "ctx": "name",
+    "text": "backend = _load_topk_backend()"
+   },
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 102,
+    "ctx": "name",
+    "text": "topk_backend = _load_topk_backend()"
+   },
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 216,
+    "ctx": "name",
+    "text": "topk_backend = _load_topk_backend()"
+   },
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 410,
+    "ctx": "name",
+    "text": "topk_backend = _load_topk_backend()"
+   }
+  ]
+ },
+ "_load_varlen": {
+  "definition_sites": [
+   {
+    "file": "sglang_omni/models/yue2/fa3.py",
+    "line": 29,
+    "kind": "function",
+    "owner": "<module>"
+   }
+  ],
+  "violation_count": 1,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/fa3.py",
+    "line": 29,
+    "col": 0,
+    "kind": "function",
+    "name": "_load_varlen"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/fa3.py": 3
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/fa3.py",
+    "line": 29,
+    "ctx": "def",
+    "text": "def _load_varlen():"
+   },
+   {
+    "file": "sglang_omni/models/yue2/fa3.py",
+    "line": 55,
+    "ctx": "name",
+    "text": "return _load_varlen() is not None"
+   },
+   {
+    "file": "sglang_omni/models/yue2/fa3.py",
+    "line": 65,
+    "ctx": "name",
+    "text": "varlen = _load_varlen()"
+   }
+  ]
+ },
+ "_lock": {
+  "definition_sites": [],
+  "violation_count": 10,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/batched.py",
+    "line": 59,
+    "col": 13,
+    "kind": "attribute",
+    "name": "_lock"
+   },
+   {
+    "path": "sglang_omni/models/yue2/batched.py",
+    "line": 62,
+    "col": 18,
+    "kind": "attribute",
+    "name": "_lock"
+   },
+   {
+    "path": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 769,
+    "col": 13,
+    "kind": "attribute",
+    "name": "_lock"
+   },
+   {
+    "path": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 783,
+    "col": 18,
+    "kind": "attribute",
+    "name": "_lock"
+   },
+   {
+    "path": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 795,
+    "col": 18,
+    "kind": "attribute",
+    "name": "_lock"
+   },
+   {
+    "path": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 805,
+    "col": 18,
+    "kind": "attribute",
+    "name": "_lock"
+   },
+   {
+    "path": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 815,
+    "col": 18,
+    "kind": "attribute",
+    "name": "_lock"
+   },
+   {
+    "path": "sglang_omni/models/yue2/nar_fast.py",
+    "line": 536,
+    "col": 13,
+    "kind": "attribute",
+    "name": "_lock"
+   },
+   {
+    "path": "sglang_omni/models/yue2/nar_fast.py",
+    "line": 540,
+    "col": 18,
+    "kind": "attribute",
+    "name": "_lock"
+   },
+   {
+    "path": "sglang_omni/models/yue2/nar_fast.py",
+    "line": 556,
+    "col": 18,
+    "kind": "attribute",
+    "name": "_lock"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/arkasr/encoder_cuda_graph.py": 1,
+   "sglang_omni/models/yue2/batched.py": 2,
+   "sglang_omni/models/yue2/cuda_graph.py": 5,
+   "sglang_omni/models/yue2/nar_fast.py": 3,
+   "tests/unit_test/scripts/test_check_leading_underscore.py": 4
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/nar_fast.py",
+    "line": 536,
+    "ctx": "attr:self",
+    "text": "self._lock = threading.Lock()"
+   },
+   {
+    "file": "sglang_omni/models/yue2/nar_fast.py",
+    "line": 540,
+    "ctx": "attr:self",
+    "text": "with self._lock:"
+   },
+   {
+    "file": "sglang_omni/models/yue2/nar_fast.py",
+    "line": 556,
+    "ctx": "attr:self",
+    "text": "with self._lock:"
+   },
+   {
+    "file": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 769,
+    "ctx": "attr:self",
+    "text": "self._lock = threading.Lock()"
+   },
+   {
+    "file": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 783,
+    "ctx": "attr:self",
+    "text": "with self._lock:"
+   },
+   {
+    "file": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 795,
+    "ctx": "attr:self",
+    "text": "with self._lock:"
+   },
+   {
+    "file": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 805,
+    "ctx": "attr:self",
+    "text": "with self._lock:"
+   },
+   {
+    "file": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 815,
+    "ctx": "attr:self",
+    "text": "with self._lock:"
+   },
+   {
+    "file": "sglang_omni/models/yue2/batched.py",
+    "line": 59,
+    "ctx": "attr:self",
+    "text": "self._lock = threading.Lock()"
+   },
+   {
+    "file": "sglang_omni/models/yue2/batched.py",
+    "line": 62,
+    "ctx": "attr:self",
+    "text": "with self._lock:"
+   },
+   {
+    "file": "sglang_omni/models/arkasr/encoder_cuda_graph.py",
+    "line": 191,
+    "ctx": "string:Capture one startup bucket. Caller holds",
+    "text": "\"\"\"Capture one startup bucket. Caller holds _lock.\"\"\""
+   },
+   {
+    "file": "tests/unit_test/scripts/test_check_leading_underscore.py",
+    "line": 249,
+    "ctx": "comment-or-docstring",
+    "text": "with request._lock:"
+   },
+   {
+    "file": "tests/unit_test/scripts/test_check_leading_underscore.py",
+    "line": 257,
+    "ctx": "string:_lock",
+    "text": "(3, \"_lock\"),"
+   },
+   {
+    "file": "tests/unit_test/scripts/test_check_leading_underscore.py",
+    "line": 267,
+    "ctx": "comment-or-docstring",
+    "text": "request._lock"
+   },
+   {
+    "file": "tests/unit_test/scripts/test_check_leading_underscore.py",
+    "line": 291,
+    "ctx": "comment-or-docstring",
+    "text": "request._lock"
+   }
+  ]
+ },
+ "_masks": {
+  "definition_sites": [],
+  "violation_count": 3,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 118,
+    "col": 13,
+    "kind": "attribute",
+    "name": "_masks"
+   },
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 122,
+    "col": 20,
+    "kind": "attribute",
+    "name": "_masks"
+   },
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 137,
+    "col": 17,
+    "kind": "attribute",
+    "name": "_masks"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/fastpath.py": 3
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 118,
+    "ctx": "attr:self",
+    "text": "self._masks: dict[str, torch.Tensor] = {}"
+   },
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 122,
+    "ctx": "attr:self",
+    "text": "mask = self._masks.get(phase)"
+   },
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 137,
+    "ctx": "attr:self",
+    "text": "self._masks[phase] = mask"
+   }
+  ]
+ },
+ "_mixed": {
+  "definition_sites": [],
+  "violation_count": 5,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 478,
+    "col": 13,
+    "kind": "attribute",
+    "name": "_mixed"
+   },
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 578,
+    "col": 66,
+    "kind": "attribute",
+    "name": "_mixed"
+   },
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 584,
+    "col": 34,
+    "kind": "attribute",
+    "name": "_mixed"
+   },
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 584,
+    "col": 51,
+    "kind": "attribute",
+    "name": "_mixed"
+   },
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 584,
+    "col": 72,
+    "kind": "attribute",
+    "name": "_mixed"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/fastpath.py": 3
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 478,
+    "ctx": "attr:self",
+    "text": "self._mixed = torch.empty("
+   },
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 578,
+    "ctx": "attr:self",
+    "text": "torch.where(forced, self._end_only, self.scores, out=self._mixed)"
+   },
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 584,
+    "ctx": "attr:self",
+    "text": "scores = torch.where(self._mixed < 0, self._mixed * alpha, self._mixed / alpha)"
+   }
+  ]
+ },
+ "_offload_ar": {
+  "definition_sites": [
+   {
+    "file": "sglang_omni/models/yue2/nar.py",
+    "line": 326,
+    "kind": "function",
+    "owner": "<module>"
+   }
+  ],
+  "violation_count": 1,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/nar.py",
+    "line": 326,
+    "col": 0,
+    "kind": "function",
+    "name": "_offload_ar"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/nar.py": 2
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/nar.py",
+    "line": 326,
+    "ctx": "def",
+    "text": "def _offload_ar(model, enabled):"
+   },
+   {
+    "file": "sglang_omni/models/yue2/nar.py",
+    "line": 397,
+    "ctx": "name",
+    "text": "with _offload_ar(model, offload_ar):"
+   }
+  ]
+ },
+ "_ones_w": {
+  "definition_sites": [],
+  "violation_count": 1,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 285,
+    "col": 13,
+    "kind": "attribute",
+    "name": "_ones_w"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/fastpath.py": 1
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 285,
+    "ctx": "attr:self",
+    "text": "self._ones_w = torch.ones("
+   }
+  ]
+ },
+ "_output_length": {
+  "definition_sites": [
+   {
+    "file": "sglang_omni/models/yue2/modeling_vae.py",
+    "line": 479,
+    "kind": "function",
+    "owner": "<module>"
+   }
+  ],
+  "violation_count": 1,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/modeling_vae.py",
+    "line": 479,
+    "col": 0,
+    "kind": "function",
+    "name": "_output_length"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/modeling_vae.py": 3
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/modeling_vae.py",
+    "line": 479,
+    "ctx": "def",
+    "text": "def _output_length(module, length):"
+   },
+   {
+    "file": "sglang_omni/models/yue2/modeling_vae.py",
+    "line": 483,
+    "ctx": "name",
+    "text": "length = _output_length(child, length)"
+   },
+   {
+    "file": "sglang_omni/models/yue2/modeling_vae.py",
+    "line": 770,
+    "ctx": "name",
+    "text": "return _output_length(self.decoder, int(frames))"
+   }
+  ]
+ },
+ "_phase_mask": {
+  "definition_sites": [
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 121,
+    "kind": "function",
+    "owner": "FastSampler"
+   }
+  ],
+  "violation_count": 3,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 121,
+    "col": 4,
+    "kind": "function",
+    "name": "_phase_mask"
+   },
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 144,
+    "col": 13,
+    "kind": "attribute",
+    "name": "_phase_mask"
+   },
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 164,
+    "col": 20,
+    "kind": "attribute",
+    "name": "_phase_mask"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/fastpath.py": 3
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 121,
+    "ctx": "def",
+    "text": "def _phase_mask(self, phase: str) -> torch.Tensor:"
+   },
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 144,
+    "ctx": "attr:self",
+    "text": "self._phase_mask(phase)"
+   },
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 164,
+    "ctx": "attr:self",
+    "text": "mask = self._phase_mask(phase)"
+   }
+  ]
+ },
+ "_prefill": {
+  "definition_sites": [
+   {
+    "file": "sglang_omni/models/yue2/nar.py",
+    "line": 223,
+    "kind": "function",
+    "owner": "CachedNAR"
+   }
+  ],
+  "violation_count": 2,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/nar.py",
+    "line": 210,
+    "col": 13,
+    "kind": "attribute",
+    "name": "_prefill"
+   },
+   {
+    "path": "sglang_omni/models/yue2/nar.py",
+    "line": 223,
+    "col": 4,
+    "kind": "function",
+    "name": "_prefill"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/nar.py": 2
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/nar.py",
+    "line": 210,
+    "ctx": "attr:self",
+    "text": "self._prefill()"
+   },
+   {
+    "file": "sglang_omni/models/yue2/nar.py",
+    "line": 223,
+    "ctx": "def",
+    "text": "def _prefill(self):"
+   }
+  ]
+ },
+ "_refs": {
+  "definition_sites": [],
+  "violation_count": 3,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/batched.py",
+    "line": 57,
+    "col": 13,
+    "kind": "attribute",
+    "name": "_refs"
+   },
+   {
+    "path": "sglang_omni/models/yue2/batched.py",
+    "line": 63,
+    "col": 17,
+    "kind": "attribute",
+    "name": "_refs"
+   },
+   {
+    "path": "sglang_omni/models/yue2/batched.py",
+    "line": 64,
+    "col": 20,
+    "kind": "attribute",
+    "name": "_refs"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/batched.py": 3
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/batched.py",
+    "line": 57,
+    "ctx": "attr:self",
+    "text": "self._refs = int(refs)"
+   },
+   {
+    "file": "sglang_omni/models/yue2/batched.py",
+    "line": 63,
+    "ctx": "attr:self",
+    "text": "self._refs -= 1"
+   },
+   {
+    "file": "sglang_omni/models/yue2/batched.py",
+    "line": 64,
+    "ctx": "attr:self",
+    "text": "if self._refs > 0 or self._released:"
+   }
+  ]
+ },
+ "_released": {
+  "definition_sites": [],
+  "violation_count": 3,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/batched.py",
+    "line": 58,
+    "col": 13,
+    "kind": "attribute",
+    "name": "_released"
+   },
+   {
+    "path": "sglang_omni/models/yue2/batched.py",
+    "line": 64,
+    "col": 38,
+    "kind": "attribute",
+    "name": "_released"
+   },
+   {
+    "path": "sglang_omni/models/yue2/batched.py",
+    "line": 68,
+    "col": 17,
+    "kind": "attribute",
+    "name": "_released"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/batched.py": 3
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/batched.py",
+    "line": 58,
+    "ctx": "attr:self",
+    "text": "self._released = False"
+   },
+   {
+    "file": "sglang_omni/models/yue2/batched.py",
+    "line": 64,
+    "ctx": "attr:self",
+    "text": "if self._refs > 0 or self._released:"
+   },
+   {
+    "file": "sglang_omni/models/yue2/batched.py",
+    "line": 68,
+    "ctx": "attr:self",
+    "text": "self._released = True"
+   }
+  ]
+ },
+ "_rows": {
+  "definition_sites": [],
+  "violation_count": 4,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 481,
+    "col": 13,
+    "kind": "attribute",
+    "name": "_rows"
+   },
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 604,
+    "col": 29,
+    "kind": "attribute",
+    "name": "_rows"
+   },
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 605,
+    "col": 27,
+    "kind": "attribute",
+    "name": "_rows"
+   },
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 607,
+    "col": 32,
+    "kind": "attribute",
+    "name": "_rows"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/fastpath.py": 4,
+   "sglang_omni/models/zonos2/sampler.py": 5
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 481,
+    "ctx": "attr:self",
+    "text": "self._rows = torch.arange(self.B, device=device)"
+   },
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 604,
+    "ctx": "attr:self",
+    "text": "self.window_buf[self._rows, slot] = self.token_buf[:, 0]"
+   },
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 605,
+    "ctx": "attr:self",
+    "text": "self.slot_seq[self._rows, slot] = self.step_buf"
+   },
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 607,
+    "ctx": "attr:self",
+    "text": "self.token_history[self._rows, index] = self.token_buf[:, 0].to(torch.int32)"
+   },
+   {
+    "file": "sglang_omni/models/zonos2/sampler.py",
+    "line": 107,
+    "ctx": "def",
+    "text": "def _rows(t: torch.Tensor, dtype: torch.dtype) -> torch.Tensor:"
+   },
+   {
+    "file": "sglang_omni/models/zonos2/sampler.py",
+    "line": 110,
+    "ctx": "name",
+    "text": "temp_row = _rows(temperature, torch.float32)"
+   },
+   {
+    "file": "sglang_omni/models/zonos2/sampler.py",
+    "line": 115,
+    "ctx": "name",
+    "text": "scores = apply_top_k(scores, _rows(top_k, torch.long), top_k_max)"
+   },
+   {
+    "file": "sglang_omni/models/zonos2/sampler.py",
+    "line": 121,
+    "ctx": "name",
+    "text": "scores = apply_top_p(scores, _rows(top_p, torch.float32))"
+   },
+   {
+    "file": "sglang_omni/models/zonos2/sampler.py",
+    "line": 125,
+    "ctx": "name",
+    "text": "scores = apply_min_p(scores, _rows(min_p, torch.float32))"
+   }
+  ]
+ },
+ "_sample_next": {
+  "definition_sites": [
+   {
+    "file": "sglang_omni/models/yue2/sampling.py",
+    "line": 83,
+    "kind": "function",
+    "owner": "<module>"
+   }
+  ],
+  "violation_count": 1,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/sampling.py",
+    "line": 83,
+    "col": 0,
+    "kind": "function",
+    "name": "_sample_next"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/sampling.py": 2
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/sampling.py",
+    "line": 83,
+    "ctx": "def",
+    "text": "def _sample_next("
+   },
+   {
+    "file": "sglang_omni/models/yue2/sampling.py",
+    "line": 161,
+    "ctx": "name",
+    "text": "next_id = _sample_next("
+   }
+  ]
+ },
+ "_schema": {
+  "definition_sites": [],
+  "violation_count": 1,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 196,
+    "col": 71,
+    "kind": "attribute",
+    "name": "_schema"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/cuda_graph.py": 1
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 196,
+    "ctx": "attr:torch.ops.aten._flash_attention_forward.default",
+    "text": "in str(torch.ops.aten._flash_attention_forward.default._schema)"
+   }
+  ]
+ },
+ "_seen_tokens": {
+  "definition_sites": [],
+  "violation_count": 5,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/modeling_yue2.py",
+    "line": 502,
+    "col": 13,
+    "kind": "attribute",
+    "name": "_seen_tokens"
+   },
+   {
+    "path": "sglang_omni/models/yue2/modeling_yue2.py",
+    "line": 527,
+    "col": 20,
+    "kind": "attribute",
+    "name": "_seen_tokens"
+   },
+   {
+    "path": "sglang_omni/models/yue2/modeling_yue2.py",
+    "line": 531,
+    "col": 19,
+    "kind": "attribute",
+    "name": "_seen_tokens"
+   },
+   {
+    "path": "sglang_omni/models/yue2/modeling_yue2.py",
+    "line": 542,
+    "col": 17,
+    "kind": "attribute",
+    "name": "_seen_tokens"
+   },
+   {
+    "path": "sglang_omni/models/yue2/modeling_yue2.py",
+    "line": 551,
+    "col": 13,
+    "kind": "attribute",
+    "name": "_seen_tokens"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/modeling_yue2.py": 5
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/modeling_yue2.py",
+    "line": 502,
+    "ctx": "attr:self",
+    "text": "self._seen_tokens = 0"
+   },
+   {
+    "file": "sglang_omni/models/yue2/modeling_yue2.py",
+    "line": 527,
+    "ctx": "attr:self",
+    "text": "return self._seen_tokens"
+   },
+   {
+    "file": "sglang_omni/models/yue2/modeling_yue2.py",
+    "line": 531,
+    "ctx": "attr:self",
+    "text": "pos = self._seen_tokens"
+   },
+   {
+    "file": "sglang_omni/models/yue2/modeling_yue2.py",
+    "line": 542,
+    "ctx": "attr:self",
+    "text": "self._seen_tokens = end"
+   },
+   {
+    "file": "sglang_omni/models/yue2/modeling_yue2.py",
+    "line": 551,
+    "ctx": "attr:self",
+    "text": "self._seen_tokens = 0"
+   }
+  ]
+ },
+ "_sgl_kernel": {
+  "definition_sites": [
+   {
+    "file": "sglang_omni/models/yue2/nar_fast.py",
+    "line": 22,
+    "kind": "function",
+    "owner": "<module>"
+   }
+  ],
+  "violation_count": 1,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/nar_fast.py",
+    "line": 22,
+    "col": 0,
+    "kind": "function",
+    "name": "_sgl_kernel"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/nar_fast.py": 3
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/nar_fast.py",
+    "line": 22,
+    "ctx": "def",
+    "text": "def _sgl_kernel():"
+   },
+   {
+    "file": "sglang_omni/models/yue2/nar_fast.py",
+    "line": 75,
+    "ctx": "name",
+    "text": "kernel = _sgl_kernel()"
+   },
+   {
+    "file": "sglang_omni/models/yue2/nar_fast.py",
+    "line": 276,
+    "ctx": "name",
+    "text": "kernel = _sgl_kernel()"
+   }
+  ]
+ },
+ "_shift_t_value": {
+  "definition_sites": [
+   {
+    "file": "sglang_omni/models/yue2/modeling_yue2.py",
+    "line": 863,
+    "kind": "function",
+    "owner": "YuE2ForCausalLM"
+   }
+  ],
+  "violation_count": 6,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/modeling_yue2.py",
+    "line": 863,
+    "col": 4,
+    "kind": "function",
+    "name": "_shift_t_value"
+   },
+   {
+    "path": "sglang_omni/models/yue2/modeling_yue2.py",
+    "line": 905,
+    "col": 25,
+    "kind": "attribute",
+    "name": "_shift_t_value"
+   },
+   {
+    "path": "sglang_omni/models/yue2/nar.py",
+    "line": 251,
+    "col": 24,
+    "kind": "attribute",
+    "name": "_shift_t_value"
+   },
+   {
+    "path": "sglang_omni/models/yue2/nar_fast.py",
+    "line": 157,
+    "col": 28,
+    "kind": "attribute",
+    "name": "_shift_t_value"
+   },
+   {
+    "path": "sglang_omni/models/yue2/nar_fast.py",
+    "line": 363,
+    "col": 24,
+    "kind": "attribute",
+    "name": "_shift_t_value"
+   },
+   {
+    "path": "sglang_omni/models/yue2/nar_fast.py",
+    "line": 520,
+    "col": 23,
+    "kind": "attribute",
+    "name": "_shift_t_value"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/modeling_yue2.py": 2,
+   "sglang_omni/models/yue2/nar.py": 1,
+   "sglang_omni/models/yue2/nar_fast.py": 3
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/nar_fast.py",
+    "line": 157,
+    "ctx": "attr:model",
+    "text": "shifted = model._shift_t_value(raw_t, self.device, self.dtype)"
+   },
+   {
+    "file": "sglang_omni/models/yue2/nar_fast.py",
+    "line": 363,
+    "ctx": "attr:model",
+    "text": "shifted = model._shift_t_value(raw_t, self.device, self.dtype)"
+   },
+   {
+    "file": "sglang_omni/models/yue2/nar_fast.py",
+    "line": 520,
+    "ctx": "attr:self.model",
+    "text": "self.model._shift_t_value(raw_t, self.device, self.dtype)"
+   },
+   {
+    "file": "sglang_omni/models/yue2/nar.py",
+    "line": 251,
+    "ctx": "attr:model",
+    "text": "shifted = model._shift_t_value(raw_t, self.device, self.dtype)"
+   },
+   {
+    "file": "sglang_omni/models/yue2/modeling_yue2.py",
+    "line": 863,
+    "ctx": "def",
+    "text": "def _shift_t_value("
+   },
+   {
+    "file": "sglang_omni/models/yue2/modeling_yue2.py",
+    "line": 905,
+    "ctx": "attr:self",
+    "text": "t_shifted = self._shift_t_value(t_value, device, dtype)"
+   }
+  ]
+ },
+ "_step_once": {
+  "definition_sites": [
+   {
+    "file": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 535,
+    "kind": "function",
+    "owner": "GraphAR"
+   }
+  ],
+  "violation_count": 3,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 535,
+    "col": 4,
+    "kind": "function",
+    "name": "_step_once"
+   },
+   {
+    "path": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 557,
+    "col": 29,
+    "kind": "attribute",
+    "name": "_step_once"
+   },
+   {
+    "path": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 576,
+    "col": 39,
+    "kind": "attribute",
+    "name": "_step_once"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/cuda_graph.py": 3
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 535,
+    "ctx": "def",
+    "text": "def _step_once(self):"
+   },
+   {
+    "file": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 557,
+    "ctx": "attr:self",
+    "text": "self._step_once()"
+   },
+   {
+    "file": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 576,
+    "ctx": "attr:self",
+    "text": "self.output = self._step_once()"
+   }
+  ]
+ },
+ "_topk_ranks": {
+  "definition_sites": [],
+  "violation_count": 4,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 279,
+    "col": 13,
+    "kind": "attribute",
+    "name": "_topk_ranks"
+   },
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 368,
+    "col": 34,
+    "kind": "attribute",
+    "name": "_topk_ranks"
+   },
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 476,
+    "col": 13,
+    "kind": "attribute",
+    "name": "_topk_ranks"
+   },
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 593,
+    "col": 34,
+    "kind": "attribute",
+    "name": "_topk_ranks"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/fastpath.py": 4
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 279,
+    "ctx": "attr:self",
+    "text": "self._topk_ranks = torch.arange("
+   },
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 368,
+    "ctx": "attr:self",
+    "text": "removed = removed | (self._topk_ranks >= self.topk_buf)"
+   },
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 476,
+    "ctx": "attr:self",
+    "text": "self._topk_ranks = torch.arange(max_topk, device=device, dtype=torch.int32)"
+   },
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 593,
+    "ctx": "attr:self",
+    "text": "removed = removed | (self._topk_ranks[None, :] >= self.topk_buf[:, None])"
+   }
+  ]
+ },
+ "_velocity_impl": {
+  "definition_sites": [
+   {
+    "file": "sglang_omni/models/yue2/nar_fast.py",
+    "line": 526,
+    "kind": "function",
+    "owner": "_VelocityGraph"
+   }
+  ],
+  "violation_count": 3,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/nar_fast.py",
+    "line": 492,
+    "col": 21,
+    "kind": "attribute",
+    "name": "_velocity_impl"
+   },
+   {
+    "path": "sglang_omni/models/yue2/nar_fast.py",
+    "line": 498,
+    "col": 35,
+    "kind": "attribute",
+    "name": "_velocity_impl"
+   },
+   {
+    "path": "sglang_omni/models/yue2/nar_fast.py",
+    "line": 526,
+    "col": 4,
+    "kind": "function",
+    "name": "_velocity_impl"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/nar_fast.py": 3
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/nar_fast.py",
+    "line": 492,
+    "ctx": "attr:self",
+    "text": "self._velocity_impl(self.state_buf)"
+   },
+   {
+    "file": "sglang_omni/models/yue2/nar_fast.py",
+    "line": 498,
+    "ctx": "attr:self",
+    "text": "self.output_buf = self._velocity_impl(self.state_buf)"
+   },
+   {
+    "file": "sglang_omni/models/yue2/nar_fast.py",
+    "line": 526,
+    "ctx": "def",
+    "text": "def _velocity_impl(self, state):"
+   }
+  ]
+ },
+ "_window_penalty_": {
+  "definition_sites": [
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 614,
+    "kind": "function",
+    "owner": "<module>"
+   }
+  ],
+  "violation_count": 1,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 614,
+    "col": 0,
+    "kind": "function",
+    "name": "_window_penalty_"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/fastpath.py": 2
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 172,
+    "ctx": "name",
+    "text": "_window_penalty_("
+   },
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 614,
+    "ctx": "def",
+    "text": "def _window_penalty_("
+   }
+  ]
+ },
+ "_window_weights": {
+  "definition_sites": [],
+  "violation_count": 6,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 275,
+    "col": 13,
+    "kind": "attribute",
+    "name": "_window_weights"
+   },
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 355,
+    "col": 13,
+    "kind": "attribute",
+    "name": "_window_weights"
+   },
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 356,
+    "col": 57,
+    "kind": "attribute",
+    "name": "_window_weights"
+   },
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 473,
+    "col": 13,
+    "kind": "attribute",
+    "name": "_window_weights"
+   },
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 581,
+    "col": 13,
+    "kind": "attribute",
+    "name": "_window_weights"
+   },
+   {
+    "path": "sglang_omni/models/yue2/fastpath.py",
+    "line": 582,
+    "col": 57,
+    "kind": "attribute",
+    "name": "_window_weights"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/fastpath.py": 6
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 275,
+    "ctx": "attr:self",
+    "text": "self._window_weights = torch.ones("
+   },
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 355,
+    "ctx": "attr:self",
+    "text": "self._window_weights.copy_(self._ages <= self.window_len_buf)"
+   },
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 356,
+    "ctx": "attr:self",
+    "text": "self._freq.scatter_add_(0, self.window_buf, self._window_weights)"
+   },
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 473,
+    "ctx": "attr:self",
+    "text": "self._window_weights = torch.ones("
+   },
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 581,
+    "ctx": "attr:self",
+    "text": "self._window_weights.copy_(self._ages <= self.window_len_buf[:, None])"
+   },
+   {
+    "file": "sglang_omni/models/yue2/fastpath.py",
+    "line": 582,
+    "ctx": "attr:self",
+    "text": "self._freq.scatter_add_(1, self.window_buf, self._window_weights)"
+   }
+  ]
+ },
+ "_windows": {
+  "definition_sites": [
+   {
+    "file": "sglang_omni/models/yue2/streaming.py",
+    "line": 41,
+    "kind": "function",
+    "owner": "<module>"
+   }
+  ],
+  "violation_count": 1,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/streaming.py",
+    "line": 41,
+    "col": 0,
+    "kind": "function",
+    "name": "_windows"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/streaming.py": 2
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/streaming.py",
+    "line": 41,
+    "ctx": "def",
+    "text": "def _windows(total: int, window: int, overlap: int) -> list[tuple[int, int]]:"
+   },
+   {
+    "file": "sglang_omni/models/yue2/streaming.py",
+    "line": 85,
+    "ctx": "name",
+    "text": "for start, end in _windows(len(codec), config.codec_window, config.codec_overlap):"
+   }
+  ]
+ },
+ "_yue2_fp8_originals": {
+  "definition_sites": [],
+  "violation_count": 3,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 162,
+    "col": 26,
+    "kind": "attribute",
+    "name": "_yue2_fp8_originals"
+   },
+   {
+    "path": "sglang_omni/models/yue2/sampling.py",
+    "line": 293,
+    "col": 31,
+    "kind": "attribute",
+    "name": "_yue2_fp8_originals"
+   },
+   {
+    "path": "sglang_omni/models/yue2/sampling.py",
+    "line": 393,
+    "col": 34,
+    "kind": "attribute",
+    "name": "_yue2_fp8_originals"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/cuda_graph.py": 1,
+   "sglang_omni/models/yue2/sampling.py": 2
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 162,
+    "ctx": "string:_yue2_fp8_originals",
+    "text": "if getattr(model, \"_yue2_fp8_originals\", None) or any("
+   },
+   {
+    "file": "sglang_omni/models/yue2/sampling.py",
+    "line": 293,
+    "ctx": "string:_yue2_fp8_originals",
+    "text": "and not getattr(model, \"_yue2_fp8_originals\", {})"
+   },
+   {
+    "file": "sglang_omni/models/yue2/sampling.py",
+    "line": 393,
+    "ctx": "string:_yue2_fp8_originals",
+    "text": "if getattr(model, \"_yue2_fp8_originals\", {})"
+   }
+  ]
+ },
+ "_yue2_fused_nar_weights": {
+  "definition_sites": [],
+  "violation_count": 2,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/nar_fast.py",
+    "line": 44,
+    "col": 28,
+    "kind": "attribute",
+    "name": "_yue2_fused_nar_weights"
+   },
+   {
+    "path": "sglang_omni/models/yue2/nar_fast.py",
+    "line": 60,
+    "col": 14,
+    "kind": "attribute",
+    "name": "_yue2_fused_nar_weights"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/nar_fast.py": 2
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/nar_fast.py",
+    "line": 44,
+    "ctx": "string:_yue2_fused_nar_weights",
+    "text": "cached = getattr(model, \"_yue2_fused_nar_weights\", None)"
+   },
+   {
+    "file": "sglang_omni/models/yue2/nar_fast.py",
+    "line": 60,
+    "ctx": "attr:model",
+    "text": "model._yue2_fused_nar_weights = layers"
+   }
+  ]
+ },
+ "_yue2_fused_weights": {
+  "definition_sites": [],
+  "violation_count": 2,
+  "violations": [
+   {
+    "path": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 39,
+    "col": 28,
+    "kind": "attribute",
+    "name": "_yue2_fused_weights"
+   },
+   {
+    "path": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 55,
+    "col": 14,
+    "kind": "attribute",
+    "name": "_yue2_fused_weights"
+   }
+  ],
+  "reference_files": {
+   "sglang_omni/models/yue2/cuda_graph.py": 2
+  },
+  "references": [
+   {
+    "file": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 39,
+    "ctx": "string:_yue2_fused_weights",
+    "text": "cached = getattr(model, \"_yue2_fused_weights\", None)"
+   },
+   {
+    "file": "sglang_omni/models/yue2/cuda_graph.py",
+    "line": 55,
+    "ctx": "attr:model",
+    "text": "model._yue2_fused_weights = layers"
+   }
+  ]
+ }
+}
