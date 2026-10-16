@@ -1,0 +1,17 @@
+{
+ "session": "main pass 2026-10-14T13:23Z..2026-10-15T12:44:18Z (before prompt-164 resume)",
+ "expected": 384,
+ "complete": 382,
+ "failed": 2,
+ "pending": 0,
+ "wall_s": 83989.3,
+ "peak_vram_bytes": 51501813760,
+ "peak_gtt_bytes": 3049668608,
+ "stopped_by_signal": false,
+ "note": "source: driver stdout bench/logs/omniwsb20261014T1323Z.log (summary block, finished_at 2026-10-15T12:44:18Z). The on-disk generation_summary.json was later overwritten by the prompt-164 resume session (828.2s, 2 candidates); both are true for their sessions.",
+ "resume_pass": {
+  "complete": 2,
+  "wall_s": 828.2,
+  "peak_vram_bytes": 48044036096
+ }
+}

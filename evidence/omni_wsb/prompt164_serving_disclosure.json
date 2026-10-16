@@ -1,0 +1,11 @@
+{
+  "receipt_type": "serving_exception_disclosure",
+  "run_id": "omniwsb20261014T1323Z",
+  "recorded_at_utc": "2026-10-15T13:50:00Z",
+  "scope": "prompt 164 (wsb_164_r0_s831165, wsb_164_r1_s831183) ONLY",
+  "issue": "Omni generic TTS input cap (MAX_SPEECH_INPUT_CHARS=4096, sglang_omni/config/schema.py:77, enforced speech_service.py:306) rejected prompt 164's nested YuE2 input (4194 chars incl. artifacts_dir; 4114 without). Both candidates failed with HTTP 400 in the main pass (6 attempts, manifest generation_failed records superseded).",
+  "resolution": "Candidates regenerated from a cap-exempt worktree: bench/omni-wsb-capfix @ c853135a3922c4e242f3fb942ed702e71c0f11d1, single delta = Yue2PipelineConfig.max_speech_input_chars=None (moss_tts precedent: sglang_omni/models/moss_tts/config.py:105). Server serve_omni_yue2_gfx1100_capfix.sh, PYTHONPATH=repo-ws164 verified in /proc/<pid>/environ. yue2 model/runtime files byte-identical to pinned tree c4841f0c (identical runtime_sha256 across all 384 configs - verified by independent audit).",
+  "impact": "Serving-layer input validation only; no model-math, sampling, seeds, numerics, or artifact changes. All other 382 candidates served by the pinned c4841f0c tree.",
+  "upstream_action": "Real integration finding: Omni must exempt YuE2 (or raise the cap) for full-song lyrics; original SGLang endpoint had no such cap. To be reported to the author with PR #1 evidence.",
+  "result": "Both candidates complete, truncated=true recorded (semantic budget reached), protocol-conformant per independent audit."
+}

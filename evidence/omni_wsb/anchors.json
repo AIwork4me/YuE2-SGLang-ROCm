@@ -1,0 +1,30 @@
+{
+ "scores_per_song": {
+  "sha256": "7e8431f5337ceb26259ac1b1392368311a989e82f942ecd120cd4ce5b0aa40e6",
+  "bytes": 17221696
+ },
+ "scores_protocol": {
+  "sha256": "5e58f1e30f755418df90a47baf9c00367aa33cbfcf5ab3e10fabe1311bb31428",
+  "bytes": 27977
+ },
+ "additional_protocol": {
+  "sha256": "999c9655ea67dedf4be56e33fd92bbf70563d11cdac31a206c7dffac6598a330",
+  "bytes": 68117
+ },
+ "evaluation_inputs": {
+  "sha256": "a906ab391bf80992549fafd4b12631ec335963676d67fd790d30c39d588ac100",
+  "bytes": 36644
+ },
+ "generation_manifest": {
+  "sha256": "92ef0148f948efddcdfc3b10e98c116af08b686c7c6b2273f5aacd0dff7471fb",
+  "bytes": 443537
+ },
+ "scores_summary_full": {
+  "sha256": "b4396a79af1a0b8be5957145df607580d390f4c729e95d818661a15f0f1acc9c",
+  "bytes": 55168
+ },
+ "additional_summary_full": {
+  "sha256": "293bac3acf5e812b4973dc94f73ae83574b9cc8cfef8821dd99a62d6387b526f",
+  "bytes": 39132
+ }
+}
