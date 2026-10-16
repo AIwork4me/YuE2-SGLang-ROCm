@@ -169,8 +169,14 @@ def run_stage(server, tag, items, concurrency, out_dir, timeout, warmup=0):
         "latency_p99_s": pct(lat, 99), "latency_mean_s":
             round(statistics.mean(lat), 3) if lat else None,
         "audio_s_mean": round(statistics.mean(auds), 3) if auds else None,
-        "rtf_mean": round(statistics.mean(a / r["wall_s"] for r, a in
-                                          zip(ok, auds)), 4) if ok else None,
+        # v2 labeling (2026-10-16 erratum): the former "rtf_mean" was
+        # mean(audio/wall) = real-time generation SPEED multiplier (x), not
+        # RTF. Conventional client RTF = mean(wall/audio). Neither mean is the
+        # reciprocal of the other (Jensen gap).
+        "client_realtime_speed_x_mean": round(statistics.mean(
+            a / r["wall_s"] for r, a in zip(ok, auds)), 4) if ok else None,
+        "client_e2e_rtf_mean": round(statistics.mean(
+            r["wall_s"] / a for r, a in zip(ok, auds)), 4) if ok else None,
         "peak_vram_bytes": mon.peak_vram, "peak_gtt_bytes": mon.peak_gtt,
         "gpu_util_mean_pct": round(statistics.mean(mon.util_samples), 1)
         if mon.util_samples else None,

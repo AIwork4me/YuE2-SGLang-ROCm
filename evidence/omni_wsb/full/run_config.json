@@ -1,0 +1,26 @@
+{
+  "run_id": "omniwsb20261014T1323Z",
+  "platform": "gfx1100",
+  "gpu": "AMD Radeon W7900",
+  "serving_stack": "sglang-omni",
+  "omni_commit": "c4841f0c667f76f2cbe83f8268b1b9bf5d6feab5",
+  "omni_branch": "bench/omni-wsb",
+  "pr1_head": "50c91c0888312ae784d3c42d9536665aa517dd9d",
+  "author_base": "85ae4b733144fdc8746c5cbc131bdd1a92a8d5a9",
+  "instrumentation": "bench-only artifacts_dir export (c4841f0c); audio path identical; never pushed upstream",
+  "dataset_revision": "m-a-p/WildSongBench@e361b85a8d7365d3079fa9647641a87ce3c8c5b5",
+  "model_revision": "m-a-p/YuE2-3B@1a96eca688d6ae5d7f0feb88573fec89920fcd19",
+  "vae_revision": "m-a-p/YuE2-Vae-legacy@b54118f0fc462f08999d1ec07e88817f4ee3f770",
+  "config": {
+    "cot": "full",
+    "abc": null,
+    "cfg_scale": 1.0,
+    "ode_steps": 32,
+    "semantic_max_tokens": 9000,
+    "abc_max_tokens": 4096,
+    "vae_core_frames": 1024,
+    "vae_halo_frames": 16
+  },
+  "candidates": 2,
+  "indices": null
+}

@@ -1,5 +1,15 @@
 # SGLang-Omni YuE2 Serving Performance on Radeon W7900 (gfx1100) — BS=1 Latency and Concurrency
 
+> **ERRATUM (2026-10-16, metric labeling only — no benchmark re-run).**
+> This report's original tables labeled `mean(audio_s / request_wall_s)` as
+> "RTF". That quantity is the real-time generation **speed multiplier** (×,
+> higher = faster than real time), not conventional RTF
+> (`wall_s / audio_s`, lower = better). Corrected labels and the conventional
+> RTF column are below; per-request raw records, stage walls, latencies,
+> RPS and utilization are unchanged. Full mapping:
+> `reports/final_acceptance/SERVING_PERFORMANCE_CORRECTION.md`, recomputed
+> values: `evidence/omni_wsb/serving/CORRECTED_METRICS.json`.
+
 Benchmarks: 2026-10-16 · AMD Radeon Pro W7900D 48GB (gfx1100) · ROCm 7.14.1 · torch
 2.12.0+rocm7.14.1 · sgl-omni 0.1.7 (bench/omni-wsb @ c4841f0c = PR#1 head
 50c91c08 + comment-only + bench-only artifacts export; serving tree
@@ -41,10 +51,11 @@ weights reload; torch 2.12+rocm7.14.1; log: server_omni_capfix.log
 | E2E latency P50 / mean | 217.3 s / 218.7 s |
 | E2E latency P95 / P99 | 274.9 s / 310.0 s |
 | Generated audio mean | 223.0 s |
-| Audio seconds per wall second | 1.0197 |
-| RTF (audio_s / request wall_s) mean | 1.030 |
-| Peak VRAM | 44.04 GB (decimal) |
-| GPU utilization (sweep C=1 re-measure) | mean 99.4% / P90 100% |
+| Audio seconds per wall second (aggregate) | 1.0197 |
+| Real-time generation speed multiplier, mean of per-request audio_s/wall_s *(was mislabeled "RTF … 1.030")* | **1.030×** |
+| Client E2E RTF, mean of per-request wall_s/audio_s *(added by erratum)* | **0.975** |
+| Peak VRAM | 44.04 GB decimal = 41.01 GiB |
+| GPU utilization (sweep C=1 re-measure) | mean 99.4% / P90 100%. The BS=1 stage's own monitor reported 0% — **NOT VERIFIED** (all samples parsed 0; no per-sample journal retained); see erratum. |
 
 ## 4. Stage separation (BS=1, 384-candidate WSB statistics)
 
@@ -59,12 +70,16 @@ Source: `benchmarks/stage_split_wsb384.json` (384 plan.json timing dicts).
 
 ## 5. Concurrency sweep (GPU batch = 1; client C = 1/2/4/8)
 
-| C | OK / issued | errors | RPS | audio-s/wall-s | P50 s | P95 s | P99 s | RTF mean | peak VRAM GiB | GPU util mean |
-|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|
-| 1 | 24/24 | 0 | 0.0046 | 1.0180 | 216.7 | 274.9 | 313.8 | 1.029 | 31.4 | 99.4% |
-| 2 | 24/24 | 0 | 0.0046 | 1.0230 | 449.5 | 510.7 | 525.9 | 0.533 | 43.1 | 99.7% |
-| 4 | 24/24 | 0 | 0.0046 | 1.0232 | 896.0 | 932.1 | 986.0 | 0.304 | 43.2 | 99.8% |
-| 8 | 24/24 | 0 | 0.0046 | 1.0234 | 1736.0 | 1804.2 | 1811.0 | 0.204 | 43.2 | 99.8% |
+| C | OK / issued | errors | RPS | audio-s/wall-s | P50 s | P95 s | P99 s | speed× mean *(was "RTF mean")* | client E2E RTF mean *(added)* | peak VRAM GiB | GPU util mean |
+|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 1 | 24/24 | 0 | 0.0046 | 1.0180 | 216.7 | 274.9 | 313.8 | 1.029 | 0.976 | 31.4 | 99.4% |
+| 2 | 24/24 | 0 | 0.0046 | 1.0230 | 449.5 | 510.7 | 525.9 | 0.533 | 1.946 | 43.1 | 99.7% |
+| 4 | 24/24 | 0 | 0.0046 | 1.0232 | 896.0 | 932.1 | 986.0 | 0.304 | 3.783 | 43.2 | 99.8% |
+| 8 | 24/24 | 0 | 0.0046 | 1.0234 | 1736.0 | 1804.2 | 1811.0 | 0.204 | 6.866 | 43.2 | 99.8% |
+
+The C≥2 RTF values >1 are **client end-to-end ratios including queue wait**
+(one song at a time on the GPU; queued requests inflate wall time), not GPU
+compute RTF, and not a throughput regression.
 
 **Delivered concurrency = 1 (GPU-internal execution is serial).** RPS is
 constant at 0.0046 (one ~217 s song at a time) across C=1..8; P50 scales

@@ -1,0 +1,145 @@
+{
+ "schema": 1,
+ "run_id": "omniwsb20261014T1323Z",
+ "recorded_at_utc": "2026-10-16",
+ "raw_tree_host_path": "/workspace/yue2-omni-pr/bench/runs/omniwsb20261014T1323Z",
+ "note": "Raw tree (~29 GB) is retained host-local and is NOT committed to git. This manifest anchors its metadata files exactly; the 384 WAVs are anchored per-candidate via generation_manifest.jsonl (id/seed/identity) and scores/additional audio_manifest.jsonl rows.",
+ "sessions": {
+  "main_pass": {
+   "complete": 382,
+   "failed_prompt164": 2,
+   "summary": "full/main_pass_summary.json"
+  },
+  "prompt164_resume": {
+   "complete": 2,
+   "summary": "full/resume_prompt164_summary.json"
+  },
+  "aggregate_audit": {
+   "complete": 384,
+   "truncated_but_complete": 5,
+   "audit": "full/aggregate_audit.json"
+  }
+ },
+ "wav_summary": {
+  "count": 384,
+  "total_bytes": 16275873792
+ },
+ "scores_per_song_rows": 384,
+ "files": [
+  {
+   "path": "run_config.json",
+   "bytes": 955,
+   "sha256": "8eeeb4c46f8aeefdf952875ede08c826c3590c660965422acd84131da7846176"
+  },
+  {
+   "path": "generation_manifest.jsonl",
+   "bytes": 443537,
+   "sha256": "92ef0148f948efddcdfc3b10e98c116af08b686c7c6b2273f5aacd0dff7471fb"
+  },
+  {
+   "path": "evaluation_inputs.jsonl",
+   "bytes": 36644,
+   "sha256": "a906ab391bf80992549fafd4b12631ec335963676d67fd790d30c39d588ac100"
+  },
+  {
+   "path": "generation_summary.json",
+   "bytes": 350,
+   "sha256": "31bcb4edec2d3c81e61b10f479a8ccec998f8534d1a77a0ebb4a1b854dab3b0c"
+  },
+  {
+   "path": "audit.json",
+   "bytes": 313,
+   "sha256": "846717aa973945a3acac517c1d999c3f10c1894027a4ae562eed535116bff0a3"
+  },
+  {
+   "path": "run-state/main_pass_summary.json",
+   "bytes": 634,
+   "sha256": "54f3a80835cebe9ea7ae607d719bf2ae61b9acff701f4a4130f6d7ea39164e24"
+  },
+  {
+   "path": "run-state/prompt164_serving_disclosure.json",
+   "bytes": 1568,
+   "sha256": "55bdbd9cd1586124cf161148343242b2b29340531e08eab9c0b3e943e85b0e94"
+  },
+  {
+   "path": "scores/summary.json",
+   "bytes": 55168,
+   "sha256": "b4396a79af1a0b8be5957145df607580d390f4c729e95d818661a15f0f1acc9c"
+  },
+  {
+   "path": "scores/per_song.jsonl",
+   "bytes": 17221696,
+   "sha256": "7e8431f5337ceb26259ac1b1392368311a989e82f942ecd120cd4ce5b0aa40e6"
+  },
+  {
+   "path": "scores/protocol.json",
+   "bytes": 27977,
+   "sha256": "5e58f1e30f755418df90a47baf9c00367aa33cbfcf5ab3e10fabe1311bb31428"
+  },
+  {
+   "path": "scores/audio_manifest.jsonl",
+   "bytes": 2146251,
+   "sha256": "b1575725526a90b9e052c30bb2567944c9e121111f449d7c1f248c47f0fac15f"
+  },
+  {
+   "path": "scores/per.environment.json",
+   "bytes": 6805,
+   "sha256": "83aef136802bff21c31e683c56b6b17cb3c82fc6a328fb74cfdcf8c97eed4401"
+  },
+  {
+   "path": "scores/songbench.environment.json",
+   "bytes": 2478,
+   "sha256": "84f37bc05d16d05dd1b0e170c0774265731a952650e4500043be28074e844a79"
+  },
+  {
+   "path": "scores/per.log",
+   "bytes": 28279,
+   "sha256": "432bba4071c6c3dba53771f434995e58def491acb2f0ac6f0aa2234006a67d0b"
+  },
+  {
+   "path": "scores/songbench.log",
+   "bytes": 18617,
+   "sha256": "17cfb2bb800d9c82298f0dd2535690cb90a9899a6dff998b0780d26c1f766ded"
+  },
+  {
+   "path": "additional/summary.json",
+   "bytes": 39132,
+   "sha256": "293bac3acf5e812b4973dc94f73ae83574b9cc8cfef8821dd99a62d6387b526f"
+  },
+  {
+   "path": "additional/per_song.jsonl",
+   "bytes": 8421574,
+   "sha256": "a2a9a927d690ed5672282e8fb6b1ed96b10952526d89190d1a28f7df011590d2"
+  },
+  {
+   "path": "additional/protocol.json",
+   "bytes": 68117,
+   "sha256": "999c9655ea67dedf4be56e33fd92bbf70563d11cdac31a206c7dffac6598a330"
+  },
+  {
+   "path": "additional/audio_manifest.jsonl",
+   "bytes": 8247393,
+   "sha256": "72d434854d80b07d0902bf26b12dda65ce544f26993701c0274200a691b378c4"
+  },
+  {
+   "path": "additional/mulan.environment.json",
+   "bytes": 6805,
+   "sha256": "83aef136802bff21c31e683c56b6b17cb3c82fc6a328fb74cfdcf8c97eed4401"
+  },
+  {
+   "path": "additional/allmusiccaps.environment.json",
+   "bytes": 6805,
+   "sha256": "83aef136802bff21c31e683c56b6b17cb3c82fc6a328fb74cfdcf8c97eed4401"
+  },
+  {
+   "path": "additional/mulan.log",
+   "bytes": 8790,
+   "sha256": "cb648ebda941425fb8099e5d0835fc9c463e60d2830dfb05fc3ae7ce93d330d2"
+  },
+  {
+   "path": "additional/allmusiccaps.log",
+   "bytes": 10406,
+   "sha256": "86f6b664de5fba488cb5d6a84dc66c41f3a1b937d4b43a78048cf923c0ac4b3e"
+  }
+ ]
+}

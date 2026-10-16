@@ -1,0 +1,14 @@
+{
+  "run": "/workspace/yue2-omni-pr/bench/runs/omniwsb20261014T1323Z",
+  "run_id": "omniwsb20261014T1323Z",
+  "expected": 384,
+  "complete": 384,
+  "resumed": 382,
+  "failed": 0,
+  "pending": 0,
+  "wall_s": 828.2,
+  "peak_vram_bytes": 44778483712,
+  "peak_gtt_bytes": 89427968,
+  "stopped_by_signal": false,
+  "finished_at": "2026-10-15T13:43:04Z"
+}
