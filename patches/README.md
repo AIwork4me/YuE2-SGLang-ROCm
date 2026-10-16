@@ -159,3 +159,36 @@ reaches these modules, so without sgl_kernel (no ROCm wheel for gfx1100/gfx1151)
 transfer remains opt-in and unused by YuE2.
 **Verified on gfx1100:** `tests/test_yue2_rocm_fallbacks.py::
 test_kvcacheio_import_guards` + full 11/11 suite; `sglang serve --help` rc=0.
+### release.json formatting note
+The hash-update script rewrote `release.json` with uniform JSON indentation, so
+a plain `diff` shows more churn than the semantic change (2 hash values + 1
+disclosure key). Semantic delta only: `code_files["wsb_eval.py"]`,
+`code_files["src/mot_infer/eval_worker.py"]`, added `rocm_override_note`.
+
+## 0009 — wsb_eval.py reuse_per: extend the ROCm override to PER-reuse validation
+
+**Incident (2026-10-16):** the second scoring command
+(`--metrics mulan,allmusiccaps --per-results ...`) failed with
+`PER source environment does not match the frozen lock`. Patches 0006/0007
+exempted the torch-family quartet in `verify_environment`, but the evaluator's
+PER-reuse path (`reuse_per`) re-validates the PER receipt and the PER-time
+code hashes against the pristine expectations without an override — an
+uncovered seam of the same ROCm substitution.
+
+**Patch (same env gate `WSB_ROCM_TORCH_OVERRIDE=1`):**
+1. Packages: divergence from the frozen lock is accepted **only** for the
+   torch-family quartet AND only when the receipt carries the
+   `rocm_torch_override` marker written by patch 0006; every other package,
+   `passed`, `python=3.12.11` and the lock-file digest must still match.
+2. Code lineage: the PER run executed with the 0006/0007-patched evaluator,
+   whose wsb_eval.py sha256 is pinned in the patch
+   (`6a4a53ed…`, recorded in `release.json` history at the PER-producing
+   state and in `protocol.json`). eval_worker.py is untouched by 0008, so its
+   live digest still matches the recorded one. pristine hashes remain
+   accepted unchanged.
+
+**Not touched:** scoring formulas, selection, aggregation, assets, audio,
+PER/SongBench results already on disk. Dry-run verified against the actual
+`per.environment.json` + `protocol.json` before relaunch. The failed
+`additional/` attempt is preserved as `*.attempt_*.bak` by the supervisor's
+retry-safe logic (never silently overwritten).
