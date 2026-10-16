@@ -1,0 +1,10 @@
+{
+  "run": "runs/wsb_full",
+  "expected": 384,
+  "complete": 381,
+  "failed": 3,
+  "pending": 0,
+  "wall_s": 273385.3,
+  "peak_gtt_bytes": 77810122752,
+  "finished_at": "2026-10-15T03:00:15"
+}

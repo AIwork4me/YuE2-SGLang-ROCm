@@ -1,0 +1,17 @@
+{
+  "run": "/home/amd/Desktop/YuE2/runs/wsb_full",
+  "mode": "full",
+  "expected_candidates": 384,
+  "expected_prompt_indices": 192,
+  "verified_complete": 384,
+  "identity_reverified": 384,
+  "truncated_but_complete": 13,
+  "classification": {
+    "generated": 384,
+    "finalized": 384,
+    "verified": 384,
+    "driver:finalize_failed (recovered)": 3
+  },
+  "problems": [],
+  "verdict": "FULL"
+}

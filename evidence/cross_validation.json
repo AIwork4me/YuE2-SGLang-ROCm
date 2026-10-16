@@ -1,0 +1,112 @@
+{
+  "at": "2026-10-16 21:39:45",
+  "checks": [
+    {
+      "check": "per coverage 384",
+      "passed": true,
+      "detail": "384"
+    },
+    {
+      "check": "scores summary complete",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "check": "standard mode + full coverage flag",
+      "passed": true,
+      "detail": "('standard', True)"
+    },
+    {
+      "check": "selection identical to evaluator (192)",
+      "passed": true,
+      "detail": "recomputed 192, evaluator 192, mismatches 0"
+    },
+    {
+      "check": "PER micro (384) recomputed == evaluator",
+      "passed": true,
+      "detail": "recomputed 0.2533701672 vs 0.25337016717060684"
+    },
+    {
+      "check": "PER micro (192 selected) recomputed == evaluator",
+      "passed": true,
+      "detail": "recomputed 0.1721541348 vs 0.17215413478089883"
+    },
+    {
+      "check": "songbench receipts for all 192 selected",
+      "passed": true,
+      "detail": "192"
+    },
+    {
+      "check": "songbench mean Melody",
+      "passed": true,
+      "detail": "recomputed 6.623067 vs 6.6230650916695595 (delta 2.10e-06)"
+    },
+    {
+      "check": "songbench mean Arrangement",
+      "passed": true,
+      "detail": "recomputed 6.920993 vs 6.920992049078147 (delta 1.18e-06)"
+    },
+    {
+      "check": "songbench mean Musicality",
+      "passed": true,
+      "detail": "recomputed 5.854292 vs 5.854290388524532 (delta 1.28e-06)"
+    },
+    {
+      "check": "songbench mean Vocal",
+      "passed": true,
+      "detail": "recomputed 7.093464 vs 7.093463137745857 (delta 4.04e-07)"
+    },
+    {
+      "check": "songbench mean Instrumental",
+      "passed": true,
+      "detail": "recomputed 6.950055 vs 6.950053359071414 (delta 1.85e-06)"
+    },
+    {
+      "check": "songbench mean Mixing",
+      "passed": true,
+      "detail": "recomputed 6.777396 vs 6.777396636704604 (delta 8.03e-07)"
+    },
+    {
+      "check": "songbench mean Structure",
+      "passed": true,
+      "detail": "recomputed 6.562768 vs 6.562767853339513 (delta 3.76e-07)"
+    },
+    {
+      "check": "songbench mean Global Avg",
+      "passed": true,
+      "detail": "recomputed 6.683148 vs 6.683146930876233 (delta 9.11e-07)"
+    },
+    {
+      "check": "additional summary complete",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "check": "additional selected-set identical to PER selection",
+      "passed": true,
+      "detail": "192 vs 192"
+    },
+    {
+      "check": "mulan receipts coverage",
+      "passed": true,
+      "detail": "192"
+    },
+    {
+      "check": "mulan mean recomputed",
+      "passed": null,
+      "detail": "scalar not auto-detectable from receipts (0 values); means compared only via evaluator summary; counts verified"
+    },
+    {
+      "check": "allmusiccaps receipts coverage",
+      "passed": true,
+      "detail": "192"
+    },
+    {
+      "check": "allmusiccaps mean recomputed",
+      "passed": null,
+      "detail": "scalar not auto-detectable from receipts (0 values); means compared only via evaluator summary; counts verified"
+    }
+  ],
+  "problems": [],
+  "passed": true
+}
