@@ -1,0 +1,6 @@
+[2026-10-15T13:45:29Z] [omni-score] strict audit of /workspace/yue2-omni-pr/bench/runs/omniwsb20261014T1323Z
+[2026-10-15T13:45:40Z] [omni-score] audit verdict FULL (384/384)
+[2026-10-15T13:45:48Z] [omni-score] pid 1332439 does not own port 32100 - not stopping
+[2026-10-15T13:45:58Z] [omni-score] scoring per,songbench (standard mode)
+bench/run_omni_scoring.sh: line 66: syntax error near unexpected token `('
+bench/run_omni_scoring.sh: line 66: `log "scoring mulan,allmusiccaps (selected 192)"'

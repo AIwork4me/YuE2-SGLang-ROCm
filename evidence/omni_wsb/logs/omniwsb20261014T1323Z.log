@@ -1,0 +1,802 @@
+[1/384] wsb_000_r0_s831001 ok (185.47s, 185.9s audio)
+[2/384] wsb_000_r1_s831019 ok (123.38s, 146.0s audio)
+[3/384] wsb_001_r0_s831002 ok (179.33s, 194.5s audio)
+[4/384] wsb_001_r1_s831020 ok (194.1s, 205.0s audio)
+[5/384] wsb_002_r0_s831003 ok (257.93s, 241.2s audio)
+[6/384] wsb_002_r1_s831021 ok (231.29s, 230.0s audio)
+[7/384] wsb_003_r0_s831004 ok (180.18s, 210.6s audio)
+[8/384] wsb_003_r1_s831022 ok (189.87s, 213.0s audio)
+[9/384] wsb_004_r0_s831005 ok (185.57s, 219.1s audio)
+[10/384] wsb_004_r1_s831023 ok (156.47s, 194.6s audio)
+[11/384] wsb_005_r0_s831006 ok (215.86s, 235.9s audio)
+[12/384] wsb_005_r1_s831024 ok (160.19s, 193.0s audio)
+[13/384] wsb_006_r0_s831007 ok (197.82s, 206.8s audio)
+[14/384] wsb_006_r1_s831025 ok (169.89s, 184.7s audio)
+[15/384] wsb_007_r0_s831008 ok (140.97s, 162.2s audio)
+[16/384] wsb_007_r1_s831026 ok (181.75s, 203.5s audio)
+[17/384] wsb_008_r0_s831009 ok (155.26s, 189.1s audio)
+[18/384] wsb_008_r1_s831027 ok (200.38s, 218.3s audio)
+[19/384] wsb_009_r0_s831010 ok (191.46s, 223.9s audio)
+[20/384] wsb_009_r1_s831028 ok (224.5s, 234.4s audio)
+[21/384] wsb_010_r0_s831011 ok (170.35s, 203.2s audio)
+[22/384] wsb_010_r1_s831029 ok (150.51s, 174.7s audio)
+[23/384] wsb_011_r0_s831012 ok (117.33s, 150.6s audio)
+[24/384] wsb_011_r1_s831030 ok (141.73s, 179.8s audio)
+[25/384] wsb_012_r0_s831013 ok (222.54s, 233.6s audio)
+[26/384] wsb_012_r1_s831031 ok (194.37s, 217.3s audio)
+[27/384] wsb_013_r0_s831014 ok (297.85s, 289.8s audio)
+[28/384] wsb_013_r1_s831032 ok (254.27s, 266.3s audio)
+[29/384] wsb_014_r0_s831015 ok (193.01s, 217.1s audio)
+[30/384] wsb_014_r1_s831033 ok (195.11s, 214.9s audio)
+[31/384] wsb_015_r0_s831016 ok (221.07s, 234.4s audio)
+[32/384] wsb_015_r1_s831034 ok (190.53s, 217.5s audio)
+[33/384] wsb_016_r0_s831017 ok (284.94s, 267.7s audio)
+[34/384] wsb_016_r1_s831035 ok (193.94s, 201.8s audio)
+[35/384] wsb_017_r0_s831018 ok (199.18s, 231.4s audio)
+[36/384] wsb_017_r1_s831036 ok (228.89s, 242.6s audio)
+[37/384] wsb_018_r0_s831019 ok (191.93s, 224.9s audio)
+[38/384] wsb_018_r1_s831037 ok (161.96s, 195.0s audio)
+[39/384] wsb_019_r0_s831020 ok (163.38s, 187.0s audio)
+[40/384] wsb_019_r1_s831038 ok (141.37s, 167.8s audio)
+[41/384] wsb_020_r0_s831021 ok (133.1s, 139.2s audio)
+[42/384] wsb_020_r1_s831039 ok (93.79s, 118.7s audio)
+[43/384] wsb_021_r0_s831022 ok (345.59s, 294.8s audio)
+[44/384] wsb_021_r1_s831040 ok (250.71s, 235.7s audio)
+[45/384] wsb_022_r0_s831023 ok (264.01s, 262.2s audio)
+[46/384] wsb_022_r1_s831041 ok (247.96s, 249.8s audio)
+[47/384] wsb_023_r0_s831024 ok (189.65s, 209.9s audio)
+[48/384] wsb_023_r1_s831042 ok (212.93s, 229.8s audio)
+[49/384] wsb_024_r0_s831025 ok (199.84s, 211.0s audio)
+[50/384] wsb_024_r1_s831043 ok (209.52s, 221.9s audio)
+[51/384] wsb_025_r0_s831026 ok (147.52s, 171.2s audio)
+[52/384] wsb_025_r1_s831044 ok (179.16s, 194.5s audio)
+[53/384] wsb_026_r0_s831027 ok (189.21s, 196.7s audio)
+[54/384] wsb_026_r1_s831045 ok (204.29s, 207.1s audio)
+[55/384] wsb_027_r0_s831028 ok (215.35s, 215.8s audio)
+[56/384] wsb_027_r1_s831046 ok (170.88s, 184.2s audio)
+[57/384] wsb_028_r0_s831029 ok (188.01s, 194.6s audio)
+[58/384] wsb_028_r1_s831047 ok (169.05s, 184.5s audio)
+[59/384] wsb_029_r0_s831030 ok (153.04s, 177.9s audio)
+[60/384] wsb_029_r1_s831048 ok (152.39s, 176.9s audio)
+[61/384] wsb_030_r0_s831031 ok (88.29s, 116.8s audio)
+[62/384] wsb_030_r1_s831049 ok (126.28s, 137.2s audio)
+[63/384] wsb_031_r0_s831032 ok (147.31s, 175.0s audio)
+[64/384] wsb_031_r1_s831050 ok (190.26s, 212.2s audio)
+[65/384] wsb_032_r0_s831033 ok (209.56s, 218.7s audio)
+[66/384] wsb_032_r1_s831051 ok (227.47s, 246.0s audio)
+[67/384] wsb_033_r0_s831034 ok (113.49s, 138.4s audio)
+[68/384] wsb_033_r1_s831052 ok (111.89s, 139.2s audio)
+[69/384] wsb_034_r0_s831035 ok (215.53s, 228.6s audio)
+[70/384] wsb_034_r1_s831053 ok (180.79s, 197.4s audio)
+[71/384] wsb_035_r0_s831036 ok (300.96s, 272.5s audio)
+[72/384] wsb_035_r1_s831054 ok (245.68s, 241.6s audio)
+[73/384] wsb_036_r0_s831037 ok (273.55s, 249.0s audio)
+[74/384] wsb_036_r1_s831055 ok (244.61s, 241.9s audio)
+[75/384] wsb_037_r0_s831038 ok (204.29s, 204.2s audio)
+[76/384] wsb_037_r1_s831056 ok (217.71s, 212.5s audio)
+[77/384] wsb_038_r0_s831039 ok (172.36s, 201.8s audio)
+[78/384] wsb_038_r1_s831057 ok (158.51s, 192.4s audio)
+[79/384] wsb_039_r0_s831040 ok (175.56s, 191.0s audio)
+[80/384] wsb_039_r1_s831058 ok (180.21s, 180.0s audio)
+[81/384] wsb_040_r0_s831041 ok (193.9s, 216.9s audio)
+[82/384] wsb_040_r1_s831059 ok (175.83s, 209.3s audio)
+[83/384] wsb_041_r0_s831042 ok (176.43s, 197.6s audio)
+[84/384] wsb_041_r1_s831060 ok (133.17s, 158.7s audio)
+[85/384] wsb_042_r0_s831043 ok (321.22s, 299.9s audio)
+[86/384] wsb_042_r1_s831061 ok (303.6s, 292.6s audio)
+[87/384] wsb_043_r0_s831044 ok (207.34s, 234.5s audio)
+[88/384] wsb_043_r1_s831062 ok (198.16s, 216.0s audio)
+[89/384] wsb_044_r0_s831045 ok (179.29s, 195.5s audio)
+[90/384] wsb_044_r1_s831063 ok (188.47s, 202.2s audio)
+[91/384] wsb_045_r0_s831046 ok (220.01s, 216.6s audio)
+[92/384] wsb_045_r1_s831064 ok (226.61s, 227.8s audio)
+[93/384] wsb_046_r0_s831047 ok (175.35s, 189.9s audio)
+[94/384] wsb_046_r1_s831065 ok (194.7s, 207.8s audio)
+[95/384] wsb_047_r0_s831048 ok (143.61s, 175.6s audio)
+[96/384] wsb_047_r1_s831066 ok (207.39s, 224.9s audio)
+[97/384] wsb_048_r0_s831049 ok (193.61s, 208.2s audio)
+[98/384] wsb_048_r1_s831067 ok (140.9s, 162.8s audio)
+[99/384] wsb_049_r0_s831050 ok (211.83s, 227.5s audio)
+[100/384] wsb_049_r1_s831068 ok (196.43s, 224.3s audio)
+[101/384] wsb_050_r0_s831051 ok (250.19s, 250.6s audio)
+[102/384] wsb_050_r1_s831069 ok (277.63s, 267.8s audio)
+[103/384] wsb_051_r0_s831052 ok (192.5s, 210.6s audio)
+[104/384] wsb_051_r1_s831070 ok (147.98s, 163.4s audio)
+[105/384] wsb_052_r0_s831053 ok (141.86s, 164.8s audio)
+[106/384] wsb_052_r1_s831071 ok (181.33s, 196.3s audio)
+[107/384] wsb_053_r0_s831054 ok (157.61s, 179.1s audio)
+[108/384] wsb_053_r1_s831072 ok (133.65s, 157.0s audio)
+[109/384] wsb_054_r0_s831055 ok (163.07s, 191.1s audio)
+[110/384] wsb_054_r1_s831073 ok (139.56s, 162.9s audio)
+[111/384] wsb_055_r0_s831056 ok (263.63s, 264.8s audio)
+[112/384] wsb_055_r1_s831074 ok (234.36s, 261.1s audio)
+[113/384] wsb_056_r0_s831057 ok (156.28s, 186.2s audio)
+[114/384] wsb_056_r1_s831075 ok (179.67s, 208.8s audio)
+[115/384] wsb_057_r0_s831058 ok (231.86s, 237.9s audio)
+[116/384] wsb_057_r1_s831076 ok (225.87s, 236.4s audio)
+[117/384] wsb_058_r0_s831059 ok (260.47s, 244.7s audio)
+[118/384] wsb_058_r1_s831077 ok (279.77s, 256.9s audio)
+[119/384] wsb_059_r0_s831060 ok (226.29s, 241.3s audio)
+[120/384] wsb_059_r1_s831078 ok (229.57s, 254.9s audio)
+[121/384] wsb_060_r0_s831061 ok (169.99s, 192.7s audio)
+[122/384] wsb_060_r1_s831079 ok (151.3s, 180.0s audio)
+[123/384] wsb_061_r0_s831062 ok (227.51s, 235.2s audio)
+[124/384] wsb_061_r1_s831080 ok (136.89s, 171.0s audio)
+[125/384] wsb_062_r0_s831063 ok (185.12s, 207.5s audio)
+[126/384] wsb_062_r1_s831081 ok (176.52s, 201.4s audio)
+[127/384] wsb_063_r0_s831064 ok (246.92s, 252.8s audio)
+[128/384] wsb_063_r1_s831082 ok (254.39s, 268.2s audio)
+[129/384] wsb_064_r0_s831065 ok (259.72s, 246.8s audio)
+[130/384] wsb_064_r1_s831083 ok (236.08s, 231.0s audio)
+[131/384] wsb_065_r0_s831066 ok (306.65s, 306.9s audio)
+[132/384] wsb_065_r1_s831084 ok (300.6s, 299.8s audio)
+[133/384] wsb_066_r0_s831067 ok (216.67s, 233.0s audio)
+[134/384] wsb_066_r1_s831085 ok (218.62s, 236.9s audio)
+[135/384] wsb_067_r0_s831068 ok (208.5s, 233.0s audio)
+[136/384] wsb_067_r1_s831086 ok (261.62s, 262.2s audio)
+[137/384] wsb_068_r0_s831069 ok (138.81s, 153.7s audio)
+[138/384] wsb_068_r1_s831087 ok (168.72s, 183.1s audio)
+[139/384] wsb_069_r0_s831070 ok (232.99s, 227.1s audio)
+[140/384] wsb_069_r1_s831088 ok (199.65s, 209.6s audio)
+[141/384] wsb_070_r0_s831071 ok (228.01s, 241.4s audio)
+[142/384] wsb_070_r1_s831089 ok (215.9s, 237.9s audio)
+[143/384] wsb_071_r0_s831072 ok (193.24s, 215.7s audio)
+[144/384] wsb_071_r1_s831090 ok (219.04s, 233.4s audio)
+[145/384] wsb_072_r0_s831073 ok (231.69s, 225.0s audio)
+[146/384] wsb_072_r1_s831091 ok (273.95s, 247.5s audio)
+[147/384] wsb_073_r0_s831074 ok (292.97s, 276.7s audio)
+[148/384] wsb_073_r1_s831092 ok (267.14s, 263.4s audio)
+[149/384] wsb_074_r0_s831075 ok (205.48s, 233.8s audio)
+[150/384] wsb_074_r1_s831093 ok (181.49s, 206.1s audio)
+[151/384] wsb_075_r0_s831076 ok (203.16s, 197.8s audio)
+[152/384] wsb_075_r1_s831094 ok (206.44s, 210.0s audio)
+[153/384] wsb_076_r0_s831077 ok (125.44s, 154.5s audio)
+[154/384] wsb_076_r1_s831095 ok (181.17s, 201.8s audio)
+[155/384] wsb_077_r0_s831078 ok (190.74s, 206.8s audio)
+[156/384] wsb_077_r1_s831096 ok (242.97s, 246.9s audio)
+[157/384] wsb_078_r0_s831079 ok (206.3s, 214.9s audio)
+[158/384] wsb_078_r1_s831097 ok (222.26s, 225.9s audio)
+[159/384] wsb_079_r0_s831080 ok (160.1s, 177.2s audio)
+[160/384] wsb_079_r1_s831098 ok (126.82s, 138.6s audio)
+[161/384] wsb_080_r0_s831081 ok (185.75s, 213.8s audio)
+[162/384] wsb_080_r1_s831099 ok (191.28s, 197.1s audio)
+[163/384] wsb_081_r0_s831082 ok (186.37s, 202.1s audio)
+[164/384] wsb_081_r1_s831100 ok (206.82s, 221.7s audio)
+[165/384] wsb_082_r0_s831083 ok (135.44s, 163.1s audio)
+[166/384] wsb_082_r1_s831101 ok (136.48s, 167.2s audio)
+[167/384] wsb_083_r0_s831084 ok (121.94s, 144.1s audio)
+[168/384] wsb_083_r1_s831102 ok (178.23s, 191.7s audio)
+[169/384] wsb_084_r0_s831085 ok (231.35s, 241.0s audio)
+[170/384] wsb_084_r1_s831103 ok (222.46s, 222.4s audio)
+[171/384] wsb_085_r0_s831086 ok (270.77s, 261.3s audio)
+[172/384] wsb_085_r1_s831104 ok (406.38s, 348.5s audio)
+[173/384] wsb_086_r0_s831087 ok (359.95s, 332.1s audio)
+[174/384] wsb_086_r1_s831105 ok (304.73s, 301.0s audio)
+[175/384] wsb_087_r0_s831088 ok (269.53s, 252.9s audio)
+[176/384] wsb_087_r1_s831106 ok (276.98s, 255.0s audio)
+[177/384] wsb_088_r0_s831089 ok (201.95s, 221.2s audio)
+[178/384] wsb_088_r1_s831107 ok (144.56s, 167.5s audio)
+[179/384] wsb_089_r0_s831090 ok (208.98s, 220.7s audio)
+[180/384] wsb_089_r1_s831108 ok (273.62s, 280.0s audio)
+[181/384] wsb_090_r0_s831091 ok (159.43s, 171.9s audio)
+[182/384] wsb_090_r1_s831109 ok (160.13s, 167.3s audio)
+[183/384] wsb_091_r0_s831092 ok (226.7s, 211.8s audio)
+[184/384] wsb_091_r1_s831110 ok (214.78s, 220.0s audio)
+[185/384] wsb_092_r0_s831093 ok (142.82s, 162.6s audio)
+[186/384] wsb_092_r1_s831111 ok (177.05s, 200.0s audio)
+[187/384] wsb_093_r0_s831094 ok (143.37s, 174.5s audio)
+[188/384] wsb_093_r1_s831112 ok (174.12s, 196.3s audio)
+[189/384] wsb_094_r0_s831095 ok (157.33s, 187.0s audio)
+[190/384] wsb_094_r1_s831113 ok (142.47s, 179.3s audio)
+[191/384] wsb_095_r0_s831096 ok (384.78s, 314.6s audio)
+[192/384] wsb_095_r1_s831114 ok (293.07s, 276.7s audio)
+[193/384] wsb_096_r0_s831097 ok (261.58s, 272.0s audio)
+[194/384] wsb_096_r1_s831115 ok (256.87s, 267.8s audio)
+[195/384] wsb_097_r0_s831098 ok (173.69s, 186.6s audio)
+[196/384] wsb_097_r1_s831116 ok (172.52s, 174.8s audio)
+[197/384] wsb_098_r0_s831099 ok (187.07s, 213.8s audio)
+[198/384] wsb_098_r1_s831117 ok (201.5s, 221.9s audio)
+[199/384] wsb_099_r0_s831100 ok (248.17s, 239.3s audio)
+[200/384] wsb_099_r1_s831118 ok (237.77s, 233.4s audio)
+[201/384] wsb_100_r0_s831101 ok (191.3s, 202.2s audio)
+[202/384] wsb_100_r1_s831119 ok (217.06s, 216.1s audio)
+[203/384] wsb_101_r0_s831102 ok (344.77s, 307.6s audio)
+[204/384] wsb_101_r1_s831120 ok (246.43s, 242.1s audio)
+[205/384] wsb_102_r0_s831103 ok (376.02s, 320.2s audio)
+[206/384] wsb_102_r1_s831121 ok (384.64s, 304.4s audio)
+[207/384] wsb_103_r0_s831104 ok (146.89s, 156.9s audio)
+[208/384] wsb_103_r1_s831122 ok (175.46s, 184.6s audio)
+[209/384] wsb_104_r0_s831105 ok (302.58s, 279.8s audio)
+[210/384] wsb_104_r1_s831123 ok (358.11s, 297.7s audio)
+[211/384] wsb_105_r0_s831106 ok (157.58s, 169.9s audio)
+[212/384] wsb_105_r1_s831124 ok (120.65s, 143.8s audio)
+[213/384] wsb_106_r0_s831107 ok (182.88s, 180.4s audio)
+[214/384] wsb_106_r1_s831125 ok (209.7s, 214.4s audio)
+[215/384] wsb_107_r0_s831108 ok (118.79s, 138.9s audio)
+[216/384] wsb_107_r1_s831126 ok (132.12s, 155.0s audio)
+[217/384] wsb_108_r0_s831109 ok (96.52s, 127.7s audio)
+[218/384] wsb_108_r1_s831127 ok (112.3s, 132.5s audio)
+[219/384] wsb_109_r0_s831110 ok (248.67s, 251.6s audio)
+[220/384] wsb_109_r1_s831128 ok (251.79s, 244.5s audio)
+[221/384] wsb_110_r0_s831111 ok (231.24s, 249.4s audio)
+[222/384] wsb_110_r1_s831129 ok (205.39s, 224.9s audio)
+[223/384] wsb_111_r0_s831112 ok (284.63s, 264.5s audio)
+[224/384] wsb_111_r1_s831130 ok (333.96s, 305.1s audio)
+[225/384] wsb_112_r0_s831113 ok (354.23s, 313.0s audio)
+[226/384] wsb_112_r1_s831131 ok (448.77s, 357.2s audio)
+[227/384] wsb_113_r0_s831114 ok (247.42s, 229.6s audio)
+[228/384] wsb_113_r1_s831132 ok (240.81s, 193.4s audio TRUNCATED)
+[229/384] wsb_114_r0_s831115 ok (324.61s, 292.6s audio)
+[230/384] wsb_114_r1_s831133 ok (334.86s, 291.0s audio)
+[231/384] wsb_115_r0_s831116 ok (57.86s, 66.2s audio)
+[232/384] wsb_115_r1_s831134 ok (58.98s, 69.8s audio)
+[233/384] wsb_116_r0_s831117 ok (145.24s, 179.9s audio)
+[234/384] wsb_116_r1_s831135 ok (160.0s, 189.9s audio)
+[235/384] wsb_117_r0_s831118 ok (297.36s, 273.5s audio)
+[236/384] wsb_117_r1_s831136 ok (326.21s, 273.3s audio)
+[237/384] wsb_118_r0_s831119 ok (380.28s, 336.8s audio)
+[238/384] wsb_118_r1_s831137 ok (400.44s, 353.9s audio)
+[239/384] wsb_119_r0_s831120 ok (237.57s, 256.4s audio)
+[240/384] wsb_119_r1_s831138 ok (364.88s, 320.8s audio)
+[241/384] wsb_120_r0_s831121 ok (274.74s, 261.2s audio)
+[242/384] wsb_120_r1_s831139 ok (310.89s, 293.0s audio)
+[243/384] wsb_121_r0_s831122 ok (291.27s, 279.9s audio)
+[244/384] wsb_121_r1_s831140 ok (262.63s, 249.8s audio)
+[245/384] wsb_122_r0_s831123 ok (245.67s, 247.8s audio)
+[246/384] wsb_122_r1_s831141 ok (236.39s, 240.9s audio)
+[247/384] wsb_123_r0_s831124 ok (175.34s, 200.8s audio)
+[248/384] wsb_123_r1_s831142 ok (231.07s, 229.1s audio)
+[249/384] wsb_124_r0_s831125 ok (187.92s, 194.0s audio)
+[250/384] wsb_124_r1_s831143 ok (258.17s, 237.9s audio)
+[251/384] wsb_125_r0_s831126 ok (263.13s, 252.0s audio)
+[252/384] wsb_125_r1_s831144 ok (193.96s, 193.4s audio)
+[253/384] wsb_126_r0_s831127 ok (256.0s, 259.8s audio)
+[254/384] wsb_126_r1_s831145 ok (208.76s, 223.5s audio)
+[255/384] wsb_127_r0_s831128 ok (228.55s, 239.8s audio)
+[256/384] wsb_127_r1_s831146 ok (226.26s, 241.6s audio)
+[257/384] wsb_128_r0_s831129 ok (191.62s, 201.5s audio)
+[258/384] wsb_128_r1_s831147 ok (209.11s, 214.9s audio)
+[259/384] wsb_129_r0_s831130 ok (359.31s, 310.7s audio)
+[260/384] wsb_129_r1_s831148 ok (313.25s, 291.2s audio)
+[261/384] wsb_130_r0_s831131 ok (193.23s, 194.9s audio)
+[262/384] wsb_130_r1_s831149 ok (157.79s, 163.3s audio)
+[263/384] wsb_131_r0_s831132 ok (203.99s, 212.9s audio)
+[264/384] wsb_131_r1_s831150 ok (190.27s, 204.2s audio)
+[265/384] wsb_132_r0_s831133 ok (165.28s, 167.8s audio)
+[266/384] wsb_132_r1_s831151 ok (202.2s, 200.6s audio)
+[267/384] wsb_133_r0_s831134 ok (466.78s, 356.6s audio TRUNCATED)
+[268/384] wsb_133_r1_s831152 ok (405.53s, 319.8s audio)
+[269/384] wsb_134_r0_s831135 ok (210.64s, 234.0s audio)
+[270/384] wsb_134_r1_s831153 ok (315.5s, 296.2s audio)
+[271/384] wsb_135_r0_s831136 ok (163.39s, 189.2s audio)
+[272/384] wsb_135_r1_s831154 ok (170.7s, 198.8s audio)
+[273/384] wsb_136_r0_s831137 ok (327.58s, 312.3s audio)
+[274/384] wsb_136_r1_s831155 ok (207.32s, 234.9s audio)
+[275/384] wsb_137_r0_s831138 ok (176.47s, 175.6s audio)
+[276/384] wsb_137_r1_s831156 ok (169.81s, 167.2s audio)
+[277/384] wsb_138_r0_s831139 ok (240.5s, 239.4s audio)
+[278/384] wsb_138_r1_s831157 ok (316.42s, 290.8s audio)
+[279/384] wsb_139_r0_s831140 ok (345.31s, 297.7s audio)
+[280/384] wsb_139_r1_s831158 ok (344.12s, 278.8s audio TRUNCATED)
+[281/384] wsb_140_r0_s831141 ok (227.6s, 242.2s audio)
+[282/384] wsb_140_r1_s831159 ok (200.62s, 220.4s audio)
+[283/384] wsb_141_r0_s831142 ok (189.61s, 204.7s audio)
+[284/384] wsb_141_r1_s831160 ok (219.41s, 236.1s audio)
+[285/384] wsb_142_r0_s831143 ok (176.5s, 206.3s audio)
+[286/384] wsb_142_r1_s831161 ok (168.93s, 199.7s audio)
+[287/384] wsb_143_r0_s831144 ok (234.31s, 251.6s audio)
+[288/384] wsb_143_r1_s831162 ok (203.8s, 227.2s audio)
+[289/384] wsb_144_r0_s831145 ok (270.86s, 279.9s audio)
+[290/384] wsb_144_r1_s831163 ok (286.34s, 295.0s audio)
+[291/384] wsb_145_r0_s831146 ok (145.61s, 166.3s audio)
+[292/384] wsb_145_r1_s831164 ok (207.32s, 219.3s audio)
+[293/384] wsb_146_r0_s831147 ok (252.58s, 271.1s audio)
+[294/384] wsb_146_r1_s831165 ok (234.5s, 256.4s audio)
+[295/384] wsb_147_r0_s831148 ok (175.61s, 208.2s audio)
+[296/384] wsb_147_r1_s831166 ok (182.03s, 215.9s audio)
+[297/384] wsb_148_r0_s831149 ok (155.21s, 172.0s audio)
+[298/384] wsb_148_r1_s831167 ok (171.33s, 183.2s audio)
+[299/384] wsb_149_r0_s831150 ok (270.5s, 272.4s audio)
+[300/384] wsb_149_r1_s831168 ok (330.99s, 297.8s audio)
+[301/384] wsb_150_r0_s831151 ok (234.73s, 242.2s audio)
+[302/384] wsb_150_r1_s831169 ok (155.66s, 163.7s audio)
+[303/384] wsb_151_r0_s831152 ok (222.12s, 228.2s audio)
+[304/384] wsb_151_r1_s831170 ok (220.55s, 225.6s audio)
+[305/384] wsb_152_r0_s831153 ok (228.12s, 235.0s audio)
+[306/384] wsb_152_r1_s831171 ok (173.89s, 196.2s audio)
+[307/384] wsb_153_r0_s831154 ok (331.09s, 325.9s audio)
+[308/384] wsb_153_r1_s831172 ok (261.03s, 268.1s audio)
+[309/384] wsb_154_r0_s831155 ok (101.1s, 120.0s audio)
+[310/384] wsb_154_r1_s831173 ok (136.09s, 149.6s audio)
+[311/384] wsb_155_r0_s831156 ok (169.96s, 183.7s audio)
+[312/384] wsb_155_r1_s831174 ok (185.03s, 194.9s audio)
+[313/384] wsb_156_r0_s831157 ok (256.61s, 246.0s audio)
+[314/384] wsb_156_r1_s831175 ok (271.92s, 265.6s audio)
+[315/384] wsb_157_r0_s831158 ok (125.69s, 141.0s audio)
+[316/384] wsb_157_r1_s831176 ok (86.95s, 99.7s audio)
+[317/384] wsb_158_r0_s831159 ok (257.58s, 251.3s audio)
+[318/384] wsb_158_r1_s831177 ok (274.26s, 257.5s audio)
+[319/384] wsb_159_r0_s831160 ok (250.9s, 241.8s audio)
+[320/384] wsb_159_r1_s831178 ok (260.12s, 245.6s audio)
+[321/384] wsb_160_r0_s831161 ok (197.93s, 223.1s audio)
+[322/384] wsb_160_r1_s831179 ok (207.16s, 228.0s audio)
+[323/384] wsb_161_r0_s831162 ok (221.38s, 244.8s audio)
+[324/384] wsb_161_r1_s831180 ok (225.7s, 245.0s audio)
+[325/384] wsb_162_r0_s831163 ok (157.87s, 162.7s audio)
+[326/384] wsb_162_r1_s831181 ok (209.53s, 204.0s audio)
+[327/384] wsb_163_r0_s831164 ok (199.41s, 202.6s audio)
+[328/384] wsb_163_r1_s831182 ok (218.47s, 214.3s audio)
+[retry 0] wsb_164_r0_s831165: HTTPError: HTTP Error 400: Bad Request
+[retry 1] wsb_164_r0_s831165: HTTPError: HTTP Error 400: Bad Request
+[retry 2] wsb_164_r0_s831165: HTTPError: HTTP Error 400: Bad Request
+[FAIL] wsb_164_r0_s831165: HTTPError: HTTP Error 400: Bad Request
+[retry 0] wsb_164_r1_s831183: HTTPError: HTTP Error 400: Bad Request
+[retry 1] wsb_164_r1_s831183: HTTPError: HTTP Error 400: Bad Request
+[retry 2] wsb_164_r1_s831183: HTTPError: HTTP Error 400: Bad Request
+[FAIL] wsb_164_r1_s831183: HTTPError: HTTP Error 400: Bad Request
+[329/384] wsb_165_r0_s831166 ok (188.42s, 193.1s audio)
+[330/384] wsb_165_r1_s831184 ok (218.68s, 215.0s audio)
+[331/384] wsb_166_r0_s831167 ok (231.64s, 227.8s audio)
+[332/384] wsb_166_r1_s831185 ok (270.57s, 256.6s audio)
+[333/384] wsb_167_r0_s831168 ok (173.43s, 206.0s audio)
+[334/384] wsb_167_r1_s831186 ok (168.57s, 198.9s audio)
+[335/384] wsb_168_r0_s831169 ok (161.75s, 192.6s audio)
+[336/384] wsb_168_r1_s831187 ok (215.45s, 227.2s audio)
+[337/384] wsb_169_r0_s831170 ok (249.01s, 257.4s audio)
+[338/384] wsb_169_r1_s831188 ok (245.08s, 246.4s audio)
+[339/384] wsb_170_r0_s831171 ok (156.2s, 184.2s audio)
+[340/384] wsb_170_r1_s831189 ok (216.63s, 229.1s audio)
+[341/384] wsb_171_r0_s831172 ok (173.33s, 208.0s audio)
+[342/384] wsb_171_r1_s831190 ok (176.66s, 206.0s audio)
+[343/384] wsb_172_r0_s831173 ok (331.71s, 294.4s audio)
+[344/384] wsb_172_r1_s831191 ok (367.56s, 308.1s audio)
+[345/384] wsb_173_r0_s831174 ok (269.27s, 245.0s audio)
+[346/384] wsb_173_r1_s831192 ok (248.33s, 246.7s audio)
+[347/384] wsb_174_r0_s831175 ok (168.7s, 198.0s audio)
+[348/384] wsb_174_r1_s831193 ok (156.0s, 180.9s audio)
+[349/384] wsb_175_r0_s831176 ok (271.25s, 280.5s audio)
+[350/384] wsb_175_r1_s831194 ok (196.91s, 228.2s audio)
+[351/384] wsb_176_r0_s831177 ok (351.84s, 309.2s audio)
+[352/384] wsb_176_r1_s831195 ok (298.6s, 284.9s audio)
+[353/384] wsb_177_r0_s831178 ok (152.62s, 172.0s audio)
+[354/384] wsb_177_r1_s831196 ok (153.96s, 183.0s audio)
+[355/384] wsb_178_r0_s831179 ok (220.35s, 228.0s audio)
+[356/384] wsb_178_r1_s831197 ok (225.24s, 221.6s audio)
+[357/384] wsb_179_r0_s831180 ok (326.25s, 296.9s audio)
+[358/384] wsb_179_r1_s831198 ok (265.66s, 277.9s audio)
+[359/384] wsb_180_r0_s831181 ok (225.53s, 232.0s audio)
+[360/384] wsb_180_r1_s831199 ok (206.63s, 213.4s audio)
+[361/384] wsb_181_r0_s831182 ok (157.59s, 191.8s audio)
+[362/384] wsb_181_r1_s831200 ok (167.25s, 200.0s audio)
+[363/384] wsb_182_r0_s831183 ok (228.85s, 254.7s audio)
+[364/384] wsb_182_r1_s831201 ok (178.96s, 214.4s audio)
+[365/384] wsb_183_r0_s831184 ok (173.31s, 174.8s audio)
+[366/384] wsb_183_r1_s831202 ok (163.46s, 176.7s audio)
+[367/384] wsb_184_r0_s831185 ok (185.26s, 211.9s audio)
+[368/384] wsb_184_r1_s831203 ok (209.1s, 225.0s audio)
+[369/384] wsb_185_r0_s831186 ok (147.93s, 172.8s audio)
+[370/384] wsb_185_r1_s831204 ok (126.36s, 159.3s audio)
+[371/384] wsb_186_r0_s831187 ok (175.37s, 187.3s audio)
+[372/384] wsb_186_r1_s831205 ok (140.31s, 158.9s audio)
+[373/384] wsb_187_r0_s831188 ok (377.04s, 324.8s audio)
+[374/384] wsb_187_r1_s831206 ok (288.86s, 282.4s audio)
+[375/384] wsb_188_r0_s831189 ok (190.95s, 214.8s audio)
+[376/384] wsb_188_r1_s831207 ok (188.85s, 213.0s audio)
+[377/384] wsb_189_r0_s831190 ok (78.96s, 100.9s audio)
+[378/384] wsb_189_r1_s831208 ok (63.98s, 84.4s audio)
+[379/384] wsb_190_r0_s831191 ok (113.82s, 142.6s audio)
+[380/384] wsb_190_r1_s831209 ok (105.63s, 126.5s audio)
+[381/384] wsb_191_r0_s831192 ok (229.61s, 247.6s audio)
+[382/384] wsb_191_r1_s831210 ok (200.08s, 225.0s audio)
+{
+  "run": "/workspace/yue2-omni-pr/bench/runs/omniwsb20261014T1323Z",
+  "run_id": "omniwsb20261014T1323Z",
+  "expected": 384,
+  "complete": 382,
+  "resumed": 0,
+  "failed": 2,
+  "pending": 0,
+  "wall_s": 83989.3,
+  "peak_vram_bytes": 51501813760,
+  "peak_gtt_bytes": 3049668608,
+  "stopped_by_signal": false,
+  "finished_at": "2026-10-15T12:44:18Z"
+}
+[skip] wsb_000_r0_s831001 already complete
+[skip] wsb_000_r1_s831019 already complete
+[skip] wsb_001_r0_s831002 already complete
+[skip] wsb_001_r1_s831020 already complete
+[skip] wsb_002_r0_s831003 already complete
+[skip] wsb_002_r1_s831021 already complete
+[skip] wsb_003_r0_s831004 already complete
+[skip] wsb_003_r1_s831022 already complete
+[skip] wsb_004_r0_s831005 already complete
+[skip] wsb_004_r1_s831023 already complete
+[skip] wsb_005_r0_s831006 already complete
+[skip] wsb_005_r1_s831024 already complete
+[skip] wsb_006_r0_s831007 already complete
+[skip] wsb_006_r1_s831025 already complete
+[skip] wsb_007_r0_s831008 already complete
+[skip] wsb_007_r1_s831026 already complete
+[skip] wsb_008_r0_s831009 already complete
+[skip] wsb_008_r1_s831027 already complete
+[skip] wsb_009_r0_s831010 already complete
+[skip] wsb_009_r1_s831028 already complete
+[skip] wsb_010_r0_s831011 already complete
+[skip] wsb_010_r1_s831029 already complete
+[skip] wsb_011_r0_s831012 already complete
+[skip] wsb_011_r1_s831030 already complete
+[skip] wsb_012_r0_s831013 already complete
+[skip] wsb_012_r1_s831031 already complete
+[skip] wsb_013_r0_s831014 already complete
+[skip] wsb_013_r1_s831032 already complete
+[skip] wsb_014_r0_s831015 already complete
+[skip] wsb_014_r1_s831033 already complete
+[skip] wsb_015_r0_s831016 already complete
+[skip] wsb_015_r1_s831034 already complete
+[skip] wsb_016_r0_s831017 already complete
+[skip] wsb_016_r1_s831035 already complete
+[skip] wsb_017_r0_s831018 already complete
+[skip] wsb_017_r1_s831036 already complete
+[skip] wsb_018_r0_s831019 already complete
+[skip] wsb_018_r1_s831037 already complete
+[skip] wsb_019_r0_s831020 already complete
+[skip] wsb_019_r1_s831038 already complete
+[skip] wsb_020_r0_s831021 already complete
+[skip] wsb_020_r1_s831039 already complete
+[skip] wsb_021_r0_s831022 already complete
+[skip] wsb_021_r1_s831040 already complete
+[skip] wsb_022_r0_s831023 already complete
+[skip] wsb_022_r1_s831041 already complete
+[skip] wsb_023_r0_s831024 already complete
+[skip] wsb_023_r1_s831042 already complete
+[skip] wsb_024_r0_s831025 already complete
+[skip] wsb_024_r1_s831043 already complete
+[skip] wsb_025_r0_s831026 already complete
+[skip] wsb_025_r1_s831044 already complete
+[skip] wsb_026_r0_s831027 already complete
+[skip] wsb_026_r1_s831045 already complete
+[skip] wsb_027_r0_s831028 already complete
+[skip] wsb_027_r1_s831046 already complete
+[skip] wsb_028_r0_s831029 already complete
+[skip] wsb_028_r1_s831047 already complete
+[skip] wsb_029_r0_s831030 already complete
+[skip] wsb_029_r1_s831048 already complete
+[skip] wsb_030_r0_s831031 already complete
+[skip] wsb_030_r1_s831049 already complete
+[skip] wsb_031_r0_s831032 already complete
+[skip] wsb_031_r1_s831050 already complete
+[skip] wsb_032_r0_s831033 already complete
+[skip] wsb_032_r1_s831051 already complete
+[skip] wsb_033_r0_s831034 already complete
+[skip] wsb_033_r1_s831052 already complete
+[skip] wsb_034_r0_s831035 already complete
+[skip] wsb_034_r1_s831053 already complete
+[skip] wsb_035_r0_s831036 already complete
+[skip] wsb_035_r1_s831054 already complete
+[skip] wsb_036_r0_s831037 already complete
+[skip] wsb_036_r1_s831055 already complete
+[skip] wsb_037_r0_s831038 already complete
+[skip] wsb_037_r1_s831056 already complete
+[skip] wsb_038_r0_s831039 already complete
+[skip] wsb_038_r1_s831057 already complete
+[skip] wsb_039_r0_s831040 already complete
+[skip] wsb_039_r1_s831058 already complete
+[skip] wsb_040_r0_s831041 already complete
+[skip] wsb_040_r1_s831059 already complete
+[skip] wsb_041_r0_s831042 already complete
+[skip] wsb_041_r1_s831060 already complete
+[skip] wsb_042_r0_s831043 already complete
+[skip] wsb_042_r1_s831061 already complete
+[skip] wsb_043_r0_s831044 already complete
+[skip] wsb_043_r1_s831062 already complete
+[skip] wsb_044_r0_s831045 already complete
+[skip] wsb_044_r1_s831063 already complete
+[skip] wsb_045_r0_s831046 already complete
+[skip] wsb_045_r1_s831064 already complete
+[skip] wsb_046_r0_s831047 already complete
+[skip] wsb_046_r1_s831065 already complete
+[skip] wsb_047_r0_s831048 already complete
+[skip] wsb_047_r1_s831066 already complete
+[skip] wsb_048_r0_s831049 already complete
+[skip] wsb_048_r1_s831067 already complete
+[skip] wsb_049_r0_s831050 already complete
+[skip] wsb_049_r1_s831068 already complete
+[skip] wsb_050_r0_s831051 already complete
+[skip] wsb_050_r1_s831069 already complete
+[skip] wsb_051_r0_s831052 already complete
+[skip] wsb_051_r1_s831070 already complete
+[skip] wsb_052_r0_s831053 already complete
+[skip] wsb_052_r1_s831071 already complete
+[skip] wsb_053_r0_s831054 already complete
+[skip] wsb_053_r1_s831072 already complete
+[skip] wsb_054_r0_s831055 already complete
+[skip] wsb_054_r1_s831073 already complete
+[skip] wsb_055_r0_s831056 already complete
+[skip] wsb_055_r1_s831074 already complete
+[skip] wsb_056_r0_s831057 already complete
+[skip] wsb_056_r1_s831075 already complete
+[skip] wsb_057_r0_s831058 already complete
+[skip] wsb_057_r1_s831076 already complete
+[skip] wsb_058_r0_s831059 already complete
+[skip] wsb_058_r1_s831077 already complete
+[skip] wsb_059_r0_s831060 already complete
+[skip] wsb_059_r1_s831078 already complete
+[skip] wsb_060_r0_s831061 already complete
+[skip] wsb_060_r1_s831079 already complete
+[skip] wsb_061_r0_s831062 already complete
+[skip] wsb_061_r1_s831080 already complete
+[skip] wsb_062_r0_s831063 already complete
+[skip] wsb_062_r1_s831081 already complete
+[skip] wsb_063_r0_s831064 already complete
+[skip] wsb_063_r1_s831082 already complete
+[skip] wsb_064_r0_s831065 already complete
+[skip] wsb_064_r1_s831083 already complete
+[skip] wsb_065_r0_s831066 already complete
+[skip] wsb_065_r1_s831084 already complete
+[skip] wsb_066_r0_s831067 already complete
+[skip] wsb_066_r1_s831085 already complete
+[skip] wsb_067_r0_s831068 already complete
+[skip] wsb_067_r1_s831086 already complete
+[skip] wsb_068_r0_s831069 already complete
+[skip] wsb_068_r1_s831087 already complete
+[skip] wsb_069_r0_s831070 already complete
+[skip] wsb_069_r1_s831088 already complete
+[skip] wsb_070_r0_s831071 already complete
+[skip] wsb_070_r1_s831089 already complete
+[skip] wsb_071_r0_s831072 already complete
+[skip] wsb_071_r1_s831090 already complete
+[skip] wsb_072_r0_s831073 already complete
+[skip] wsb_072_r1_s831091 already complete
+[skip] wsb_073_r0_s831074 already complete
+[skip] wsb_073_r1_s831092 already complete
+[skip] wsb_074_r0_s831075 already complete
+[skip] wsb_074_r1_s831093 already complete
+[skip] wsb_075_r0_s831076 already complete
+[skip] wsb_075_r1_s831094 already complete
+[skip] wsb_076_r0_s831077 already complete
+[skip] wsb_076_r1_s831095 already complete
+[skip] wsb_077_r0_s831078 already complete
+[skip] wsb_077_r1_s831096 already complete
+[skip] wsb_078_r0_s831079 already complete
+[skip] wsb_078_r1_s831097 already complete
+[skip] wsb_079_r0_s831080 already complete
+[skip] wsb_079_r1_s831098 already complete
+[skip] wsb_080_r0_s831081 already complete
+[skip] wsb_080_r1_s831099 already complete
+[skip] wsb_081_r0_s831082 already complete
+[skip] wsb_081_r1_s831100 already complete
+[skip] wsb_082_r0_s831083 already complete
+[skip] wsb_082_r1_s831101 already complete
+[skip] wsb_083_r0_s831084 already complete
+[skip] wsb_083_r1_s831102 already complete
+[skip] wsb_084_r0_s831085 already complete
+[skip] wsb_084_r1_s831103 already complete
+[skip] wsb_085_r0_s831086 already complete
+[skip] wsb_085_r1_s831104 already complete
+[skip] wsb_086_r0_s831087 already complete
+[skip] wsb_086_r1_s831105 already complete
+[skip] wsb_087_r0_s831088 already complete
+[skip] wsb_087_r1_s831106 already complete
+[skip] wsb_088_r0_s831089 already complete
+[skip] wsb_088_r1_s831107 already complete
+[skip] wsb_089_r0_s831090 already complete
+[skip] wsb_089_r1_s831108 already complete
+[skip] wsb_090_r0_s831091 already complete
+[skip] wsb_090_r1_s831109 already complete
+[skip] wsb_091_r0_s831092 already complete
+[skip] wsb_091_r1_s831110 already complete
+[skip] wsb_092_r0_s831093 already complete
+[skip] wsb_092_r1_s831111 already complete
+[skip] wsb_093_r0_s831094 already complete
+[skip] wsb_093_r1_s831112 already complete
+[skip] wsb_094_r0_s831095 already complete
+[skip] wsb_094_r1_s831113 already complete
+[skip] wsb_095_r0_s831096 already complete
+[skip] wsb_095_r1_s831114 already complete
+[skip] wsb_096_r0_s831097 already complete
+[skip] wsb_096_r1_s831115 already complete
+[skip] wsb_097_r0_s831098 already complete
+[skip] wsb_097_r1_s831116 already complete
+[skip] wsb_098_r0_s831099 already complete
+[skip] wsb_098_r1_s831117 already complete
+[skip] wsb_099_r0_s831100 already complete
+[skip] wsb_099_r1_s831118 already complete
+[skip] wsb_100_r0_s831101 already complete
+[skip] wsb_100_r1_s831119 already complete
+[skip] wsb_101_r0_s831102 already complete
+[skip] wsb_101_r1_s831120 already complete
+[skip] wsb_102_r0_s831103 already complete
+[skip] wsb_102_r1_s831121 already complete
+[skip] wsb_103_r0_s831104 already complete
+[skip] wsb_103_r1_s831122 already complete
+[skip] wsb_104_r0_s831105 already complete
+[skip] wsb_104_r1_s831123 already complete
+[skip] wsb_105_r0_s831106 already complete
+[skip] wsb_105_r1_s831124 already complete
+[skip] wsb_106_r0_s831107 already complete
+[skip] wsb_106_r1_s831125 already complete
+[skip] wsb_107_r0_s831108 already complete
+[skip] wsb_107_r1_s831126 already complete
+[skip] wsb_108_r0_s831109 already complete
+[skip] wsb_108_r1_s831127 already complete
+[skip] wsb_109_r0_s831110 already complete
+[skip] wsb_109_r1_s831128 already complete
+[skip] wsb_110_r0_s831111 already complete
+[skip] wsb_110_r1_s831129 already complete
+[skip] wsb_111_r0_s831112 already complete
+[skip] wsb_111_r1_s831130 already complete
+[skip] wsb_112_r0_s831113 already complete
+[skip] wsb_112_r1_s831131 already complete
+[skip] wsb_113_r0_s831114 already complete
+[skip] wsb_113_r1_s831132 already complete
+[skip] wsb_114_r0_s831115 already complete
+[skip] wsb_114_r1_s831133 already complete
+[skip] wsb_115_r0_s831116 already complete
+[skip] wsb_115_r1_s831134 already complete
+[skip] wsb_116_r0_s831117 already complete
+[skip] wsb_116_r1_s831135 already complete
+[skip] wsb_117_r0_s831118 already complete
+[skip] wsb_117_r1_s831136 already complete
+[skip] wsb_118_r0_s831119 already complete
+[skip] wsb_118_r1_s831137 already complete
+[skip] wsb_119_r0_s831120 already complete
+[skip] wsb_119_r1_s831138 already complete
+[skip] wsb_120_r0_s831121 already complete
+[skip] wsb_120_r1_s831139 already complete
+[skip] wsb_121_r0_s831122 already complete
+[skip] wsb_121_r1_s831140 already complete
+[skip] wsb_122_r0_s831123 already complete
+[skip] wsb_122_r1_s831141 already complete
+[skip] wsb_123_r0_s831124 already complete
+[skip] wsb_123_r1_s831142 already complete
+[skip] wsb_124_r0_s831125 already complete
+[skip] wsb_124_r1_s831143 already complete
+[skip] wsb_125_r0_s831126 already complete
+[skip] wsb_125_r1_s831144 already complete
+[skip] wsb_126_r0_s831127 already complete
+[skip] wsb_126_r1_s831145 already complete
+[skip] wsb_127_r0_s831128 already complete
+[skip] wsb_127_r1_s831146 already complete
+[skip] wsb_128_r0_s831129 already complete
+[skip] wsb_128_r1_s831147 already complete
+[skip] wsb_129_r0_s831130 already complete
+[skip] wsb_129_r1_s831148 already complete
+[skip] wsb_130_r0_s831131 already complete
+[skip] wsb_130_r1_s831149 already complete
+[skip] wsb_131_r0_s831132 already complete
+[skip] wsb_131_r1_s831150 already complete
+[skip] wsb_132_r0_s831133 already complete
+[skip] wsb_132_r1_s831151 already complete
+[skip] wsb_133_r0_s831134 already complete
+[skip] wsb_133_r1_s831152 already complete
+[skip] wsb_134_r0_s831135 already complete
+[skip] wsb_134_r1_s831153 already complete
+[skip] wsb_135_r0_s831136 already complete
+[skip] wsb_135_r1_s831154 already complete
+[skip] wsb_136_r0_s831137 already complete
+[skip] wsb_136_r1_s831155 already complete
+[skip] wsb_137_r0_s831138 already complete
+[skip] wsb_137_r1_s831156 already complete
+[skip] wsb_138_r0_s831139 already complete
+[skip] wsb_138_r1_s831157 already complete
+[skip] wsb_139_r0_s831140 already complete
+[skip] wsb_139_r1_s831158 already complete
+[skip] wsb_140_r0_s831141 already complete
+[skip] wsb_140_r1_s831159 already complete
+[skip] wsb_141_r0_s831142 already complete
+[skip] wsb_141_r1_s831160 already complete
+[skip] wsb_142_r0_s831143 already complete
+[skip] wsb_142_r1_s831161 already complete
+[skip] wsb_143_r0_s831144 already complete
+[skip] wsb_143_r1_s831162 already complete
+[skip] wsb_144_r0_s831145 already complete
+[skip] wsb_144_r1_s831163 already complete
+[skip] wsb_145_r0_s831146 already complete
+[skip] wsb_145_r1_s831164 already complete
+[skip] wsb_146_r0_s831147 already complete
+[skip] wsb_146_r1_s831165 already complete
+[skip] wsb_147_r0_s831148 already complete
+[skip] wsb_147_r1_s831166 already complete
+[skip] wsb_148_r0_s831149 already complete
+[skip] wsb_148_r1_s831167 already complete
+[skip] wsb_149_r0_s831150 already complete
+[skip] wsb_149_r1_s831168 already complete
+[skip] wsb_150_r0_s831151 already complete
+[skip] wsb_150_r1_s831169 already complete
+[skip] wsb_151_r0_s831152 already complete
+[skip] wsb_151_r1_s831170 already complete
+[skip] wsb_152_r0_s831153 already complete
+[skip] wsb_152_r1_s831171 already complete
+[skip] wsb_153_r0_s831154 already complete
+[skip] wsb_153_r1_s831172 already complete
+[skip] wsb_154_r0_s831155 already complete
+[skip] wsb_154_r1_s831173 already complete
+[skip] wsb_155_r0_s831156 already complete
+[skip] wsb_155_r1_s831174 already complete
+[skip] wsb_156_r0_s831157 already complete
+[skip] wsb_156_r1_s831175 already complete
+[skip] wsb_157_r0_s831158 already complete
+[skip] wsb_157_r1_s831176 already complete
+[skip] wsb_158_r0_s831159 already complete
+[skip] wsb_158_r1_s831177 already complete
+[skip] wsb_159_r0_s831160 already complete
+[skip] wsb_159_r1_s831178 already complete
+[skip] wsb_160_r0_s831161 already complete
+[skip] wsb_160_r1_s831179 already complete
+[skip] wsb_161_r0_s831162 already complete
+[skip] wsb_161_r1_s831180 already complete
+[skip] wsb_162_r0_s831163 already complete
+[skip] wsb_162_r1_s831181 already complete
+[skip] wsb_163_r0_s831164 already complete
+[skip] wsb_163_r1_s831182 already complete
+[329/384] wsb_164_r0_s831165 ok (391.47s, 304.8s audio TRUNCATED)
+[330/384] wsb_164_r1_s831183 ok (410.72s, 315.6s audio TRUNCATED)
+[skip] wsb_165_r0_s831166 already complete
+[skip] wsb_165_r1_s831184 already complete
+[skip] wsb_166_r0_s831167 already complete
+[skip] wsb_166_r1_s831185 already complete
+[skip] wsb_167_r0_s831168 already complete
+[skip] wsb_167_r1_s831186 already complete
+[skip] wsb_168_r0_s831169 already complete
+[skip] wsb_168_r1_s831187 already complete
+[skip] wsb_169_r0_s831170 already complete
+[skip] wsb_169_r1_s831188 already complete
+[skip] wsb_170_r0_s831171 already complete
+[skip] wsb_170_r1_s831189 already complete
+[skip] wsb_171_r0_s831172 already complete
+[skip] wsb_171_r1_s831190 already complete
+[skip] wsb_172_r0_s831173 already complete
+[skip] wsb_172_r1_s831191 already complete
+[skip] wsb_173_r0_s831174 already complete
+[skip] wsb_173_r1_s831192 already complete
+[skip] wsb_174_r0_s831175 already complete
+[skip] wsb_174_r1_s831193 already complete
+[skip] wsb_175_r0_s831176 already complete
+[skip] wsb_175_r1_s831194 already complete
+[skip] wsb_176_r0_s831177 already complete
+[skip] wsb_176_r1_s831195 already complete
+[skip] wsb_177_r0_s831178 already complete
+[skip] wsb_177_r1_s831196 already complete
+[skip] wsb_178_r0_s831179 already complete
+[skip] wsb_178_r1_s831197 already complete
+[skip] wsb_179_r0_s831180 already complete
+[skip] wsb_179_r1_s831198 already complete
+[skip] wsb_180_r0_s831181 already complete
+[skip] wsb_180_r1_s831199 already complete
+[skip] wsb_181_r0_s831182 already complete
+[skip] wsb_181_r1_s831200 already complete
+[skip] wsb_182_r0_s831183 already complete
+[skip] wsb_182_r1_s831201 already complete
+[skip] wsb_183_r0_s831184 already complete
+[skip] wsb_183_r1_s831202 already complete
+[skip] wsb_184_r0_s831185 already complete
+[skip] wsb_184_r1_s831203 already complete
+[skip] wsb_185_r0_s831186 already complete
+[skip] wsb_185_r1_s831204 already complete
+[skip] wsb_186_r0_s831187 already complete
+[skip] wsb_186_r1_s831205 already complete
+[skip] wsb_187_r0_s831188 already complete
+[skip] wsb_187_r1_s831206 already complete
+[skip] wsb_188_r0_s831189 already complete
+[skip] wsb_188_r1_s831207 already complete
+[skip] wsb_189_r0_s831190 already complete
+[skip] wsb_189_r1_s831208 already complete
+[skip] wsb_190_r0_s831191 already complete
+[skip] wsb_190_r1_s831209 already complete
+[skip] wsb_191_r0_s831192 already complete
+[skip] wsb_191_r1_s831210 already complete
+{
+  "run": "/workspace/yue2-omni-pr/bench/runs/omniwsb20261014T1323Z",
+  "run_id": "omniwsb20261014T1323Z",
+  "expected": 384,
+  "complete": 384,
+  "resumed": 382,
+  "failed": 0,
+  "pending": 0,
+  "wall_s": 828.2,
+  "peak_vram_bytes": 44778483712,
+  "peak_gtt_bytes": 89427968,
+  "stopped_by_signal": false,
+  "finished_at": "2026-10-15T13:43:04Z"
+}

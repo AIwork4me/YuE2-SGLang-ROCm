@@ -1,0 +1,52 @@
+[FAIL] wsb_000_r0_s831001: unexpected response: content-type=None bytes=35688748 head=b'RIFF$\x91 \x02'
+
+[signal 2] graceful stop requested; finishing in-flight candidate, then exiting
+[FAIL] wsb_000_r1_s831019: unexpected response: content-type=None bytes=28031788 head=b'RIFF$\xbb\xab\x01'
+{
+  "run": "/workspace/yue2-omni-pr/bench/runs/omni-pilot10x2",
+  "run_id": "omni-pilot10x2",
+  "expected": 20,
+  "complete": 0,
+  "resumed": 0,
+  "failed": 2,
+  "pending": 18,
+  "wall_s": 308.5,
+  "peak_vram_bytes": 41949519872,
+  "peak_gtt_bytes": 35057664,
+  "stopped_by_signal": true,
+  "finished_at": "2026-10-14T11:35:59Z"
+}
+[1/20] wsb_000_r0_s831001 ok (183.63s, 185.9s audio)
+[2/20] wsb_000_r1_s831019 ok (123.36s, 146.0s audio)
+[3/20] wsb_001_r0_s831002 ok (179.47s, 194.5s audio)
+[4/20] wsb_001_r1_s831020 ok (194.67s, 205.0s audio)
+[5/20] wsb_002_r0_s831003 ok (253.97s, 241.2s audio)
+[6/20] wsb_002_r1_s831021 ok (231.66s, 230.0s audio)
+[7/20] wsb_003_r0_s831004 ok (180.38s, 210.6s audio)
+[8/20] wsb_003_r1_s831022 ok (189.95s, 213.0s audio)
+[9/20] wsb_004_r0_s831005 ok (185.52s, 219.1s audio)
+[10/20] wsb_004_r1_s831023 ok (156.59s, 194.6s audio)
+[11/20] wsb_022_r0_s831023 ok (264.0s, 262.2s audio)
+[12/20] wsb_022_r1_s831041 ok (247.89s, 249.8s audio)
+[13/20] wsb_063_r0_s831064 ok (246.73s, 252.8s audio)
+[14/20] wsb_063_r1_s831082 ok (254.47s, 268.2s audio)
+[15/20] wsb_075_r0_s831076 ok (203.76s, 197.8s audio)
+[16/20] wsb_075_r1_s831094 ok (206.51s, 210.0s audio)
+[17/20] wsb_076_r0_s831077 ok (125.53s, 154.5s audio)
+[18/20] wsb_076_r1_s831095 ok (181.35s, 201.8s audio)
+[19/20] wsb_077_r0_s831078 ok (189.46s, 206.8s audio)
+[20/20] wsb_077_r1_s831096 ok (241.42s, 246.9s audio)
+{
+  "run": "/workspace/yue2-omni-pr/bench/runs/omni-pilot10x2",
+  "run_id": "omni-pilot10x2",
+  "expected": 20,
+  "complete": 20,
+  "resumed": 0,
+  "failed": 0,
+  "pending": 0,
+  "wall_s": 4164.6,
+  "peak_vram_bytes": 41974685696,
+  "peak_gtt_bytes": 35057664,
+  "stopped_by_signal": false,
+  "finished_at": "2026-10-14T12:47:20Z"
+}

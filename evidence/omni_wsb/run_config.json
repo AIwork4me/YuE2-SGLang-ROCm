@@ -1,5 +1,5 @@
 {
-  "run_id": "omniwsb20261014T1323Z",
+  "run_id": "omni-pilot10x2",
   "platform": "gfx1100",
   "gpu": "AMD Radeon W7900",
   "serving_stack": "sglang-omni",
@@ -22,5 +22,16 @@
     "vae_halo_frames": 16
   },
   "candidates": 2,
-  "indices": null
+  "indices": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    22,
+    63,
+    75,
+    76,
+    77
+  ]
 }
