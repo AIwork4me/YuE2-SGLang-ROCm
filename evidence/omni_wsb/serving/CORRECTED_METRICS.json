@@ -1,0 +1,224 @@
+{
+ "schema": 2,
+ "generated": "2026-10-16",
+ "script": "correct_metrics_v2_2026-10-16",
+ "erratum": "Historical summary files' rtf_mean was mean(audio/wall) = real-time speed multiplier (x), not RTF. Values unchanged; labels corrected here. See reports/final_acceptance/SERVING_PERFORMANCE_CORRECTION.md.",
+ "estimator": "percentile = sorted order statistic at index round(p/100*(n-1)) (original bench_serving_omni.py estimator, unchanged)",
+ "stages": [
+  {
+   "tag": "bs1",
+   "client_concurrency": 1,
+   "raw_input": "/workspace/yue2-omni-pr/bench/benchmarks/bs1/raw_bs1_C1.jsonl",
+   "raw_input_sha256": "30bacec11f30c958ba805c479591fce66e1a2d048f56d375c7739e15921445f5",
+   "requests": 24,
+   "successful": 24,
+   "errors": 0,
+   "stage_wall_s": 5249.472,
+   "requests_per_second": 0.0046,
+   "latency_p50_s": 217.251,
+   "latency_p95_s": 274.931,
+   "latency_p99_s": 309.991,
+   "latency_mean_s": 218.725,
+   "client_e2e_rtf_mean": 0.9749,
+   "client_e2e_rtf_p50": 0.985,
+   "client_realtime_speed_x_mean": 1.0296,
+   "aggregate_audio_throughput_x": 1.0197,
+   "audio_s_total": 5352.736,
+   "audio_s_mean": 223.031,
+   "note_reciprocal_gap": {
+    "reciprocal_of_mean_rtf": 1.0258,
+    "mean_speed_x": 1.0296,
+    "equal": false
+   },
+   "gpu": {
+    "gpu_util_mean_pct": 0,
+    "gpu_util_p90_pct": 0.0,
+    "provenance": "sweep stages: rocm-smi sampled every 2s during stage; bs1 stage: samples all parsed 0 -> NOT VERIFIED, see SERVING_PERFORMANCE_CORRECTION.md",
+    "peak_vram_bytes": 44043042816,
+    "peak_vram_GB_1e9": 44.04,
+    "peak_vram_GiB_2p30": 41.02,
+    "peak_gtt_bytes": 35057664,
+    "peak_gtt_GB_1e9": 0.04,
+    "peak_gtt_GiB_2p30": 0.03
+   },
+   "old_field_mapping": {
+    "old_rtf_mean": 1.0296,
+    "old_rtf_mean_is_now": "client_realtime_speed_x_mean (identical value, corrected label)"
+   },
+   "model_math_unchanged": true
+  },
+  {
+   "tag": "sweep",
+   "client_concurrency": 1,
+   "raw_input": "/workspace/yue2-omni-pr/bench/benchmarks/sweep/raw_sweep_C1.jsonl",
+   "raw_input_sha256": "c44460d063497f2bc2d3dfdc0fbd33546522212d5154fb028f234d6140e7a225",
+   "requests": 24,
+   "successful": 24,
+   "errors": 0,
+   "stage_wall_s": 5257.882,
+   "requests_per_second": 0.0046,
+   "latency_p50_s": 216.748,
+   "latency_p95_s": 274.862,
+   "latency_p99_s": 313.762,
+   "latency_mean_s": 219.075,
+   "client_e2e_rtf_mean": 0.9762,
+   "client_e2e_rtf_p50": 0.985,
+   "client_realtime_speed_x_mean": 1.0286,
+   "aggregate_audio_throughput_x": 1.018,
+   "audio_s_total": 5352.736,
+   "audio_s_mean": 223.031,
+   "note_reciprocal_gap": {
+    "reciprocal_of_mean_rtf": 1.0244,
+    "mean_speed_x": 1.0286,
+    "equal": false
+   },
+   "gpu": {
+    "gpu_util_mean_pct": 99.4,
+    "gpu_util_p90_pct": 100.0,
+    "provenance": "sweep stages: rocm-smi sampled every 2s during stage; bs1 stage: samples all parsed 0 -> NOT VERIFIED, see SERVING_PERFORMANCE_CORRECTION.md",
+    "peak_vram_bytes": 33678467072,
+    "peak_vram_GB_1e9": 33.68,
+    "peak_vram_GiB_2p30": 31.37,
+    "peak_gtt_bytes": 35057664,
+    "peak_gtt_GB_1e9": 0.04,
+    "peak_gtt_GiB_2p30": 0.03
+   },
+   "old_field_mapping": {
+    "old_rtf_mean": 1.0286,
+    "old_rtf_mean_is_now": "client_realtime_speed_x_mean (identical value, corrected label)"
+   },
+   "model_math_unchanged": true
+  },
+  {
+   "tag": "sweep",
+   "client_concurrency": 2,
+   "raw_input": "/workspace/yue2-omni-pr/bench/benchmarks/sweep/raw_sweep_C2.jsonl",
+   "raw_input_sha256": "a34da1cfd833940e321b54701de9dcb046be8022f8ff14359c937a669c1c2dae",
+   "requests": 24,
+   "successful": 24,
+   "errors": 0,
+   "stage_wall_s": 5232.453,
+   "requests_per_second": 0.0046,
+   "latency_p50_s": 449.53,
+   "latency_p95_s": 510.712,
+   "latency_p99_s": 525.935,
+   "latency_mean_s": 429.542,
+   "client_e2e_rtf_mean": 1.9455,
+   "client_e2e_rtf_p50": 1.957,
+   "client_realtime_speed_x_mean": 0.5331,
+   "aggregate_audio_throughput_x": 1.023,
+   "audio_s_total": 5352.736,
+   "audio_s_mean": 223.031,
+   "note_reciprocal_gap": {
+    "reciprocal_of_mean_rtf": 0.514,
+    "mean_speed_x": 0.5331,
+    "equal": false
+   },
+   "gpu": {
+    "gpu_util_mean_pct": 99.7,
+    "gpu_util_p90_pct": 100.0,
+    "provenance": "sweep stages: rocm-smi sampled every 2s during stage; bs1 stage: samples all parsed 0 -> NOT VERIFIED, see SERVING_PERFORMANCE_CORRECTION.md",
+    "peak_vram_bytes": 46247116800,
+    "peak_vram_GB_1e9": 46.25,
+    "peak_vram_GiB_2p30": 43.07,
+    "peak_gtt_bytes": 35057664,
+    "peak_gtt_GB_1e9": 0.04,
+    "peak_gtt_GiB_2p30": 0.03
+   },
+   "old_field_mapping": {
+    "old_rtf_mean": 0.5331,
+    "old_rtf_mean_is_now": "client_realtime_speed_x_mean (identical value, corrected label)"
+   },
+   "model_math_unchanged": true
+  },
+  {
+   "tag": "sweep",
+   "client_concurrency": 4,
+   "raw_input": "/workspace/yue2-omni-pr/bench/benchmarks/sweep/raw_sweep_C4.jsonl",
+   "raw_input_sha256": "e83919b626ace7cf91ecc81396215b6998ea1308110904d23c50f01d6722f2c4",
+   "requests": 24,
+   "successful": 24,
+   "errors": 0,
+   "stage_wall_s": 5231.361,
+   "requests_per_second": 0.0046,
+   "latency_p50_s": 896.004,
+   "latency_p95_s": 932.107,
+   "latency_p99_s": 986.044,
+   "latency_mean_s": 821.493,
+   "client_e2e_rtf_mean": 3.7833,
+   "client_e2e_rtf_p50": 3.917,
+   "client_realtime_speed_x_mean": 0.304,
+   "aggregate_audio_throughput_x": 1.0232,
+   "audio_s_total": 5352.736,
+   "audio_s_mean": 223.031,
+   "note_reciprocal_gap": {
+    "reciprocal_of_mean_rtf": 0.2643,
+    "mean_speed_x": 0.304,
+    "equal": false
+   },
+   "gpu": {
+    "gpu_util_mean_pct": 99.8,
+    "gpu_util_p90_pct": 100.0,
+    "provenance": "sweep stages: rocm-smi sampled every 2s during stage; bs1 stage: samples all parsed 0 -> NOT VERIFIED, see SERVING_PERFORMANCE_CORRECTION.md",
+    "peak_vram_bytes": 46347792384,
+    "peak_vram_GB_1e9": 46.35,
+    "peak_vram_GiB_2p30": 43.16,
+    "peak_gtt_bytes": 35057664,
+    "peak_gtt_GB_1e9": 0.04,
+    "peak_gtt_GiB_2p30": 0.03
+   },
+   "old_field_mapping": {
+    "old_rtf_mean": 0.304,
+    "old_rtf_mean_is_now": "client_realtime_speed_x_mean (identical value, corrected label)"
+   },
+   "model_math_unchanged": true
+  },
+  {
+   "tag": "sweep",
+   "client_concurrency": 8,
+   "raw_input": "/workspace/yue2-omni-pr/bench/benchmarks/sweep/raw_sweep_C8.jsonl",
+   "raw_input_sha256": "bf8fab1c1ad7fcff4f5d8be1208ac9c3499dc537ecca62cc0e0a102a2dc9fdba",
+   "requests": 24,
+   "successful": 24,
+   "errors": 0,
+   "stage_wall_s": 5230.093,
+   "requests_per_second": 0.0046,
+   "latency_p50_s": 1736.032,
+   "latency_p95_s": 1804.234,
+   "latency_p99_s": 1811.009,
+   "latency_mean_s": 1493.728,
+   "client_e2e_rtf_mean": 6.8664,
+   "client_e2e_rtf_p50": 7.107,
+   "client_realtime_speed_x_mean": 0.2041,
+   "aggregate_audio_throughput_x": 1.0234,
+   "audio_s_total": 5352.736,
+   "audio_s_mean": 223.031,
+   "note_reciprocal_gap": {
+    "reciprocal_of_mean_rtf": 0.1456,
+    "mean_speed_x": 0.2041,
+    "equal": false
+   },
+   "gpu": {
+    "gpu_util_mean_pct": 99.8,
+    "gpu_util_p90_pct": 100.0,
+    "provenance": "sweep stages: rocm-smi sampled every 2s during stage; bs1 stage: samples all parsed 0 -> NOT VERIFIED, see SERVING_PERFORMANCE_CORRECTION.md",
+    "peak_vram_bytes": 46347792384,
+    "peak_vram_GB_1e9": 46.35,
+    "peak_vram_GiB_2p30": 43.16,
+    "peak_gtt_bytes": 89427968,
+    "peak_gtt_GB_1e9": 0.09,
+    "peak_gtt_GiB_2p30": 0.08
+   },
+   "old_field_mapping": {
+    "old_rtf_mean": 0.2041,
+    "old_rtf_mean_is_now": "client_realtime_speed_x_mean (identical value, corrected label)"
+   },
+   "model_math_unchanged": true
+  }
+ ],
+ "interpretation": {
+  "concurrency_note": "C=1,2,4,8 are CLIENT concurrencies against a single-model server; GPU execution remained serial (requests_per_second ~constant, P50 grows ~linearly). No GPU batching or throughput scaling is claimed.",
+  "rtf_note": "client_e2e_rtf includes queueing/admission for C>1; it is an end-to-end client-observed ratio, not isolated GPU compute RTF.",
+  "units": "GB = 1e9 bytes; GiB = 2^30 bytes; GTT is system-RAM aperture memory and is NOT VRAM."
+ }
+}

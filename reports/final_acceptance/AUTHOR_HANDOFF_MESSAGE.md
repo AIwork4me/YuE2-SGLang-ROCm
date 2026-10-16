@@ -1,0 +1,9 @@
+Hi! Status wrap-up from the W7900 side — everything is now in reviewable shape, three small items for whenever you have time:
+
+**1. ROCm PR #1 is ready as-is** — head `eca7770f` (your "LGM after updating the comments" + the comment-only update). Happy to address anything further.
+
+**2. Long-lyrics fix delivered as #2** — during the full WSB run, official prompt 164 (4,114-char nested input) was the only prompt the stock tree rejected with HTTP 400 under the generic 4096-char speech cap. #2 is a single commit on top of your current `add_yue2` head: `Yue2PipelineConfig.max_speech_input_chars = None` (the existing moss_tts override), plus tests with the frozen prompt-164 payload. Generic default and all other models untouched; generation stays bounded by abc/semantic token budgets. Independent HTTP/security/regression reviews passed.
+
+**3. Small erratum posted above** — our serving benchmark had labeled the real-time speed multiplier (audio-s per wall-s) as "RTF". Corrected labels: BS=1 speed 1.030× = client E2E RTF 0.975; sweep values in the erratum. Also clarified that the BS=1 GPU-util samples were invalid (0s) and the 99.4% figure comes from the C=1 sweep, and separated the pilot (20-candidate) artifacts from the full 384-run archive. All measured values, quality scores (SongBench GA 6.730/6.732, PER 0.248/0.176, MuLan 0.508, AMC 0.406) and conclusions are unchanged — everything was re-derived from the pinned raw records.
+
+If you can see your way to an H800 smoke of `eca7770f` (real serve + one /v1/audio/speech request, valid audio, optimized CUDA paths intact — no audio-hash equality expected across GPUs), that would be the last cross-vendor data point before you fold #1 and #2 into add_yue2 and move #2540 forward. Anything you need from us — logs, configs, reproducer scripts — just say the word.

@@ -1,0 +1,12 @@
+{
+  "run": "/workspace/yue2-omni-pr/bench/runs/omniwsb20261014T1323Z",
+  "mode": "full",
+  "dataset_revision_ok": true,
+  "expected_candidates": 384,
+  "verified_complete": 384,
+  "missing_or_invalid": 0,
+  "truncated_but_complete": 5,
+  "unique_prompt_coverage": 192,
+  "problem_count": 0,
+  "verdict": "FULL"
+}

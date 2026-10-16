@@ -74,8 +74,10 @@ claims (see §6). PER differences between A and B are analyzed in §4.
   non-silent, per-candidate WAV SHA256 journaled and independently re-verified
   against the 384 raw WAVs.
 - Wall: main pass 83,989 s for 382 candidates (session summary retained at
-  `evidence/omni_wsb/main_pass_summary.json`; the run tree's
-  generation_summary.json is the later prompt-164 resume session's) + cap-exempt
+  `evidence/omni_wsb/full/main_pass_summary.json`, moved from the omni_wsb top
+  level in the 2026-10-16 evidence reorganization; the run tree's
+  generation_summary.json is the later prompt-164 resume session's, archived as
+  `evidence/omni_wsb/full/resume_prompt164_summary.json`) + cap-exempt
   pass for prompt 164 (828 s, 2 candidates). Peak VRAM 51.50 GB (main pass),
   peak GTT 3.05 GB.
 
@@ -141,10 +143,14 @@ claims (see §6). PER differences between A and B are analyzed in §4.
 
 ## 7. Evidence pointers (this repository)
 
-- `evidence/omni_wsb/` — audit.json, generation_summary.json, main_pass_summary.json,
-  scores + additional summaries, protocol anchors, selected-candidate list (192 rows
-  with seeds + audio sha256), WAV-verification digest (384/384 raw WAVs matched to
-  journal http evidence), prompt-164 disclosure, run_config.
+- `evidence/omni_wsb/` — scoped since the 2026-10-16 reorganization:
+  `pilot/` (pilot run_config, generation_summary, audit — run omni-pilot10x2,
+  20 candidates), `full/` (full-run run_config, main_pass_summary,
+  resume_prompt164_summary, aggregate_audit, prompt-164 disclosure,
+  source_manifest), plus top-level scores + additional summaries, protocol
+  anchors, selected-candidate list (192 rows
+  with seeds + audio sha256), WAV-verification digest (384/384 raw WAVs matched
+  to journal http evidence), and `EVIDENCE_MANIFEST.json` indexing every file.
 - Raw run tree (audio bundles, per-song rows, receipts) retained on the
   benchmark host at `/workspace/yue2-omni-pr/bench/runs/omniwsb20261014T1323Z`;
   full per_song.jsonl anchored by recorded sha256 (below).
