@@ -101,7 +101,7 @@ Interpretation (unchanged conclusions, now correctly named):
 
 All original values are bytes; both unit systems are now stated explicitly
 in `CORRECTED_METRICS.json` (peak VRAM bs1 44,043,042,816 B = 44.04 GB =
-41.01 GiB; sweep C≥2 ≈ 46.25×10⁹ B = 43.07 GiB; peak GTT 33.6–89.4×10⁶ B
+41.02 GiB; sweep C≥2 ≈ 46.25×10⁹ B = 43.07 GiB; peak GTT 33.6–89.4×10⁶ B
 ≪ VRAM and is system-aperture memory, not VRAM).
 
 ## 6. Future-proofing
