@@ -5,7 +5,7 @@ Independent, evidence-first reproduction of YuE2 (`m-a-p/YuE2-3B`) song generati
 AMD GPUs under Linux-native ROCm, using the SGLang and SGLang-Omni `yue2` branches from
 upstream PR [sgl-project/sglang#42106](https://github.com/sgl-project/sglang/pull/42106).
 
-**Yes — YuE2 runs end-to-end on AMD ROCm today**, on two verified consumer platforms:
+**Yes — YuE2 runs end-to-end on AMD ROCm today**, on two independently verified AMD GPU platforms:
 
 - **AMD Radeon 8060S (gfx1151, Ryzen AI MAX+ PRO 395)** — SGLang path, full official
   WildSongBench: 384/384 candidates, strict audit `FULL`, official scoring complete.
@@ -84,7 +84,7 @@ predate completion and are superseded by the machine-readable final artifacts ab
 |---|---|---|---|---|---|
 | AMD Radeon 8060S 32 GB (Strix Halo iGPU, Ryzen AI MAX+ PRO 395) | gfx1151 | SGLang (PR #42106 + ROCm patches 0001–0005) | **VERIFIED** (384/384, audit `FULL`) | SongBench 6.683 · PER 17.22% · MuLan 0.505 · AMC 0.412 | `main`: [`official_scores.json`](evidence/official_scores.json), [`environment.json`](evidence/environment.json) |
 | AMD Radeon PRO W7900 48 GB | gfx1100 | SGLang (PR #42106 @ `ced0ef7d`) | **VERIFIED** (384/384, audit `FULL`) | SongBench 6.736 · PER 17.01% · MuLan 0.510 · AMC 0.405 | `main`: [`evidence/gfx1100/scoring_snapshot.json`](evidence/gfx1100/scoring_snapshot.json) |
-| AMD Radeon PRO W7900/W7900D 48 GB | gfx1100 | SGLang-Omni (author `add_yue2` + our PRs #1/#2 + style commits) | **VERIFIED** (384/384, audit `FULL`) | SongBench 6.732 · PER 17.61% · MuLan 0.508 · AMC 0.406 | [`validation/gfx1100-rocm7141` @ `137ce40d`](https://github.com/AIwork4me/YuE2-SGLang-ROCm/blob/137ce40d9ad6886885040f69a4742bb8b4e658bd/evidence/omni_wsb/scores_summary.json) |
+| AMD Radeon PRO W7900/W7900D 48 GB | gfx1100 | SGLang-Omni (`bench/omni-wsb` @ `c4841f0c`; ROCm PR #1 development revision) | **VERIFIED** (384/384, audit `FULL`) | SongBench 6.732 · PER 17.61% · MuLan 0.508 · AMC 0.406 | [`validation/gfx1100-rocm7141` @ `137ce40d`](https://github.com/AIwork4me/YuE2-SGLang-ROCm/blob/137ce40d9ad6886885040f69a4742bb8b4e658bd/evidence/omni_wsb/scores_summary.json) |
 | NVIDIA H800 (upstream reference) | — | SGLang (author's run) | not run by us | author-published values only (different evaluator revisions) | [sgl-project/sglang#42106](https://github.com/sgl-project/sglang/pull/42106) |
 
 Notes: rows are independent campaigns — metrics are **not** merged or interpolated
@@ -94,6 +94,16 @@ Software pins: gfx1100 — ROCm 7.14.1, `torch 2.12.0+rocm7.14.1`, WSB dataset
 `m-a-p/WildSongBench@e361b85a`, model `m-a-p/YuE2-3B@1a96eca6`, VAE
 `m-a-p/YuE2-Vae-legacy@b54118f0`. gfx1151 — host ROCm 7.2.1 userspace with the same
 `2.12.0+rocm7.14.1` torch wheels (details in [`evidence/environment.json`](evidence/environment.json)).
+
+**W7900 Omni source attribution:** The full WildSongBench 384/384 run used
+`bench/omni-wsb` @ `c4841f0c` (a development revision of ROCm PR #1, with a
+benchmark-only `artifacts_dir` export). Prompt 164 was completed with a separate,
+temporary input-cap exemption. The later combined code (ROCm PR #1 + Long-Lyrics
+PR #2 + style commits `ae11c6ad` and `b91b95440`; tree `363073e6`) was
+verified separately with **76/76 focused tests**, local pre-commit checks and
+a **real W7900 short-audio HTTP smoke test**. **That final combined tree was not
+used to regenerate the 384 candidates.** See the
+[author integration handoff](docs/YUE2_UPSTREAM_AUTHOR_HANDOFF.md).
 
 ## 4. Benchmark highlights
 
@@ -170,6 +180,9 @@ verified 2026-10-17 — **none merged yet**):
 | Prepared Omni style commit (mechanical lint fixes) | [`ae11c6ad`](https://github.com/AIwork4me/sglang-omni/commit/ae11c6ad246023494a4f55f89e852384e019f5b4) | pushable/cherry-pickable |
 | Prepared Omni naming-policy commit (58 symbol renames, bit-identical smoke) | [`b91b9544`](https://github.com/AIwork4me/sglang-omni/commit/b91b95440cf3ce9b6d83f6593d85c91aadffbfd2) | pushable/cherry-pickable |
 | SGLang pre-commit lint fix for PR #42106 files | [`1a9f2d92`](https://github.com/yiakwy-xpu-ml-framework-team/AMD-sglang-benchmark-fork/commit/1a9f2d92a201b21242ca6c1bbe8a070189b0a913) | on author's benchmark fork |
+
+For the **three compatibility PRs**, **two Omni lint commits**, and their verified
+integration order, see the [concise YuE2 author handoff](docs/YUE2_UPSTREAM_AUTHOR_HANDOFF.md).
 
 Related author-owned carriers (not ours to modify):
 
