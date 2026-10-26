@@ -93,3 +93,8 @@ advanced upstream mains.
 
 Status summary: environment PASS; PR baseline refreshed; no author-side
 movement; proceeding to Phase 1 integration.
+
+Post-audit disclosure (added 2026-10-27): all gfx1151 serving in reports
+02/03/10 ran with a 4-file ROCm host-boot overlay applied to the working
+tree (report 02 §overlay, report 10 §2) — the overlay is not part of any
+YuE2 branch; upstream candidate: `AIwork4me/sglang:fix/hip-host-import-guards`.

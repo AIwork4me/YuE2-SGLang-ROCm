@@ -4,6 +4,18 @@ Tree under test: **`integration/yue2-sglang-gfx1151-merge-ready` @ `bcb496ab9`**
 (AIwork4me/sglang fork; = author `add_yue2` `ced0ef7d` + ROCm PR `def437fb` +
 lint `1a9f2d92` + latest main `5ef99013a` + loader-path fix + format fixup)
 
+**Tested-SHA attribution (explicit):**
+
+| Evidence | Exact tree |
+|---|---|
+| Tests A (boot), B (47.0 s short E2E), C (112.1 s full-song) | `bcb496ab9` (this report) |
+| Test D (21/21 platform gates) | same tree; re-run at `44c8fa51f` in report 01 §8 |
+| Post-review-fix re-smoke (0.8 s WAV, HTTP 200 in 5.9 s) | `44c8fa51f` (report 01 §8) |
+| 2026-10-27 freshness micro-smoke (HTTP 200 in 5.8 s, 122/122 tests) | `review/yue2-sglang-main-delta-20261027` over main `01759f0a6` (report 10) |
+
+All serving on this tree ran with the host-boot overlay below applied to
+the working tree (overlay is not part of the branch).
+
 Host: Ryzen AI MAX+ PRO 395, Radeon 8060S (gfx1151), 32 GiB VRAM, ROCm 7.2.1
 host / torch 2.12.0+rocm7.14.1, venv `environments/yue2` with
 `PYTHONPATH=<integration>/python` (verified the editable-install finder is

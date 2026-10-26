@@ -15,12 +15,14 @@ forks. The remaining blockers are all **outside our control**: the
 
 ## What changed (deliverables)
 
-| Artifact | Where | State |
+| Artifact | Where | State (updated 2026-10-27) |
 |---|---|---|
 | SGLang integration branch | `AIwork4me/sglang @ integration/yue2-sglang-gfx1151-merge-ready` (`44c8fa51f`) | pushed, remote-verified |
-| Omni integration branch | `AIwork4me/sglang-omni @ integration/yue2-omni-merge-ready` (`3063cdf5`) | pushed |
-| Evidence package (reports 00–09, reviews, patches) | `AIwork4me/YuE2-SGLang-ROCm @ handoff/yue2-merge-readiness-20261026` | committed; push status below |
-| ROCm host-boot overlay (4 files, for an independent `main` PR) | `reports/merge_readiness/patches/sglang_main_rocm_host_boot_overlay.patch` | prepared, validated |
+| SGLang freshness re-audit | `AIwork4me/sglang @ review/yue2-sglang-main-delta-20261027` (main `01759f0a6`) | pushed; 0 conflicts; 122/122; live smoke 200 |
+| Omni integration branch | `AIwork4me/sglang-omni @ integration/yue2-omni-merge-ready` (`3063cdf5`) | pushed, remote-verified |
+| Omni freshness re-audit | `AIwork4me/sglang-omni @ review/yue2-omni-main-delta-20261027` (main `36341fc1`) | pushed; 0 conflicts; 60/60 |
+| ROCm host-boot overlay PR candidate | `AIwork4me/sglang @ fix/hip-host-import-guards` (`d05e6d989`, incl. 3-test suite) | pushed; independent of YuE2 |
+| Evidence package (reports 00–11, reviews, patches) | `AIwork4me/YuE2-SGLang-ROCm @ handoff/yue2-merge-readiness-20261026` | pushed; **repo is public**; secrets-scanned clean |
 | Serving scripts (reproducible) | `scripts/serve_yue2_integration.sh`, `scripts/serve_omni_integration.sh` | archived |
 
 Construction: author `add_yue2` heads (re-verified frozen) + the three
@@ -53,7 +55,7 @@ no force-push.
 | Author integrates PRs/commits or the two integration branches | yiakwy team | exact one-liners in report 06 |
 | H800 physical smoke | author | simulated dispatch evidence only — no hardware claim made |
 | Close #2875 with redirect comment | AIwork4me (owner) | report 09 + draft in 07 §4 |
-| Host-boot import guards for ROCm on `main` | separate upstream PR | patch ready (overlay) |
+| Host-boot import guards for ROCm on `main` | separate upstream PR | candidate branch `fix/hip-host-import-guards` (`d05e6d989`) pushed with tests; opening the PR is owner-gated |
 | Evidence-branch push to GitHub | this session (network-dependent) | retried until verified |
 
 ## What the author must do next (shortest path)

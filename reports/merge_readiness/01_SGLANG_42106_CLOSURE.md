@@ -2,8 +2,15 @@
 
 Integration branch: **`AIwork4me/sglang:integration/yue2-sglang-gfx1151-merge-ready`**
 (local: `upstream/sglang-merge`, head `44c8fa51f` after review fixes below;
-initial validated head `5dc9b33a8`; pushed to the fork — push verified for
-`5dc9b33a8`, `44c8fa51f` push queued during a network outage window)
+initial validated head `5dc9b33a8`; both `5dc9b33a8` and `44c8fa51f`
+pushed and remote-verified — the earlier "push queued" note is obsolete.
+Freshness: re-audited 2026-10-27 against main `01759f0a6` on
+`review/yue2-sglang-main-delta-20261027` — report 10.)
+
+Disclosure: all gfx1151 serving on this tree ran with the 4-file ROCm
+host-boot overlay (report 02 §overlay) applied to the working tree — the
+overlay is NOT part of the branch and is submitted separately as
+`fix/hip-host-import-guards` (report 10 §2).
 
 ## 1. CI failure classification for PR #42106 (refreshed 2026-10-26)
 
@@ -111,7 +118,10 @@ exclusion-list-only; hook versions unchanged.
 
 - Merge preview resolves all conflicts with latest main — **PASS**
 - YuE2 compatibility code retained — **PASS** (AST-verified)
-- No unrelated source changes — **PASS** (36-file delta = PR surface + gates test)
+- No unrelated source changes — **PASS** (delta vs main = 36 paths with
+  rename detection / 35 without — the `experimental/yue2/http_api.py` →
+  `entrypoints/yue2_api.py` move counts once or twice depending on method;
+  content = PR surface + gates test only)
 - Targeted pre-commit checks pass — **PASS** (pinned versions, CI args)
 - Targeted tests pass — **PASS** (21/21)
 - NVIDIA paths logically preserved — **PASS** in code + simulated dispatch tests; physical H800 validation remains the author's (as before)
