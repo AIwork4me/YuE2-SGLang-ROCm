@@ -1,7 +1,9 @@
 # 01 — SGLang #42106 Merge-Ready Closure (2026-10-26)
 
 Integration branch: **`AIwork4me/sglang:integration/yue2-sglang-gfx1151-merge-ready`**
-(local: `upstream/sglang-merge`, head `5dc9b33a8`, pushed and remote-verified)
+(local: `upstream/sglang-merge`, head `44c8fa51f` after review fixes below;
+initial validated head `5dc9b33a8`; pushed to the fork — push verified for
+`5dc9b33a8`, `44c8fa51f` push queued during a network outage window)
 
 ## 1. CI failure classification for PR #42106 (refreshed 2026-10-26)
 
@@ -124,3 +126,37 @@ no history rewrite.
 
 Next: Phase 2 runs a physical gfx1151 E2E generation from this exact tree
 (report `02_GFX1151_SGLANG_E2E.md`).
+
+## 8. Addendum — independent review outcome and fixes (same day)
+
+Three independent reviews (see `reviews/REVIEW_{A,B,C}_*.md`):
+
+- Review A (ROCm correctness): **PASS-WITH-P2s** (0 P0/P1). Gates verified
+  live on gfx1151; aten fallback matched an fp32 SDPA reference (max err
+  0.0048).
+- Review B (NVIDIA preservation): **PASS-WITH-P2s** (0 P0/P1). Fast-path
+  bodies AST-identical to the author's code; env-var truth tables identical
+  on supported CUDA devices.
+- Review C (maintainer simulation): **FAIL — 2 P0 / 2 P1** → all four fixed
+  in commit `44c8fa51f` after independent verification of each finding:
+  - P0-1 vendored `ops/deep_select.py` violated main's kernels-namespace
+    invariant (`test_kernels_namespace.py:278`; rule previously enforced on
+    this exact kernel in #41349) → relocated (git mv) to model-private
+    `srt/models/yue2/_deep_select.py`.
+  - P0-2 gate test lacked `register_cpu_ci` + `__main__`, breaking
+    `run_suite.py` collection → registration added (mirrors
+    `test_deepseek_mla_dispatch.py`).
+  - P1-1 route loader was a repo-root filesystem path with silent skip →
+    router packaged as `entrypoints/yue2_api.py` with a direct import.
+  - P1-2 DeepSelect duplication resolved by the model-private placement.
+  - Plus Review-A P2-A hardening: pip-fallback `deepselect_runnable()` now
+    requires `torch.version.hip is None`.
+
+Post-fix validation: **121/121** (gates suite incl. updated pip-fallback
+test + full kernels-namespace suite), lint clean on touched files, and a
+fresh server boot + tiny `/v1/audio/generations` request **HTTP 200 in
+5.9 s** on gfx1151 from the fixed tree (valid 0.8 s WAV). Remaining P2/P3
+items are recorded in the review files as follow-ups for the author
+(notably: hasattr-checks for fused ops (P2-B), physical H800 validation
+(P2-B review B), ruff `files:` regex coverage of top-level docs (P2-1
+review C)).
