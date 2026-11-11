@@ -27,8 +27,7 @@ DOC_FILES = [
 HELP_SAFE = {
     "check_environment.py", "download_pins.py", "yue2_workspace.py",
     "checkpoint_wsb.py", "collect_performance.py",
-    "verify_wsb_artifacts.py", "per_parity_study.py", "scoring_stage_check.py",
-    "server_identity.py",
+    "verify_wsb_artifacts.py", "per_parity_study.py",
 }
 
 
