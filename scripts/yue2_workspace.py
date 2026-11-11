@@ -72,4 +72,9 @@ def resolve_workspace(script_file) -> Path:
 
 
 if __name__ == "__main__":  # pragma: no cover - manual diagnostic
-    print(resolve_workspace(Path(__file__)))
+    import sys
+    try:
+        print(resolve_workspace(Path(__file__)))
+    except FileNotFoundError as exc:
+        print(exc, file=sys.stderr)
+        raise SystemExit(2)

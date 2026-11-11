@@ -25,7 +25,7 @@ DOC_FILES = [
 
 # Scripts whose --help must succeed (import-safe, no workspace/GPU needed)
 HELP_SAFE = {
-    "check_environment.py", "download_pins.py", "yue2_workspace.py",
+    "check_environment.py", "download_pins.py",
     "checkpoint_wsb.py", "collect_performance.py",
     "verify_wsb_artifacts.py", "per_parity_study.py",
 }

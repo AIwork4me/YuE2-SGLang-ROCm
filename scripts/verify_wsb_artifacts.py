@@ -93,9 +93,6 @@ def recompute_identity(cand: Path) -> str | None:
 
 def main() -> int:
     global WS, MANIFEST_PATH
-    if WS is None:
-        WS = resolve_workspace(__file__)
-        MANIFEST_PATH = WS / "benchmark/WildSongBench/benchmark/reproduction_manifest.jsonl"
     ap = argparse.ArgumentParser()
     ap.add_argument("--runs", type=Path, required=True)
     ap.add_argument("--mode", choices=("full", "pilot"), default="full")
@@ -105,6 +102,10 @@ def main() -> int:
     ap.add_argument("--allow-missing-dataset-hash", action="store_true",
                     help="record (not ignore) a manifest hash mismatch instead of failing")
     args = ap.parse_args()
+
+    if WS is None:  # strict re-resolution for actual campaign execution
+        WS = resolve_workspace(__file__)
+        MANIFEST_PATH = WS / "benchmark/WildSongBench/benchmark/reproduction_manifest.jsonl"
 
     problems: list[str] = []          # NEVER reset after starting
     results: dict[tuple[int, int], dict] = {}
