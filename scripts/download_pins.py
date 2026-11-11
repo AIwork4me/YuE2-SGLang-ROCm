@@ -68,11 +68,19 @@ def snapshot(repo, rev, dest, repo_type="model", ignore=None):
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--workspace", type=Path,
-                    default=Path(os.environ.get("YUE2_WORKSPACE",
-                                                Path(__file__).resolve().parents[1])))
+    ap.add_argument("--workspace", type=Path, default=None)
     args = ap.parse_args()
-    ws = args.workspace
+    if args.workspace is not None:
+        ws = args.workspace
+    elif os.environ.get("YUE2_WORKSPACE"):
+        ws = Path(os.environ["YUE2_WORKSPACE"])
+    else:
+        # Bootstrap default: prefer a detectable historical workspace above the
+        # repo, else the repository root (standalone-clone layout). This script
+        # may CREATE the workspace, so absence is not an error here.
+        repo_root = Path(__file__).resolve().parents[1]
+        nested = Path(__file__).resolve().parents[2]
+        ws = nested if (nested / "benchmark" / "WildSongBench").is_dir() else repo_root
     models = ws / "models"
     ds = ws / "benchmark" / "WildSongBench"
     upstream = ws / "upstream"
@@ -101,7 +109,19 @@ def main() -> int:
     out = upstream / "sglang"
     if not (out / "python" / "pyproject.toml").is_file():
         with tarfile.open(sg) as tf:
-            tf.extractall(out.parent)
+            # Safe extraction: reject absolute paths, traversal and links
+            # outside the destination (Issue E hardening; Python>=3.12
+            # 'data' filter would also strip ownership/mode metadata).
+            base = out.parent.resolve()
+            for member in tf.getmembers():
+                target = (base / member.name).resolve()
+                if not str(target).startswith(str(base) + os.sep):
+                    raise RuntimeError(f"unsafe tar member rejected: {member.name}")
+                if member.issym() or member.islnk():
+                    link = (base / member.name).parent / (member.linkname or "")
+                    if not str(link.resolve()).startswith(str(base) + os.sep):
+                        raise RuntimeError(f"unsafe tar link rejected: {member.name}")
+            tf.extractall(out.parent, filter="data")
             inner = out.parent / f"sglang-{SGlang_PIN[:7]}-" # codeload strip prefix varies
         # codeload top dir is sglang-<shortsha> — normalize to upstream/sglang
         for child in out.parent.iterdir():

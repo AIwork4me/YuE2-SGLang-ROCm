@@ -36,7 +36,13 @@ import os
 import sys
 from pathlib import Path
 
-WS = Path(os.environ.get("YUE2_WORKSPACE", Path(__file__).resolve().parents[2]))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from yue2_workspace import resolve_workspace
+
+try:
+    WS = resolve_workspace(__file__)
+except FileNotFoundError:
+    WS = None  # unit-test import safety; strict re-resolution happens in main()
 sys.path.insert(0, str(WS / "upstream" / "sglang" / "python"))
 
 import numpy as np
@@ -61,6 +67,9 @@ def load_audio(wav: Path):
 
 
 def main() -> int:
+    global WS
+    if WS is None:
+        WS = resolve_workspace(__file__)
     ap = argparse.ArgumentParser()
     ap.add_argument("candidate_dir", type=Path)
     ap.add_argument("audio_wav", type=Path)

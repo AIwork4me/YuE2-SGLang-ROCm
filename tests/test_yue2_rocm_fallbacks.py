@@ -25,8 +25,10 @@ from pathlib import Path
 import pytest
 import torch
 
-WS = os.environ.get("YUE2_WORKSPACE",
-                   str(Path(__file__).resolve().parents[2]))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
+from yue2_workspace import resolve_workspace
+
+WS = str(resolve_workspace(Path(__file__).resolve().parents[1] / "scripts" / "run_wsb.py"))
 MODEL_DIR = f"{WS}/models/YuE2-3B"
 VAE_DIR = f"{WS}/models/YuE2-Vae-legacy"
 

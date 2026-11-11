@@ -24,8 +24,13 @@ import sys
 import time
 from pathlib import Path
 
-WS = Path(os.environ.get("YUE2_WORKSPACE",
-                         Path(__file__).resolve().parents[2]))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from yue2_workspace import resolve_workspace
+
+try:
+    WS = resolve_workspace(__file__)
+except FileNotFoundError:
+    WS = None  # unit-test import safety; strict re-resolution happens in main()
 sys.path.insert(0, str(WS / "benchmark" / "wsb_metrics"))
 
 ASR_SNAPSHOT = ("evaluation_models/hub/models--Qwen--Qwen3-ASR-1.7B/snapshots/"
@@ -70,6 +75,9 @@ def per_one(hyp: str, ref: str, scorer):
 
 
 def main() -> int:
+    global WS
+    if WS is None:
+        WS = resolve_workspace(__file__)
     ap = argparse.ArgumentParser()
     ap.add_argument("--runs", type=Path, required=True)
     ap.add_argument("--samples", type=int, default=8,

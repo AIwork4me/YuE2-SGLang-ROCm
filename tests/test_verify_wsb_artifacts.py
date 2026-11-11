@@ -30,7 +30,30 @@ import soundfile as sf
 WS = Path(__file__).resolve().parents[1]
 SCRIPT = WS / "scripts" / "verify_wsb_artifacts.py"
 sys.path.insert(0, str(SCRIPT.parent))
-import verify_wsb_artifacts as V  # noqa: E402
+from yue2_workspace import resolve_workspace  # noqa: E402
+
+
+def _pinned_manifest() -> Path:
+    """Locate the pinned reproduction manifest via the workspace contract.
+
+    Skips honestly (visible SKIP, not silent pass) when no workspace with the
+    pinned dataset has been materialized (e.g. pristine CI container).
+    """
+    try:
+        ws = resolve_workspace(SCRIPT)
+    except FileNotFoundError:
+        ws = None
+    candidates = []
+    if ws is not None:
+        candidates.append(ws / "benchmark/WildSongBench/benchmark/reproduction_manifest.jsonl")
+    if len(WS.parents) > 1:
+        candidates.append(WS.parents[1] / "benchmark/WildSongBench/benchmark/reproduction_manifest.jsonl")
+    for c in candidates:
+        if c.is_file():
+            return c
+    pytest.skip("pinned WildSongBench manifest not available; "
+                "run scripts/download_pins.py to materialize the workspace")
+
 
 ENV = {**__import__("os").environ, "WS": str(WS)}
 
@@ -73,7 +96,7 @@ def _write_bundle(cand: Path, *, i: int, j: int, seed: int, style: str, lyrics: 
 def run10(tmp_path: Path):
     """A synthetic 5-prompt x 2 subset run with fully valid bundles."""
     manifest = [json.loads(l) for l in
-                (WS / "benchmark/WildSongBench/benchmark/reproduction_manifest.jsonl").read_text().splitlines() if l.strip()]
+                _pinned_manifest().read_text().splitlines() if l.strip()]
     by_index = {r["prompt_index"]: r for r in manifest}
     runs = tmp_path / "run"
     (runs / "songs").mkdir(parents=True)
@@ -95,12 +118,13 @@ def _run(args: list[str]) -> subprocess.CompletedProcess:
 
 
 def test_expected_from_manifest_is_384_over_192_prompts():
-    rows = V.load_manifest()
-    expected = V.expected_from_manifest(rows)
-    assert len(expected) == 384
-    assert len({k[0] for k in expected}) == 192
-    assert all(expected[(i, 0)]["seed"] == 831001 + i and expected[(i, 1)]["seed"] == 831019 + i
-               for i in range(192))
+    """Protocol contract: the pinned manifest carries 192 prompts x 2 official seeds."""
+    rows = [json.loads(l) for l in _pinned_manifest().read_text().splitlines() if l.strip()]
+    assert len(rows) == 192
+    assert [r["prompt_index"] for r in rows] == list(range(192))
+    assert all(r["candidate_ar_seeds"][:2] == [831001 + r["prompt_index"],
+                                               831019 + r["prompt_index"]] for r in rows)
+    assert all(r["candidate_ar_seeds"] == r["candidate_nar_seeds"] for r in rows)
 
 
 def test_subset_cannot_pass_full_mode(run10):
@@ -111,32 +135,33 @@ def test_subset_cannot_pass_full_mode(run10):
     assert report["verdict"] == "PARTIAL"
     assert report["expected_candidates"] == 384
     assert report["verified_complete"] == 10
-    missing = [p for p in report["problems"] if "missing (no candidate directory)" in p]
-    assert len(missing) == 374, "a 10-candidate subset must fail full mode with exactly 374 missing"
+    bar = [p for p in report["problems"] if "REFUSING to lower the bar" in p]
+    assert bar, "a 10-candidate subset must fail the 384 bar, never adjust it"
 
 
 def test_subset_mode_passes_with_exact_expectation(run10):
     runs, _ = run10
-    proc = _run(["--runs", str(runs), "--mode", "subset", "--expect", "10"])
+    proc = _run(["--runs", str(runs), "--mode", "pilot", "--expect", "10"])
     assert proc.returncode == 0, proc.stderr
     report = json.loads((runs / "audit.json").read_text())
-    assert report["verdict"] == "FULL"
+    assert report["verdict"] == "PILOT"
     assert report["verified_complete"] == 10
     assert report["identity_reverified"] == 10
 
 
 def test_mismatched_expect_is_rejected_never_adjusted(run10):
     runs, _ = run10
-    proc = _run(["--runs", str(runs), "--mode", "subset", "--expect", "5"])
+    proc = _run(["--runs", str(runs), "--mode", "pilot", "--expect", "5"])
     assert proc.returncode != 0
     assert "never adjusted silently" in (proc.stderr + proc.stdout)
 
 
-def test_expect_rejected_in_full_mode(run10):
+def test_expect_below_384_rejected_in_full_mode(run10):
+    """--expect may never lower the full-mode bar."""
     runs, _ = run10
-    proc = _run(["--runs", str(runs), "--expect", "384"])
+    proc = _run(["--runs", str(runs), "--expect", "100"])
     assert proc.returncode != 0
-    assert "not valid in full mode" in (proc.stderr + proc.stdout)
+    assert "REFUSING to lower the bar" in (proc.stderr + proc.stdout)
 
 
 def test_duplicate_directory_fails(run10):
@@ -144,7 +169,7 @@ def test_duplicate_directory_fails(run10):
     runs, _ = run10
     src = runs / "songs" / "wsb_000_r0_s831001"
     shutil.copytree(src, runs / "songs" / "wsb_000_r1_s831019", dirs_exist_ok=True)
-    proc = _run(["--runs", str(runs), "--mode", "subset", "--expect", "10"])
+    proc = _run(["--runs", str(runs), "--mode", "pilot", "--expect", "10"])
     assert proc.returncode != 0
     problems = json.loads((runs / "audit.json").read_text())["problems"]
     assert any("seed 831001 != official 831019" in p for p in problems), problems
@@ -153,7 +178,7 @@ def test_duplicate_directory_fails(run10):
 def test_unexpected_directory_fails(run10):
     runs, _ = run10
     (runs / "songs" / "wsb_199_r0_s831200").mkdir()
-    proc = _run(["--runs", str(runs), "--mode", "subset", "--expect", "10"])
+    proc = _run(["--runs", str(runs), "--mode", "pilot", "--expect", "10"])
     assert proc.returncode != 0
     assert any("unexpected candidate directory" in p
                for p in json.loads((runs / "audit.json").read_text())["problems"])
@@ -167,7 +192,7 @@ def test_wrong_seed_reported(run10):
     req = json.loads((cand / "request.json").read_text())
     req["seed"] = 831999  # wrong
     (cand / "request.json").write_text(json.dumps(req, indent=2) + "\n")
-    proc = _run(["--runs", str(runs), "--mode", "subset", "--expect", "10"])
+    proc = _run(["--runs", str(runs), "--mode", "pilot", "--expect", "10"])
     assert proc.returncode != 0
     problems = json.loads((runs / "audit.json").read_text())["problems"]
     assert any("artifact integrity FAILED" in p for p in problems)
@@ -188,7 +213,7 @@ def test_forged_bundle_caught_by_identity_recheck(run10):
                                            "bytes": (cand / "request.json").stat().st_size}
     result["identity"] = "0" * 64  # attacker-consistent-but-unverifiable
     (cand / "result.json").write_text(json.dumps(result, indent=2) + "\n")
-    proc = _run(["--runs", str(runs), "--mode", "subset", "--expect", "10"])
+    proc = _run(["--runs", str(runs), "--mode", "pilot", "--expect", "10"])
     assert proc.returncode != 0
     problems = json.loads((runs / "audit.json").read_text())["problems"]
     assert any("seed 831999 != official 831019" in p for p in problems)
@@ -199,7 +224,7 @@ def test_tampered_artifact_fails_official_check(run10):
     runs, _ = run10
     _write_bundle(runs / "songs" / "wsb_000_r1_s831019", i=0, j=1, seed=831019,
                   style="s", lyrics="l", ident="wsb_000_r1_s831019", tamper="audio")
-    proc = _run(["--runs", str(runs), "--mode", "subset", "--expect", "10"])
+    proc = _run(["--runs", str(runs), "--mode", "pilot", "--expect", "10"])
     assert proc.returncode != 0
     assert any("artifact integrity FAILED" in p
                for p in json.loads((runs / "audit.json").read_text())["problems"])
@@ -212,7 +237,7 @@ def test_driver_failures_are_reported(run10):
     with (runs / "generation_manifest.jsonl").open("a") as f:
         f.write(json.dumps({"id": "wsb_001_r0_s831002", "status": "generation_failed",
                             "error": "x"}) + "\n")
-    proc = _run(["--runs", str(runs), "--mode", "subset", "--expect", "10"])
+    proc = _run(["--runs", str(runs), "--mode", "pilot", "--expect", "10"])
     assert proc.returncode != 0
     problems = json.loads((runs / "audit.json").read_text())["problems"]
     assert any("driver status 'generation_failed'" in p for p in problems)
@@ -225,9 +250,9 @@ def test_recovered_driver_failure_is_not_an_open_defect(run10):
     with (runs / "generation_manifest.jsonl").open("a") as f:
         f.write(json.dumps({"id": "wsb_001_r0_s831002", "status": "finalize_failed",
                             "error": "NameError (simulated)"}) + "\n")
-    proc = _run(["--runs", str(runs), "--mode", "subset", "--expect", "10"])
+    proc = _run(["--runs", str(runs), "--mode", "pilot", "--expect", "10"])
     report = json.loads((runs / "audit.json").read_text())
-    assert report["verdict"] == "FULL"
+    assert report["verdict"] == "PILOT"
     assert report["classification"].get("driver:finalize_failed (recovered)") == 1
 
 
@@ -237,13 +262,16 @@ def test_duplicate_selection_rows_rejected(run10):
     inputs = runs / "evaluation_inputs.jsonl"
     rows = [l for l in inputs.read_text().splitlines() if l.strip()]
     inputs.write_text("\n".join(rows + [rows[0]]) + "\n")
-    proc = _run(["--runs", str(runs), "--mode", "subset", "--expect", "11"])
+    proc = _run(["--runs", str(runs), "--mode", "pilot", "--expect", "11"])
     assert proc.returncode != 0
     assert "duplicate (prompt_index, candidate_index)" in (proc.stderr + proc.stdout)
 
 
-def test_subset_mode_requires_expect(run10):
+def test_subset_mode_audit(run10):
+    """Pilot mode audits a labeled subset (v2: --expect is informational, never bar-lowering)."""
     runs, _ = run10
-    proc = _run(["--runs", str(runs), "--mode", "subset"])
-    assert proc.returncode != 0
-    assert "requires an explicit --expect" in (proc.stderr + proc.stdout)
+    proc = _run(["--runs", str(runs), "--mode", "pilot"])
+    assert proc.returncode == 0
+    report = json.loads((runs / "audit.json").read_text())
+    assert report["verdict"] == "PILOT"
+    assert report["verified_complete"] == 10

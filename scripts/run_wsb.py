@@ -30,11 +30,18 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-WS = Path(os.environ.get("YUE2_WORKSPACE",
-                         Path(__file__).resolve().parents[2]))
-MANIFEST = WS / "benchmark/WildSongBench/benchmark/reproduction_manifest.jsonl"
-MODEL_DIR = WS / "models/YuE2-3B"
-VAE_DIR = WS / "models/YuE2-Vae-legacy"
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from yue2_workspace import resolve_workspace
+
+try:
+    WS = resolve_workspace(__file__)
+except FileNotFoundError:
+    # Pure helper unit tests import this module without a workspace; main()
+    # re-resolves strictly before touching any campaign path.
+    WS = None
+MANIFEST = (WS or Path(".")) / "benchmark/WildSongBench/benchmark/reproduction_manifest.jsonl"
+MODEL_DIR = (WS or Path(".")) / "models/YuE2-3B"
+VAE_DIR = (WS or Path(".")) / "models/YuE2-Vae-legacy"
 FINALIZE = Path(__file__).resolve().parent / "finalize_candidate.py"
 
 OFFICIAL = {
@@ -211,6 +218,12 @@ def check_or_write_inputs(runs_dir: Path, want: str) -> int:
 
 
 def main() -> int:
+    global WS, MANIFEST, MODEL_DIR, VAE_DIR
+    if WS is None:  # strict re-resolution for actual campaign execution
+        WS = resolve_workspace(__file__)
+        MANIFEST = WS / "benchmark/WildSongBench/benchmark/reproduction_manifest.jsonl"
+        MODEL_DIR = WS / "models/YuE2-3B"
+        VAE_DIR = WS / "models/YuE2-Vae-legacy"
     ap = argparse.ArgumentParser()
     ap.add_argument("--runs", type=Path, required=True,
                     help="run directory, e.g. runs/gfx1100/<run_id>/wsb_full")
