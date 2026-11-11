@@ -1,0 +1,43 @@
+# Profile A — Latest Verified Developer lock
+# Status: PARTIALLY VERIFIED as of 2026-11-11 (entries marked). This file is
+# updated as W7900 verification completes; unverified entries carry status
+# pending and must not be cited as tested.
+
+profile: developer-latest
+updated: "2026-11-11"
+
+model:
+  ar_model: m-a-p/YuE2-3B
+  latest_head_revision: 8f24312f187763b9854adeec87e437e2b03bbff1   # docs-only drift vs frozen; weights identical
+  weights_sha256: 1d55c42c1a9875c34f5d736e15078449992b044e807ce2a138e6cf289a1e59e9
+  listening_vae: m-a-p/YuE2-Vae @ 152733a19ad43aa67e367f9b5503ef8075bb5126  # status: pending-download
+
+upstream:
+  yue_repo: multimodal-art-projection/YuE @ 1116bea7 (2026-11-01)
+  latest_release: yue2-music-v1.2.0 (2026-09-25, agent skill: instrumental + covers)
+  inference_releases: [yue2-v0.1.6, yue2-music-v1.2.0]
+  package_in_model_repo: "yue2_infer wheels 0.1.3, 0.1.5"
+  rocm_support_upstream: "experimental — 'Eager AR with public SDPA; no NVIDIA private attention operators'"
+
+verified_on_w7900:
+  - item: "official generate.py (yue2-infer 0.1.3) backend=torch-eager, torch 2.10.0+rocm7.1"
+    status: PASS
+    evidence: "/data/yue2-runs/armA_pilot0 (2 candidates complete, prompt 0, official seeds)"
+  - item: "torch 2.10.0+rocm7.1 wheel on gfx1100 (matmul + SDPA)"
+    status: PASS
+    evidence: "phase 0 smoke + pilot generation"
+  - item: "SGLang PR #42106 @ ced0ef7d + patches 0001-0005,0008, torch 2.12.0+rocm7.14.1"
+    status: PASS
+    evidence: "server healthy on 127.0.0.1:31000; /v1/audio/generations 200; 48kHz stereo artifacts"
+
+pending_verification:
+  - item: "yue2-infer 0.1.5 (or latest) developer path on gfx1100"
+  - item: "YuE main src/yue2 pip-install developer path on gfx1100"
+  - item: "listening VAE (YuE2-Vae) end-to-end"
+  - item: "instrumental/cover workflow (v1.2.0 skill) — requires agent, optional"
+
+recommended_dev_stack_current_best_guess:  # becomes 'recommended' only after verification
+  python: "3.12"
+  torch: "2.10.0+rocm7.1"
+  install: "pip install torch==2.10.0+rocm7.1 --index-url https://download.pytorch.org/whl/rocm7.1"
+  pipeline: "from yue2 import YuE2Pipeline; device='cuda'"
