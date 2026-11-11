@@ -1,7 +1,7 @@
-name: cpu-tests
+name: ci
 on:
   push:
-    branches: ["main", "validation/**"]
+    branches: ["main", "validation/**", "feat/**"]
   pull_request:
 jobs:
   cpu:
@@ -12,12 +12,34 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install test deps
-        run: python -m pip install pytest
-      - name: Syntax-check all python in scripts/
-        run: python -m compileall -q scripts
-      - name: WSB harness tests (skip without pinned manifest)
-        run: python -m pytest tests/test_wsb_full_mode.py tests/test_wsb_resume.py -q
-        env:
-          YUE2_WORKSPACE: ${{ github.workspace }}
-      - name: Shell syntax check
+        run: python -m pip install pytest numpy soundfile
+      - name: Compile-check all python (scripts + supervisor)
+        run: python -m compileall -q scripts supervisor
+      - name: Shell syntax check (all scripts)
         run: bash -n scripts/*.sh
+      - name: ShellCheck (errors only; advisory findings non-blocking)
+        run: |
+          sudo apt-get install -y shellcheck >/dev/null 2>&1 || true
+          if command -v shellcheck >/dev/null; then
+            shellcheck --severity=error scripts/*.sh || { echo "::error::shellcheck severity=error findings"; exit 1; }
+          else
+            echo "::warning::shellcheck unavailable; syntax check only"
+          fi
+      - name: Workspace resolution contract
+        run: python -m pytest tests/test_workspace_resolution.py -q
+      - name: Protocol-lock and pin consistency
+        run: python -m pytest tests/test_protocol_lock.py -q
+      - name: Documentation command contract
+        run: python -m pytest tests/test_docs_contract.py -q
+      - name: Complete CPU test suite (manifest-dependent tests SKIP honestly)
+        run: |
+          python -m pytest tests -q \
+            --ignore=tests/test_yue2_rocm_fallbacks.py \
+            --ignore=tests/test_server_yue2_rocm.py \
+            --ignore=tests/test_first_audio.py \
+            -ra --strict-markers
+      - name: Test summary (PASS/FAIL/SKIP visibility)
+        if: always()
+        run: echo "CPU suite complete. GPU acceptance (fallbacks, live server, first audio) runs on hardware; see reports/publication/."
+  # GPU acceptance is deliberately NOT claimed here: gfx1100 evidence is
+  # produced on the physical W7900 and recorded under evidence/publication/.

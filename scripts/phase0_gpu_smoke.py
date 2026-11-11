@@ -52,7 +52,7 @@ print(f"peak allocated GPU memory during test = {peak:.1f} MiB")
 result["peak_alloc_mib"] = peak
 
 import os
-out = os.environ.get("WS", "/home/amd/Desktop/YuE2") + "/logs/phase0_gpu_smoke.json"
+out = os.environ.get("YUE2_WORKSPACE", os.environ.get("WS", ".")) + "/logs/phase0_gpu_smoke.json"
 with open(out, "w") as f:
     json.dump(result, f, indent=2)
 

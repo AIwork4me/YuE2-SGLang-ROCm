@@ -2,7 +2,7 @@
 # Environment smoke test: Phase 0 GPU checks + module imports (no server
 # interaction, no large downloads). Safe to run alongside a live benchmark.
 set -euo pipefail
-WS="${WS:-/home/amd/Desktop/YuE2}"
+WS="${YUE2_WORKSPACE:-$(python3 "$(dirname "$0")/yue2_workspace.py" 2>/dev/null || echo /nonexistent)}"
 source "$WS/environments/yue2/bin/activate"
 python "$WS/scripts/phase0_gpu_smoke.py"
 python - <<'PY'

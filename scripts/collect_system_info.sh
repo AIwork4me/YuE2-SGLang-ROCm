@@ -2,7 +2,7 @@
 # Phase 0 system capture. Dumps raw diagnostics to logs/phase0_raw/ and
 # builds logs/phase0.log. Safe to re-run; never modifies system state.
 set -uo pipefail
-WS="${WS:-/home/amd/Desktop/YuE2}"
+WS="${YUE2_WORKSPACE:-$(python3 "$(dirname "$0")/yue2_workspace.py" 2>/dev/null || echo /nonexistent)}"
 RAW="$WS/logs/phase0_raw"
 mkdir -p "$RAW"
 

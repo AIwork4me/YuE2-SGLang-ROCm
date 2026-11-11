@@ -6,7 +6,7 @@
 # NOTE: the live workspace copy stayed frozen while the 384-candidate run
 # executes (bash re-reads scripts mid-run); this repo copy is configurable.
 set -uo pipefail
-WS="${WS:-/home/amd/Desktop/YuE2}"
+WS="${YUE2_WORKSPACE:-$(python3 "$(dirname "$0")/yue2_workspace.py" 2>/dev/null || echo /nonexistent)}"
 EV="$WS/evidence/YuE2-SGLang-ROCm"
 LOG="$WS/logs/milestone_watcher.log"
 NEXT=10

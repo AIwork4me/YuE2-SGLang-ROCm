@@ -25,7 +25,7 @@ import sys
 import time
 from pathlib import Path
 
-WS = Path(os.environ.get("WS", "/home/amd/Desktop/YuE2"))
+WS = Path(os.environ.get("YUE2_WORKSPACE", os.environ.get("WS", ".")) if os.environ.get("YUE2_WORKSPACE") or os.environ.get("WS") else Path(__file__).resolve().parents[2])
 RUNS = Path(os.environ.get("RUNS", str(WS / "runs/wsb_full")))
 EV = Path(os.environ.get("EV", str(WS / "evidence/YuE2-SGLang-ROCm")))
 VENV = Path(os.environ.get("VENV", str(WS / "environments/yue2")))

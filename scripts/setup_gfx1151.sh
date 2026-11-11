@@ -13,7 +13,7 @@
 #    NVIDIA-only packages. Nothing may replace the ROCm torch (mission rule 7).
 set -euo pipefail
 
-WS="${WS:-/home/amd/Desktop/YuE2}"
+WS="${YUE2_WORKSPACE:-$(python3 "$(dirname "$0")/yue2_workspace.py" 2>/dev/null || echo /nonexistent)}"
 VENV="${VENV:-$WS/environments/yue2}"
 SGLANG_SRC="$WS/upstream/sglang"
 AMD_INDEX="https://repo.amd.com/rocm/whl-multi-arch/"

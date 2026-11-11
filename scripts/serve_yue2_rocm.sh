@@ -5,7 +5,7 @@
 #   - CUDA_VISIBLE_DEVICES=5 -> runtime-discovered (single iGPU: device 0)
 # ROCm flag matrix per reports/PHASE3_ROCM_RCA.md §4.
 set -euo pipefail
-WS="${WS:-/home/amd/Desktop/YuE2}"
+WS="${YUE2_WORKSPACE:-$(python3 "$(dirname "$0")/yue2_workspace.py" 2>/dev/null || echo /nonexistent)}"
 MODEL_PATH="${MODEL_PATH:-$WS/models/YuE2-3B}"
 VAE_PATH="${VAE_PATH:-$WS/models/YuE2-Vae-legacy}"
 HOST="${HOST:-127.0.0.1}"

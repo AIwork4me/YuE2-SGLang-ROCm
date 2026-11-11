@@ -31,7 +31,13 @@ try:
     WS = resolve_workspace(__file__)
 except FileNotFoundError:
     WS = None  # unit-test import safety; strict re-resolution happens in main()
-sys.path.insert(0, str(WS / "benchmark" / "wsb_metrics"))
+if WS is not None:
+    for _p in (WS / "benchmark" / "wsb_metrics",
+               WS / "benchmark" / "WildSongBench" / "wsb_metrics",
+               WS / "benchmark" / "WildSongBench" / "evaluation" / "wsb_metrics"):
+        if (_p / "artifact_storage.py").is_file():
+            sys.path.insert(0, str(_p))
+            break
 
 ASR_SNAPSHOT = ("evaluation_models/hub/models--Qwen--Qwen3-ASR-1.7B/snapshots/"
                 "7278e1e70fe206f11671096ffdd38061171dd6e5")
@@ -76,8 +82,6 @@ def per_one(hyp: str, ref: str, scorer):
 
 def main() -> int:
     global WS
-    if WS is None:
-        WS = resolve_workspace(__file__)
     ap = argparse.ArgumentParser()
     ap.add_argument("--runs", type=Path, required=True)
     ap.add_argument("--samples", type=int, default=8,
@@ -86,7 +90,18 @@ def main() -> int:
                     help="run only the CPU arm (for during-generation studies)")
     args = ap.parse_args()
 
-    root = WS / "benchmark" / "wsb_metrics"
+    if WS is None:
+        WS = resolve_workspace(__file__)
+
+    root = None
+    for _p in (WS / "benchmark" / "wsb_metrics",
+               WS / "benchmark" / "WildSongBench" / "wsb_metrics",
+               WS / "benchmark" / "WildSongBench" / "evaluation" / "wsb_metrics"):
+        if (_p / "wsb_eval.py").is_file():
+            root = _p
+            break
+    if root is None:
+        raise FileNotFoundError(f"wsb_metrics evaluator tree not found under {WS}")
     asr_dir = root / ASR_SNAPSHOT
     manifest = load_manifest()
 
