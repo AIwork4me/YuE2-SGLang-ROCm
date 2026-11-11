@@ -1,0 +1,83 @@
+{
+  "phase": "0-preflight",
+  "captured_at": "2026-11-11T22:40:00Z",
+  "mission": "YuE2 on AMD ROCm publication readiness (fresh machine)",
+  "host": {
+    "hostname": "j-52ytxyxlbgzs637jqvwhoz4dtv",
+    "container": true,
+    "os": "Ubuntu 24.04.4 LTS (Noble Numbat)",
+    "kernel": "6.8.0-79-generic",
+    "cpu": "2x AMD EPYC 9334 32-Core (128 CPUs / 64 cores x2 sockets)",
+    "ram_total_gib": 503,
+    "note_host_pci_tree": "Host exposes 8x AMD [1002:744b] VGA controllers + ASPEED BMC; this container is granted exactly one GPU via /dev/kfd + /dev/dri/renderD130"
+  },
+  "gpu": {
+    "device_index": 0,
+    "pci_device_id": "0x744b",
+    "family": "Navi 31 (RDNA3)",
+    "gfx_architecture": "gfx1100",
+    "marketing_name": "AMD Radeon Graphics (rocminfo); Radeon PRO W7900 48GB class",
+    "vram_bytes_rocm_smi": 51522830336,
+    "vram_gib_torch": 48.0,
+    "compute_units": 48,
+    "identity_evidence": "rocminfo Name=gfx1100; rocm-smi VRAM total 51,522,830,336 B = 48 GiB (RX 7900 XTX is 24 GiB; 48 GiB Navi 31 = Radeon PRO W7900)",
+    "hsa_override_used": false
+  },
+  "rocm": {
+    "kernel_driver": "ROCk 6.16.13 (loaded)",
+    "userspace_opt_rocm": "7.2.1",
+    "hsa_runtime": "1.18",
+    "amd_smi": "present",
+    "devices_visible_to_container": 1
+  },
+  "python_and_compilers": {
+    "system_python": "/opt/venv/bin/python3 3.12.3 (pre-provisioned lab venv)",
+    "gcc": "13.3.0",
+    "git": "2.43.0"
+  },
+  "preinstalled_stack_in_opt_venv": {
+    "note": "AMD oneclick lab runtime, NOT installed by this mission",
+    "torch": "2.9.1+gitff65f5b (hip 7.2.53211-e1a6bc5663)",
+    "vllm": "0.16.1.dev0+g89a77b108.d20260317.rocm721",
+    "transformers": "4.57.6",
+    "triton": "3.5.1"
+  },
+  "gpu_compute_smoke": {
+    "torch_cuda_is_available": true,
+    "device_reported_by_torch": "AMD Radeon Graphics cc=11.0 48.0GiB (device_count=1)",
+    "bf16_matmul_8192": "OK finite, 5.3 TFLOPS (single untimed-warmup pass, smoke only)",
+    "sdpa_default": "OK finite (bf16, MHA-shaped)",
+    "sdpa_backend_enum_members": ["CUDNN_ATTENTION", "EFFICIENT_ATTENTION", "FLASH_ATTENTION", "MATH", "OVERRIDEABLE"],
+    "interpretation": "PyTorch GPU compute functional on gfx1100 in pre-provisioned venv; campaign environments will be built separately with pinned wheels"
+  },
+  "storage": {
+    "workspace_loop": "/workspace 98G total, 93G free (repo + tools)",
+    "root_overlay": "3.5T total, 1.8T free (data area /data/yue2 created, write-tested 1.7 GB/s)",
+    "plan": "models/environments/runs/benchmark under /data/yue2; repo + distilled evidence under /workspace; audio runs on /data/yue2-runs",
+    "thresholds": "to be configured in campaign driver: warn <200G, stop <100G free on the run volume"
+  },
+  "network": {
+    "egress": "proxy http://notebook-egress-proxy.amd-oneclick-lablab.svc.cluster.local:3128",
+    "github_com_git": "REACHABLE (clone OK)",
+    "api_github_com": "REACHABLE (token-authenticated)",
+    "raw_githubusercontent_com": "UNREACHABLE via proxy (curl exit 000) - use git clone or contents API instead",
+    "huggingface_co": "REACHABLE (HTTP 200)",
+    "hf_mirror_com": "REACHABLE",
+    "repo_amd_com": "REACHABLE (wheel index 200)",
+    "download_pytorch_org": "REACHABLE",
+    "pypi_org_json_api": "BLOCKED (proxy); pip index may still work - to verify",
+    "hf_endpoint_env": "HF_ENDPOINT=https://hf-mirror.com is preset on this host; downloads will be SHA256-verified against pinned hashes regardless of endpoint"
+  },
+  "git_and_credentials": {
+    "baseline_repo": "https://github.com/AIwork4me/YuE2-SGLang-ROCm",
+    "baseline_main_sha": "4612c200b2e09f1513a03ad479d601f373f8fb56",
+    "baseline_main_sha_matches_previous_observation": true,
+    "working_branch": "feat/yue2-rocm-publication-readiness",
+    "gh_identity": "AIwork4me (push permission on baseline repo confirmed)",
+    "token_storage": "/workspace/.gh-token (outside repo tree, gitignored nowhere needed; never to be committed)"
+  },
+  "go_nogo_assessment": {
+    "verdict": "GO for Phases 0-4, 6, 8-12; Phase 5/7 quality-parity gate pending evidence",
+    "reasoning": "Physical gfx1100 48GiB verified with working PyTorch ROCm compute; all critical network endpoints reachable; baseline repo and historical evidence intact; upstream PRs still unmerged (verified 2026-11-11) so frozen campaign stack remains valid; storage sufficient with /data overflow area."
+  }
+}
