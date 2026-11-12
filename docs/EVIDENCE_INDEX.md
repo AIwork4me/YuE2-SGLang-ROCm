@@ -42,3 +42,23 @@ Per-phase independent reviews live in [`../reviews`](../reviews); consolidated
 verdicts: [FINAL_INDEPENDENT_REVIEWS.md (validation branch)](https://github.com/AIwork4me/YuE2-SGLang-ROCm/blob/137ce40d9ad6886885040f69a4742bb8b4e658bd/reports/final_acceptance/FINAL_INDEPENDENT_REVIEWS.md),
 [merge-readiness reviews](https://github.com/AIwork4me/YuE2-SGLang-ROCm/blob/40bd59f94079345917b526a3e2ee49c8a9f1f867/reports/merge_readiness/FINAL_INDEPENDENT_REVIEWS.md),
 and the 2026-10-17 documentation-audit reviews linked from the documentation PR.
+
+
+---
+
+## Publication-readiness mission (2026-11, branch feat/yue2-rocm-publication-readiness)
+
+| Claim | Evidence (path on this branch) |
+|---|---|
+| Physical W7900 gfx1100 48GiB verified; GPU compute smoke | reports/publication/00_ENVIRONMENT.json |
+| Baseline repo + upstream state audit (all PRs still open, weights unchanged) | reports/publication/00_BASELINE_AUDIT.md, 01_UPSTREAM_GAP_ANALYSIS.md |
+| Pinned downloads SHA256-verified (model/VAE/dataset/evaluator) | /data/yue2/logs/download_pins.log (ALL PINS VERIFIED) + configs/benchmark.lock.yaml |
+| torch 2.10.0+rocm7.1 works on gfx1100; official torch backend broken (mha_varlen seqused_k) → torch-eager is the ROCm path | reports/publication/02_RCA_LEDGER.md RCA-6 |
+| Evaluator reconstructed bit-identically (0006: sha 6a4a53ed) + 0007/0009 applied + 0010 disclosed | reports/publication/02_RCA_LEDGER.md, release.json disclosure |
+| Arm A official-path pilot PER on W7900 (6.47%/19.40%, official-range) | evidence/publication/per_rca/armA_pilot_per.json |
+| Evaluator-assets hub-based pinned fetcher (proxy-hardened) | scripts/fetch_eval_assets_hub.py |
+| Arm B fresh campaign progress + milestones | evidence/publication/armB_campaign/progress.jsonl |
+| Security + licensing audits | reports/publication/09_SECURITY_AUDIT.md, 09_LICENSE_AND_ATTRIBUTION.md |
+
+Live campaign receipts (absolute paths on the bench machine, mirrored at
+milestones): /data/yue2/logs/, /data/yue2-runs/.
