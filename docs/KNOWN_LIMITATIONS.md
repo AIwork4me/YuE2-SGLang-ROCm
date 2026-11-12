@@ -43,3 +43,27 @@
     release assets; workarounds documented (http transport / REST API /
     python.org builds). hf-mirror used per machine policy with hash
     verification of every artifact.
+
+
+---
+
+## Additions (2026-11 publication-readiness mission)
+
+- **Q3O: NOT TESTED on 48 GB GPUs.** The official protocol requires an 80 GB
+  GPU; the W7900 cannot run it. Never included in "all metrics" claims.
+- **PER evaluator backend substitution (carried over, re-confirmed):** all
+  published PER uses the qwen_asr transformers backend on ROCm (patch 0007,
+  env-gated). Cross-backend equivalence with the official vLLM backend is
+  NOT claimed. Fresh evidence (2026-11-12): the substituted evaluator scores
+  official-range PER (6.5%) on good audio; the historical 17% aggregates are
+  tail-driven (capping + empty transcripts + weak candidates).
+- **Official `--backend torch` (graph capture) is broken on ROCm**
+  (`mha_varlen_fwd: seqused_k must be nullopt`); the benchmark Arm A uses
+  the official `torch-eager` backend (public SDPA). Disclosed as DEV-1 in
+  `configs/benchmark.lock.yaml`.
+- **Evaluator `--mode standard` rejects `backend: torch-eager` configs**
+  (upstream allowlist gap) — patch 0010 (allowlist admission only) applied
+  under the same env gate; prepared for upstream handoff.
+- **Single-GPU serialization:** benchmark arms run sequentially on one GPU;
+  concurrent evaluation during generation is not attempted (VRAM
+  contention).

@@ -51,3 +51,16 @@ Legend: **TESTED PASS** / **TESTED FAIL** / **FALLBACK** (by design) /
   probe absent) — memory truth via rocm-smi; stage timings via server log.
 - No DeepSelect/sgl_kernel acceleration ⇒ AR decode uses the reference sampler
   (correctness-first; performance cost quantified in PERFORMANCE_BASELINE).
+
+
+## 2026-11-12 verification (publication-readiness mission, W7900D gfx1100)
+
+| Capability | Status | Evidence |
+|---|---|---|
+| torch 2.10.0+rocm7.1 wheel on gfx1100 (matmul, SDPA) | PASS | phase-0 smoke + Arm A pilot |
+| official yue2-infer 0.1.3 `--backend torch-eager` full song | PASS | evidence/publication/armA_pilot (2/2) |
+| official frozen evaluator PER scoring on ROCm (patches 0006/0007/0009/0010) | PASS | evidence/publication/armA_pilot/per_song.jsonl |
+| SGLang #42106 @ ced0ef7d + patches 0001-0005/0008 server | PASS | /health + generation smoke, 48 kHz stereo artifacts |
+| Arm B full 384-candidate campaign (fresh, this tree) | IN PROGRESS | evidence/publication/armB_campaign/progress.jsonl |
+| pip build isolation pulls CUDA torch for editable sglang | HAZARD (mitigated: --no-build-isolation) | RCA-3 |
+| plain (no device-extra) AMD torch wheels on gfx1100 | FAIL (hipErrorInvalidImage) — use [device-gfx1100] | TROUBLESHOOTING |
