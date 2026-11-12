@@ -31,7 +31,7 @@ PUSH = HERE.parent / "scripts" / "push_verify.sh"
 MODEL = "/ws/models/YuE2-3B"
 PORT = 31000
 PORT_HEX = format(PORT, "04X")
-UID = 0
+UID = os.getuid()  # bench machines run as root (0); CI runners use 1001 — both must pass
 
 
 def fake_proc(root, pid, argv, uid=UID, starttime=918563136, state="S",
