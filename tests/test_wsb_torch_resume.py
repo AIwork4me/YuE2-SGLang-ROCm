@@ -30,11 +30,11 @@ def test_default_backend_is_eager_with_disclosure():
 
 
 def test_worker_contract_asserts_generation_prompt(monkeypatch):
-    # The worker source must keep the official request-contract assertion.
-    assert "SongRequest(**request).text() == row[\"generation_prompt\"]" in A.GEN_WORKER
-    # and the official hash pins
-    assert A.OFFICIAL["model_sha256"] in A.GEN_WORKER
-    assert A.OFFICIAL["vae_sha256"] in A.GEN_WORKER
+    # The worker source must keep the official request-contract assertion
+    # and hash-verify the pinned weights at runtime via the spec.
+    assert 'SongRequest(**request).text() == row["generation_prompt"]' in A.GEN_WORKER
+    assert '== spec["model_sha256"]' in A.GEN_WORKER
+    assert '== spec["vae_sha256"]' in A.GEN_WORKER
 
 
 def test_atomic_append(tmp_path):
