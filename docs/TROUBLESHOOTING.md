@@ -1,3 +1,7 @@
+# Troubleshooting (AMD ROCm)
+
+Historical campaign issues (2026-10, preserved from the gfx1100/gfx1151 campaigns) follow the new entries.
+
 # Troubleshooting (ROCm / YuE2 / SGLang / WSB on AMD)
 
 Real issues hit on the gfx1100 rig, with root causes and fixes.
@@ -72,3 +76,90 @@ your checkout.
 
 **Disk floor triggered (`skipped(disk)`)**
 → free space or raise `YUE2_MIN_FREE_GB`; use `--wav-archive` on large storage.
+
+
+---
+
+# New entries (2026-11 publication-readiness mission)
+
+Real issues encountered on W7900-class hosts, with verified fixes. Each entry
+names the exact symptom string where applicable.
+
+## Generation / pipeline
+
+### `RuntimeError: [ROCm] mha_varlen_fwd: seqused_k must be nullopt`
+- **Where:** official `yue2-infer` (0.1.x) `--backend torch` (graph capture) on ROCm.
+- **Cause:** GraphAR's attention-backend probe checks whether the aten
+  `_flash_attention_forward` schema mentions `seqused_k` (it does on ROCm
+  builds) and selects the varlen FlashAttention path, but the HIP kernel does
+  not implement `seqused_k`.
+- **Fix:** use `--backend torch-eager` (official CLI choice; public-SDPA path
+  documented for AMD in YuE `docs/hardware.md`). No model-math change.
+- **Upstream note:** a runtime capability probe (tiny 4-token probe call
+  before selecting `flash`) would fix dispatch properly; patch prepared for
+  owner-approved upstream submission.
+
+### Empty ASR transcripts containing only `language None<asr_text>`
+- **Where:** WSB PER evaluator (Qwen3-ASR) on some candidates.
+- **Known behavior:** the ASR model emits no text for 4/4 repeats; the
+  candidate scores PER 1.0. Historical campaigns retained and disclosed these
+  (never excluded). See `patches/EVALUATOR_PATCH_AUDIT.md`.
+
+## Installation
+
+### `pip install -e` suddenly downloads CUDA torch (`torch==2.x.x` + `nvidia-*` wheels)
+- **Cause:** pip build isolation fetches the package's build requirements,
+  which pin CUDA torch; `--no-deps` does NOT cover the isolated build env.
+- **Fix:** `pip install --no-deps --no-build-isolation -e <src>` (see
+  `scripts/setup_sglang_gfx1100.sh`). Always re-verify
+  `torch.version.hip is not None and torch.cuda.is_available()` afterwards.
+
+### `OSError: [Errno 28] No space left on device` during pip/uv installs
+- **Cause:** `/tmp` is a small tmpfs (4 GB) on lab containers; wheel builds
+  need multi-GB.
+- **Fix:** `TMPDIR=/data/<big-volume>/tmp` for every install command.
+
+### `HIP error: device kernel image is invalid` (hipErrorInvalidImage)
+- **Cause:** plain `torch==…+rocm…` wheels from the multi-arch index without
+  the **device extra** — the default wheel set may exclude gfx1100 kernels.
+- **Fix:** install `torch[device-gfx1100]==…+rocm…` (same for
+  torchvision/torchaudio where extras exist). Verify with a small GPU matmul
+  immediately after install.
+
+### Proxy `CONNECT tunnel failed, response 503` on large downloads / git push
+- **Cause:** site egress proxy intermittency for large CDN responses.
+- **Fix:** retry (git pushes, asset downloads); for HF assets prefer
+  `huggingface_hub` (resume+chunked) — see `scripts/fetch_eval_assets_hub.py`
+  for the pinned-asset contract. Never switch to plain HTTP.
+
+### `raw.githubusercontent.com` unreachable but github.com works
+- **Cause:** egress allowlist granularity.
+- **Fix:** use `git clone` or the GitHub contents API instead of raw URLs.
+
+## Campaign harness
+
+### Every candidate logs `finalize_failed` with an empty error, but manual finalize succeeds
+- **Cause:** the driver's completion check inserts only the historical
+  `$WS/benchmark/wsb_metrics` path; on layouts where the evaluator tree is at
+  `benchmark/WildSongBench/evaluation/wsb_metrics`, its
+  `from artifact_storage import verify_result` fails silently.
+- **Fix (this repo):** `candidate_complete` now probes all known layouts and
+  logs failures under `YUE2_DRIVER_DEBUG_LOG`. Machine-side alternative:
+  `ln -s <real-wsb_metrics> $WS/benchmark/wsb_metrics`.
+- **Recovery:** re-verify bundles with the official `verify_result` and mark
+  journal rows `complete(recovered)` (documented; historical precedent).
+
+### Driver refuses resume: `run_config.json exists with different identity`
+- **Cause:** run identity is write-once; `--run-id` differs (or stack pins changed).
+- **Fix:** pass the SAME `--run-id` on resume. If pins genuinely changed, that
+  must be a NEW run directory (by design).
+
+## Serving (SGLang)
+
+### Server healthy but requests queue instead of parallelizing
+- **Expected:** the validated configuration runs one generation at a time
+  (correctness-first ROCm flag matrix). Client concurrency = queueing, not
+  GPU parallelism. Never report queued clients as parallel throughput.
+
+### MIOpen `IsEnoughWorkspace ... GemmFwdRest` warnings during NAR
+- **Benign:** solver workspace probing noise; generation proceeds normally.
