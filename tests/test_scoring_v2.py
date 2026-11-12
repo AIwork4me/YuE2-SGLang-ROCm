@@ -125,7 +125,7 @@ class CaptureVerifyTests(unittest.TestCase):
         argv = base_tree(self.proc)
         r = run_tool("capture", "--run-state", self.state, "--model", MODEL,
                      "--host", "127.0.0.1", "--port", PORT,
-                     "--expect-uid", "0", "--proc-root", self.proc)
+                     "--expect-uid", str(UID), "--proc-root", self.proc)
         self.assertEqual(r.returncode, 0, r.stderr)
         rcpt = self.state / "server-identity.json"
         self.assertTrue(rcpt.is_file())
@@ -180,7 +180,7 @@ class CaptureVerifyTests(unittest.TestCase):
         base_tree(self.proc, pid=200, inode=222)
         r = run_tool("capture", "--run-state", self.tmp / "rs2",
                      "--model", MODEL, "--host", "127.0.0.1", "--port", PORT,
-                     "--expect-uid", "0", "--proc-root", self.proc)
+                     "--expect-uid", str(UID), "--proc-root", self.proc)
         self.assertIn(r.returncode, (3, 4), r.stderr)
         self.assertTrue("ambiguous" in r.stderr.lower() or "100" in r.stderr,
                         r.stderr)
@@ -191,7 +191,7 @@ class CaptureVerifyTests(unittest.TestCase):
                   model="/opt/other/Qwen3-8B")
         r = run_tool("capture", "--run-state", self.tmp / "rs3",
                      "--model", MODEL, "--host", "127.0.0.1", "--port", PORT,
-                     "--expect-uid", "0", "--proc-root", self.proc)
+                     "--expect-uid", str(UID), "--proc-root", self.proc)
         self.assertEqual(r.returncode, 4)
         self.assertIn("no process matches", r.stderr)
 
@@ -212,7 +212,7 @@ class CaptureVerifyTests(unittest.TestCase):
         argv = base_tree(self.proc, uid=1000)
         r = run_tool("capture", "--run-state", self.tmp / "rs4",
                      "--model", MODEL, "--host", "127.0.0.1", "--port", PORT,
-                     "--expect-uid", "0", "--proc-root", self.proc)
+                     "--expect-uid", str(UID), "--proc-root", self.proc)
         # 1000-uid server holds the listen socket -> verify fails -> code 2/4
         self.assertIn(r.returncode, (2, 4))
         self.assertIn("uid", r.stderr.lower())
@@ -221,7 +221,7 @@ class CaptureVerifyTests(unittest.TestCase):
         base_tree(self.proc)
         r = run_tool("capture", "--run-state", self.tmp / "rs5",
                      "--model", "/ws/models/WRONG-MODEL", "--host", "127.0.0.1",
-                     "--port", PORT, "--expect-uid", "0",
+                     "--port", PORT, "--expect-uid", str(UID),
                      "--proc-root", self.proc)
         self.assertEqual(r.returncode, 4)
 
