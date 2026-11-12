@@ -148,11 +148,23 @@ def post_generation(server: str, payload: dict, timeout: int) -> dict:
 
 def candidate_complete(cand: Path) -> bool:
     try:
-        sys.path.insert(0, str(WS / "benchmark" / "wsb_metrics"))
+        for _p in (WS / "benchmark" / "wsb_metrics",
+                   WS / "benchmark" / "WildSongBench" / "wsb_metrics",
+                   WS / "benchmark" / "WildSongBench" / "evaluation" / "wsb_metrics"):
+            if (_p / "artifact_storage.py").is_file():
+                sys.path.insert(0, str(_p))
+                break
         from artifact_storage import verify_result
         verify_result(cand)
         return True
-    except Exception:
+    except Exception as _exc:
+        if os.environ.get("YUE2_DRIVER_DEBUG_LOG"):
+            try:
+                with open(os.environ["YUE2_DRIVER_DEBUG_LOG"], "a") as _lf:
+                    _lf.write(f"candidate_complete({cand}) -> False: "
+                              f"{type(_exc).__name__}: {_exc}\n")
+            except OSError:
+                pass
         return False
 
 
@@ -390,9 +402,10 @@ def main() -> int:
                               f"({record['wall_s']}s, {record['audio_seconds']:.1f}s audio"
                               f"{' TRUNCATED' if record['truncated'] else ''})", flush=True)
                     else:
-                        record.update(status="finalize_failed", error=fin.stderr[-500:])
+                        record.update(status="finalize_failed",
+                                      error=f"rc={fin.returncode} {fin.stderr[-500:]}")
                         fail += 1
-                        print(f"[FAIL-finalize] {ident_str}: {fin.stderr[-200:]}", flush=True)
+                        print(f"[FAIL-finalize] {ident_str}: rc={fin.returncode} {fin.stderr[-200:]}", flush=True)
                 else:
                     if STOP.is_set() and not ok:
                         record.update(status="interrupted", error=err)

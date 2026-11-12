@@ -43,7 +43,23 @@ try:
     WS = resolve_workspace(__file__)
 except FileNotFoundError:
     WS = None  # unit-test import safety; strict re-resolution happens in main()
-sys.path.insert(0, str(WS / "upstream" / "sglang" / "python"))
+if WS is not None:
+    sys.path.insert(0, str(WS / "upstream" / "sglang" / "python"))
+elif __name__ == "__main__":
+    import traceback as _tb
+    with open(os.environ.get("YUE2_FINALIZE_LOG", "/tmp/finalize_invocations.log"), "a") as _lf:
+        _lf.write("MODULE-LEVEL WS=None; env YUE2_WORKSPACE=%r\n"
+                  % (os.environ.get("YUE2_WORKSPACE"),))
+        _lf.write(_tb.format_exc() + "\n")
+    raise SystemExit(3)
+
+# invocation diagnostics for the campaign driver (silent-death RCA)
+if __name__ == "__main__":
+    import time as _t
+    with open(os.environ.get("YUE2_FINALIZE_LOG", "/tmp/finalize_invocations.log"), "a") as _lf:
+        _lf.write("[%s] invoked argv=%s env_ws=%r\n"
+                  % (_t.strftime("%FT%TZ", _t.gmtime()), sys.argv[1:],
+                     os.environ.get("YUE2_WORKSPACE")))
 
 import numpy as np
 import soundfile as sf
@@ -181,4 +197,12 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    try:
+        raise SystemExit(main())
+    except SystemExit:
+        raise
+    except BaseException:
+        import traceback as _tb
+        with open(os.environ.get("YUE2_FINALIZE_LOG", "/tmp/finalize_invocations.log"), "a") as _lf:
+            _lf.write("MAIN FAILED:\n" + _tb.format_exc() + "\n")
+        raise
