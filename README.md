@@ -26,6 +26,64 @@ All evidence is in this repository: start from the
 
 ---
 
+# YuE2 on AMD ROCm
+
+## Generate music with the official YuE2 model on AMD GPUs — native PyTorch and SGLang
+
+Run the official YuE2 weights (m-a-p/YuE2-3B) on AMD Radeon GPUs through two
+verified paths on the same hardware:
+
+1. **Native PyTorch** — the official `yue2-infer` pipeline (`torch-eager`
+   public-SDPA backend on ROCm), including the official WildSongBench
+   benchmark generation path.
+2. **SGLang serving** — HTTP generation via the authors' SGLang integration
+   (PR sgl-project/sglang#42106, **still unmerged** — not an official
+   SGLang release) with ROCm capability guards.
+
+### Tested hardware (receipted)
+
+| GPU | Status |
+|---|---|
+| AMD Radeon PRO W7900 48GB (gfx1100) | PyTorch pilot + SGLang campaign verified (2026-11); fresh 384-candidate campaigns in progress |
+| AMD Radeon PRO W7900D 48GB (gfx1100) | This mission's rig (rocm-smi identity: `AMD Radeon Pro W7900D`) |
+| AMD Radeon 8060S 32GB (gfx1151) | Historical 384/384 campaign (SGLang) |
+
+### Quick start (copy-paste; see docs/QUICKSTART.md for receipts)
+
+```bash
+git clone https://github.com/AIwork4me/YuE2-SGLang-ROCm.git && cd YuE2-SGLang-ROCm
+python3 scripts/check_environment.py
+export YUE2_WORKSPACE=/data/yue2    # large-volume workspace
+python3 scripts/download_pins.py --workspace $YUE2_WORKSPACE    # SHA256-verified pins
+# Path A (native PyTorch): official generate.py with --backend torch-eager
+# Path B (SGLang): bash scripts/setup_gfx1100_rocm7141.sh && bash scripts/serve_yue2_gfx1100.sh
+```
+
+### Official WildSongBench comparison
+
+See `docs/RESULTS.md` — historical campaigns (SongBench 6.731–6.736 vs
+official 6.7316; PER gap root-caused as tail-driven, see
+`reports/publication`), fresh campaigns land in the same table only after
+strict 384/384 audits. No number on this page lacks an evidence path.
+
+### Real measured performance (W7900)
+
+| Path | Full-song wall time | Peak VRAM |
+|---|---|---|
+| PyTorch torch-eager | ~7 min/song | ~9–14 GiB (24 GiB budget) |
+| SGLang server | 245.8 s median | ~41 GiB generating / ~11 GiB idle |
+
+### Limitations & upstream status (honest, always current)
+
+- YuE2 weights are **CC BY-NC 4.0** (individual-creator monetization grant
+  exists; companies need a license). No weights or benchmark lyrics are
+  redistributed here.
+- SGLang YuE2 support is **unmerged upstream**; Q3O is **NOT TESTED**
+  (needs an 80 GB GPU); PER numbers are labeled with the evaluator backend.
+- Details: `docs/KNOWN_LIMITATIONS.md`, `docs/COMPATIBILITY_MATRIX.md`,
+  `reports/publication/RELEASE_GATE_LEDGER.json`.
+
+---
 ## Contents
 
 1. [Executive summary](#1-executive-summary)
