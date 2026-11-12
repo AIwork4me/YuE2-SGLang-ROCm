@@ -1,0 +1,107 @@
+{
+  "schema": 1,
+  "complete": true,
+  "mode": "shard",
+  "candidate_count": 2,
+  "prompt_count": 1,
+  "errors": [],
+  "full_192_standard_candidate_coverage": false,
+  "unselected_candidates": {
+    "schema": 1,
+    "complete": true,
+    "samples": 2,
+    "groups": {
+      "all": {
+        "per": {
+          "expected": 2,
+          "scored": 2,
+          "failed": 0,
+          "not_applicable": 0,
+          "reference_phonemes": 1268,
+          "edits": 164,
+          "first_pass_edits": 164,
+          "per_micro": 0.12933753943217666,
+          "per_first_pass_micro": 0.12933753943217666,
+          "per_macro": 0.12933753943217666,
+          "asr_truncated_samples": 0,
+          "asr_truncated_repeats": 0,
+          "selected_asr_truncated_samples": 0,
+          "first_pass_asr_truncated_samples": 0,
+          "asr_all_terminated": true,
+          "termination_policy": "Historical PER includes official postprocessed ASR text at the cap; no capped sample is excluded.",
+          "complete": true,
+          "mean_scope": "all applicable samples"
+        }
+      },
+      "lang/zh": {
+        "per": {
+          "expected": 2,
+          "scored": 2,
+          "failed": 0,
+          "not_applicable": 0,
+          "reference_phonemes": 1268,
+          "edits": 164,
+          "first_pass_edits": 164,
+          "per_micro": 0.12933753943217666,
+          "per_first_pass_micro": 0.12933753943217666,
+          "per_macro": 0.12933753943217666,
+          "asr_truncated_samples": 0,
+          "asr_truncated_repeats": 0,
+          "selected_asr_truncated_samples": 0,
+          "first_pass_asr_truncated_samples": 0,
+          "asr_all_terminated": true,
+          "termination_policy": "Historical PER includes official postprocessed ASR text at the cap; no capped sample is excluded.",
+          "complete": true,
+          "mean_scope": "all applicable samples"
+        }
+      },
+      "cot/full": {
+        "per": {
+          "expected": 2,
+          "scored": 2,
+          "failed": 0,
+          "not_applicable": 0,
+          "reference_phonemes": 1268,
+          "edits": 164,
+          "first_pass_edits": 164,
+          "per_micro": 0.12933753943217666,
+          "per_first_pass_micro": 0.12933753943217666,
+          "per_macro": 0.12933753943217666,
+          "asr_truncated_samples": 0,
+          "asr_truncated_repeats": 0,
+          "selected_asr_truncated_samples": 0,
+          "first_pass_asr_truncated_samples": 0,
+          "asr_all_terminated": true,
+          "termination_policy": "Historical PER includes official postprocessed ASR text at the cap; no capped sample is excluded.",
+          "complete": true,
+          "mean_scope": "all applicable samples"
+        }
+      },
+      "full/zh": {
+        "per": {
+          "expected": 2,
+          "scored": 2,
+          "failed": 0,
+          "not_applicable": 0,
+          "reference_phonemes": 1268,
+          "edits": 164,
+          "first_pass_edits": 164,
+          "per_micro": 0.12933753943217666,
+          "per_first_pass_micro": 0.12933753943217666,
+          "per_macro": 0.12933753943217666,
+          "asr_truncated_samples": 0,
+          "asr_truncated_repeats": 0,
+          "selected_asr_truncated_samples": 0,
+          "first_pass_asr_truncated_samples": 0,
+          "asr_all_terminated": true,
+          "termination_policy": "Historical PER includes official postprocessed ASR text at the cap; no capped sample is excluded.",
+          "complete": true,
+          "mean_scope": "all applicable samples"
+        }
+      }
+    },
+    "metrics": [
+      "per"
+    ]
+  }
+}

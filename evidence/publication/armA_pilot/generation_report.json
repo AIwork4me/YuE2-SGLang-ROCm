@@ -1,0 +1,70 @@
+{
+  "model": "m-a-p/YuE2-3B",
+  "model_revision": "1a96eca688d6ae5d7f0feb88573fec89920fcd19",
+  "vae": "m-a-p/YuE2-Vae-legacy",
+  "vae_revision": "b54118f0fc462f08999d1ec07e88817f4ee3f770",
+  "backend": "torch-eager",
+  "manifest_sha256": "859e5225d319912efb64d587d1d5eb6cf0abc9fb162cc3d5f02d1688cff2edc0",
+  "python": "3.12.3",
+  "torch": "2.10.0+rocm7.1",
+  "gpu": "AMD Radeon Graphics",
+  "shard_index": 0,
+  "num_shards": 1,
+  "prompt_indices": [
+    0
+  ],
+  "expected_candidates": 2,
+  "results": [
+    {
+      "id": "wsb_000_r0_s831001",
+      "prompt_index": 0,
+      "candidate_index": 0,
+      "seed": 831001,
+      "status": "complete",
+      "identity": "d6ea3dbb6974e6eec82f58e6c85ed0a82b67f157321d4eaf631165d42396ebd3",
+      "truncated": {
+        "abc": false,
+        "semantic": false
+      },
+      "audio_seconds": 191.27866666666668
+    },
+    {
+      "id": "wsb_000_r1_s831019",
+      "prompt_index": 0,
+      "candidate_index": 1,
+      "seed": 831019,
+      "status": "complete",
+      "identity": "152630445fb016b3e2b58d83ab3da04ccd5ca97f6097013e9a06aaba81f66798",
+      "truncated": {
+        "abc": false,
+        "semantic": false
+      },
+      "audio_seconds": 154.75866666666667
+    }
+  ],
+  "complete": true,
+  "generation_config": {
+    "abc": {
+      "temperature": 0.7,
+      "top_p": 0.9,
+      "top_k": 30,
+      "repetition_penalty": 1.005,
+      "penalty_window": 100,
+      "min_tokens": 32,
+      "max_tokens": 4096
+    },
+    "semantic": {
+      "temperature": 1.0,
+      "top_p": 0.95,
+      "top_k": 100,
+      "repetition_penalty": 1.2,
+      "penalty_window": 50,
+      "min_tokens": 200,
+      "max_tokens": 9000
+    },
+    "ode_steps": 32,
+    "ode_method": "midpoint",
+    "context": 24576,
+    "version": "yue2-native-v1"
+  }
+}

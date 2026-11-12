@@ -80,9 +80,11 @@ def main() -> int:
             p = args.root / row["path"]
             p.parent.mkdir(parents=True, exist_ok=True)
             p.write_text(row["content"])
-    result = verify(args.root, metrics, force=True)
-    print(json.dumps(result, indent=1)[:800])
-    return 0 if not result["errors"] else 1
+    # verify() raises ValueError listing missing/mismatched assets on failure
+    # and returns the pinned-hash map on success.
+    hashes = verify(args.root, metrics, force=True)
+    print(f"verify_assets OK: {len(hashes)} pinned files valid")
+    return 0
 
 
 def row_is_dataset(repo_id: str) -> bool:

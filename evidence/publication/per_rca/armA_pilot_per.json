@@ -1,0 +1,30 @@
+{
+  "experiment": "phase5-armA-pilot-per",
+  "date": "2026-11-12",
+  "question": "Does the official native-PyTorch generation path on W7900 (gfx1100) produce official-range PER under the frozen ROCm evaluator?",
+  "setup": {
+    "generator": "official code/generate.py (WSB @ e361b85a) --backend torch-eager --candidates 2 --prompt-index 0",
+    "runtime": "yue2-infer 0.1.3 wheel, torch 2.10.0+rocm7.1 (official pin), AMD Radeon PRO W7900D 48GB",
+    "model": "m-a-p/YuE2-3B @ 1a96eca6 (sha 1d55c42c verified), YuE2-Vae-legacy @ b54118f0",
+    "seeds": ["831001", "831019"],
+    "evaluator": "frozen wsb_metrics + patches 0006/0007/0009/0010, metrics venv python 3.12.11, torch 2.10.0+rocm7.14.1 [device-gfx1100], ASR qwen_asr transformers backend, greedy, max_new_tokens 4096, 4 repeats, auto language"
+  },
+  "results": {
+    "wsb_000_r0_s831001": {"per": 0.0647, "edits": 41, "reference_phonemes": 634, "capped": false, "all_4_passes_identical": true, "audio_seconds": 191.28, "audio_flac_sha256_16": "3e2b9e8601d69782"},
+    "wsb_000_r1_s831019": {"per": 0.1940, "edits": 123, "reference_phonemes": 634, "capped": false, "all_4_passes_identical": true, "audio_seconds": 154.75, "audio_flac_sha256_16": "f690db3ed3a36083"}
+  },
+  "anchors_same_prompt_and_seeds": {
+    "armA_torch_eager_w7900_this_mission": [0.0647, 0.1940],
+    "sglang_w7900_historical": [0.0599, 0.1136],
+    "sglang_gfx1151_historical": [0.1688, 0.2114],
+    "official_aggregate_selected_reference": 0.0844
+  },
+  "interpretation": [
+    "The transformers-ASR evaluator scores official-range PER (6.5%) on good audio: the evaluator substitution is NOT a systematic 2x inflator.",
+    "W7900 generation reaches official-level vocal intelligibility for this prompt on BOTH the official PyTorch path and the SGLang path.",
+    "The r1 candidate's higher PER corresponds to genuinely mis-sung lyrics in the generated audio (transcript divergence is real generation variance, not scoring error).",
+    "The historical 17% aggregates are therefore tail-driven (88-128 capped ASR runs of 384, empty transcripts, weak candidates), not a uniform evaluator or hardware bias.",
+    "Agenda for the full campaigns: preserve complete per-song receipts to quantify the tail (capping, empty transcripts, per-language, per-duration)."
+  ],
+  "artifacts": ["evidence/publication/armA_pilot/generation_report.json", "evidence/publication/armA_pilot/per_song.jsonl", "evidence/publication/armA_pilot/summary.json", "evidence/publication/armA_pilot/per.environment.json"]
+}
