@@ -85,3 +85,15 @@ Status legend: FIXED / MITIGATED / DOCUMENTED / OPEN.
 | O-1 | `/tmp` 4GB tmpfs too small for pip builds | TMPDIR=/data/tmp documented in installers; not a repo fix |
 | O-2 | proxy 503 intermittency for git push | retry pattern; pushes batched |
 | O-3 | prompt-164 long-lyrics Omni field limit re-validation | scheduled with Omni regression pass |
+
+---
+
+## RCA-10 — SGLang server AR-stage hang (fresh stack, this mission)
+
+- **Severity:** High (campaign stalls; GPU idle with VRAM held)
+- **Reproduction (live):** candidate wsb_017_r0 generation: server AR stage started 03:26:47Z and never advanced (>75 min; GPU use 0%, VRAM 39% held); driver timed out and retried into the same hung server. Historical campaigns show analogous interruptions (milestone_driver_exit receipts), which is why the supervisor infrastructure exists.
+- **Root cause:** not yet isolated — requires the server-side stack around the hang (captured in server_yue2_gfx1100.log); candidate hypotheses: HIP graph replay stall, scheduler queue deadlock, or a rare sampling-path edge on ROCm. NOT a kernel numerics issue (34 candidates before/after succeeded byte-consistently).
+- **Fix (operational):** stall-guard added to the campaign chain — no progress for 45 min ⇒ PID-scoped driver+server restart, GPU freed, health-verified resume. Campaign is resume-safe (verified skip of 42/42 completed candidates).
+- **Tests:** the supervisor's restart matrix (test_scoring_v2) already covers safe-stop semantics; the stall guard is ops-layer (chain script), documented here.
+- **Evidence:** /data/yue2/logs/{armB_campaign2.log,server_yue2_gfx1100.log,campaign_chain.log}
+- **Residual risk:** MEDIUM — recurrence auto-recovers but costs wall time; upstream RCA deferred until campaign completion (server log preserved).
