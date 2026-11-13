@@ -281,7 +281,7 @@ def main() -> int:
             print(f"[armA] complete {ident_c} wall={extra.get('wall_s')}s "
                   f"({completed}/{total}, eta~{eta_h:.1f}h)", flush=True)
     print(f"[armA] finished pass: {completed}/{total} complete", flush=True)
-    return 0
+    return 0 if completed == total else 6
 
 
 if __name__ == "__main__":

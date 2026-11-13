@@ -1,0 +1,22 @@
+{
+  "platform": "gfx1100",
+  "gpu": "unknown",
+  "torch": "2.12.0+rocm7.14.1",
+  "run_id": "armB_full_20261112b",
+  "sglang_commit": "ced0ef7d1bbbe703607b302ec86bb20a5c06bc8f",
+  "dataset_revision": "e361b85a8d7365d3079fa9647641a87ce3c8c5b5",
+  "model_revision": "m-a-p/YuE2-3B@1a96eca688d6ae5d7f0feb88573fec89920fcd19",
+  "vae_revision": "m-a-p/YuE2-Vae-legacy@b54118f0fc462f08999d1ec07e88817f4ee3f770",
+  "patchset_sha256": "c7dd55c3ba581613b836368ab9959e4ab8352bf8d53a9ae0fd9a81c856d7fa9a",
+  "config": {
+    "cot": "full",
+    "abc": null,
+    "ode_steps": 32,
+    "semantic_max_tokens": 9000,
+    "abc_max_tokens": 4096,
+    "vae_core_frames": 1024,
+    "vae_halo_frames": 16
+  },
+  "candidates": 2,
+  "indices": null
+}

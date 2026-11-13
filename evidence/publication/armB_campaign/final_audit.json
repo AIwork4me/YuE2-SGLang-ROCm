@@ -1,0 +1,20 @@
+{
+  "run": "/data/yue2-runs/armB_wsb_full",
+  "mode": "full",
+  "dataset_revision_ok": true,
+  "expected_candidates": 384,
+  "expected_prompt_indices": 192,
+  "verified_complete": 384,
+  "missing_or_invalid": 0,
+  "truncated_but_complete": 5,
+  "unique_prompt_coverage": 192,
+  "identity_reverified": 384,
+  "classification": {
+    "verified": 384,
+    "finalized": 384,
+    "generated": 384
+  },
+  "problem_count": 0,
+  "problems": [],
+  "verdict": "FULL"
+}
