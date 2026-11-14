@@ -1,0 +1,9 @@
+{
+  "run_id": "armA_full_20261113",
+  "platform": "gfx1100",
+  "arm": "A-torch",
+  "backend": "torch-eager",
+  "model_revision": "1a96eca688d6ae5d7f0feb88573fec89920fcd19",
+  "vae_revision": "b54118f0fc462f08999d1ec07e88817f4ee3f770",
+  "manifest_sha256": "859e5225d319912efb64d587d1d5eb6cf0abc9fb162cc3d5f02d1688cff2edc0"
+}
