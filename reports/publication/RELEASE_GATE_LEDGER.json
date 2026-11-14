@@ -1,6 +1,6 @@
 {
   "ledger": "release-gate",
-  "updated": "2026-11-14T11:45:00Z",
+  "updated": "2026-11-14T12:15:00Z",
   "branch": "feat/yue2-rocm-publication-readiness",
   "gates": {
     "G0": {
@@ -50,8 +50,8 @@
     },
     "G9": {
       "name": "Official score comparison and statistical analysis complete",
-      "status": "PENDING (acceptance methodology frozen in benchmark.lock.yaml before unblinding)",
-      "evidence": null
+      "status": "PARTIAL \u2014 Arm B side COMPLETE: SongBench 6.7376 (\u0394+0.0060, target \u22640.05 PASS), MuLan 0.5093 (\u0394+0.0025, \u22640.01 PASS), AMC 0.4056 (\u0394+0.0002, \u22640.01 PASS), PER 17.77% [15.2\u201320.7] vs 8.44% (root-caused, disclosed); Arm A side pending its campaign",
+      "evidence": "evidence/publication/armB_campaign/campaign_summary.json"
     },
     "G10": {
       "name": "Performance measured on real W7900",

@@ -49,11 +49,17 @@ branch `validation/gfx1100-rocm7141`.
 | SongBench GA (selected-192) | **6.7376** | 6.7316 | +0.0060 | within ±0.05 target |
 | SongBench GA (unselected-384) | 6.7311 | — | — | matches historical pattern |
 | PER micro (selected-192) | 17.77% [CI 15.20–20.68] | 8.44% | +9.33pp | gap root-caused (reports/publication/05_PER_ROOT_CAUSE.md) |
-| MuLan / AllMusicCaps | scoring in progress | 0.5068 / 0.4054 | — | — |
+| MuLan (selected-192) | **0.5093** | 0.5068 | +0.0025 | within ±0.01 target |
+| AllMusicCaps (selected-192) | **0.4056** | 0.4054 | +0.0002 | within ±0.01 target |
 
 ASR backend: qwen_asr/transformers on ROCm (patch 0007, disclosed); 112/384
 capped-ASR candidates retained per official policy. Empty cells mean "not
 measured yet", never "assumed".
+
+**Headline (Arm B, fresh 2026-11-14, solo official scoring): SongBench,
+MuLan and AllMusicCaps all reproduce the official YuE2 reference within the
+frozen acceptance thresholds (Δ +0.006 / +0.0025 / +0.0002). The PER gap is
+separately root-caused and disclosed (05_PER_ROOT_CAUSE.md).**
 
 ## Performance (W7900, measured)
 

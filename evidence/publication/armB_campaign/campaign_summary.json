@@ -1,5 +1,5 @@
 {
- "label": "Arm B (SGLang #42106+patches, W7900D gfx1100, torch 2.12.0+rocm7.14.1, fresh 2026-11)",
+ "label": "Arm B FINAL (SGLang #42106+patches, W7900D, torch 2.12.0+rocm7.14.1, solo official scoring)",
  "run": "/data/yue2-runs/armB_wsb_full",
  "audit": {
   "verdict": "FULL",
@@ -107,7 +107,36 @@
    "mean_scope": "all applicable samples"
   }
  },
- "additional_selected": {},
+ "additional_selected": {
+  "mulan": {
+   "expected": 192,
+   "scored": 192,
+   "failed": 0,
+   "not_applicable": 0,
+   "means": {
+    "mulan": 0.5092941728265336
+   },
+   "counts": {
+    "mulan": 192
+   },
+   "complete": true,
+   "mean_scope": "all applicable samples"
+  },
+  "allmusiccaps": {
+   "expected": 192,
+   "scored": 192,
+   "failed": 0,
+   "not_applicable": 0,
+   "means": {
+    "allmusiccaps": 0.4055880880720603
+   },
+   "counts": {
+    "allmusiccaps": 192
+   },
+   "complete": true,
+   "mean_scope": "all applicable samples"
+  }
+ },
  "per_analysis": {
   "n_scored": 384,
   "micro_unselected_all": 0.24291,
