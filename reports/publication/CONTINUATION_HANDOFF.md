@@ -13,9 +13,10 @@ this file is part of the final push of session 1).
 |---|---|---|
 | Phases 0–2 (preflight, upstream intel, hardening) | ✅ COMPLETE | reports/publication/00_*, 01_*, 02_* |
 | Arm B (SGLang) 384-candidate campaign | ✅ COMPLETE — strict audit **FULL** (384/384 verified, identity 384/384, 5 truncated-but-valid, 0 problems) | evidence/publication/armB_campaign/ + /data/yue2-runs/armB_wsb_full |
-| Arm B PER+SongBench scoring (solo, official) | 🔄 RUNNING (started 01:56Z Nov 14; first attempt had a concurrent-mode HIP illegal-memory-access crash at prompts 164+, partial 328-receipt run preserved at scores_concurrent_partial/ for determinism comparison) | /data/yue2-runs/armB_wsb_full/scores/ + /data/yue2/logs/armB_solo2.log |
-| Arm B mulan+amc | ⏸ QUEUED (run AFTER per,songbench finishes; command in §4.3) | — |
-| Arm A (official PyTorch torch-eager) campaign | ⏸ PAUSED at **66/384** (resume-safe; signal-stopped to give Arm B scoring the GPU solo) | /data/yue2-runs/armA_wsb_full + /data/yue2/logs/armA_campaign3.log |
+| Arm B PER+SongBench scoring (solo, official) | ✅ **COMPLETE 384/384, zero failures** (the earlier concurrent-mode HIP illegal-memory-access crash at prompts 164+ was REPRODUCIBLY absent solo → concurrency confirmed as trigger; 328-receipt concurrent run preserved at scores_concurrent_partial/) | /data/yue2-runs/armB_wsb_full/scores/ |
+| Arm B mulan+amc | ✅ **COMPLETE 192/192 each** | /data/yue2-runs/armB_wsb_full/additional/ |
+| **Arm B FINAL RESULTS** | ✅ **SongBench 6.7376 (official 6.7316, Δ+0.0060 PASS ≤0.05) · MuLan 0.5093 (Δ+0.0025 PASS ≤0.01) · AMC 0.4056 (Δ+0.0002 PASS ≤0.01) · PER 17.77% [CI 15.20–20.68] vs 8.44% (root-caused: reports/publication/05_PER_ROOT_CAUSE.md)** | evidence/publication/armB_campaign/campaign_summary.json |
+| Arm A (official PyTorch torch-eager) campaign | 🔄 RESUMED at ~12:20Z Nov 14 from **66/384** (runs until mirror reclaim; fully resume-safe — partial dirs + atomic journal) | /data/yue2-runs/armA_wsb_full + /data/yue2/logs/armA_campaign5.log |
 | Arm A scoring | ⏸ queued after Arm A completes | — |
 | Phase 5 PER RCA | Pilot evidence strong (official-range PER on good audio; historical gap is tail-driven); full fresh-campaign tail analysis pending Arm B per_song.jsonl | evidence/publication/per_rca/armA_pilot_per.json |
 | Phase 9 audits | ✅ done; **LQ-1** (historical per_song.jsonl contains reference_lyrics → publication decision needed from owner) | reports/publication/09_* |
@@ -57,7 +58,14 @@ setsid nohup /data/yue2/run_armB_solo_scoring.sh > /data/yue2/logs/armB_solo_<ts
 
 ## 4. COMMAND SEQUENCE FOR THE REMAINING MISSION (in order)
 
-### 4.1 Wait for Arm B per,songbench to finish (exit 0 expected)
+### 4.0 Arm B is DONE — skip 4.1/4.2 unless re-verification is wanted
+
+Final Arm B receipts are committed (evidence/publication/armB_campaign/:
+final_audit.json, official_summary.json, official_additional_summary.json,
+per_song_redacted.jsonl [lyric-redacted], candidate_manifest.json,
+campaign_summary.json). Skip to 4.3 (Arm A resume).
+
+### 4.1 (already done) Wait for Arm B per,songbench to finish (exit 0 expected)
 ```bash
 grep -E "Finished per|Finished songbench" /data/yue2/logs/armB_solo2.log
 # then summarize:
@@ -210,6 +218,15 @@ Runs: `/data/yue2-runs/{armA_wsb_full, armB_wsb_full, armA_pilot0}`.
     TMPDIR=/data/tmp HF_HOME=/data/yue2/hf-cache`.
 12. The scoring launcher must `setsid nohup ... < /dev/null &` detached from
     the interactive shell (a session kill took one down — §3 covers restart).
+13. **CGROUP MEMORY CEILING = 59 GB on this container class.** Page-cache
+    accumulation from audio I/O pushes memory.current to the limit and
+    processes get silently OOM-killed (empty logs, no oom_kill counter in our
+    view). Symptom: background scoring dies mid-MP3-encode with zero output.
+    Mitigation used: guarded relaunch loop (/data/yue2/run_mulan_guarded.sh
+    pattern) — the evaluator's MP3 prep is idempotent per restart. Watch
+    `cat /sys/fs/cgroup/memory.current` vs `memory.max`.
+14. Arm A per-candidate wall is ~7–11 min solo; the journal's `already_complete`
+    count on resume is the source of truth (it re-verifies each bundle).
 
 ## 7. PUBLICATION BLOCKERS UNRELATED TO GPU (for the owner)
 
