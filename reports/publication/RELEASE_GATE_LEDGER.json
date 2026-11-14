@@ -1,24 +1,90 @@
 {
   "ledger": "release-gate",
-  "updated": "2026-11-12T02:30:00Z",
+  "updated": "2026-11-14T11:45:00Z",
   "branch": "feat/yue2-rocm-publication-readiness",
   "gates": {
-    "G0": {"name": "Physical W7900 environment verified", "status": "PASS", "evidence": "reports/publication/00_ENVIRONMENT.json (gfx1100, 48GiB, ROCm 6.16.13 driver / 7.2.1 userspace; GPU compute smoke)"},
-    "G1": {"name": "Latest upstream/model/dependency audit complete", "status": "PASS", "evidence": "reports/publication/01_UPSTREAM_GAP_ANALYSIS.md (live API checks 2026-11-11; all 5 PRs open; WSB unchanged; weights byte-identical)"},
-    "G2": {"name": "Installation and path defects resolved", "status": "PASS", "evidence": "reports/publication/02_RCA_LEDGER.md RCA-1..RCA-5; tests 63 pass/24 honest skip; workspace contract + CI expansion"},
-    "G3": {"name": "Native PyTorch full-song generation verified", "status": "PASS (pilot 2/2 full songs, official seeds); FULL 16-item acceptance PENDING GPU window", "evidence": "evidence/publication/armA_pilot/"},
-    "G4": {"name": "SGLang full-song generation verified", "status": "PASS (smoke, full-song via campaign in progress); complete HTTP acceptance matrix PENDING", "evidence": "evidence/publication/armB_campaign/progress.jsonl"},
-    "G5": {"name": "API and intermediate-artifact contract validated", "status": "IN PROGRESS", "note": "artifact bundles validated by official verify_result in both arms; cross-API report pending campaigns"},
-    "G6": {"name": "PER discrepancy root cause established or explicitly unresolved", "status": "IN PROGRESS — major evidence: substituted evaluator scores official-range PER on good audio; historical gap is tail-driven (capping/empty/weak candidates); full per-song tail quantification pending fresh campaigns", "evidence": "evidence/publication/per_rca/armA_pilot_per.json"},
-    "G7": {"name": "PyTorch WildSongBench 384/384 FULL", "status": "PENDING (queued behind Arm B via supervised chain)", "evidence": null},
-    "G8": {"name": "Primary SGLang WildSongBench 384/384 FULL", "status": "IN PROGRESS (19/384 at ledger update; ~4.1 min/candidate)", "evidence": "evidence/publication/armB_campaign/progress.jsonl"},
-    "G9": {"name": "Official score comparison and statistical analysis complete", "status": "PENDING (acceptance methodology frozen in benchmark.lock.yaml before unblinding)", "evidence": null},
-    "G10": {"name": "Performance measured on real W7900", "status": "PARTIAL", "note": "generation wall times captured live; serving concurrency/RTF sweep pending"},
-    "G11": {"name": "Fresh-clone Quick Start validated", "status": "IN PROGRESS", "note": "docs commands carry verification tags; end-to-end fresh-clone run pending GPU window"},
-    "G12": {"name": "CI and regression tests genuinely passing", "status": "PASS on branch (63 passed/24 honest skips locally); GitHub Actions run pending push-trigger verification", "evidence": "commits 6f87469..95ede89"},
-    "G13": {"name": "Security and licensing release audit passed", "status": "BLOCKED (one item): S-1/LQ-1 historical per_song.jsonl reference_lyrics publication decision requires owner; code/infra security PASS", "evidence": "reports/publication/09_SECURITY_AUDIT.md, 09_LICENSE_AND_ATTRIBUTION.md"},
-    "G14": {"name": "Independent engineering and scientific reviews complete", "status": "PENDING (scheduled after campaigns + scoring)"},
-    "G15": {"name": "Documentation, results and evidence match exact source commits", "status": "IN PROGRESS (evidence-index discipline active; final sweep pending)"}
+    "G0": {
+      "name": "Physical W7900 environment verified",
+      "status": "PASS",
+      "evidence": "reports/publication/00_ENVIRONMENT.json (gfx1100, 48GiB, ROCm 6.16.13 driver / 7.2.1 userspace; GPU compute smoke)"
+    },
+    "G1": {
+      "name": "Latest upstream/model/dependency audit complete",
+      "status": "PASS",
+      "evidence": "reports/publication/01_UPSTREAM_GAP_ANALYSIS.md (live API checks 2026-11-11; all 5 PRs open; WSB unchanged; weights byte-identical)"
+    },
+    "G2": {
+      "name": "Installation and path defects resolved",
+      "status": "PASS",
+      "evidence": "reports/publication/02_RCA_LEDGER.md RCA-1..RCA-5; tests 63 pass/24 honest skip; workspace contract + CI expansion"
+    },
+    "G3": {
+      "name": "Native PyTorch full-song generation verified",
+      "status": "PASS (pilot 2/2 full songs, official seeds); FULL 16-item acceptance PENDING GPU window",
+      "evidence": "evidence/publication/armA_pilot/"
+    },
+    "G4": {
+      "name": "SGLang full-song generation verified",
+      "status": "PASS (smoke, full-song via campaign in progress); complete HTTP acceptance matrix PENDING",
+      "evidence": "evidence/publication/armB_campaign/progress.jsonl"
+    },
+    "G5": {
+      "name": "API and intermediate-artifact contract validated",
+      "status": "IN PROGRESS",
+      "note": "artifact bundles validated by official verify_result in both arms; cross-API report pending campaigns"
+    },
+    "G6": {
+      "name": "PER discrepancy root cause established or explicitly unresolved",
+      "status": "PARTIALLY RESOLVED (documented): tail quantified (112 capped @35.3%, 10 empty; uncapped 19.1%); evaluator exonerated as 2x-inflator via official-range pilot scores; residual bounded <=~10pp pending official per-song data or CUDA-host cross-check",
+      "evidence": "reports/publication/05_PER_ROOT_CAUSE.md"
+    },
+    "G7": {
+      "name": "PyTorch WildSongBench 384/384 FULL",
+      "status": "PENDING (queued behind Arm B via supervised chain)",
+      "evidence": null
+    },
+    "G8": {
+      "name": "Primary SGLang WildSongBench 384/384 FULL",
+      "status": "PASS (fresh 2026-11 campaign; audit FULL, identity 384/384, 0 problems; solo official scoring complete)",
+      "evidence": "evidence/publication/armB_campaign/final_audit.json + campaign_summary.json"
+    },
+    "G9": {
+      "name": "Official score comparison and statistical analysis complete",
+      "status": "PENDING (acceptance methodology frozen in benchmark.lock.yaml before unblinding)",
+      "evidence": null
+    },
+    "G10": {
+      "name": "Performance measured on real W7900",
+      "status": "PARTIAL",
+      "note": "generation wall times captured live; serving concurrency/RTF sweep pending"
+    },
+    "G11": {
+      "name": "Fresh-clone Quick Start validated",
+      "status": "IN PROGRESS",
+      "note": "docs commands carry verification tags; end-to-end fresh-clone run pending GPU window"
+    },
+    "G12": {
+      "name": "CI and regression tests genuinely passing",
+      "status": "PASS on branch (63 passed/24 honest skips locally); GitHub Actions run pending push-trigger verification",
+      "evidence": "commits 6f87469..95ede89"
+    },
+    "G13": {
+      "name": "Security and licensing release audit passed",
+      "status": "BLOCKED (one item): S-1/LQ-1 historical per_song.jsonl reference_lyrics publication decision requires owner; code/infra security PASS",
+      "evidence": "reports/publication/09_SECURITY_AUDIT.md, 09_LICENSE_AND_ATTRIBUTION.md"
+    },
+    "G14": {
+      "name": "Independent engineering and scientific reviews complete",
+      "status": "PENDING (scheduled after campaigns + scoring)"
+    },
+    "G15": {
+      "name": "Documentation, results and evidence match exact source commits",
+      "status": "IN PROGRESS (evidence-index discipline active; final sweep pending)"
+    }
   },
-  "rules": ["A gate never moves from PENDING/BLOCKED to PASS without receipted evidence", "SKIP is recorded as SKIP, never as PASS", "Q3O remains NOT TESTED on this hardware"]
+  "rules": [
+    "A gate never moves from PENDING/BLOCKED to PASS without receipted evidence",
+    "SKIP is recorded as SKIP, never as PASS",
+    "Q3O remains NOT TESTED on this hardware"
+  ]
 }

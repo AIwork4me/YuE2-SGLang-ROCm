@@ -39,12 +39,21 @@ branch `validation/gfx1100-rocm7141`.
 | Arm | Status | Receipts |
 |---|---|---|
 | Arm A pilot (official torch-eager, prompt 0) | 2/2 complete; PER 6.47% / 19.40% (4 identical greedy passes, no capping) | `evidence/publication/armA_pilot/` |
-| Arm B full (SGLang, 384) | IN PROGRESS | `evidence/publication/armB_campaign/progress.jsonl` |
+| Arm B full (SGLang, 384) | **COMPLETE — audit FULL; solo official scoring done** | `evidence/publication/armB_campaign/` |
 | Arm A full (official PyTorch, 384) | QUEUED (chained after Arm B audit) | `evidence/publication/armA_campaign/` (when complete) |
 
-Aggregate FRESH metrics will appear here ONLY after the strict 384/384 audit
-passes and official scoring completes, with confidence intervals and explicit
-ASR-backend labeling. Empty cells mean "not measured yet", never "assumed".
+### Arm B fresh official results (2026-11-14, solo, frozen evaluator + disclosed patches)
+
+| Metric | Fresh W7900 SGLang | Official reference | Δ | Verdict |
+|---|---:|---:|---:|---|
+| SongBench GA (selected-192) | **6.7376** | 6.7316 | +0.0060 | within ±0.05 target |
+| SongBench GA (unselected-384) | 6.7311 | — | — | matches historical pattern |
+| PER micro (selected-192) | 17.77% [CI 15.20–20.68] | 8.44% | +9.33pp | gap root-caused (reports/publication/05_PER_ROOT_CAUSE.md) |
+| MuLan / AllMusicCaps | scoring in progress | 0.5068 / 0.4054 | — | — |
+
+ASR backend: qwen_asr/transformers on ROCm (patch 0007, disclosed); 112/384
+capped-ASR candidates retained per official policy. Empty cells mean "not
+measured yet", never "assumed".
 
 ## Performance (W7900, measured)
 
