@@ -1,0 +1,138 @@
+{
+ "label": "Arm B (SGLang #42106+patches, W7900D gfx1100, torch 2.12.0+rocm7.14.1, fresh 2026-11)",
+ "run": "/data/yue2-runs/armB_wsb_full",
+ "audit": {
+  "verdict": "FULL",
+  "verified_complete": 384,
+  "truncated_but_complete": 5,
+  "identity_reverified": 384
+ },
+ "selected": {
+  "per": {
+   "expected": 192,
+   "scored": 192,
+   "failed": 0,
+   "not_applicable": 0,
+   "reference_phonemes": 155111,
+   "edits": 27561,
+   "first_pass_edits": 27561,
+   "per_micro": 0.17768565736794942,
+   "per_first_pass_micro": 0.17768565736794942,
+   "per_macro": 0.1654102468944768,
+   "asr_truncated_samples": 56,
+   "asr_truncated_repeats": 224,
+   "selected_asr_truncated_samples": 56,
+   "first_pass_asr_truncated_samples": 56,
+   "asr_all_terminated": false,
+   "termination_policy": "Historical PER includes official postprocessed ASR text at the cap; no capped sample is excluded.",
+   "complete": true,
+   "mean_scope": "all applicable samples"
+  },
+  "songbench": {
+   "expected": 192,
+   "scored": 192,
+   "failed": 0,
+   "not_applicable": 0,
+   "means": {
+    "Melody": 6.672539609173934,
+    "Arrangement": 6.955020596583684,
+    "Musicality": 5.923840321600437,
+    "Vocal": 7.13728171090285,
+    "Instrumental": 7.035881005227566,
+    "Mixing": 6.8557595039407415,
+    "Structure": 6.582787389556567,
+    "Global Avg": 6.737587162426539
+   },
+   "counts": {
+    "Melody": 192,
+    "Arrangement": 192,
+    "Musicality": 192,
+    "Vocal": 192,
+    "Instrumental": 192,
+    "Mixing": 192,
+    "Structure": 192,
+    "Global Avg": 192
+   },
+   "complete": true,
+   "mean_scope": "all applicable samples"
+  }
+ },
+ "unselected": {
+  "per": {
+   "expected": 384,
+   "scored": 384,
+   "failed": 0,
+   "not_applicable": 0,
+   "reference_phonemes": 310222,
+   "edits": 75356,
+   "first_pass_edits": 75356,
+   "per_micro": 0.24290991612458174,
+   "per_first_pass_micro": 0.24290991612458174,
+   "per_macro": 0.22690100365989474,
+   "asr_truncated_samples": 112,
+   "asr_truncated_repeats": 448,
+   "selected_asr_truncated_samples": 112,
+   "first_pass_asr_truncated_samples": 112,
+   "asr_all_terminated": false,
+   "termination_policy": "Historical PER includes official postprocessed ASR text at the cap; no capped sample is excluded.",
+   "complete": true,
+   "mean_scope": "all applicable samples"
+  },
+  "songbench": {
+   "expected": 384,
+   "scored": 384,
+   "failed": 0,
+   "not_applicable": 0,
+   "means": {
+    "Melody": 6.669589798897505,
+    "Arrangement": 6.952055002252261,
+    "Musicality": 5.9188250576456385,
+    "Vocal": 7.128123667091131,
+    "Instrumental": 7.02844346438845,
+    "Mixing": 6.841480453809102,
+    "Structure": 6.579331660022338,
+    "Global Avg": 6.731121300586633
+   },
+   "counts": {
+    "Melody": 384,
+    "Arrangement": 384,
+    "Musicality": 384,
+    "Vocal": 384,
+    "Instrumental": 384,
+    "Mixing": 384,
+    "Structure": 384,
+    "Global Avg": 384
+   },
+   "complete": true,
+   "mean_scope": "all applicable samples"
+  }
+ },
+ "additional_selected": {},
+ "per_analysis": {
+  "n_scored": 384,
+  "micro_unselected_all": 0.24291,
+  "micro_selected_192": 0.177686,
+  "selected_bootstrap95": [
+   0.152006,
+   0.206848
+  ],
+  "capped_samples": 112,
+  "capped_micro": 0.353025,
+  "uncapped_micro": 0.191395,
+  "empty_transcript_candidates": 10,
+  "per_eq_1": 11,
+  "selected_per_gt_030": 24,
+  "lang_split": {
+   "zh": {
+    "n": 94,
+    "micro": 0.176985,
+    "capped": 26
+   },
+   "en": {
+    "n": 98,
+    "micro": 0.178303,
+    "capped": 30
+   }
+  }
+ }
+}
