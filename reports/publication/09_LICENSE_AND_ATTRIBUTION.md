@@ -63,6 +63,14 @@
 
 | # | Question | Blocking? |
 |---|---|---|
-| LQ-1 | May historical `evidence/per_song.jsonl` (contains `reference_lyrics`) stay public in this private-turn-public repo, or must we republish a lyric-redacted variant? | Blog publication: YES |
+| LQ-1 | May historical `evidence/per_song.jsonl` (contains `reference_lyrics`) stay public in this already-public repo, and what historical-object remediation is required beyond current-tree redaction? | Blog publication: YES |
 | LQ-2 | Confirm demo-audio attribution wording with YuE2 authors (joint blog). | Blog publication: YES |
 | LQ-3 | AGPL component scope in the evaluator bundle for code snippets in the blog. | Snippets only: NO |
+
+
+## 2026-11-15 correction
+
+The repository was already publicly accessible. PR #7 redacts existing main
+current-tree evidence. Arm A pilot per-song receipts have also been redacted
+in the continuation branch. This does not purge historical Git objects,
+GitHub forks, or caches. Rights-holder and owner review is still required.

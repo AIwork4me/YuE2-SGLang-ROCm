@@ -40,7 +40,7 @@ branch `validation/gfx1100-rocm7141`.
 |---|---|---|
 | Arm A pilot (official torch-eager, prompt 0) | 2/2 complete; PER 6.47% / 19.40% (4 identical greedy passes, no capping) | `evidence/publication/armA_pilot/` |
 | Arm B full (SGLang, 384) | **COMPLETE — audit FULL; solo official scoring done** | `evidence/publication/armB_campaign/` |
-| Arm A full (official PyTorch, 384) | QUEUED (chained after Arm B audit) | `evidence/publication/armA_campaign/` (when complete) |
+| Arm A full (official PyTorch, 384) | 108/384 in last pushed checkpoint (2026-11-14 20:15 UTC); current physical status unverified | `evidence/publication/armA_campaign/session1_progress.json` |
 
 ### Arm B fresh official results (2026-11-14, solo, frozen evaluator + disclosed patches)
 
@@ -48,7 +48,7 @@ branch `validation/gfx1100-rocm7141`.
 |---|---:|---:|---:|---|
 | SongBench GA (selected-192) | **6.7376** | 6.7316 | +0.0060 | within ±0.05 target |
 | SongBench GA (unselected-384) | 6.7311 | — | — | matches historical pattern |
-| PER micro (selected-192) | 17.77% [CI 15.20–20.68] | 8.44% | +9.33pp | gap root-caused (reports/publication/05_PER_ROOT_CAUSE.md) |
+| PER micro (selected-192) | 17.77% [CI 15.20–20.68] | 8.44% | +9.33pp | not aligned; cross-backend RCA OPEN (reports/publication/05_PER_ROOT_CAUSE.md) |
 | MuLan (selected-192) | **0.5093** | 0.5068 | +0.0025 | within ±0.01 target |
 | AllMusicCaps (selected-192) | **0.4056** | 0.4054 | +0.0002 | within ±0.01 target |
 
@@ -59,7 +59,7 @@ measured yet", never "assumed".
 **Headline (Arm B, fresh 2026-11-14, solo official scoring): SongBench,
 MuLan and AllMusicCaps all reproduce the official YuE2 reference within the
 frozen acceptance thresholds (Δ +0.006 / +0.0025 / +0.0002). The PER gap is
-separately root-caused and disclosed (05_PER_ROOT_CAUSE.md).**
+characterized but NOT causally resolved (05_PER_ROOT_CAUSE.md).**
 
 ## Performance (W7900, measured)
 

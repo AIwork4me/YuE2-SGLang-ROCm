@@ -46,9 +46,19 @@
 
 | # | Finding | Severity | Status |
 |---|---|---|---|
-| S-1 | Historical `evidence/per_song.jsonl` embeds `reference_lyrics` (copyrighted lyrics) in a (currently private) repo going public | HIGH for publication | OPEN — owner decision (LQ-1) |
+| S-1 | Historical `evidence/per_song.jsonl` embeds `reference_lyrics` (copyrighted lyrics) in a already PUBLIC repository | HIGH for publication | CURRENT-TREE REDACTION PREPARED IN DRAFT PR #7; historical Git exposure still OPEN |
 | S-2 | Machine path residues in historical evidence/patch headers | LOW | ACCEPTED (immutable provenance; disclosed) |
 | S-3 | Egress proxy intermittency forces retry patterns that could tempt HTTP downgrades | LOW | MITIGATED (policy: never) |
 | S-4 | Interactive-shell incidents (self-matching pkill) | INFO | Documented; no shipped-code impact |
 
 **Verdict:** PASS for code/infra security with one publication-blocking content-rights item (S-1 = LQ-1) that requires an owner decision; it is tracked in the gate ledger under G13.
+
+
+## 2026-11-15 correction (CPU-only)
+
+The repository was already PUBLIC, not awaiting publication. Draft PR
+[#7](https://github.com/AIwork4me/YuE2-SGLang-ROCm/pull/7)
+redacts the main current tree; this continuation branch has redacted the
+Arm A pilot transcript-bearing receipt as well, without changing its PER
+values. Prior Git objects and downloaded copies remain independently
+accessible until rights-aware remediation is approved. G13 stays BLOCKED.
