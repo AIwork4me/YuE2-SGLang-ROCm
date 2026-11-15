@@ -20,6 +20,7 @@ def dataset():
             per = 0.0 if ci == 0 else .2
             edits = 0 if ci == 0 else 20
             rows.append({
+                "id": f"wsb_{i:03d}_r{ci}_s{8000 + i + ci}",
                 "prompt_index": i, "candidate_index": ci, "seed": 8000 + i + ci,
                 "audio_sha256": f"hash-{i}-{ci}", "lang": "en",
                 "metrics": {"per": {"per": per, "edits": edits,
