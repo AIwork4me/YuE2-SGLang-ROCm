@@ -194,7 +194,20 @@ class TestPr8ComplementaryPorts:
             link.symlink_to(real, target_is_directory=True)
             assert link.is_symlink() and real.exists()
             # the worker's guard: is_symlink check before any move
-            assert (link.is_symlink() and not link.is_dir()) or True
+            assert link.is_symlink() and link.is_dir()
+            # Execute the actual worker guard, extracted via AST, without
+            # importing GPU-only modules or relying on a source string.
+            import ast
+            parsed = ast.parse(A.GEN_WORKER)
+            matches = [node for node in ast.walk(parsed)
+                       if isinstance(node, ast.If)
+                       and "is_symlink" in ast.unparse(node.test)]
+            assert len(matches) == 1
+            guard = ast.Module(body=matches, type_ignores=[])
+            ast.fix_missing_locations(guard)
+            with pytest.raises(RuntimeError, match="Refusing symlink"):
+                exec(compile(guard, "<worker-symlink-guard>", "exec"),
+                     {"tmp": link, "out": tdp / "new"})
             link = None  # cleanup on Windows semantics
 
     def test_symlink_candidate_refused_at_resume(self, tmp_path):
