@@ -11,7 +11,7 @@ No prior mission state exists on this image (`/data` empty, `/workspace` only he
 
 | Item | Value |
 |---|---|
-| GPU exposed to container | 1× AMD `gfx1100`, PCI `0000:03:00.0`, DID `0x744b` (Navi 31, W7900-class) |
+| GPU exposed to container | 1× AMD `gfx1100`, PCI `0000:03:00.0`, DID `0x744b` (Navi 31) — identifies as **AMD Radeon Pro W7900D** (W7900-class, China-market variant; same gfx1100, 48 GB) per env-B torch probe |
 | VRAM | 51,522,830,336 B = **47.98 GiB** |
 | GPU UUID | `GPU-3d1e08ee04727918` |
 | Host chassis | 8× identical `0x744b` cards physically present; container cgroup exposes exactly **one** — consistent with the mission's single-GPU contract |

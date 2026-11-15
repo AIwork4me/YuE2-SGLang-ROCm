@@ -14,7 +14,7 @@
     "count_visible_to_container": 1,
     "pci_bdf": "0000:03:00.0",
     "pci_device_id": "0x744b",
-    "marketing_name": "AMD Radeon Graphics (W7900-class; host chassis has 8x 0x744b, container exposes 1)",
+    "marketing_name": "AMD Radeon Pro W7900D (W7900-class variant; gfx1100, 48GB) per env-B torch 2.12.0+rocm7.14.1 probe",
     "architecture": "gfx1100",
     "vram_total_bytes": 51522830336,
     "vram_total_gib": 47.98,
