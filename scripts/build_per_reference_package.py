@@ -282,9 +282,11 @@ def main() -> int:
     # path untouched (never a partial package).
     staging = args.out.with_name(
         args.out.name + ".staging-" + uuid.uuid4().hex)
-    staging.mkdir(parents=True)
+    # Restricted benchmark-derived bytes must never be exposed via default
+    # 0755 staging directories. Mode 0700 survives atomic rename to final.
+    staging.mkdir(mode=0o700, parents=True)
     audio_out = staging / "audio"
-    audio_out.mkdir(parents=True)
+    audio_out.mkdir(mode=0o700)
     manifest = []
     problems = []
     failure_receipt = {"staging": staging.name, "problems": []}
@@ -295,7 +297,17 @@ def main() -> int:
         untouched."""
         import shutil
         failure_receipt["problems"] = reasons[:20]
-        shutil.rmtree(staging, ignore_errors=True)
+        try:
+            shutil.rmtree(staging)
+        except OSError as cleanup_exc:
+            # Never silently claim cleanup: leftover benchmark-derived bytes
+            # remain restricted (0700) and require explicit manual removal.
+            print(
+                "::error::restricted staging cleanup FAILED "
+                f"({type(cleanup_exc).__name__}); "
+                f"manual cleanup required for {staging.name}",
+                file=sys.stderr,
+            )
         for p in reasons[:20]:
             print("::error::" + p, file=sys.stderr)
         ap.error(f"{len(reasons)} failures — package REFUSED; final path "
@@ -318,6 +330,13 @@ def main() -> int:
                              "identity_chain": links})
         except IdentityError as exc:
             problems.append(str(exc))
+        except OSError as exc:
+            # Disk / permission failures must use the SAME private-stage
+            # abort path as identity failures; no partial public package.
+            problems.append(
+                f"candidate {s['id']}: staging I/O failed "
+                f"({type(exc).__name__})"
+            )
     if problems:
         abort(problems)
     for m in manifest:
@@ -414,12 +433,15 @@ def main() -> int:
             audit_problems.append(f"staged audio drifted: {m['file']}")
     if audit_problems:
         abort(audit_problems)
-    write_json_staged(".package_audit.json", {
-        "audited_at_utc": __import__("time").strftime("%Y-%m-%dT%H:%M:%SZ",
-                                                      __import__("time").gmtime()),
-        "files_audited": len(manifest),
-        "result": "COMPLETE",
-    })
+    try:
+        write_json_staged(".package_audit.json", {
+            "audited_at_utc": __import__("time").strftime(
+                "%Y-%m-%dT%H:%M:%SZ", __import__("time").gmtime()),
+            "files_audited": len(manifest),
+            "result": "COMPLETE",
+        })
+    except OSError as exc:
+        abort([f"staged audit write failed ({type(exc).__name__})"])
 
     # SINGLE atomic no-clobber publication: staging -> final. Failure modes:
     #   concurrent winner -> EEXIST -> we abort (our staging is discarded,
