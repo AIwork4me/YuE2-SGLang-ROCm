@@ -102,7 +102,7 @@ def main() -> int:
             "evaluator_bundle_sha256": "bd550b36f1fc43cad3254a9897dd3a078e50c4eb9e8d4f295ac4b5e81d1fc4fd",
             "asr_weights": "Qwen/Qwen3-ASR-1.7B @ 7278e1e70fe206f11671096ffdd38061171dd6e5",
             "official_backend": "vllm==0.14.0 (CUDA)",
-            "rocům_backend_used_for_reference_values": "qwen_asr transformers under WSB_ROCM_TORCH_OVERRIDE=1 (patch 0007)",
+            "rocm_backend_used_for_reference_values": "qwen_asr transformers under WSB_ROCM_TORCH_OVERRIDE=1 (patch 0007)",
         },
         "commands": [
             "# On a CUDA host with >=1 GPU (24GB+):",
