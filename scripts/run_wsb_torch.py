@@ -260,6 +260,9 @@ def main() -> int:
     # RCA-F3: exact experiment identity — enough to prove WHAT ran, not just a
     # short run-id. Everything material to reproduction is recorded; the
     # write-once contract (below) then pins it for the whole campaign.
+    # VOLATILE fields (timestamps) live OUTSIDE the compared identity — a
+    # resume must compare STABLE facts only (defect found on fresh image:
+    # created_at_utc inside the identity made every resume a "mismatch").
     ident = {
         "identity_schema": "armA-run-config/v2",
         "run_id": run_id,
@@ -283,18 +286,23 @@ def main() -> int:
         "generator_worker_sha256": hashlib.sha256(GEN_WORKER.encode()).hexdigest(),
         "protocol_lock": "configs/benchmark.lock.yaml profile=benchmark-reproduction frozen 2026-11-11",
         "runtime": detect_runtime(args),
-        "created_at_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
     }
+    volatile = {"created_at_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
     rc_path = args.runs / "run_config.json"
+    VOLATILE_KEYS = ("created_at_utc",)  # never part of the compared contract
+
+    def stable(d: dict) -> dict:
+        return {k: v for k, v in d.items() if k not in VOLATILE_KEYS}
+
     if rc_path.is_file():
         prev = json.loads(rc_path.read_text())
-        if prev != ident:
+        if stable(prev) != stable(ident):
             print(f"FATAL: run identity mismatch (resume requires identical config)")
-            print(f"  existing: {json.dumps(prev)}")
-            print(f"  requested: {json.dumps(ident)}")
+            print(f"  existing: {json.dumps(stable(prev))}")
+            print(f"  requested: {json.dumps(stable(ident))}")
             return 3
     else:
-        rc_path.write_text(json.dumps(ident, indent=2) + "\n")
+        rc_path.write_text(json.dumps({**ident, **volatile}, indent=2) + "\n")
 
     # write-once evaluation inputs
     inputs = args.runs / "evaluation_inputs.jsonl"
@@ -315,7 +323,6 @@ def main() -> int:
     done_ok, journal_problems = read_journal(journal)
     for p in journal_problems:
         print(f"[journal] WARNING: {p}", flush=True)
-
     sys.path.insert(0, str(WS / "benchmark/WildSongBench/evaluation/wsb_metrics"))
     from yue2.storage import verify_result  # reuse for resume verification
 

@@ -130,6 +130,21 @@ class TestRcaF3ExactExperimentIdentity:
         rt2 = A.detect_runtime(args2)
         assert rt2.get("python")  # falls back to this interpreter, still explicit
 
+    def test_resume_ignores_volatile_timestamp_fields(self, tmp_path):
+        """Regression: created_at_utc inside the compared identity made every
+        resume a 'mismatch' (found on fresh image 2026-11-15). Volatile keys
+        must be excluded from the write-once comparison on BOTH sides."""
+        src = (REPO / "scripts" / "run_wsb_torch.py").read_text()
+        assert "VOLATILE_KEYS" in src, "driver must declare volatile identity keys"
+        assert "stable(prev) != stable(ident)" in src
+        VOLATILE = ("created_at_utc",)
+        old = {"run_id": "a", "backend": "torch-eager", "created_at_utc": "T1"}
+        new = {"run_id": "a", "backend": "torch-eager", "created_at_utc": "T2"}
+        strip = lambda d: {k: v for k, v in d.items() if k not in VOLATILE}
+        assert strip(old) == strip(new)  # same stable contract -> resumable
+        diff = dict(new, backend="torch")
+        assert strip(old) != strip(diff)  # real config change still refused
+
 
 # --------------------------------------------------------------- RCA-F4
 class TestRcaF4GpuLock:
