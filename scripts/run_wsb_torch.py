@@ -265,6 +265,7 @@ def main() -> int:
     # created_at_utc inside the identity made every resume a "mismatch").
     ident = {
         "identity_schema": "armA-run-config/v2",
+        "driver_protocol": "armA-driver/1",  # compared; bumps ONLY on generation-semantics change
         "run_id": run_id,
         "platform": "gfx1100",
         "arm": "A-torch",
@@ -282,14 +283,21 @@ def main() -> int:
             "memory_budget_gib": OFFICIAL["memory_budget_gib"],
             "request_contract": "SongRequest.text() == row.generation_prompt (asserted per candidate)",
         },
-        "driver_source_sha256": sha256_file(Path(__file__).resolve()),
-        "generator_worker_sha256": hashlib.sha256(GEN_WORKER.encode()).hexdigest(),
         "protocol_lock": "configs/benchmark.lock.yaml profile=benchmark-reproduction frozen 2026-11-11",
         "runtime": detect_runtime(args),
     }
-    volatile = {"created_at_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
+    # Informational (recorded once, never compared): tooling evolves during a
+    # multi-day campaign; the per-candidate journal + _gen_worker.py capture
+    # what actually executed. driver_protocol above carries semantic identity.
+    info = {
+        "driver_source_sha256": sha256_file(Path(__file__).resolve()),
+        "generator_worker_sha256": hashlib.sha256(GEN_WORKER.encode()).hexdigest(),
+        "created_at_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+    }
     rc_path = args.runs / "run_config.json"
-    VOLATILE_KEYS = ("created_at_utc",)  # never part of the compared contract
+    # never part of the compared contract (timestamps + informational tooling hashes)
+    VOLATILE_KEYS = ("created_at_utc", "driver_source_sha256",
+                     "generator_worker_sha256")
 
     def stable(d: dict) -> dict:
         return {k: v for k, v in d.items() if k not in VOLATILE_KEYS}
@@ -302,7 +310,7 @@ def main() -> int:
             print(f"  requested: {json.dumps(stable(ident))}")
             return 3
     else:
-        rc_path.write_text(json.dumps({**ident, **volatile}, indent=2) + "\n")
+        rc_path.write_text(json.dumps({**ident, **info}, indent=2) + "\n")
 
     # write-once evaluation inputs
     inputs = args.runs / "evaluation_inputs.jsonl"
