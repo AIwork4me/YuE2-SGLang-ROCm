@@ -11,13 +11,13 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Install test deps
+        run: python -m pip install pytest
       - name: Block text-bearing WildSongBench evidence
         run: python3 scripts/public_evidence_guard.py
       - name: Public evidence guard unit tests
         run: python3 -m pytest -q tests/test_public_evidence.py
 
-      - name: Install test deps
-        run: python -m pip install pytest
       - name: Syntax-check all python in scripts/
         run: python -m compileall -q scripts
       - name: WSB harness tests (skip without pinned manifest)
