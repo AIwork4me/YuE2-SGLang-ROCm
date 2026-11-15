@@ -151,7 +151,9 @@ class TestProvenanceVerifier:
 
     def test_legacy_run_marked_incomplete_not_violation(self, tmp_path):
         runs = self.make_run(tmp_path, legacy=True)
-        (runs / "_gen_worker.py").write_text(A.GEN_WORKER)  # run-level source
+        lw = runs / "_gen_worker.py"
+        lw.chmod(0o644)
+        lw.write_text(A.GEN_WORKER)  # run-level source
         (runs / "run_config.json").write_text(json.dumps(
             {"generator_worker_sha256": _sha(runs / "_gen_worker.py")}))
         r = self._verify(runs)
@@ -160,7 +162,9 @@ class TestProvenanceVerifier:
 
     def test_legacy_run_with_mismatched_worker_is_flagged(self, tmp_path):
         runs = self.make_run(tmp_path, legacy=True)
-        (runs / "_gen_worker.py").write_text("# some other old worker\n")
+        lw = runs / "_gen_worker.py"
+        lw.chmod(0o644)
+        lw.write_text("# some other old worker\n")
         (runs / "run_config.json").write_text(json.dumps(
             {"generator_worker_sha256": "0" * 64}))
         r = self._verify(runs)
