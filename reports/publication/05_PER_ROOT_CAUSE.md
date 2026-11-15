@@ -17,14 +17,21 @@
 | Selected songs with PER > 0.30 | 24/192 |
 | zh / en selected micro | 17.70% / 17.83% (balanced) |
 
-## 2. Decomposition of the 17.77% vs 8.44% gap (≈9.3pp)
+## 2. Observed tail, NOT causal attribution
 
-| Component | Evidence | Estimated contribution |
+| Observation | Scope | Interpretation |
 |---|---|---|
-| Capped-ASR tail (112 cands @ 35.3% vs uncapped 19.1%) | per_song receipts; identical policy to official ("retain capped") | ≈ 3–5pp of aggregate |
-| Empty/degenerate transcripts (10–11 cands) | per_song receipts | ≈ 1–2pp |
-| Weak-candidate selection floor | 24 selected songs >30% PER — both candidates bad on those prompts | included in above |
-| Residual baseline (uncapped ≈19% vs official 8.44%) | see §3 | ≈ 10pp unexplained by tail alone |
+| 112 capped ASR outputs, capped-only PER 35.3% | Unselected 384 | Correlated with higher error; causation not established |
+| Uncapped PER 19.14% | Unselected 384 | CANNOT directly compare with official selected-192 8.44% |
+| 10 empty transcripts; 11 PER=1.0 | Unselected 384 | Overlapping groups; do NOT sum contributions |
+| 56 selected capped outputs | Selected 192 | Selected-group edit totals still needed |
+| 24 selected songs PER>30% | Selected 192 | Weak candidates exist, source unproven |
+
+The official-to-ROCm difference is +9.33 percentage points for selected-192.
+No defensible percentage-point contribution can be assigned to capping,
+empty transcripts or sampling until matched selected-192 denominators and
+overlapping group membership are computed. A same-audio reference-vLLM
+versus ROCm-Transformers ASR A/B is also required.
 
 ## 3. What the residual is NOT (pilot-controlled evidence)
 
@@ -63,10 +70,10 @@ no statistical equivalence claim is made on the basis of mean alone.
 
 ## 5. Claims permitted / not permitted
 
-- PERMITTED: "PER on W7900 via the disclosed evaluator substitution:
-  17.77% [15.2–20.7] vs official 8.44%; gap dominated by a 29% capped-ASR
-  tail and weak-candidate floor; evaluator backend validated to score
-  official-range PER on strong audio."
+- PERMITTED: "PER with the disclosed ROCm evaluator: 17.77% [bootstrap
+  CI 15.2–20.7] versus official 8.44%. Capped ASR and weak selected
+  candidates are observed, but cross-evaluator equivalence and causal
+  attribution remain unresolved."
 - NOT PERMITTED: "ROCm PER equals official" / "the gap is caused by AMD
   hardware" / "the official number is wrong".
 
