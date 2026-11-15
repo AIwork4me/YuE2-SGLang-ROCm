@@ -297,7 +297,7 @@ def main() -> int:
     rc_path = args.runs / "run_config.json"
     # never part of the compared contract (timestamps + informational tooling hashes)
     VOLATILE_KEYS = ("created_at_utc", "driver_source_sha256",
-                     "generator_worker_sha256")
+                     "generator_worker_sha256", "informational_note")
 
     def stable(d: dict) -> dict:
         return {k: v for k, v in d.items() if k not in VOLATILE_KEYS}
