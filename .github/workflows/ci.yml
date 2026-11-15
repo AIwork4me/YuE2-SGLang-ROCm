@@ -1,7 +1,7 @@
 name: ci
 on:
   push:
-    branches: ["main", "validation/**", "feat/**"]
+    branches: ["main", "validation/**", "feat/**", "fix/**", "mission/**"]
   pull_request:
 jobs:
   cpu:
