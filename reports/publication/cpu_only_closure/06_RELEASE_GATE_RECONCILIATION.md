@@ -43,3 +43,12 @@ C1 无变更需要。
 
 PR #10：CI 绿 + 安全绿 + 审阅完成（01/04/05 文档）→ 可由 Owner 决定推进
 review；**不合并到 main**（其 base 是 mission 分支）。
+
+## 2026-11-15 最终同步状态
+
+- PR #7：已 MERGED，合并提交 `ba99c4d`，不再处于 Owner 待合并状态。
+- PR #8：Draft，驱动语义与 PR #10 重叠，保留证据；未经 Owner 确认不自动关闭。
+- PR #9：Draft / 基线不变；Arm A 使用的旧驱动不得热替换。
+- PR #10：仍是 Draft；本轮只做 CPU-only 防护与科学一致性审阅，不自动合并到 PR #9 或 main。
+- G1 PASS，G3/G10/G15 BLOCKED；G15 的最新风险包含真实数据集 Tier 2 不在公开 CI、历史 Git 对象/旧分支/许可处置。G5/G6/G7/G8/G9/G11 等 GPU/第三方专属 Gate 不得被转换成 PASS。
+- C1 报告中任何旧 136/162 或 113/138 测试数，只能根据其精确 commit/run 描述；使用 PR #10 末次 HEAD 的 GitHub Actions 作为最新结论。

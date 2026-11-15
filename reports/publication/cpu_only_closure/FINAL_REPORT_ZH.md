@@ -98,3 +98,23 @@ PR 关系无未识别冲突（矩阵+语义标记）✓ / CI 全绿（双 run）
 未受扰（只读证据）✓ / 切换方案可执行（四门禁）✓ / 中文报告本文件 ✓。
 未执行项（GPU/上游/历史改写）全部保持 BLOCKED/NOT_TESTED，无一项因
 未执行而被判失败，也无一项被虚报完成。
+
+---
+
+## 2026-11-15 最终独立审阅增补（覆盖本报告早期状态，勿混淆时间）
+
+### 已核实的新事实
+
+- PR #7 **已于 06:39:14 UTC 合并**到 `main`，merge HEAD `ba99c4d`，最新 `main` CI [43686423317](https://github.com/AIwork4me/YuE2-SGLang-ROCm/actions/runs/43686423317) 成功。本报告旧段落中的「PR #7 待合并」仅代表 C1 执行早期历史状态。
+- PR #10 仍为 **Draft / 未合并**，其最新 HEAD 与 Actions 必须从 GitHub PR 页面实时取得。本文旧的 `bba98d3` / 136/162 等数字代表早期阶段，不是本增补修复后精确 HEAD 的最终验收。
+- 独立审阅加固了 `verify_numeric_receipt_integrity.py`：缺失原件、重复/新增候选 ID、数值字段删改、ASR repeat 中的数字计数和 snapshot 数值字段都要 Fail Closed。仅将 Python JSON 解析后数值相同的 `1.0↔1` / `0.0↔0` 视为**数值等价**；这 **不表示 JSON 表示或数据类型字节完全一致**。按原件对比，4 份 JSONL 共 24 行 + snapshot 的 1883 个数值叶子路径应保持同一数值。
+- 真实 WildSongBench 歌词真值扫描 **不是 GitHub CI 的一部分**。CI 测试两层逻辑时只用原创合成歌词；公开代码树的 Tier 1 结构化扫描在 CI 运行，Tier 2 的**真实数据集收据**只可在获得授权、Manifest SHA 校验通过的主机上以 `--require-ground-truth` 单独运行。不能将「CI 绿」等同于真实两层扫描全部 PASS。
+- 安全扫描器已新增英文歌词较长片段检测、CSV 引号解析、文件读取错误 Fail Closed 及缺失 Manifest 时的发布门禁；短片段、图像音频等非文本对象、第三方缓存与历史 Git 对象仍不在这套扫描器的完整覆盖范围。
+- 单元测试中的无效 `or True` 断言已去除；符号链接拒绝测试现在可直接运行内嵌 Worker 的 AST 保护语句。
+- G1 的五份依赖清单已修复并保持 PASS；G3（PyTorch close）、G10（AR Hang / HIP fault）、G15（历史版权/发行权和真实 release scan）仍 BLOCKED，其他 GPU 专属项目保持 NOT_TESTED。
+
+### 审阅边界
+
+本次是 GitHub Code/CI-only 工作；本增补未访问 GPU 主机。此前 26/384 的只读记录是 **2026-11-15T05:57:35Z 的历史快照**，不是当前 Arm A 进度。没有更换正在运行的脚本、运行目录或 GPU 进程。
+
+**结论：CPU-only 修复可进入 Owner 审阅；实验最终发布仍为 NO-GO。PR #10 保留 Draft，必须在 Arm A 结束并冻结证据后，才可考虑将新驱动部署到机器。**

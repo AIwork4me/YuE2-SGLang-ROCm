@@ -77,3 +77,19 @@
 - CI：PR #7 head CI 通过（cpu SUCCESS）。
 - 保护规则：main 无分支保护；**但本次未获明确合并授权 → 保持 Draft，
   标记 Review-Ready**；GO/NO-GO 台账见 06 号文档。
+
+## 最终审阅更新：主分支已修复，真值扫描仍有限制
+
+- PR #7 在 2026-11-15 06:39:14 UTC 合并入 `main`，merge commit `ba99c4d`；此前「等待合并」仅为历史记录。主分支 CI `43686423317` 通过旧 `public_evidence_guard.py`，**不意味着该 CI 跑了新的合成 Tier 2 或真实 Dataset Tier 2**。
+- PR #10 的扩展 `evidence_lyrics_detector.py` 不再允许以缺失 Manifest 为依据宣称发行级扫描通过：`--require-ground-truth` 缺少冻结且校验正确的 Manifest 时必须退出非零。新增英文长歌词窗、合法 CSV Reader、不可读 Git 文件非零退出，以及利用原创新歌词的端到端 Tier 2 CI 测试。
+- 实际公开文件的 CI 检查范围：结构化字段及已知风险文本规则；真实 WildSongBench Manifest 不上传 CI。英文短句、短歌词、由音频或图片载入的第三方文本、所有历史 Git 对象和 Fork 不受「Tier 1 绿」覆盖。
+- 历史泄漏 ref 和 C1 早期 1637/1685 计数是当时快照。**main 当前树**在 PR #7 合并后已改动；不能沿用旧表将 main 描述为仍未修复。历史 Git 对象、部分未合并分支和共享副本仍可能可达，G15 不得变更为 PASS。
+- Release 前人工安全门禁（仅授权主机上运行）：
+
+```bash
+python scripts/evidence_lyrics_detector.py \
+  --manifest /data/yue2/benchmark/WildSongBench/benchmark/reproduction_manifest.jsonl \
+  --require-ground-truth
+```
+
+记录精确树 SHA、Manifest SHA、扫描范围、退出码，并限制真实原件访问。**这项发布级复查在本轮 GitHub-only 审阅中未执行。**

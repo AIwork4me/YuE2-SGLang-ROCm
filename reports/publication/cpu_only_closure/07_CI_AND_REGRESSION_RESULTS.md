@@ -40,3 +40,10 @@ python -m pytest tests -q --ignore=<3 hardware suites> -ra --strict-markers
 6. PER 跨评测器 A/B（官方 vLLM 参考环境 / 作者协作）
 7. 磁盘不足路径的真实注入（硬件窗口）
 8. 上游提交 ×3（Owner 批准）
+
+## 最后独立审阅增加的检验
+
+- `tests/test_numeric_receipt_integrity.py`：原始数值等价 + ASR repeat 计数漂移 + 两侧 ID 异常 + snapshot 数值路径缺失 + 布尔类型混淆。
+- `tests/test_evidence_detector_integration.py`：独立临时 Git 仓库、原创英文合成歌词、非白名单文件扩展名、匹配命中/移除后的正反对照、无真实歌词输出、无 Manifest 的发布门禁、不可读文件与恶意 CSV。
+- 将旧 `or True` vacuous tests 改为真实断言；Worker symlink guard 使用 AST 实际运行。
+- 最新 CI 应严格以 PR HEAD 对应的 Push/PR Action URL 为准（运行结果不得用本文档生成前的旧 HEAD 假充）。**真实 Manifest 的 Tier 2 未在公开 CI 执行**，这不是数据集扫描 PASS。

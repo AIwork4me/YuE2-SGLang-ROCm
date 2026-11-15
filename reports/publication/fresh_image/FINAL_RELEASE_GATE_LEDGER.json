@@ -175,14 +175,14 @@
     "G15": {
       "name": "Security and licensing review",
       "status": "BLOCKED",
-      "evidence": "SECURITY_FINAL.md + LICENSE_FINAL.md done; LQ-1 owner decision outstanding (redaction tooling + redacted copies committed; originals + git history untouched)",
+      "evidence": "Current-tree PR #7 merged to main @ ba99c4d; PR #10 proposals and C1 scanner tests; rights/historical refs and real tier-2 release scan remain pending",
       "test_command": "scripts/redact_evidence.py --verify ...",
       "test_date": "2026-11-15T04:02:04Z",
       "hardware": "gfx1100 W7900D 48GB, driver amdgpu 6.16.13, host ROCm 7.2.1 (preserved)",
       "source": "branch mission/w7900-fresh-image-final-closure (local; push blocked: no credentials in image)",
-      "residual_risk": "Current-tree sanitized on a separate CPU-only Draft PR only; unmerged parent/main and prior Git history remain publicly exposed. Rights review required.",
+      "residual_risk": "Main current tree sanitized by PR #7; PR #10 clean but Draft and base branch still has old raw evidence. Historical objects/forks may remain accessible. Real WildSongBench tier-2 latest-code release audit not run on authorized host. Rights-holder/Owner decision pending.",
       "reviewer_verdict": "PENDING",
-      "note": "\nCPU-only Draft PR #10 removes current-tree raw lyrics; public Git history and rights-holder permission remain blocking."
+      "note": "\nCPU-only Draft PR #10 removes current-tree raw lyrics; public Git history and rights-holder permission remain blocking.\nIndependent GitHub-only final review 2026-11-15: real manifest absent in public CI (tier2 NOT_TESTED); synthetic tier2 regression test does NOT qualify G15 PASS."
     },
     "G16": {
       "name": "Independent engineering review",
@@ -229,5 +229,5 @@
       "reviewer_verdict": "PENDING"
     }
   },
-  "audit_scope": "Offline GitHub artifact review only. Active Arm A process and /data untouched."
+  "audit_scope": "Offline GitHub artifact review only. Active Arm A process and /data untouched.\nGitHub-only CPU PR10 independent final review; no GPU access; live Arm A status not verified."
 }
