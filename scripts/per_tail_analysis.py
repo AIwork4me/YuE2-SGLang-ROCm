@@ -13,8 +13,14 @@ import argparse
 import json
 import math
 import random
-from collections import Counter
 from pathlib import Path
+
+from collections import Counter
+
+from sample_classification import (
+    EMPTY_CONFIRMED, EMPTY_UNKNOWN, NONEMPTY_CONFIRMED, assert_conservation,
+    empty_state, labels,
+)
 
 
 def load_rows(path: Path) -> list[dict]:
@@ -33,14 +39,10 @@ def per_fields(row: dict) -> dict:
         raise ValueError("Missing or invalid edit count")
     if not isinstance(phonemes, int) or phonemes <= 0:
         raise ValueError("Missing or invalid reference phoneme count")
-    repeats = m.get("asr_repeats")
-    selected_repeat = m.get("selected_asr_repeat")
-    empty = None  # UNKNOWN if transcript is redacted/not retained
-    if isinstance(repeats, list) and isinstance(selected_repeat, int):
-        if 0 <= selected_repeat < len(repeats):
-            transcript = repeats[selected_repeat].get("text")
-            if isinstance(transcript, str):
-                empty = not bool(transcript.strip())
+    from sample_classification import empty_state
+    empty_state_value, _evidence = empty_state(row)
+    empty = {EMPTY_CONFIRMED: True, NONEMPTY_CONFIRMED: False,
+             EMPTY_UNKNOWN: None}[empty_state_value]
     return {
         "per": float(per),
         "edits": edits,
@@ -52,6 +54,22 @@ def per_fields(row: dict) -> dict:
 
 
 def choose_rows(rows: list[dict], summary: dict | None = None):
+    """Partition 384 candidates into (selected, unselected, provenance).
+
+    Provenance is LAYERED and never over-claims (C2 P4):
+      OFFICIAL_SELECTION_AUDIO_IDENTITY_VERIFIED — official selected_candidates
+        carried the full schema (prompt/candidate/seed/audio_sha256) and every
+        field matched the frozen candidate receipts;
+      OFFICIAL_SELECTION_COORDINATES_VERIFIED — coordinates+seed matched but
+        audio identity fields were absent (cannot claim audio verification);
+      OFFICIAL_SELECTION_IDENTITY_INCOMPLETE — some fields present but others
+        missing (verification not closed);
+      INVALID_SELECTION — any mismatch/duplication/incompleteness in shape.
+
+    Schema ground truth (frozen wsb_eval.py:355): selected_candidates entries
+    are {prompt_index, candidate_index, seed, audio_sha256} — all four are part
+    of the official contract; absence in a purported summary is a schema
+    deviation and is reported, not silently accepted."""
     if len(rows) != 384:
         raise ValueError(f"Expected exactly 384 candidate receipts; got {len(rows)}")
     keyed = {}
@@ -77,20 +95,42 @@ def choose_rows(rows: list[dict], summary: dict | None = None):
         if not isinstance(selection, list) or len(selection) != 192:
             raise ValueError("Official selection must contain exactly 192 candidates")
         selected, seen = [], set()
+        seed_verified = audio_verified = 0
+        missing_fields: list[str] = []
         for item in selection:
-            key = (item["prompt_index"], item["candidate_index"])
+            key = (item.get("prompt_index"), item.get("candidate_index"))
             if key[0] in seen or key not in keyed:
                 raise ValueError("Official selection has duplicate/unknown coordinates")
             row = keyed[key]
-            for id_field in ("seed", "audio_sha256"):
-                if item.get(id_field) is not None and row.get(id_field) is not None:
-                    if item[id_field] != row[id_field]:
-                        raise ValueError(f"Official {id_field} mismatches candidate identity")
+            # field-level verification: only fields PRESENT in the official
+            # entry can be verified; absence is recorded, never guessed
+            if item.get("seed") is None:
+                missing_fields.append(f"{key}:seed")
+            elif item["seed"] != row.get("seed"):
+                raise ValueError("Official seed mismatches candidate identity")
+            else:
+                seed_verified += 1
+            if item.get("audio_sha256") is None:
+                missing_fields.append(f"{key}:audio_sha256")
+            elif item["audio_sha256"] != row.get("audio_sha256"):
+                raise ValueError("Official audio_sha256 mismatches candidate identity")
+            else:
+                audio_verified += 1
             seen.add(key[0])
             selected.append(row)
         if seen != set(range(192)):
             raise ValueError("Official selection incomplete")
-        provenance = "OFFICIAL_SELECTED_CANDIDATES_VERIFIED"
+        if missing_fields:
+            provenance = "OFFICIAL_SELECTION_IDENTITY_INCOMPLETE"
+        elif seed_verified == 192 and audio_verified == 192:
+            provenance = "OFFICIAL_SELECTION_AUDIO_IDENTITY_VERIFIED"
+        else:
+            provenance = "OFFICIAL_SELECTION_COORDINATES_VERIFIED"
+        field_audit = {"seed_verified": seed_verified,
+                       "audio_sha256_verified": audio_verified,
+                       "missing_fields": missing_fields[:8],
+                       "schema_note": ("official contract (wsb_eval.py:355) carries "
+                                       "prompt_index/candidate_index/seed/audio_sha256")}
     else:
         selected = []
         for pi in range(192):
@@ -102,11 +142,12 @@ def choose_rows(rows: list[dict], summary: dict | None = None):
                 )
             selected.append(left if a < b else right)
         provenance = "DIAGNOSTIC_MIN_PER_ONLY_NOT_OFFICIAL"
+        field_audit = None
     selected_keys = {(x["prompt_index"], x["candidate_index"]) for x in selected}
     other = [r for r in rows if (r["prompt_index"], r["candidate_index"]) not in selected_keys]
     if len(other) != 192 or len(selected) != 192:
         raise ValueError("Selection partition is not 192/192")
-    return selected, other, provenance
+    return selected, other, provenance, field_audit
 
 
 def stats(rows: list[dict]) -> dict:
@@ -134,7 +175,7 @@ def bootstrap_ci(rows: list[dict], n: int = 2000, seed: int = 42):
 def analyze(path: Path, selection_summary: Path | None = None, bootstrap: int = 2000) -> dict:
     rows = load_rows(path)
     summary = json.loads(selection_summary.read_text()) if selection_summary else None
-    selected, unselected, provenance = choose_rows(rows, summary)
+    selected, unselected, provenance, field_audit = choose_rows(rows, summary)
     groups = {
         "selected_192": selected,
         "unselected_192": unselected,
@@ -144,7 +185,10 @@ def analyze(path: Path, selection_summary: Path | None = None, bootstrap: int = 
         "schema": "per-tail-analysis/v2",
         "input": str(path),
         "selection_provenance": provenance,
-        "publication_grade_selection": summary is not None,
+        "selection_field_audit": field_audit,
+        "publication_grade_selection": (
+            summary is not None and provenance
+            == "OFFICIAL_SELECTION_AUDIO_IDENTITY_VERIFIED"),
         "populations": {k: stats(v) for k, v in groups.items()},
         "selected_bootstrap_ci95": bootstrap_ci(selected, n=bootstrap),
     }
@@ -169,6 +213,10 @@ def analyze(path: Path, selection_summary: Path | None = None, bootstrap: int = 
         raise AssertionError("Selected edit counts do not sum")
     if sum(v["phonemes"] for v in capped.values()) != p_total:
         raise AssertionError("Selected phoneme counts do not sum")
+    out["conservation"] = assert_conservation(rows, selected)
+    out["selected_label_crosstab"] = dict(sorted(
+        Counter(tuple(sorted(labels(r))) for r in selected).items()
+    ))  # cross-capable labels; counts are per-LABEL-SET, sum == 192
     out["selected_disjoint_capped_x_empty"] = capped
     out["selected_per_over_0_30"] = sum(per_fields(x)["per"] > .30 for x in selected)
     out["selected_per_equal_1"] = sum(per_fields(x)["per"] == 1.0 for x in selected)

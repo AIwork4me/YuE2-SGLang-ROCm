@@ -33,7 +33,7 @@ def dataset():
 
 
 def test_zero_per_is_selected_without_truthiness_bug():
-    selected, other, prov = P.choose_rows(*((dataset()[0],)))
+    selected, other, prov, _audit = P.choose_rows(*((dataset()[0],)))
     assert len(selected) == 192
     assert all(r["candidate_index"] == 0 for r in selected)
     assert prov == "DIAGNOSTIC_MIN_PER_ONLY_NOT_OFFICIAL"
@@ -41,8 +41,9 @@ def test_zero_per_is_selected_without_truthiness_bug():
 
 def test_official_selection_verifies_sha_and_seed():
     rows, summary = dataset()
-    selected, other, prov = P.choose_rows(rows, summary)
-    assert prov == "OFFICIAL_SELECTED_CANDIDATES_VERIFIED"
+    selected, other, prov, audit = P.choose_rows(rows, summary)
+    assert prov == "OFFICIAL_SELECTION_AUDIO_IDENTITY_VERIFIED"
+    assert audit["seed_verified"] == 192 and audit["audio_sha256_verified"] == 192
     summary["selected_candidates"][0]["audio_sha256"] = "incorrect"
     with pytest.raises(ValueError, match="audio_sha256"):
         P.choose_rows(rows, summary)

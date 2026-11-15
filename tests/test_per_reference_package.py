@@ -31,7 +31,7 @@ def test_one_sample_bucket_never_reads_past_end(tmp_path):
     rows, summary = dataset()
     p = tmp_path / "per_song.jsonl"
     p.write_text("".join(json.dumps(r) + "\n" for r in rows))
-    selected = H.pick_stratified(p, tmp_path, summary, n_per_bucket=2)
+    selected = H.pick_stratified(p, summary, n_per_bucket=2)
     assert selected
     assert len({x["id"] for x in selected}) == len(selected)
 
@@ -43,7 +43,7 @@ def test_handoff_requires_true_official_summary(tmp_path):
     p.write_text("".join(json.dumps(r) + "\n" for r in rows))
     bad = {"selected_candidates": summary["selected_candidates"][:2]}
     with pytest.raises(ValueError, match="192"):
-        H.pick_stratified(p, tmp_path, bad)
+        H.pick_stratified(p, bad)
 
 
 def test_no_audio_is_copied_without_rights_flag():
