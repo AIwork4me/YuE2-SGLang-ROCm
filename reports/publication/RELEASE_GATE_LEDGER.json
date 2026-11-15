@@ -1,6 +1,6 @@
 {
   "ledger": "release-gate",
-  "updated": "2026-11-14T12:15:00Z",
+  "updated": "2026-11-15 (CPU-only audit; actual GPU benchmark state unchanged)",
   "branch": "feat/yue2-rocm-publication-readiness",
   "gates": {
     "G0": {
@@ -20,13 +20,15 @@
     },
     "G3": {
       "name": "Native PyTorch full-song generation verified",
-      "status": "PASS (pilot 2/2 full songs, official seeds); FULL 16-item acceptance PENDING GPU window",
-      "evidence": "evidence/publication/armA_pilot/"
+      "status": "BLOCKED",
+      "evidence": "evidence/publication/armA_pilot/",
+      "note": "Official PyTorch 2/2 pilot passed; full 16-item developer acceptance not executed."
     },
     "G4": {
       "name": "SGLang full-song generation verified",
-      "status": "PASS (smoke, full-song via campaign in progress); complete HTTP acceptance matrix PENDING",
-      "evidence": "evidence/publication/armB_campaign/progress.jsonl"
+      "status": "BLOCKED",
+      "evidence": "evidence/publication/armB_campaign/progress.jsonl",
+      "note": "SGLang 384/384 generated; full API acceptance and Omni latest regression incomplete."
     },
     "G5": {
       "name": "API and intermediate-artifact contract validated",
@@ -35,8 +37,9 @@
     },
     "G6": {
       "name": "PER discrepancy root cause established or explicitly unresolved",
-      "status": "PARTIALLY RESOLVED (documented): tail quantified (112 capped @35.3%, 10 empty; uncapped 19.1%); evaluator exonerated as 2x-inflator via official-range pilot scores; residual bounded <=~10pp pending official per-song data or CUDA-host cross-check",
-      "evidence": "reports/publication/05_PER_ROOT_CAUSE.md"
+      "status": "BLOCKED",
+      "evidence": "reports/publication/05_PER_ROOT_CAUSE.md",
+      "note": "PER tail distribution quantified, but generator/evaluator causal attribution NOT resolved. Same-audio official-vLLM versus ROCm-Transformers control and selected-192 non-overlapping tail decomposition required."
     },
     "G7": {
       "name": "PyTorch WildSongBench 384/384 FULL",
@@ -50,8 +53,9 @@
     },
     "G9": {
       "name": "Official score comparison and statistical analysis complete",
-      "status": "PARTIAL \u2014 Arm B side COMPLETE: SongBench 6.7376 (\u0394+0.0060, target \u22640.05 PASS), MuLan 0.5093 (\u0394+0.0025, \u22640.01 PASS), AMC 0.4056 (\u0394+0.0002, \u22640.01 PASS), PER 17.77% [15.2\u201320.7] vs 8.44% (root-caused, disclosed); Arm A side pending its campaign",
-      "evidence": "evidence/publication/armB_campaign/campaign_summary.json"
+      "status": "BLOCKED",
+      "evidence": "evidence/publication/armB_campaign/campaign_summary.json",
+      "note": "Three SGLang metrics within provisional tolerance; PER 17.77% vs 8.44% not aligned; Arm A full scoring pending."
     },
     "G10": {
       "name": "Performance measured on real W7900",
@@ -65,13 +69,14 @@
     },
     "G12": {
       "name": "CI and regression tests genuinely passing",
-      "status": "PASS on branch (63 passed/24 honest skips locally); GitHub Actions run pending push-trigger verification",
-      "evidence": "commits 6f87469..95ede89"
+      "status": "PASS",
+      "evidence": "GitHub Actions run 43636262404, 69 passed/24 skipped CPU tests; physical GPU gates independent and not claimed"
     },
     "G13": {
       "name": "Security and licensing release audit passed",
-      "status": "BLOCKED (one item): S-1/LQ-1 historical per_song.jsonl reference_lyrics publication decision requires owner; code/infra security PASS",
-      "evidence": "reports/publication/09_SECURITY_AUDIT.md, 09_LICENSE_AND_ATTRIBUTION.md"
+      "status": "BLOCKED",
+      "evidence": "reports/publication/09_SECURITY_AUDIT.md, 09_LICENSE_AND_ATTRIBUTION.md",
+      "note": "Publicly tracked lyric-bearing historical receipts need controlled redaction. Separate security PR against main; history rewrite requires explicit owner approval."
     },
     "G14": {
       "name": "Independent engineering and scientific reviews complete",

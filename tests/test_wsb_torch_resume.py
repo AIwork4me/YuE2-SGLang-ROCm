@@ -43,7 +43,11 @@ def test_atomic_append(tmp_path):
     A.atomic_append(p, {"id": "y", "status": "failed"})
     lines = p.read_text().splitlines()
     assert [json.loads(l)["id"] for l in lines] == ["x", "y"]
-    assert not (tmp_path / "journal.tmp").exists() or True  # tmp file reused name-safe
+    assert not (tmp_path / "journal.tmp").exists()
+    assert A.read_journal(p) == [
+        {"id": "x", "status": "complete"},
+        {"id": "y", "status": "failed"},
+    ]
 
 
 def test_expected_inputs_shape(tmp_path):
@@ -79,3 +83,77 @@ def test_run_identity_mismatch_refused(tmp_path, monkeypatch):
              "manifest_sha256": A.OFFICIAL["manifest_sha256"]}
     prev = json.loads((runs / "run_config.json").read_text())
     assert prev != ident  # differing backend must never silently resume
+
+
+def test_partial_worker_bundle_is_quarantined_not_deleted(tmp_path):
+    # Worker helper must exist and be importable without importing torch.
+    namespace = {"__name__": "worker_unit_test"}
+    exec(A.GEN_WORKER, namespace)
+    p = tmp_path / "song.partial"
+    p.mkdir()
+    (p / "unfinished_audio.bin").write_bytes(b"original-evidence")
+    target = namespace["quarantine_existing"](p)
+    assert target is not None and target.exists() and not p.exists()
+    assert (target / "unfinished_audio.bin").read_bytes() == b"original-evidence"
+
+
+def test_renaming_does_not_follow_symlinks(tmp_path):
+    target = tmp_path / "target"
+    target.mkdir()
+    link = tmp_path / "link"
+    link.symlink_to(target, target_is_directory=True)
+    with pytest.raises(RuntimeError, match="symlink"):
+        A.quarantine_existing(link)
+    assert target.exists() and link.is_symlink()
+
+
+def test_quarantine_names_are_unique(tmp_path):
+    p = tmp_path / "broken"
+    p.mkdir()
+    a = A.quarantine_existing(p)
+    p.mkdir()
+    b = A.quarantine_existing(p)
+    assert a != b and a.exists() and b.exists()
+
+
+def test_torn_journal_tail_is_preserved_and_recovered(tmp_path):
+    journal = tmp_path / "generation_manifest.jsonl"
+    journal.write_bytes(b'{"id":"a","status":"complete"}\n{"id":"incom')
+    records = A.read_journal(journal)
+    assert records == [{"id": "a", "status": "complete"}]
+    assert journal.read_bytes() == b'{"id":"a","status":"complete"}\n'
+    tails = list(tmp_path.glob("generation_manifest.jsonl.corrupt-tail-*.bin"))
+    assert len(tails) == 1
+    assert tails[0].read_bytes() == b'{"id":"incom'
+    A.atomic_append(journal, {"id": "b", "status": "failed"})
+    assert [x["id"] for x in A.read_journal(journal)] == ["a", "b"]
+
+
+def test_complete_invalid_record_cannot_be_silently_discarded(tmp_path):
+    journal = tmp_path / "generation_manifest.jsonl"
+    journal.write_bytes(b'{"id":"a","status":"complete"}\nNOT_JSON\n')
+    with pytest.raises(ValueError, match="Invalid complete journal"):
+        A.read_journal(journal)
+    assert journal.read_bytes().endswith(b"NOT_JSON\n")
+
+
+def test_append_rejects_incomplete_tail(tmp_path):
+    journal = tmp_path / "generation_manifest.jsonl"
+    journal.write_bytes(b'{"id":"partial"')
+    with pytest.raises(ValueError, match="incomplete final record"):
+        A.atomic_append(journal, {"id": "next"})
+    assert journal.read_bytes() == b'{"id":"partial"'
+
+
+def test_last_status_event_wins(tmp_path):
+    journal = tmp_path / "generation_manifest.jsonl"
+    A.atomic_append(journal, {"id": "a", "status": "complete"})
+    A.atomic_append(journal, {"id": "a", "status": "failed"})
+    state = {r["id"]: r["status"] for r in A.read_journal(journal)}
+    assert state["a"] == "failed"
+
+
+def test_worker_exposes_no_recursive_delete_of_partial_bundles():
+    assert "rmtree(tmp)" not in A.GEN_WORKER
+    assert "quarantine_existing(tmp)" in A.GEN_WORKER
+    assert "quarantine_existing(out)" in A.GEN_WORKER
