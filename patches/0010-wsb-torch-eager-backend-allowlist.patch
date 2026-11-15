@@ -1,0 +1,11 @@
+--- a/wsb_eval.py
++++ b/wsb_eval.py
+@@ -233,7 +233,7 @@
+     for key, value in expected.items():
+         if config.get(key) != value:
+             raise ValueError('Incorrect standard generation condition: ' + key)
+-    if config.get('backend') not in {'torch', 'vllm'}:
++    if config.get('backend') not in {'torch', 'vllm', 'torch-eager'}:
+         raise ValueError('Unrecognized inference backend')
+     runtime = config.get('runtime_sha256', '')
+     if len(runtime) != 64 or any(c not in '0123456789abcdef' for c in runtime):
