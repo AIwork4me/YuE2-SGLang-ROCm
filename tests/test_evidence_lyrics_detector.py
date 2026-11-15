@@ -101,7 +101,7 @@ def test_numeric_asr_repeats_receipt_allowed(tmp_path):
 
 
 def test_phoneme_token_array_flagged_numeric_count_allowed():
-    assert not D._container_all_safe(["m", "ei2", "g", "ui1"]) or True
+    assert not D._container_all_safe(["m", "ei2", "g", "ui1"])
     # token arrays: strings are not numeric and not safe enums -> container unsafe
     assert not D._container_all_safe({"reference_tokens": ["m", "ei2"]})
     # numeric count is safe
@@ -109,7 +109,7 @@ def test_phoneme_token_array_flagged_numeric_count_allowed():
 
 
 def test_gfx1100_target_field_allowed():
-    assert D._container_all_safe("gfx1100") or True
+    assert not D._container_all_safe("gfx1100")  # exception is key-specific, not a general safe string
     issues = D.key_scan_structured(
         "x.json", json.dumps({"target": "gfx1100"}).encode())
     assert issues == [], "hardware target must not be flagged"
