@@ -16,6 +16,7 @@ No function here ever overwrites an existing destination. Ever.
 from __future__ import annotations
 
 import ctypes
+import errno
 import os
 import platform
 from pathlib import Path
@@ -86,9 +87,9 @@ def publish_directory_no_clobber(staging: Path, final: Path) -> None:
     try:
         _renameat2(staging, final, RENAME_NOREPLACE)
     except OSError as exc:
-        if exc.errno == os.errno.EEXIST:
+        if exc.errno == errno.EEXIST:
             raise PublishError(f"concurrent publisher won: {final} exists") from exc
-        if exc.errno in (os.errno.ENOSYS, os.errno.EINVAL, os.errno.EOPNOTSUPP):
+        if exc.errno in (errno.ENOSYS, errno.EINVAL, errno.EOPNOTSUPP):
             raise PublishError(
                 f"filesystem does not support RENAME_NOREPLACE "
                 f"(errno {exc.errno}) — failing CLOSED rather than risking "
@@ -115,7 +116,7 @@ def link_no_clobber(tmp: Path, dst: Path) -> None:
     except OSError as exc:
         if os.path.lexists(tmp):
             tmp.unlink()
-        if exc.errno == os.errno.EXDEV:
+        if exc.errno == errno.EXDEV:
             raise PublishError("cross-device link impossible (tmp not in "
                                "dst's directory?)") from exc
         raise
