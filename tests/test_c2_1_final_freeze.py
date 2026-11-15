@@ -23,7 +23,7 @@ sys.path.insert(0, str(REPO / "scripts"))
 import build_per_reference_package as H
 import run_wsb_torch as A
 
-from test_c2_provenance import TestProvenanceVerifier
+from test_c2_provenance import TestProvenanceVerifier as _ProvenanceFixture
 from test_c2_audio_identity import make_run
 
 
@@ -59,7 +59,7 @@ def _run_packager(run, out):
 
 class TestLegacyMixedHistory:
     def test_legacy_failed_then_new_format_retry_same_candidate_passes(self, tmp_path):
-        run = TestProvenanceVerifier().make_run(tmp_path)
+        run = _ProvenanceFixture().make_run(tmp_path)
         events = _rows(run)
         old = _legacy_event(events[0])
         old["status"] = "failed"
@@ -74,7 +74,7 @@ class TestLegacyMixedHistory:
         assert data["legacy_prefix_boundary"] == 1
 
     def test_unmarked_legacy_looking_event_after_cutover_is_violation(self, tmp_path):
-        run = TestProvenanceVerifier().make_run(tmp_path)
+        run = _ProvenanceFixture().make_run(tmp_path)
         events = _rows(run)
         _put_rows(run, events + [_legacy_event(events[0])])
         result = _run_verifier(run)
@@ -82,7 +82,7 @@ class TestLegacyMixedHistory:
         assert "after new-format cutover" in result.stderr
 
     def test_stripped_new_event_not_downgraded_even_with_later_retry(self, tmp_path):
-        run = TestProvenanceVerifier().make_run(tmp_path)
+        run = _ProvenanceFixture().make_run(tmp_path)
         events = _rows(run)
         original = events[0]
         cid = original["id"]
@@ -110,7 +110,7 @@ class TestResultOnlyOrphans:
     @pytest.mark.parametrize("status", ["complete", "failed"])
     def test_unguarded_result_only_without_journal_is_violation(
             self, tmp_path, status):
-        run = TestProvenanceVerifier().make_run(tmp_path)
+        run = _ProvenanceFixture().make_run(tmp_path)
         isolated = run / "provenance" / "wsb_190_r1_s9000"
         isolated.mkdir()
         aid = uuid.uuid4().hex
@@ -124,7 +124,7 @@ class TestResultOnlyOrphans:
         assert data["orphan_result_only_attempts"] == 1
 
     def test_launched_only_orphan_is_reported_not_silently_verified(self, tmp_path):
-        run = TestProvenanceVerifier().make_run(tmp_path)
+        run = _ProvenanceFixture().make_run(tmp_path)
         isolated = run / "provenance" / "wsb_190_r1_s9000"
         isolated.mkdir()
         aid = uuid.uuid4().hex
