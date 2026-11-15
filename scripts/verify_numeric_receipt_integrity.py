@@ -7,8 +7,8 @@ scientific evidence. For every candidate row present in BOTH the original
 
   * candidate identity fields (id, prompt_index, candidate_index, seed,
     sample_id/clip_id, audio hashes, model identities) are IDENTICAL
-  * every NUMERIC leaf under metrics is bit-identical (float equality on the
-    stored value)
+  * every non-redacted NUMERIC leaf under metrics is value-equivalent
+    (JSON serialization may normalize 1.0 to 1; no numeric drift permitted)
   * row/candidate counts match (no silent drops)
   * aggregate summary numbers match where present
 
@@ -104,7 +104,10 @@ def numeric_difference(original, public, label):
     for path in sorted(added):
         problems.append(f"{label}: numeric added {path}")
     for path in sorted(set(original) & set(public)):
-        if original[path] != public[path] or type(original[path]) is not type(public[path]):
+        # JSON 1.0 vs 1, 0.0 vs 0 are numerically equivalent after parsing.
+        # Boolean vs numeric is not equivalent even though bool subclasses int.
+        if (isinstance(original[path], bool) != isinstance(public[path], bool)
+                or original[path] != public[path]):
             problems.append(f"{label}: numeric changed {path}")
     return problems
 
