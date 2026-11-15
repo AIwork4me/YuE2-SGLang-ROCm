@@ -26,3 +26,14 @@ def test_allows_numeric_receipts(tmp_path):
     p = tmp_path / "test.jsonl"
     p.write_text(json.dumps({"id": "wsb_001", "metrics": {"per": {"per": 0.12, "edits": 12}}}) + "\n")
     assert list(guard.inspect_file(p)) == []
+
+
+def test_hardware_target_and_numeric_phoneme_count_are_not_lyrics():
+    obj = {"target": "gfx1100 (AMD Radeon PRO W7900)", "phonemes": 240}
+    assert list(guard.sensitive_paths(obj)) == []
+
+
+def test_target_object_and_text_phonemes_are_rejected():
+    obj = {"target": {"reference_lyrics": "private"},
+           "phonemes": ["p", "r", "i", "v", "a", "t", "e"]}
+    assert list(guard.sensitive_paths(obj)) == ["target", "phonemes"]

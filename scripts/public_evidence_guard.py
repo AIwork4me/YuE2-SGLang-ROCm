@@ -25,7 +25,11 @@ def sensitive_paths(obj, location=""):
     if isinstance(obj, dict):
         for key, value in obj.items():
             here = f"{location}.{key}" if location else key
-            if key in FORBIDDEN:
+            if key in FORBIDDEN and not (
+                (key == "target" and isinstance(value, str) and value.startswith("gfx"))
+                or (key == "phonemes" and isinstance(value, (int, float))
+                    and not isinstance(value, bool))
+            ):
                 yield here
             else:
                 yield from sensitive_paths(value, here)
