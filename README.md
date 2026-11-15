@@ -2,7 +2,9 @@
 
 ## Generate music with the official YuE2 model on AMD GPUs — native PyTorch and SGLang
 
-**Fresh-image audit (2026-11-15):** W7900D native PyTorch API acceptance 13/14 (memory cleanup unresolved); the new 384-candidate Arm A campaign is in progress (17/384 at last published checkpoint), while a fresh Arm B has not yet run. Historical 384/384 SGLang results are not fresh-image validation. See [fresh-image release ledger](reports/publication/fresh_image/FINAL_RELEASE_GATE_LEDGER.json). The proposed CPU-only safety patch removes raw text from the current tree; historical Git objects remain exposed pending owner action.\n\nRun the official YuE2 weights (m-a-p/YuE2-3B) on AMD Radeon GPUs through two
+**Fresh-image audit (2026-11-15):** W7900D native PyTorch API acceptance 13/14 (memory cleanup unresolved); the new 384-candidate Arm A campaign is in progress (17/384 at last published checkpoint), while a fresh Arm B has not yet run. Historical 384/384 SGLang results are not fresh-image validation. See [fresh-image release ledger](reports/publication/fresh_image/FINAL_RELEASE_GATE_LEDGER.json). The proposed CPU-only safety patch removes raw text from the current tree; historical Git objects remain exposed pending owner action.
+
+Run the official YuE2 weights (m-a-p/YuE2-3B) on AMD Radeon GPUs through two
 verified paths on the same hardware:
 
 1. **Native PyTorch** — the official `yue2-infer` pipeline (`torch-eager`
@@ -16,8 +18,8 @@ verified paths on the same hardware:
 
 | GPU | Status |
 |---|---|
-| AMD Radeon PRO W7900 48GB (gfx1100) | SGLang full 384/384 scored (Nov 2026); PyTorch full campaign only 108/384 at last pushed snapshot, not yet scored |
-| AMD Radeon PRO W7900D 48GB (gfx1100) | This mission's rig (rocm-smi identity: `AMD Radeon Pro W7900D`) |
+| AMD Radeon PRO W7900 48GB (gfx1100) | **HISTORICAL** (prior image, 2026-11-14 receipts): SGLang 384/384 scored; PyTorch campaign reached 108/384, never scored |
+| AMD Radeon PRO W7900D 48GB (gfx1100) | **THIS MISSION'S RIG** (fresh image 2026-11-15; Arm A 384-candidate campaign in progress; all fresh claims gated by the fresh-image ledger) |
 | AMD Radeon 8060S 32GB (gfx1151) | Historical 384/384 campaign (SGLang) |
 
 ### Quick start (copy-paste; see docs/QUICKSTART.md for receipts)

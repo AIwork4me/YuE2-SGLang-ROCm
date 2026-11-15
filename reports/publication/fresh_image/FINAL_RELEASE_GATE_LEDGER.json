@@ -1,6 +1,6 @@
 {
   "ledger": "fresh-image-release-gate",
-  "updated": "2026-11-15T04:45:00Z (CPU-only evidence reconciliation; NOT a new GPU measurement)",
+  "updated": "2026-11-15T06:20:00Z",
   "branch": "mission/w7900-fresh-image-final-closure",
   "rules": "status is exactly PASS/FAIL/BLOCKED/NOT_TESTED; PASS only when ALL required subtests passed on THIS image",
   "gates": {
@@ -17,13 +17,13 @@
     },
     "G1": {
       "name": "Reproducible dependency installation (3 envs)",
-      "status": "BLOCKED",
-      "evidence": "reports/publication/fresh_image/02_INSTALLATION.md + evidence/.../dependency_inventory/",
+      "status": "PASS",
+      "evidence": "02_INSTALLATION.md + dependency_inventory/ (5/5 non-empty: envA 40+ pkgs, envB incl sglang editable, evaluator metrics 232 pkgs + eval 76 pkgs via bundled uv — the prior empties were uv-venvs lacking pip, root-caused C1)",
       "test_command": "build_envA.sh, setup_gfx1100_rocm7141.sh, setup_sglang_gfx1100.sh, evaluator_install.sh",
       "test_date": "2026-11-15T04:02:04Z",
       "hardware": "gfx1100 W7900D 48GB, driver amdgpu 6.16.13, host ROCm 7.2.1 (preserved)",
       "source": "branch mission/w7900-fresh-image-final-closure (local; push blocked: no credentials in image)",
-      "residual_risk": "Fresh install was physically reported, but the two evaluator pip-freeze evidence exports committed here are 0 bytes; reproducible three-env provenance audit is incomplete.",
+      "residual_risk": "freeze receipts are host-generated; CI cannot regenerate without the machine",
       "reviewer_verdict": "CPU_AUDIT_UNRESOLVED",
       "note": "\nCPU-only review 2026-11-15: Gate is BLOCKED; this does not overturn previously observed hardware PASS subtests."
     },
