@@ -119,13 +119,14 @@ class TestRcaF3ExactExperimentIdentity:
         assert len(h) == 64
 
     def test_detect_runtime_reports_child_python(self, tmp_path):
-        fake = tmp_path / "fakepython.py"
-        fake.write_text(
-            "import json,sys\n"
-            "print(json.dumps({'python':'9.9.9','torch':'fake'}))\n")
+        """The identity probe must report the child interpreter EXPLICITLY:
+        python always; torch as a version OR as an explicit torch_error —
+        never silently absent (torch-less CI included)."""
         args = type("A", (), {"venv_python": sys.executable})()
         rt = A.detect_runtime(args)
-        assert rt.get("python") and rt.get("torch")
+        assert rt.get("python")
+        assert rt.get("torch") or rt.get("torch_error"), (
+            f"runtime probe must not be silent about torch: {rt}")
         args2 = type("A", (), {"venv_python": None})()
         rt2 = A.detect_runtime(args2)
         assert rt2.get("python")  # falls back to this interpreter, still explicit
