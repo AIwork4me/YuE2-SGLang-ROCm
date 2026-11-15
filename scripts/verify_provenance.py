@@ -159,6 +159,25 @@ def main() -> int:
     attempt_ids: set[str] = set()
     sessions_cache: dict = {}
     has_provenance_tree = prov.is_dir()
+    # The old driver writes a contiguous LEGACY prefix; the new driver adds
+    # attempt/session fields to every appended record. A candidate may appear
+    # in both eras (legacy failed -> new-format retry), so existence of its
+    # current provenance directory alone does NOT make the old prefix corrupt.
+    # Conversely, an unmarked row after the first new-format event is unsafe:
+    # without a trusted pre-upgrade prefix it could be a stripped new record.
+    provenance_markers = (
+        "attempt_id", "worker_source_sha256", "driver_source_sha256", "session_id"
+    )
+    first_new_index = next(
+        (i for i, row in enumerate(rows)
+         if any(k in row for k in provenance_markers)), len(rows)
+    )
+    new_positions_by_id: dict[str, list[int]] = {}
+    for i, row in enumerate(rows):
+        if any(k in row for k in provenance_markers) and isinstance(
+                row.get("attempt_id"), str):
+            new_positions_by_id.setdefault(row.get("id"), []).append(i)
+    legacy_mixed_history = 0
     for n, rec in enumerate(rows, 1):
         if rec.get("attempt_id") is None:
             # OLD vs CORRUPT-NEW distinction: a record that carries any
@@ -166,21 +185,34 @@ def main() -> int:
             # disk, is a NEW-FORMAT record — a missing attempt_id in it is
             # DAMAGE, not legacy history (never downgraded to escape checks).
             new_format_markers = any(
-                rec.get(k) is not None for k in
-                ("worker_source_sha256", "driver_source_sha256", "session_id"))
+                k in rec for k in provenance_markers)
             if new_format_markers:
                 violations.append(
                     f"line {n} ({rec.get('id')}): new-format record missing "
                     f"attempt_id (has provenance fields) — corruption, not legacy")
                 verdicts["PROVENANCE_VIOLATION"] += 1
                 continue
-            if has_provenance_tree and isinstance(rec.get("id"), str) \
-                    and (prov / rec["id"]).is_dir():
+            if n - 1 >= first_new_index:
                 violations.append(
-                    f"line {n} ({rec.get('id')}): attempt receipts exist on "
-                    f"disk but journal record lacks attempt_id — corruption")
+                    f"line {n} ({rec.get('id')}): unmarked record after "
+                    f"new-format cutover — cannot establish legacy origin")
                 verdicts["PROVENANCE_VIOLATION"] += 1
                 continue
+            if has_provenance_tree and isinstance(rec.get("id"), str) \
+                    and (prov / rec["id"]).is_dir():
+                # A historical pre-upgrade failure and a *later journaled*
+                # new-format retry of this SAME candidate legitimately coexist.
+                # The newer attempt's receipts are independently checked below.
+                # An unjournaled attempt directory is NOT sufficient evidence.
+                later = new_positions_by_id.get(rec["id"], [])
+                if not any(i > n - 1 for i in later):
+                    violations.append(
+                        f"line {n} ({rec.get('id')}): attempt receipts exist "
+                        f"on disk but no later journaled new-format retry — "
+                        f"cannot establish unmodified legacy origin")
+                    verdicts["PROVENANCE_VIOLATION"] += 1
+                    continue
+                legacy_mixed_history += 1
             attributed = "UNKNOWN"
             if legacy_worker.is_file():
                 lsha = sha(legacy_worker)
@@ -210,14 +242,34 @@ def main() -> int:
     # orphan is honest crash forensics -> reported as notes, not violations.
     orphan_complete: list[str] = []
     orphan_launched: list[str] = []
+    orphan_result_only: list[str] = []
+    journal_attempt_ids = {
+        row.get("attempt_id") for row in rows
+        if isinstance(row.get("attempt_id"), str)
+    }
     if prov.is_dir():
         for cand_dir in sorted(prov.iterdir()):
-            if not cand_dir.is_dir() or cand_dir.name == "driver_sessions":
+            if cand_dir.name == "driver_sessions":
                 continue
+            if cand_dir.is_symlink():
+                orphan_result_only.append(f"{cand_dir.name}/SYMLINK_DIR")
+                continue
+            if not cand_dir.is_dir():
+                continue
+            # A RESULT-only receipt is never a valid crash window: every
+            # result must have a launched counterpart. If it has a journal
+            # row, verify_record already reports that missing launched receipt.
+            # For an unjournaled result we must detect it explicitly, rather
+            # than only iterating "*.launched.json" as the old code did.
+            for result_f in cand_dir.glob("*.result.json"):
+                aid = result_f.name.removesuffix(".result.json")
+                if (aid not in journal_attempt_ids and not
+                        (cand_dir / f"{aid}.launched.json").is_file()):
+                    orphan_result_only.append(
+                        f"{cand_dir.name}/{aid[:8]}…")
             for launched_f in cand_dir.glob("*.launched.json"):
                 aid = launched_f.name.split(".")[0]
-                journal_has = any(
-                    r.get("attempt_id") == aid for r in rows)
+                journal_has = aid in journal_attempt_ids
                 if journal_has:
                     continue
                 result_f = cand_dir / f"{aid}.result.json"
@@ -236,7 +288,13 @@ def main() -> int:
         violations.append(
             f"orphan COMPLETE attempt receipt without journal record: {o} "
             f"(crash after artifact commit — journal undercounts)")
-    verdicts["PROVENANCE_VIOLATION"] += len(orphan_complete)
+    for o in orphan_result_only:
+        violations.append(
+            f"result-only orphan receipt without launched/journal: {o} "
+            f"(unverifiable provenance, never silently ignored)")
+    verdicts["PROVENANCE_VIOLATION"] += (
+        len(orphan_complete) + len(orphan_result_only)
+    )
 
     summary = {
         "run": str(runs),
@@ -245,6 +303,9 @@ def main() -> int:
         "distinct_attempts": len(attempt_ids),
         "distinct_sessions": len(sessions_cache),
         "orphan_launched_only_attempts": len(orphan_launched),
+        "orphan_result_only_attempts": len(orphan_result_only),
+        "legacy_mixed_history_records": legacy_mixed_history,
+        "legacy_prefix_boundary": first_new_index,
         "evidence_levels": {
             "worker_snapshot": "BYTE_HASH_VERIFIED (sha256 recomputed on disk)",
             "driver_source_sha256": ("RECEIPT_CROSS_CHECKED_ONLY — receipts agree; "
