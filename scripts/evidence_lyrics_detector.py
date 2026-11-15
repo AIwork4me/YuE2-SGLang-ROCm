@@ -4,11 +4,10 @@
 Two tiers:
   Tier 1 (always): key-based structured scan (same semantics as
     public_evidence_guard.py, extended to ALL tracked text files, fail-closed).
-  Tier 2 (when the frozen WildSongBench manifest is present locally):
-    ground-truth matching — normalized n-gram windows of the ACTUAL dataset
-    lyrics/style prompts are matched against every tracked file's normalized
-    text. Catches indirect copies under any key name, any extension,
-    any nesting — the only ground truth is the dataset itself.
+  Tier 2 (only when a verified frozen manifest is available):
+    compares distinctive Chinese and English lyrics windows with tracked
+    text. CI without licensed data does NOT run real tier 2. Set
+    --require-ground-truth for a fail-closed, rights-cleared release audit.
 
 Output discipline: NEVER prints matched content; reports file, byte offset,
 and the sha8 of the matched source line only.
@@ -21,7 +20,9 @@ Exit 0 = clean; 1 = violations; 2 = configuration error (fail-closed).
 from __future__ import annotations
 
 import argparse
+import csv
 import hashlib
+import io
 import json
 import re
 import subprocess
@@ -66,10 +67,10 @@ def sha8(s: str) -> str:
 def load_ground_truth(manifest: Path) -> list[tuple[str, str, int]]:
     """Return [(normalized_window, source_sha8, n)] from real dataset lyrics.
 
-    Only the `lyrics` field is fingerprinted (creative copyrighted text).
-    `style` tag lists (e.g. '搞怪,Male Vocals,Mandarin') are factual metadata
-    whose fragments legitimately appear in docs — fingerprinting them produced
-    false positives, so they are deliberately excluded."""
+    Only lyrics are fingerprinted; style metadata causes false positives.
+    Short fragments cannot be proven clean by this heuristic; tier 1 is needed.
+    Chinese lines: >=12 normalized chars and >=4 CJK characters (16-char
+    sliding windows). English/Latin lines: >=32 letters and 32-char windows."""
     rows = [json.loads(l) for l in manifest.read_text(encoding="utf-8")
             .splitlines() if l.strip()]
     windows: list[tuple[str, str, int]] = []
@@ -79,12 +80,16 @@ def load_ground_truth(manifest: Path) -> list[tuple[str, str, int]]:
         for line in raw.splitlines():
             n = _norm(line)
             cjk = sum(1 for c in line if "\u4e00" <= c <= "\u9fff")
-            if len(n) < 12 or cjk < 4:
-                continue  # short/latin-only lines are not distinctive
-                # enough to fingerprint without false positives
-            for i in range(0, max(1, len(n) - 15), 8):
-                w = n[i:i + 16]
-                if len(w) >= 12 and w not in seen:
+            latin = sum(c.isascii() and c.isalpha() for c in line)
+            if cjk >= 4 and len(n) >= 12:
+                width, step, minimum = 16, 8, 12
+            elif latin >= 32 and len(n) >= 32:
+                width, step, minimum = 32, 16, 32
+            else:
+                continue  # insufficient distinctive context; not an all-clear
+            for i in range(0, max(1, len(n) - width + 1), step):
+                w = n[i:i + width]
+                if len(w) >= minimum and w not in seen:
                     seen.add(w)
                     windows.append((w, sha8(line), len(w)))
     return windows
@@ -161,10 +166,22 @@ def key_scan_structured(name: str, data: bytes) -> list[str]:
         except json.JSONDecodeError as exc:
             issues.append(f"UNPARSEABLE-JSON({exc.msg})")
     elif name.endswith(".csv"):
-        header_guess = [h for h in text.splitlines()[0].split(",") if h]
-        bad = [h for h in header_guess
-               if h.strip().strip('"') in FORBIDDEN_KEYS]
-        issues += [f"csv-column:{h}" for h in bad]
+        try:
+            reader = csv.reader(io.StringIO(text), strict=True)
+            headers = next(reader, None)
+            if not headers:
+                issues.append("CSV-MISSING-HEADER")
+            else:
+                issues.extend(
+                    f"csv-column:{i}"
+                    for i, column in enumerate(headers)
+                    if column.strip() in FORBIDDEN_KEYS
+                )
+                # Force complete parsing so malformed quoted records fail closed.
+                for _ in reader:
+                    pass
+        except csv.Error:
+            issues.append("UNPARSEABLE-CSV")
     return issues
 
 
@@ -173,6 +190,9 @@ def main() -> int:
     ap.add_argument("--ref", default=None,
                     help="git ref to scan (default: working tree via HEAD files on disk)")
     ap.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST)
+    ap.add_argument("--require-ground-truth", action="store_true",
+                    help="Fail (exit 2) unless the verified licensed manifest "
+                         "is present and real tier 2 runs")
     args = ap.parse_args()
 
     ref = args.ref or "HEAD"
@@ -190,11 +210,19 @@ def main() -> int:
                   f"refusing to trust ground truth", file=sys.stderr)
             return 2
         windows = load_ground_truth(args.manifest)
+        if not windows:
+            print("::error::verified manifest yielded no distinctive lyric "
+                  "fingerprints; refusing empty tier-2 PASS", file=sys.stderr)
+            return 2
         print(f"ground truth: {len(windows)} windows from frozen manifest",
               file=sys.stderr)
     else:
-        print("NOTE: frozen manifest absent — tier-2 ground-truth scan "
-              "unavailable (key-based tier-1 only)", file=sys.stderr)
+        message = ("frozen manifest absent: tier-2 real lyric fingerprint "
+                   "scan NOT TESTED (tier-1 only)")
+        if args.require_ground_truth:
+            print("::error::" + message, file=sys.stderr)
+            return 2
+        print("NOTE: " + message, file=sys.stderr)
 
     index: dict[str, str] = {w: s for w, s, _ in windows}
     violations: list[str] = []
@@ -205,10 +233,11 @@ def main() -> int:
         try:
             data = (Path(ROOT / name).read_bytes() if not args.ref
                     else ref_file_text(ref, name))
-        except subprocess.CalledProcessError:
-            continue  # removed between listing and read
-        except OSError:
-            continue
+        except (subprocess.CalledProcessError, OSError) as exc:
+            print(f"::error file={name}::unreadable tracked evidence "
+                  f"({type(exc).__name__}); refusing vacuous PASS",
+                  file=sys.stderr)
+            return 2
         # tier 1
         if suffix in STRUCTURED_SUFFIXES:
             for issue in key_scan_structured(name, data):
@@ -234,8 +263,9 @@ def main() -> int:
                   file=sys.stderr)
         print(f"FAIL: {len(violations)} text-bearing findings", file=sys.stderr)
         return 1
-    print(f"PASS: {len(files)} tracked files clean "
-          f"(tier1={'on'} tier2={'on' if windows else 'OFF'})")
+    print(f"PASS: {len(files)} tracked files scanned for recognized text risks "
+          f"(tier1=on, tier2={'on' if windows else 'NOT_TESTED'}). "
+          "This is not a full copyright clearance.")
     return 0
 
 
