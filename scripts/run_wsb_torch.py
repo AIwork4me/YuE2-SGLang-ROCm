@@ -228,57 +228,103 @@ def detect_runtime(args) -> dict:
 
 # --------------------------------------------------------------------------
 # C2 P3: immutable source snapshots + per-attempt provenance
+# (C2.1 P1-A hardening: symlink refusal is TYPE-BASED, not hash-based; writes
+#  are crash-safe via tmp+fsync+link so a crash can never leave a partial
+#  file at the content-addressed name)
 # --------------------------------------------------------------------------
+def _publish_snapshot(tmp: Path, final: Path) -> bool:
+    """Atomically link tmp -> final (no-clobber). Returns True if THIS call
+    created final; False if another writer won the race (their content is
+    then verified by the caller)."""
+    try:
+        os.link(tmp, final)
+        return True
+    except FileExistsError:
+        return False
+    finally:
+        if os.path.lexists(tmp):
+            tmp.unlink()
+
+
+def _verify_snapshot_file(path: Path, expected_sha: str) -> None:
+    """Type-strict verification: the snapshot must be a REGULAR FILE (never a
+    symlink — even one whose target content hashes correctly, since the
+    symlink itself is mutable state outside the store), and its bytes must
+    hash to expected_sha."""
+    if path.is_symlink():
+        raise RuntimeError(f"worker snapshot is a SYMLINK (refused even if "
+                           f"target content matches): {path.name}")
+    if not path.is_file():
+        raise RuntimeError(f"worker snapshot path has unexpected type: {path.name}")
+    actual = sha256_file(path)
+    if actual != expected_sha:
+        raise RuntimeError(f"worker snapshot tampered: {path.name} "
+                           f"hashes {actual[:12]}… not {expected_sha[:12]}…")
+
+
 def snapshot_worker_source(runs_dir: Path) -> tuple[Path, str]:
     """Write-once worker source snapshot at worker_sources/<sha>.py.
 
     Rules:
       * content-addressed: the EXECUTED file is always the snapshot whose name
         is its own sha256 — a modified worker is a NEW sha, never an overwrite;
-      * an existing snapshot with the same name must hash-verify, else refuse
-        (tamper detection);
+      * an existing snapshot must be a REGULAR FILE (symlink refused on TYPE)
+        and hash-verify, else refuse (tamper detection);
+      * creation is crash-safe: content lands in a private tmp name (fsynced),
+        then a hardlink publishes it atomically — a crash mid-write can never
+        leave a partial file at the content-addressed name;
       * the legacy mutable `_gen_worker.py` is never overwritten: if present
-        with different content it is preserved untouched (legacy evidence) and
-        merely documented; execution moves to the snapshot path.
+        with different content it is preserved untouched (legacy evidence).
     """
     src_dir = runs_dir / "worker_sources"
     src_dir.mkdir(parents=True, exist_ok=True)
+    if src_dir.is_symlink():
+        raise RuntimeError("worker_sources is a symlink — refusing (escape)")
     worker_sha = hashlib.sha256(GEN_WORKER.encode()).hexdigest()
     snap = src_dir / f"{worker_sha}.py"
-    if snap.exists():
-        actual = sha256_file(snap)
-        if actual != worker_sha:
-            raise RuntimeError(f"worker snapshot tampered: {snap.name} "
-                               f"hashes {actual[:12]}…")
+    if os.path.lexists(snap):
+        _verify_snapshot_file(snap, worker_sha)
     else:
-        fd = os.open(snap, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o444)
+        tmp = src_dir / f".snap-tmp-{uuid.uuid4().hex}"
+        fd = os.open(tmp, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o444)
         try:
             os.write(fd, GEN_WORKER.encode())
             os.fsync(fd)
         finally:
             os.close(fd)
-        if sha256_file(snap) != worker_sha:
-            snap.unlink()
-            raise RuntimeError("worker snapshot self-verification failed")
+        created = _publish_snapshot(tmp, snap)
+        # verify whichever instance won the race (ours or the concurrent one)
+        _verify_snapshot_file(snap, worker_sha)
+        if not created:
+            # concurrent writer produced identical content — fine
+            pass
     legacy = runs_dir / "_gen_worker.py"
+    if legacy.is_symlink():
+        raise RuntimeError("legacy _gen_worker.py is a symlink — refusing")
     if legacy.is_file():
         legacy_sha = sha256_file(legacy)
-        if legacy_sha != worker_sha and not (src_dir / f"{legacy_sha}.py").exists():
-            # preserve the legacy source as its own snapshot WITHOUT executing it
-            lfd = os.open(src_dir / f"{legacy_sha}.py",
-                          os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o444)
-            try:
-                os.write(lfd, legacy.read_bytes())
-            finally:
-                os.close(lfd)
-    else:
+        if legacy_sha != worker_sha:
+            preserve = src_dir / f"{legacy_sha}.py"
+            if not os.path.lexists(preserve):
+                tmp = src_dir / f".snap-tmp-{uuid.uuid4().hex}"
+                fd = os.open(tmp, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o444)
+                try:
+                    os.write(fd, legacy.read_bytes())
+                    os.fsync(fd)
+                finally:
+                    os.close(fd)
+                _publish_snapshot(tmp, preserve)
+    elif not os.path.lexists(legacy):
         # fresh run: also expose the conventional path for older tooling,
         # write-once, same content
-        fd = os.open(legacy, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o444)
+        tmp = src_dir / f".snap-tmp-{uuid.uuid4().hex}"
+        fd = os.open(tmp, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o444)
         try:
             os.write(fd, GEN_WORKER.encode())
+            os.fsync(fd)
         finally:
             os.close(fd)
+        _publish_snapshot(tmp, legacy)
     return snap, worker_sha
 
 
