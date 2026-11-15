@@ -178,7 +178,7 @@ def test_destination_overwrite_refused(tmp_path):
         [sys.executable, str(REPO / "scripts" / "build_per_reference_package.py"),
          "--run", str(run), "--out", str(out), "--rights-confirmed"],
         capture_output=True, text=True)
-    assert r.returncode != 0 and "not be overwritten" in r.stderr
+    assert r.returncode != 0 and "never be overwritten" in r.stderr
 
 
 def test_rights_gate_missing_fails(tmp_path):
@@ -229,3 +229,25 @@ def test_identity_incomplete_summary_blocks_publication_packaging(tmp_path):
         capture_output=True, text=True)
     assert r.returncode != 0
     assert "fully verified official selection" in r.stderr
+
+
+def test_encoding_receipt_not_bound_to_per_song_row_fails(tmp_path):
+    """C2.1 mutation-control gap (M3 survived without this): encoding.json
+    whose mp3_sha256 disagrees with the candidate receipt's audio_sha256 —
+    e.g. a scoring receipt swapped from another candidate — must be refused
+    even when every other link looks internally consistent."""
+    run, rows = make_run(tmp_path)
+    cid = "wsb_000_r0_s7000"
+    other = run / "scores" / "audio" / "wsb_000_r1_s7001"
+    good = json.loads((other / "encoding.json").read_text())
+    enc = run / "scores" / "audio" / cid / "encoding.json"
+    enc.chmod(0o644)
+    # internally plausible (flac binding correct for THIS candidate) but the
+    # mp3 leg points at ANOTHER candidate's scoring receipt
+    mine = json.loads(enc.read_text())
+    enc.write_text(json.dumps({**mine, "mp3_sha256": good["mp3_sha256"]}))
+    from build_per_reference_package import IdentityError, verify_audio_identity
+    rows_by_id = {r["id"]: r for r in rows}
+    with pytest.raises(IdentityError,
+                       match="encoding.mp3_sha256 != receipt.audio_sha256"):
+        verify_audio_identity(run, run / "songs", rows_by_id[cid])

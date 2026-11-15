@@ -30,6 +30,7 @@ import json
 import os
 import re
 import stat
+import sys
 import uuid
 from pathlib import Path
 
@@ -195,14 +196,16 @@ def restricted_per_numeric_record(row: dict) -> dict:
 
 
 def copy_verified(src: Path, dst: Path, expected_sha: str) -> dict:
-    """Copy with pre/post hash + size + stat-identity checks; refuse to
-    overwrite; refuse exotic permissions; verify the source did not change
-    mid-copy (TOCTOU)."""
-    if dst.exists():
+    """Copy with pre/post hash + size + stat-identity checks, committed via a
+    RACE-FREE hardlink no-clobber publication (C2.1 P0-B).
+
+    The old `if dst.exists(): raise ... os.replace(tmp, dst)` had a TOCTOU
+    window (another process could create dst between check and replace, and
+    os.replace overwrites). os.link(2) is kernel-atomic: it fails EEXIST for
+    ANY pre-existing destination form (file/symlink/dangling)."""
+    if os.path.lexists(dst):
         raise IdentityError(f"destination already exists (no overwrite): {dst.name}")
     st_before = src.stat()
-    if st_before.st_mode & (stat.S_IWGRP | stat.S_IWOTH):
-        pass  # world/group writable source is fine for reading; noted in receipt
     before = sha(src)
     if before != expected_sha:
         raise IdentityError(f"source hash changed before copy: {src.name}")
@@ -214,18 +217,25 @@ def copy_verified(src: Path, dst: Path, expected_sha: str) -> dict:
                 if not chunk:
                     break
                 fdst.write(chunk)
-        after_src = sha(src)
         copied = sha(tmp)
         st_after = src.stat()
+        after_src = sha(src)
         if after_src != before:
             raise IdentityError(f"source mutated during copy: {src.name}")
         if copied != before:
             raise IdentityError(f"copy corruption detected: {dst.name}")
         if st_after.st_size != st_before.st_size:
             raise IdentityError(f"source size changed during copy: {src.name}")
-        os.replace(tmp, dst)
+        if st_after.st_ino != st_before.st_ino or st_after.st_dev != st_before.st_dev:
+            raise IdentityError(f"source file identity changed during copy: {src.name}")
+        # atomic, no-clobber publication (fails EEXIST on ANY race loser)
+        from atomic_publish import link_no_clobber, PublishError
+        try:
+            link_no_clobber(tmp, dst)
+        except PublishError as exc:
+            raise IdentityError(f"destination collision at commit: {exc}") from exc
     finally:
-        if tmp.exists():
+        if os.path.lexists(tmp):
             tmp.unlink()
     return {"sha256": copied, "bytes": dst.stat().st_size,
             "source_stable": True}
@@ -245,8 +255,14 @@ def main() -> int:
                  "clearance (--rights-confirmed) is required")
     if args.n_per_bucket <= 0:
         ap.error("--n-per-bucket must be positive")
-    if args.out.exists() and any(args.out.iterdir()):
-        ap.error("Destination must be empty; existing evidence must not be overwritten")
+    import os as _os
+    if _os.path.lexists(args.out):
+        if args.out.is_symlink():
+            ap.error("Destination path is a symlink — refusing")
+        if not args.out.is_dir() or any(args.out.iterdir()):
+            ap.error("Destination already exists non-empty — existing evidence "
+                     "must never be overwritten")
+    from atomic_publish import publish_directory_no_clobber, PublishError
     per_song = args.run / "scores" / "per_song.jsonl"
     summary_file = args.run / "scores" / "summary.json"
     if not summary_file.is_file():
@@ -261,10 +277,42 @@ def main() -> int:
             r = json.loads(line)
             rows_by_id[r["id"]] = r
 
-    audio_out = args.out / "audio"
-    audio_out.mkdir(parents=True, exist_ok=True)
+    # C2.1 P0-A: everything is built in a SIBLING staging directory and
+    # published in ONE atomic no-clobber rename. Any failure leaves the final
+    # path untouched (never a partial package).
+    staging = args.out.with_name(
+        args.out.name + ".staging-" + uuid.uuid4().hex)
+    # Restricted benchmark-derived bytes must never be exposed via default
+    # 0755 staging directories. Mode 0700 survives atomic rename to final.
+    staging.mkdir(mode=0o700, parents=True)
+    audio_out = staging / "audio"
+    audio_out.mkdir(mode=0o700)
     manifest = []
     problems = []
+    failure_receipt = {"staging": staging.name, "problems": []}
+
+    def abort(reasons):
+        """Fail closed: destroy staging (audio bytes never linger outside the
+        run directory), leave a content-free diagnostic receipt, final path
+        untouched."""
+        import shutil
+        failure_receipt["problems"] = reasons[:20]
+        try:
+            shutil.rmtree(staging)
+        except OSError as cleanup_exc:
+            # Never silently claim cleanup: leftover benchmark-derived bytes
+            # remain restricted (0700) and require explicit manual removal.
+            print(
+                "::error::restricted staging cleanup FAILED "
+                f"({type(cleanup_exc).__name__}); "
+                f"manual cleanup required for {staging.name}",
+                file=sys.stderr,
+            )
+        for p in reasons[:20]:
+            print("::error::" + p, file=sys.stderr)
+        ap.error(f"{len(reasons)} failures — package REFUSED; final path "
+                 f"never created (fail-closed, nothing partially exported)")
+
     for s in strat:
         row = rows_by_id[s["id"]]
         try:
@@ -282,14 +330,17 @@ def main() -> int:
                              "identity_chain": links})
         except IdentityError as exc:
             problems.append(str(exc))
+        except OSError as exc:
+            # Disk / permission failures must use the SAME private-stage
+            # abort path as identity failures; no partial public package.
+            problems.append(
+                f"candidate {s['id']}: staging I/O failed "
+                f"({type(exc).__name__})"
+            )
     if problems:
-        import sys
-        for p in problems:
-            print("::error::" + p, file=sys.stderr)
-        ap.error(f"{len(problems)} identity failures — package refused "
-                 f"(fail-closed); nothing partially exported")
+        abort(problems)
     for m in manifest:
-        (args.out / "audio" / m["file"]).chmod(0o444)  # read-only export
+        (audio_out / m["file"]).chmod(0o444)  # read-only export
 
     pkg = {
         "package": "yue2-w7900-per-reference-scoring",
@@ -334,18 +385,78 @@ def main() -> int:
             "audio_identity_verdict == AUDIO_IDENTITY_VERIFIED for every sample",
         ],
     }
-    (args.out / "reference_per.jsonl").write_text(
-        "".join(json.dumps(restricted_per_numeric_record(rows_by_id[m["id"]])) + "\n"
-                for m in manifest))
-    (args.out / "evaluation_inputs.jsonl").write_text(
-        "".join(json.dumps({"prompt_index": m["prompt_index"],
-                            "candidate_index": m["candidate_index"],
-                            "seed": m["seed"],
-                            "path": f"audio/{m['file']}"}) + "\n"
-                for m in manifest))
-    (args.out / "package.json").write_text(json.dumps(pkg, indent=2))
+    # All artifacts are written INTO THE STAGING TREE only (C2.1 P0-A).
+    def write_jsonl_staged(name: str, rows: list[dict]):
+        p = staging / name
+        with open(p, "x", encoding="utf-8") as f:
+            for r in rows:
+                f.write(json.dumps(r) + "\n")
+            f.flush()
+            os.fsync(f.fileno())
+
+    def write_json_staged(name: str, obj: dict):
+        p = staging / name
+        with open(p, "x", encoding="utf-8") as f:
+            json.dump(obj, f, indent=2)
+            f.flush()
+            os.fsync(f.fileno())
+
+    try:
+        write_jsonl_staged("reference_per.jsonl",
+                           [restricted_per_numeric_record(rows_by_id[m["id"]])
+                            for m in manifest])
+        write_jsonl_staged("evaluation_inputs.jsonl",
+                           [{"prompt_index": m["prompt_index"],
+                             "candidate_index": m["candidate_index"],
+                             "seed": m["seed"],
+                             "path": f"audio/{m['file']}"}
+                            for m in manifest])
+        write_json_staged("package.json", pkg)
+    except OSError as exc:
+        abort([f"staged artifact write failed: {exc}"])
+
+    # Package Completeness Audit: re-verify EVERY staged file against the
+    # manifest (sha + bytes + count) before anything is published.
+    audit_problems = []
+    staged_files = sorted(f.name for f in audio_out.iterdir())
+    expected_files = sorted(m["file"] for m in manifest)
+    if staged_files != expected_files:
+        audit_problems.append(
+            f"staged audio set != manifest ({len(staged_files)} vs "
+            f"{len(expected_files)} files)")
+    for m in manifest:
+        f = audio_out / m["file"]
+        if not f.is_file():
+            audit_problems.append(f"missing staged audio: {m['file']}")
+            continue
+        if sha(f) != m["packaged_audio_sha256"] or f.stat().st_size != m["flac_bytes"]:
+            audit_problems.append(f"staged audio drifted: {m['file']}")
+    if audit_problems:
+        abort(audit_problems)
+    try:
+        write_json_staged(".package_audit.json", {
+            "audited_at_utc": __import__("time").strftime(
+                "%Y-%m-%dT%H:%M:%SZ", __import__("time").gmtime()),
+            "files_audited": len(manifest),
+            "result": "COMPLETE",
+        })
+    except OSError as exc:
+        abort([f"staged audit write failed ({type(exc).__name__})"])
+
+    # SINGLE atomic no-clobber publication: staging -> final. Failure modes:
+    #   concurrent winner -> EEXIST -> we abort (our staging is discarded,
+    #   the winner's package is untouched)
+    #   fs lacking RENAME_NOREPLACE -> PublishError -> abort (fail closed)
+    #   crash before/during rename -> final never existed or is fully the
+    #   winner's; an orphaned .staging-<uuid> sibling may remain (clearly
+    #   named, never mistaken for the package)
+    try:
+        publish_directory_no_clobber(staging, args.out)
+    except PublishError as exc:
+        abort([f"atomic publication refused: {exc}"])
     print(f"package at {args.out}: {len(manifest)} samples, "
-          f"all AUDIO_IDENTITY_VERIFIED")
+          f"all AUDIO_IDENTITY_VERIFIED, published atomically (staging "
+          f"{staging.name} no longer exists)")
     return 0
 
 
