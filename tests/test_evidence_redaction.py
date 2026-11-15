@@ -39,7 +39,7 @@ def test_redacted_file_round_trip(tmp_path):
     assert public.name == "private.redacted.jsonl"
     assert R.verify(public, raw)
     assert "short" not in public.read_text()
-    assert raw.read_text().endswith("short\"}}\n")
+    assert json.loads(raw.read_text())["metrics"]["per"]["text"] == "short"
 
 
 def test_preexisting_export_not_overwritten(tmp_path):
