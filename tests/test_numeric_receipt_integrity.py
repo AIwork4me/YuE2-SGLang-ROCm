@@ -67,3 +67,14 @@ def test_missing_identity_value_rejected():
     b = row("x")
     del b["seed"]
     assert any("identity seed" in x for x in V.compare_pairs([a], [b], "fixture"))
+
+
+def test_float_integer_json_canonicalization_is_not_numeric_drift():
+    assert V.numeric_difference({".per": 1.0, ".temp": 0.0},
+                                {".per": 1, ".temp": 0}, "fixture") == []
+
+
+def test_boolean_replaced_by_numeric_is_not_equivalent():
+    problems = V.numeric_difference({".complete": True},
+                                    {".complete": 1}, "fixture")
+    assert any("changed" in p for p in problems)
