@@ -70,3 +70,26 @@ the public remote today.
 - **Code/infra security: PASS** (no secrets, no unsafe transport, no weights in git).
 - **Publication security: BLOCKED on the owner's LQ-1 decision** (Option A/B/C
   above). This mirrors historical gate G13 and is unchanged by the fresh image.
+
+
+## 2026-11-15 CPU-only corrective proposal (Draft PR #10)
+
+A separate Draft PR proposes a *current-tree* change: remove the 17MB raw
+`evidence/per_song.jsonl` and the duplicate incomplete `*.redacted*`
+exports, replace five remaining text-bearing JSON/JSONL receipts with
+numeric-only forms (retained numeric leaves compared exactly), and add a
+GitHub CI public-evidence gate plus regression tests. The older 2.6MB Arm B
+`per_song_redacted.jsonl` also contained unsafe fields and is excluded
+from the proposed public tree; the original candidate manifest, aggregate
+scores and hashes remain. A rights-cleared, numeric-only 384-row public
+replacement requires re-exporting from restricted originals, not copying
+uninspected redacted files. No historical scores were changed.
+
+**Historical Git objects still remain publicly accessible.** This Draft PR
+has not been merged into the already-public main/mission branch. Consult the
+owner and rights holders before any history rewrite or public release.
+
+The script `scripts/redact_evidence.py` now strips text fields and
+phoneme arrays regardless of character length; previous length>50 hashing
+was inadequate for short lyrics and phoneme strings. Use the CI guard for
+all future exports. The W7900 run /data directories were not accessed.

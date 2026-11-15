@@ -1,36 +1,8 @@
 # YuE2 on AMD ROCm
-## Verified SGLang & SGLang-Omni Reproduction
-
-Independent, evidence-first reproduction of YuE2 (`m-a-p/YuE2-3B`) song generation on
-AMD GPUs under Linux-native ROCm, using the SGLang and SGLang-Omni `yue2` branches from
-upstream PR [sgl-project/sglang#42106](https://github.com/sgl-project/sglang/pull/42106).
-
-**Yes — YuE2 runs end-to-end on AMD ROCm today**, on two independently verified AMD GPU platforms:
-
-- **AMD Radeon 8060S (gfx1151, Ryzen AI MAX+ PRO 395)** — SGLang path, full official
-  WildSongBench: 384/384 candidates, strict audit `FULL`, official scoring complete.
-- **AMD Radeon PRO W7900 48 GB (gfx1100)** — both the original SGLang path and the
-  SGLang-Omni path: two independent full 384/384 WildSongBench runs with matching
-  quality, plus BS=1/concurrency serving benchmarks.
-
-**Nothing is merged upstream yet.** All five related PRs were still open at the
-2026-10-17 verification (see [Upstream merge status](#10-upstream-merge-status)).
-Our code contributions live as PRs against the author's forks — see the
-[contribution tracker](#5-existing-upstream-contributions).
-All evidence is in this repository: start from the
-[Evidence index](#7-evidence-and-verification-index) or
-[`docs/EVIDENCE_INDEX.md`](docs/EVIDENCE_INDEX.md).
-
-> Status snapshot verified 2026-10-17 against `main` @ `038acf2b`,
-> `validation/gfx1100-rocm7141` @ `137ce40d`, and the live GitHub API.
-
----
-
-# YuE2 on AMD ROCm
 
 ## Generate music with the official YuE2 model on AMD GPUs — native PyTorch and SGLang
 
-Run the official YuE2 weights (m-a-p/YuE2-3B) on AMD Radeon GPUs through two
+**Fresh-image audit (2026-11-15):** W7900D native PyTorch API acceptance 13/14 (memory cleanup unresolved); the new 384-candidate Arm A campaign is in progress (17/384 at last published checkpoint), while a fresh Arm B has not yet run. Historical 384/384 SGLang results are not fresh-image validation. See [fresh-image release ledger](reports/publication/fresh_image/FINAL_RELEASE_GATE_LEDGER.json). The proposed CPU-only safety patch removes raw text from the current tree; historical Git objects remain exposed pending owner action.\n\nRun the official YuE2 weights (m-a-p/YuE2-3B) on AMD Radeon GPUs through two
 verified paths on the same hardware:
 
 1. **Native PyTorch** — the official `yue2-infer` pipeline (`torch-eager`
@@ -44,7 +16,7 @@ verified paths on the same hardware:
 
 | GPU | Status |
 |---|---|
-| AMD Radeon PRO W7900 48GB (gfx1100) | PyTorch pilot + SGLang campaign verified (2026-11); fresh 384-candidate campaigns in progress |
+| AMD Radeon PRO W7900 48GB (gfx1100) | SGLang full 384/384 scored (Nov 2026); PyTorch full campaign only 108/384 at last pushed snapshot, not yet scored |
 | AMD Radeon PRO W7900D 48GB (gfx1100) | This mission's rig (rocm-smi identity: `AMD Radeon Pro W7900D`) |
 | AMD Radeon 8060S 32GB (gfx1151) | Historical 384/384 campaign (SGLang) |
 
@@ -61,10 +33,12 @@ python3 scripts/download_pins.py --workspace $YUE2_WORKSPACE    # SHA256-verifie
 
 ### Official WildSongBench comparison
 
-See `docs/RESULTS.md` — historical campaigns (SongBench 6.731–6.736 vs
-official 6.7316; PER gap root-caused as tail-driven, see
-`reports/publication`), fresh campaigns land in the same table only after
-strict 384/384 audits. No number on this page lacks an evidence path.
+See [docs/RESULTS.md](docs/RESULTS.md): the Nov 2026 SGLang W7900 run
+completed 384/384 and scored SongBench **6.7376**, MuLan **0.5093**,
+AllMusicCaps **0.4056**, and PER **17.77%**, compared with the official
+8.44% PER. The PER tail is characterized but **its cross-backend root cause
+is NOT established**. Native PyTorch full-run results remain pending.
+No official quality-parity claim is made.
 
 ### Real measured performance (W7900)
 

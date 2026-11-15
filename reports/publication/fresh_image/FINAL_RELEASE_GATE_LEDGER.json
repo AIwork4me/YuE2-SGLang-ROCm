@@ -1,6 +1,6 @@
 {
   "ledger": "fresh-image-release-gate",
-  "updated": "2026-11-15T04:02:04Z",
+  "updated": "2026-11-15T04:45:00Z (CPU-only evidence reconciliation; NOT a new GPU measurement)",
   "branch": "mission/w7900-fresh-image-final-closure",
   "rules": "status is exactly PASS/FAIL/BLOCKED/NOT_TESTED; PASS only when ALL required subtests passed on THIS image",
   "gates": {
@@ -17,14 +17,15 @@
     },
     "G1": {
       "name": "Reproducible dependency installation (3 envs)",
-      "status": "PASS",
+      "status": "BLOCKED",
       "evidence": "reports/publication/fresh_image/02_INSTALLATION.md + evidence/.../dependency_inventory/",
       "test_command": "build_envA.sh, setup_gfx1100_rocm7141.sh, setup_sglang_gfx1100.sh, evaluator_install.sh",
       "test_date": "2026-11-15T04:02:04Z",
       "hardware": "gfx1100 W7900D 48GB, driver amdgpu 6.16.13, host ROCm 7.2.1 (preserved)",
       "source": "branch mission/w7900-fresh-image-final-closure (local; push blocked: no credentials in image)",
-      "residual_risk": "push of branch pending credentials",
-      "reviewer_verdict": "PENDING"
+      "residual_risk": "Fresh install was physically reported, but the two evaluator pip-freeze evidence exports committed here are 0 bytes; reproducible three-env provenance audit is incomplete.",
+      "reviewer_verdict": "CPU_AUDIT_UNRESOLVED",
+      "note": "\nCPU-only review 2026-11-15: Gate is BLOCKED; this does not overturn previously observed hardware PASS subtests."
     },
     "G2": {
       "name": "Official model and dataset pins verified",
@@ -39,14 +40,15 @@
     },
     "G3": {
       "name": "Native PyTorch API functional acceptance",
-      "status": "PASS",
-      "evidence": "reports/publication/fresh_image/PYTORCH_API_ACCEPTANCE.md (13/14; close() memory behavior documented)",
+      "status": "BLOCKED",
+      "evidence": "reports/publication/fresh_image/PYTORCH_API_ACCEPTANCE.md (13/14; item 13 FAILED) and api_acceptance.json",
       "test_command": "/data/yue2/api_acceptance_torch.py + staged_retest.py",
       "test_date": "2026-11-15T04:02:04Z",
       "hardware": "gfx1100 W7900D 48GB, driver amdgpu 6.16.13, host ROCm 7.2.1 (preserved)",
       "source": "branch mission/w7900-fresh-image-final-closure (local; push blocked: no credentials in image)",
-      "residual_risk": "",
-      "reviewer_verdict": "PENDING"
+      "residual_risk": "Native PyTorch API was 13/14; close() live-process memory release failed. Memory-cache/leak root cause requires later physical analysis or owner waiver. Until then no full gate PASS.",
+      "reviewer_verdict": "CPU_AUDIT_UNRESOLVED",
+      "note": "\nCPU-only review 2026-11-15: Gate is BLOCKED; this does not overturn previously observed hardware PASS subtests."
     },
     "G4": {
       "name": "SGLang API functional acceptance",
@@ -67,7 +69,7 @@
       "test_date": "2026-11-15T04:02:04Z",
       "hardware": "gfx1100 W7900D 48GB, driver amdgpu 6.16.13, host ROCm 7.2.1 (preserved)",
       "source": "branch mission/w7900-fresh-image-final-closure (local; push blocked: no credentials in image)",
-      "residual_risk": "in progress 16+/384 at ledger write",
+      "residual_risk": "Last public snapshot 17/384; later physical progress not checked; no intervention performed.",
       "reviewer_verdict": "PENDING"
     },
     "G6": {
@@ -116,14 +118,15 @@
     },
     "G10": {
       "name": "Root-caused code defects fixed + regression-tested",
-      "status": "PASS",
-      "evidence": "tests/test_fresh_image_hardening.py + test_evaluator_patches.py (31 tests green) \u2014 RCA-F1..F6 + 0010",
+      "status": "BLOCKED",
+      "evidence": "tests/test_fresh_image_hardening.py covers F1..F6 CPU tests; AR-Hang & HIP fault still open; no physical verification by this PR",
       "test_command": "pytest tests/test_fresh_image_hardening.py tests/test_evaluator_patches.py",
       "test_date": "2026-11-15T04:02:04Z",
       "hardware": "gfx1100 W7900D 48GB, driver amdgpu 6.16.13, host ROCm 7.2.1 (preserved)",
       "source": "branch mission/w7900-fresh-image-final-closure (local; push blocked: no credentials in image)",
-      "residual_risk": "AR-hang (P5.2) and HIP-fault (P5.3) investigations pending campaigns",
-      "reviewer_verdict": "PENDING"
+      "residual_risk": "RCA-F1..F6 CPU fixes had tests, but SGLang AR Hang and concurrent HIP illegal-memory-access remain NOT root-caused. Blanket 'all defects fixed' assertion is not supported.",
+      "reviewer_verdict": "CPU_AUDIT_UNRESOLVED",
+      "note": "\nCPU-only review 2026-11-15: Gate is BLOCKED; this does not overturn previously observed hardware PASS subtests."
     },
     "G11": {
       "name": "Cross-API comparison (A vs B same protocol)",
@@ -177,8 +180,9 @@
       "test_date": "2026-11-15T04:02:04Z",
       "hardware": "gfx1100 W7900D 48GB, driver amdgpu 6.16.13, host ROCm 7.2.1 (preserved)",
       "source": "branch mission/w7900-fresh-image-final-closure (local; push blocked: no credentials in image)",
-      "residual_risk": "owner decision required (Option A/B/C in SECURITY_FINAL)",
-      "reviewer_verdict": "PENDING"
+      "residual_risk": "Current-tree sanitized on a separate CPU-only Draft PR only; unmerged parent/main and prior Git history remain publicly exposed. Rights review required.",
+      "reviewer_verdict": "PENDING",
+      "note": "\nCPU-only Draft PR #10 removes current-tree raw lyrics; public Git history and rights-holder permission remain blocking."
     },
     "G16": {
       "name": "Independent engineering review",
@@ -224,5 +228,6 @@
       "residual_risk": "queued",
       "reviewer_verdict": "PENDING"
     }
-  }
+  },
+  "audit_scope": "Offline GitHub artifact review only. Active Arm A process and /data untouched."
 }
