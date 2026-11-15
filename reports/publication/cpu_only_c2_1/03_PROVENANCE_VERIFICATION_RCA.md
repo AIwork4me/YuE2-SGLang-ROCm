@@ -33,3 +33,11 @@ tests/test_c2_provenance.py::TestC21FullChainNegatives 17 项 + 既有 3 项
 （tampered/missing snapshot、duplicate attempt）= mission §5.3 的 1–20 全集，
 其中 18 项 → VIOLATION，2 项（crash-before-journal 的 launched-only、旧格式）
 → 摘要级 LEGACY/orphan 报告（如实分类，非降级逃逸）。
+
+## 2026-11-16 追加：混合代际 Journal 与 Result-only 盲区
+
+原实现依据 `provenance/<candidate_id>/` **是否存在**来判断旧 Journal 无 attempt_id 的行是否损坏。这会把合理的 append-only `old failed → new complete` 混合历史误判。
+
+新规则：Journal 第一条带任意 Provenance 字段的记录建立 **格式切换边界**；更早的无标记事件按历史前缀核查。若该 Candidate 现在有新版 Attempt 目录，只在**它后面**有同 Candidate 的完整新格式 Journal 事件时允许历史分类；后续新格式链必须独立验证。切换边界之后出现无标记 Journal 一律拒绝。只有新版 Result 收据且无 Launched/Journal 的孤儿必须拒绝。独立测试证明假删字段的旧新格式事件因遗留 Complete Result 孤儿而不能逃逸。
+
+限制：Journal 记录目前没有外部签名或不可篡改的旧代 Cutover Ledger，故分类属于 **prefix-consistent legacy UNKNOWN**，绝非证明过去确实由特定代码运行。若存在复杂并发跨代写入，必须人工冻结/审计，不准自动恢复为 VERIFIED。

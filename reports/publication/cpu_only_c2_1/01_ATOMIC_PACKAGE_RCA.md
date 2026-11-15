@@ -24,3 +24,9 @@
 恰一胜者+审计标记完整+败者零残留** · ENOSPC（json.dump 注入）→abort ·
 staging 中断→不产生 final、后续发布成功且不混入孤儿内容 · staged 漂移
 （audit 阶段哈希）→拒绝。
+
+## 2026-11-16 追加：受限暂存与显式 Cleanup Failure
+
+- `<out>.staging-<uuid>` 和 `audio/` 目录使用 `mode=0700`，即使打包失败，尚未发布的音频也不可依赖默认 0755 意外曝光。
+- `abort()` 不再以 `shutil.rmtree(..., ignore_errors=True)` 静默吞掉清理失败；会记录 `staging cleanup FAILED`、异常类型与人工清理指示，而 final 仍不会出现。注意任何真实残留都必须留在受控私密存储并按权限策略处理。
+- Candidate I/O 错误与 `.package_audit.json` 写入错误也使用 Abort 统一回收。新增 CPU 负向测试验证预期行为。
