@@ -43,18 +43,25 @@ def sha(p: Path) -> str:
 
 
 @pytest.fixture(scope="module")
-def pristine_tree(tmp_path_factory):
+def pristine_tree():
     if not TARBALL.is_file():
         pytest.skip("frozen evaluator tarball not downloaded (run download_pins.py)")
     if sha(TARBALL) != TARBALL_SHA:
         pytest.fail("evaluator tarball does not match the frozen pin")
-    d = tmp_path_factory.mktemp("wsb")
+    # NEVER extract into pytest's /tmp tmp_path (4G tmpfs on this image class):
+    # use the persistent workspace tmp (storage plan; handoff gotcha 4)
+    base = WS / "tmp" / "test-evaluator-patches"
+    if base.exists():
+        shutil.rmtree(base)
+    base.mkdir(parents=True)
+    d = base / "extract"
     with tarfile.open(TARBALL) as tf:
         tf.extractall(d, filter="data")
     root = d / "wsb_metrics"
     assert (root / "wsb_eval.py").is_file()
     assert sha(root / "wsb_eval.py") == PINNED["pristine_wsb_eval"]
-    return root
+    yield root
+    shutil.rmtree(base, ignore_errors=True)
 
 
 def _rel_header_0006_0007(out: Path):
@@ -82,15 +89,23 @@ def _commit_all(tree: Path, msg: str):
     _git(tree, "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-qm", msg)
 
 
-def test_full_chain_bit_exact(pristine_tree, tmp_path):
-    tree = tmp_path / "chain"
+def _scratch(sub: str) -> Path:
+    d = WS / "tmp" / "test-evaluator-patches" / sub
+    if d.exists():
+        shutil.rmtree(d)
+    return d
+
+
+def test_full_chain_bit_exact(pristine_tree):
+    tree = _scratch("chain")
     shutil.copytree(pristine_tree, tree)
     _git(tree, "init", "-q")
     _commit_all(tree, "pristine")
     assert sha(tree / "wsb_eval.py") == PINNED["pristine_wsb_eval"]
 
     # 0006+0007 from the frozen validation branch
-    p1 = tmp_path / "0006-0007.patch"
+    p1 = WS / "tmp" / "test-evaluator-patches" / "0006-0007.patch"
+    p1.parent.mkdir(parents=True, exist_ok=True)
     _rel_header_0006_0007(p1)
     assert _git(tree, "apply", str(p1)).returncode == 0
     assert sha(tree / "wsb_eval.py") == PINNED["wsb_eval_0006"], "0006 state must match lock"
@@ -102,7 +117,7 @@ def test_full_chain_bit_exact(pristine_tree, tmp_path):
     src = (REPO / "patches" / "0006-0007-0009-wsb-evaluator-rocm.patch").read_text()
     lines = src.splitlines(keepends=True)
     idx = next(i for i, l in enumerate(lines) if l.startswith("@@ -381"))
-    p2 = tmp_path / "0009.patch"
+    p2 = WS / "tmp" / "test-evaluator-patches" / "0009.patch"
     p2.write_text("--- b/wsb_eval.py\n+++ b/wsb_eval.py\n" + "".join(lines[idx:]))
     assert _git(tree, "apply", str(p2)).returncode == 0
     assert sha(tree / "wsb_eval.py") == PINNED["wsb_eval_0006_0009"], \
@@ -116,11 +131,11 @@ def test_full_chain_bit_exact(pristine_tree, tmp_path):
     _commit_all(tree, "0010")
 
 
-def test_0010_on_pristine_yields_unrecognized_state(pristine_tree, tmp_path):
+def test_0010_on_pristine_yields_unrecognized_state(pristine_tree):
     """Negative control: 0010 may contextually apply on pristine (its one
     changed line is identical there), but the result is NOT any lock-pinned
     state — only the full ordered chain produces the recognized final hash."""
-    tree = tmp_path / "neg"
+    tree = _scratch("neg")
     shutil.copytree(pristine_tree, tree)
     _git(tree, "init", "-q")
     _commit_all(tree, "pristine")
