@@ -226,6 +226,99 @@ def detect_runtime(args) -> dict:
     return {"python": "unknown", "torch": "unknown", "hip": "unknown"}
 
 
+# --------------------------------------------------------------------------
+# C2 P3: immutable source snapshots + per-attempt provenance
+# --------------------------------------------------------------------------
+def snapshot_worker_source(runs_dir: Path) -> tuple[Path, str]:
+    """Write-once worker source snapshot at worker_sources/<sha>.py.
+
+    Rules:
+      * content-addressed: the EXECUTED file is always the snapshot whose name
+        is its own sha256 — a modified worker is a NEW sha, never an overwrite;
+      * an existing snapshot with the same name must hash-verify, else refuse
+        (tamper detection);
+      * the legacy mutable `_gen_worker.py` is never overwritten: if present
+        with different content it is preserved untouched (legacy evidence) and
+        merely documented; execution moves to the snapshot path.
+    """
+    src_dir = runs_dir / "worker_sources"
+    src_dir.mkdir(parents=True, exist_ok=True)
+    worker_sha = hashlib.sha256(GEN_WORKER.encode()).hexdigest()
+    snap = src_dir / f"{worker_sha}.py"
+    if snap.exists():
+        actual = sha256_file(snap)
+        if actual != worker_sha:
+            raise RuntimeError(f"worker snapshot tampered: {snap.name} "
+                               f"hashes {actual[:12]}…")
+    else:
+        fd = os.open(snap, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o444)
+        try:
+            os.write(fd, GEN_WORKER.encode())
+            os.fsync(fd)
+        finally:
+            os.close(fd)
+        if sha256_file(snap) != worker_sha:
+            snap.unlink()
+            raise RuntimeError("worker snapshot self-verification failed")
+    legacy = runs_dir / "_gen_worker.py"
+    if legacy.is_file():
+        legacy_sha = sha256_file(legacy)
+        if legacy_sha != worker_sha and not (src_dir / f"{legacy_sha}.py").exists():
+            # preserve the legacy source as its own snapshot WITHOUT executing it
+            lfd = os.open(src_dir / f"{legacy_sha}.py",
+                          os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o444)
+            try:
+                os.write(lfd, legacy.read_bytes())
+            finally:
+                os.close(lfd)
+    else:
+        # fresh run: also expose the conventional path for older tooling,
+        # write-once, same content
+        fd = os.open(legacy, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o444)
+        try:
+            os.write(fd, GEN_WORKER.encode())
+        finally:
+            os.close(fd)
+    return snap, worker_sha
+
+
+def write_provenance_receipt(path: Path, obj: dict) -> None:
+    """O_EXCL write-once receipt (launched/result). Refuses duplicates."""
+    fd = os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o444)
+    try:
+        os.write(fd, (json.dumps(obj, sort_keys=True) + "\n").encode())
+        os.fsync(fd)
+    finally:
+        os.close(fd)
+
+
+def start_driver_session(runs_dir: Path, args, worker_sha: str,
+                         driver_sha: str) -> str:
+    """One provenance session per driver start: environment identity is
+    captured once per contiguous execution (a torch-import probe per candidate
+    would cost hours across 384 candidates)."""
+    session_id = uuid.uuid4().hex
+    sessions = runs_dir / "provenance" / "driver_sessions"
+    sessions.mkdir(parents=True, exist_ok=True)
+    write_provenance_receipt(sessions / f"{session_id}.json", {
+        "session_id": session_id,
+        "started_at_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "driver_source_sha256": driver_sha,
+        "worker_source_sha256": worker_sha,
+        "runtime": detect_runtime(args),
+        "driver_pid": os.getpid(),
+        "driver_cmdline": "/proc/self/cmdline unavailable; see run log",
+    })
+    return session_id
+
+
+def attempt_receipt_path(runs_dir: Path, candidate_id: str, attempt_id: str,
+                         phase: str) -> Path:
+    d = runs_dir / "provenance" / candidate_id
+    d.mkdir(parents=True, exist_ok=True)
+    return d / f"{attempt_id}.{phase}.json"
+
+
 GEN_WORKER = r'''
 import json, os, sys, time, traceback, uuid
 from pathlib import Path
@@ -420,8 +513,10 @@ def main() -> int:
     signal.signal(signal.SIGINT, _sig)
     signal.signal(signal.SIGTERM, _sig)
 
-    worker_path = args.runs / "_gen_worker.py"
-    worker_path.write_text(GEN_WORKER)
+    # C2 P3: execute the CONTENT-ADDRESSED snapshot; never a mutable path
+    worker_path, worker_sha = snapshot_worker_source(args.runs)
+    driver_sha = sha256_file(Path(__file__).resolve())
+    session_id = start_driver_session(args.runs, args, worker_sha, driver_sha)
     py = child_python(args)
     completed = len(done_ok)
     total = len(rows) * 2
@@ -462,6 +557,18 @@ def main() -> int:
                         "memory_budget_gib": OFFICIAL["memory_budget_gib"],
                         "cache_dir": args.cache_dir}
                 print(f"[armA] generating {ident_c} ({completed+1}/{total})", flush=True)
+                attempt_id = uuid.uuid4().hex
+                write_provenance_receipt(
+                    attempt_receipt_path(args.runs, ident_c, attempt_id,
+                                         "launched"),
+                    {"attempt_id": attempt_id, "candidate_id": ident_c,
+                     "session_id": session_id,
+                     "driver_source_sha256": driver_sha,
+                     "worker_source_sha256": worker_sha,
+                     "seed": seed, "prompt_index": r["prompt_index"],
+                     "candidate_index": j,
+                     "launched_at_utc": time.strftime(
+                         "%Y-%m-%dT%H:%M:%SZ", time.gmtime())})
                 t0 = time.time()
                 try:
                     proc = subprocess.run(
@@ -486,10 +593,37 @@ def main() -> int:
                     err = (stderr or stdout or "Worker did not complete")[-1500:]
                     rec = {"id": ident_c, "status": "failed", "seed": seed,
                            "prompt_index": r["prompt_index"], "candidate_index": j,
-                           "error": err, "wall_s": round(time.time() - t0, 1)}
+                           "error": err, "wall_s": round(time.time() - t0, 1),
+                           "attempt_id": attempt_id,
+                           "worker_source_sha256": worker_sha,
+                           "driver_source_sha256": driver_sha,
+                           "session_id": session_id}
+                    write_provenance_receipt(
+                        attempt_receipt_path(args.runs, ident_c, attempt_id,
+                                             "result"),
+                        {**rec, "result_at_utc": time.strftime(
+                            "%Y-%m-%dT%H:%M:%SZ", time.gmtime())})
                     atomic_append(journal, rec)
                     print(f"[armA] FAILED {ident_c}: {err[:200]}", flush=True)
                     continue
+                extra.update({"attempt_id": attempt_id,
+                              "worker_source_sha256": worker_sha,
+                              "driver_source_sha256": driver_sha,
+                              "session_id": session_id})
+                write_provenance_receipt(
+                    attempt_receipt_path(args.runs, ident_c, attempt_id,
+                                         "result"),
+                    {"attempt_id": attempt_id, "candidate_id": ident_c,
+                     "status": "complete", "seed": seed,
+                     "prompt_index": r["prompt_index"], "candidate_index": j,
+                     "audio_seconds": extra.get("audio_seconds"),
+                     "identity": extra.get("identity"),
+                     "worker_source_sha256": worker_sha,
+                     "driver_source_sha256": driver_sha,
+                     "session_id": session_id,
+                     "wall_s": extra.get("wall_s"),
+                     "result_at_utc": time.strftime(
+                         "%Y-%m-%dT%H:%M:%SZ", time.gmtime())})
                 atomic_append(journal, extra)
                 completed += 1
                 eta_h = (time.time() - t_start) / max(1, completed - (len(done_ok))) * (total - completed) / 3600
