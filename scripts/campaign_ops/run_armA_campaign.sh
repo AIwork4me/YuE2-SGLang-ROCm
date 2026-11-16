@@ -15,7 +15,8 @@ export HF_HUB_CACHE=/data/yue2/hf-cache/hub
 export HF_HUB_OFFLINE=1
 export TRANSFORMERS_OFFLINE=1
 export TMPDIR=/data/yue2/tmp
-cd /workspace/YuE2-SGLang-ROCm
+REPO_DIR="${YUE2_REPO:-/workspace/YuE2-SGLang-ROCm}"
+cd "$REPO_DIR"
 RUN_ID=armA_full_20261115f
 RUNS_DIR=/data/yue2-runs/armA_wsb_full
 LOG=/data/yue2/logs/armA_${RUN_ID}.log

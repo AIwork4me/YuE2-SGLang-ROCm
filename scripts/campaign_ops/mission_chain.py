@@ -39,9 +39,12 @@ from pathlib import Path
 
 sleep = time.sleep  # module-level alias (test seam; also documents every wait)
 
-WS = Path("/data/yue2")
-RUNS = Path("/data/yue2-runs")
-REPO = Path("/workspace/YuE2-SGLang-ROCm")
+WS = Path(os.environ.get("YUE2_WORKSPACE", "/data/yue2"))
+RUNS = Path(os.environ.get("YUE2_RUNS", "/data/yue2-runs"))
+# Repo location: env override first, else the repository that CONTAINS this
+# script (never a hardcoded machine path — the C2 defect class; CI runners
+# and fresh images clone elsewhere).
+REPO = Path(os.environ.get("YUE2_REPO", str(Path(__file__).resolve().parents[2])))
 STATE = WS / "mission_state.json"
 LOG = WS / "logs" / "mission_chain.log"
 PY_A = str(WS / "environments/yue2-torch/bin/python")

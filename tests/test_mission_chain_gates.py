@@ -20,6 +20,16 @@ import mission_chain as M  # noqa: E402
 
 
 @pytest.fixture(autouse=True)
+def _isolate_machine_paths(tmp_path, monkeypatch):
+    """Chain globals point at real machine paths (/data/yue2, ...); tests must
+    not read or create them (CI has neither the dirs nor permissions)."""
+    monkeypatch.setattr(M, "WS", tmp_path)
+    monkeypatch.setattr(M, "RUNS", tmp_path / "runs")
+    monkeypatch.setattr(M, "STATE", tmp_path / "state.json")
+    monkeypatch.setattr(M, "LOG", tmp_path / "logs" / "mission_chain.log")
+
+
+@pytest.fixture(autouse=True)
 def _release_chain_lock():
     """Any chain lock fd acquired by a main()-running test must not leak into
     the next test (same-process flock would false-conflict)."""
