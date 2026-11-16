@@ -26,6 +26,7 @@ CLI use:
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 from pathlib import Path
 
@@ -54,11 +55,16 @@ def driver_alive(script: str = "run_wsb_torch.py",
     """Scan <proc_root> for a live process of the campaign driver.
 
     exclude_pids lets a caller (e.g. the launcher itself) ignore its own tree.
+    Self-matching is structurally excluded: this tool's own invocation carries
+    the script token as an ARGUMENT (--script run_wsb_torch.py), so any cmdline
+    containing "driver_alive.py" is skipped outright — the exact pgrep
+    self-match failure mode this tool exists to prevent.
     Returns (alive, pids). Unreadable entries are treated as not-a-match (a
     process we cannot inspect must not be counted as our driver).
     """
     root = Path(proc_root)
-    exclude = exclude_pids or set()
+    exclude = set(exclude_pids or set())
+    exclude.add(os.getpid())
     needle_runs = str(runs_dir) if runs_dir is not None else None
     pids: list[int] = []
     try:
@@ -74,6 +80,8 @@ def driver_alive(script: str = "run_wsb_torch.py",
         cmd = _read_cmdline(root, entry.name)
         if not cmd or script not in cmd:
             continue
+        if "driver_alive.py" in cmd:
+            continue  # a liveness probe carrying the token as an argument
         if needle_runs is not None and needle_runs not in cmd:
             continue
         state = _read_state(root, entry.name)

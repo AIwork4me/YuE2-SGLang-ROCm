@@ -63,6 +63,18 @@ def test_excluded_pid_ignored(tmp_path):
     assert not alive
 
 
+def test_probe_invocation_not_counted_as_driver(tmp_path):
+    # THE regression that bit the real launcher: this tool's own invocation
+    # carries the script token as an ARGUMENT and must never match itself
+    make_proc(tmp_path, 105,
+              "/py driver_alive.py --script run_wsb_torch.py "
+              "--runs /data/yue2-runs/armA_wsb_full")
+    alive, _ = driver_alive.driver_alive(
+        script="run_wsb_torch.py", runs_dir="/data/yue2-runs/armA_wsb_full",
+        proc_root=tmp_path)
+    assert not alive
+
+
 def test_empty_proc_root(tmp_path):
     alive, pids = driver_alive.driver_alive(
         script="run_wsb_torch.py", proc_root=tmp_path)
