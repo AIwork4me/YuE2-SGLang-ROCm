@@ -76,7 +76,8 @@ git -C "$DEST" apply "$REPO/patches/0010-wsb-torch-eager-backend-allowlist.patch
 gate "$DEST/wsb_eval.py" efb890421c755c6e19fb841426a612dfa954f9b58a29eef2b8ce8ed7ff790015 0010
 git -C "$DEST" add -A; git -C "$DEST" -c user.email=t@t -c user.name=t commit -qm "0010"
 
-echo "[5/6] release.json receipt"
+echo "[5/6] chain receipt (separate filename — the bundle's own release.json
+with its code_files manifest MUST be preserved; do not clobber it)"
 python3 - "$DEST" <<'PY'
 import json, sys, time
 from pathlib import Path
@@ -92,7 +93,7 @@ receipt = {
     {"stage": "0010", "wsb_eval": "efb890421c755c6e19fb841426a612dfa954f9b58a29eef2b8ce8ed7ff790015"}],
   "tool": "scripts/campaign_ops/build_evaluator_tree.sh",
 }
-(dest / "release.json").write_text(json.dumps(receipt, indent=2) + "\n")
+(dest / "release_chain_receipt.json").write_text(json.dumps(receipt, indent=2) + "\n")
 PY
 
 echo "[6/6] done — patched evaluator tree verified at every stage"
