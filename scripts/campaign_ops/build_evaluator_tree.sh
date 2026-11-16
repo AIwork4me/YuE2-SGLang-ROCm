@@ -76,8 +76,39 @@ git -C "$DEST" apply "$REPO/patches/0010-wsb-torch-eager-backend-allowlist.patch
 gate "$DEST/wsb_eval.py" efb890421c755c6e19fb841426a612dfa954f9b58a29eef2b8ce8ed7ff790015 0010
 git -C "$DEST" add -A; git -C "$DEST" -c user.email=t@t -c user.name=t commit -qm "0010"
 
-echo "[5/6] chain receipt (separate filename — the bundle's own release.json
-with its code_files manifest MUST be preserved; do not clobber it)"
+echo "[5/7] amend release.json code_files for the two patched files (frozen
+procedure per 02_INSTALLATION / commit fe4cdca: final tree hashes
+efb89042/569404c7 recorded in the evaluator release.json with disclosure;
+every OTHER file stays pinned to its pristine bundle hash)"
+python3 - "$DEST" <<'PY'
+import json, sys, time
+from pathlib import Path
+dest = Path(sys.argv[1])
+rj = dest / "release.json"
+d = json.loads(rj.read_text())
+d["code_files"]["wsb_eval.py"] = (
+    "efb890421c755c6e19fb841426a612dfa954f9b58a29eef2b8ce8ed7ff790015")
+d["code_files"]["src/mot_infer/eval_worker.py"] = (
+    "569404c758b883e1d2d99724ea563524e06b2c07f2ecf418b1fa857a8ca79d57")
+d["rocm_patch_disclosure"] = {
+    "applied_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+    "patches": ["0006 torch-family env exemption", "0007 qwen_asr transformers "
+               "ASR backend under WSB_ROCM_TORCH_OVERRIDE=1",
+               "0009 PER-reuse hash gate", "0010 torch-eager backend allowlist"],
+    "patched_files": {
+        "wsb_eval.py": "efb890421c755c6e19fb841426a612dfa954f9b58a29eef2b8ce8ed7ff790015",
+        "src/mot_infer/eval_worker.py": "569404c758b883e1d2d99724ea563524e06b2c07f2ecf418b1fa857a8ca79d57"},
+    "pristine_hashes": {
+        "wsb_eval.py": "29310259f0ad3663bc2625ab80bf89c70d9206b513bcb2b4de5f47cb53cad9de",
+        "src/mot_infer/eval_worker.py": "8c6ffe394cfd8a40f0eb5bdccc8ff74e704e6ce8a1af12e0e27650f6d6de59b0e"},
+    "protocol_lock": "configs/benchmark.lock.yaml (patched_eval_worker_sha256, patched_wsb_eval_sha256)",
+}
+rj.write_text(json.dumps(d, indent=2) + "\n")
+PY
+
+echo "[6/7] chain receipt (separate filename — the bundle's own release.json
+with its code_files manifest is amended in place per the frozen procedure,
+never replaced wholesale)"
 python3 - "$DEST" <<'PY'
 import json, sys, time
 from pathlib import Path
@@ -91,10 +122,11 @@ receipt = {
      "eval_worker": "569404c758b883e1d2d99724ea563524e06b2c07f2ecf418b1fa857a8ca79d57"},
     {"stage": "0009", "wsb_eval": "729fd5974e7c9838ac17e9c42d140e809588af75faa9dbe1d48fe3bb207fbddf"},
     {"stage": "0010", "wsb_eval": "efb890421c755c6e19fb841426a612dfa954f9b58a29eef2b8ce8ed7ff790015"}],
+  "release_json_amended": ["wsb_eval.py", "src/mot_infer/eval_worker.py"],
   "tool": "scripts/campaign_ops/build_evaluator_tree.sh",
 }
 (dest / "release_chain_receipt.json").write_text(json.dumps(receipt, indent=2) + "\n")
 PY
 
-echo "[6/6] done — patched evaluator tree verified at every stage"
+echo "[7/7] done — patched evaluator tree verified at every stage"
 rm -rf "$TMPD"
