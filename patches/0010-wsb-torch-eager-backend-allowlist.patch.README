@@ -1,0 +1,57 @@
+0010 — wsb_eval.py: accept the official `torch-eager` backend in the standard
+      evaluation allowlist.
+
+Repository ownership: WildSongBench (m-a-p/WildSongBench) — the standard-mode
+backend allowlist lives in `evaluation/wsb_metrics/wsb_eval.py::verify_inputs`
+(the `config.get('backend')` check). This patch is maintained in
+AIwork4me/YuE2-SGLang-ROCm until it is submitted upstream (owner approval
+required; see upstream/UPSTREAM_PATCHES_2026-11.md).
+
+WHY
+---
+WildSongBench's own reproduction protocol (benchmark/reproduction_manifest.jsonl,
+`code/generate.py`) records the backend used for each candidate. The official
+YuE inference package (yue2-infer, pinned by the benchmark) exposes `torch`
+(graph-capture) and `torch-eager` (public-SDPA eager) CLI backends; YuE's
+official documentation (docs/hardware.md) documents `torch-eager` as the
+supported AMD ROCm path. yue2 0.1.3's graph path selects aten varlen
+FlashAttention by schema-presence and the ROCm mha_varlen_fwd kernel rejects
+`seqused_k` (RuntimeError: [ROCm] mha_varlen_fwd: seqused_k must be nullopt),
+so AMD ROCm runs must use `torch-eager`.
+
+The frozen evaluator's standard-mode allowlist is `{'torch', 'vllm'}` and
+therefore rejects candidates generated with the officially supported ROCm
+backend — a portability defect in the benchmark validation gate, not in the
+generation or scoring math.
+
+EXACT CHANGE (one line)
+-----------------------
+    -    if config.get('backend') not in {'torch', 'vllm'}:
+    +    if config.get('backend') not in {'torch', 'vllm', 'torch-eager'}:
+
+WHAT IT DOES NOT TOUCH
+----------------------
+Generation budgets, seeds, selection rules, scoring formulas, phonemization,
+edit distance, aggregation, summaries, and the torch/vllm paths. NVIDIA and
+vLLM users are unaffected (their backends remain in the allowlist verbatim).
+
+TESTS
+-----
+tests/test_evaluator_patches.py rebuilds the full patched tree from the
+PRISTINE frozen tarball and asserts, at every stage, the bit-exact hashes
+recorded in configs/benchmark.lock.yaml:
+  pristine wsb_eval.py          29310259…
+  +0006                          6a4a53ed…   (lock-pinned)
+  +0009 (cumulative hunk)        729fd597…   (lock: patched_wsb_eval_sha256)
+  +0010                          efb89042…   (this patch; recorded in the
+                                              evaluator release.json receipts)
+Negative controls: allowlist still rejects unknown backends; the 0010 hunk
+applies ONLY on top of 0006+0009 (refuses on pristine).
+
+EXPECTED UPSTREAM STATEMENT
+---------------------------
+WildSongBench standard evaluation: the backend allowlist rejects
+`torch-eager`, an official yue2-infer backend and the documented AMD ROCm
+path (YuE docs/hardware.md). AMD-generated candidates cannot be scored
+without this one-line admission change. Patch adds `torch-eager` to the
+allowlist; no scoring semantics are altered.

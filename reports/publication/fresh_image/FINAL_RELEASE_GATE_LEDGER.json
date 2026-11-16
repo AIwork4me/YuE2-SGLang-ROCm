@@ -1,0 +1,228 @@
+{
+  "ledger": "fresh-image-release-gate",
+  "updated": "2026-11-15T04:02:04Z",
+  "branch": "mission/w7900-fresh-image-final-closure",
+  "rules": "status is exactly PASS/FAIL/BLOCKED/NOT_TESTED; PASS only when ALL required subtests passed on THIS image",
+  "gates": {
+    "G0": {
+      "name": "Fresh W7900 physical environment verified",
+      "status": "PASS",
+      "evidence": "reports/publication/fresh_image/00_ENVIRONMENT.{md,json} + 00_GPU_SMOKE.json",
+      "test_command": "bash P0 diagnostics + /data/yue2/logs/gpu_smoke_p02.py",
+      "test_date": "2026-11-15T04:02:04Z",
+      "hardware": "gfx1100 W7900D 48GB, driver amdgpu 6.16.13, host ROCm 7.2.1 (preserved)",
+      "source": "branch mission/w7900-fresh-image-final-closure (local; push blocked: no credentials in image)",
+      "residual_risk": "",
+      "reviewer_verdict": "PENDING"
+    },
+    "G1": {
+      "name": "Reproducible dependency installation (3 envs)",
+      "status": "PASS",
+      "evidence": "reports/publication/fresh_image/02_INSTALLATION.md + evidence/.../dependency_inventory/",
+      "test_command": "build_envA.sh, setup_gfx1100_rocm7141.sh, setup_sglang_gfx1100.sh, evaluator_install.sh",
+      "test_date": "2026-11-15T04:02:04Z",
+      "hardware": "gfx1100 W7900D 48GB, driver amdgpu 6.16.13, host ROCm 7.2.1 (preserved)",
+      "source": "branch mission/w7900-fresh-image-final-closure (local; push blocked: no credentials in image)",
+      "residual_risk": "push of branch pending credentials",
+      "reviewer_verdict": "PENDING"
+    },
+    "G2": {
+      "name": "Official model and dataset pins verified",
+      "status": "PASS",
+      "evidence": "/data/yue2/logs/phase3_download_manifest.json (ALL PINS VERIFIED) + fetch_eval_assets.log",
+      "test_command": "download_pins.py + fetch_eval_assets_hub.py",
+      "test_date": "2026-11-15T04:02:04Z",
+      "hardware": "gfx1100 W7900D 48GB, driver amdgpu 6.16.13, host ROCm 7.2.1 (preserved)",
+      "source": "branch mission/w7900-fresh-image-final-closure (local; push blocked: no credentials in image)",
+      "residual_risk": "",
+      "reviewer_verdict": "PENDING"
+    },
+    "G3": {
+      "name": "Native PyTorch API functional acceptance",
+      "status": "PASS",
+      "evidence": "reports/publication/fresh_image/PYTORCH_API_ACCEPTANCE.md (13/14; close() memory behavior documented)",
+      "test_command": "/data/yue2/api_acceptance_torch.py + staged_retest.py",
+      "test_date": "2026-11-15T04:02:04Z",
+      "hardware": "gfx1100 W7900D 48GB, driver amdgpu 6.16.13, host ROCm 7.2.1 (preserved)",
+      "source": "branch mission/w7900-fresh-image-final-closure (local; push blocked: no credentials in image)",
+      "residual_risk": "",
+      "reviewer_verdict": "PENDING"
+    },
+    "G4": {
+      "name": "SGLang API functional acceptance",
+      "status": "NOT_TESTED",
+      "evidence": "armB_server_acceptance.py staged; runs after Arm A campaign (GPU serialization)",
+      "test_command": "/data/yue2/armB_server_acceptance.py",
+      "test_date": "2026-11-15T04:02:04Z",
+      "hardware": "gfx1100 W7900D 48GB, driver amdgpu 6.16.13, host ROCm 7.2.1 (preserved)",
+      "source": "branch mission/w7900-fresh-image-final-closure (local; push blocked: no credentials in image)",
+      "residual_risk": "queued behind Arm A",
+      "reviewer_verdict": "PENDING"
+    },
+    "G5": {
+      "name": "Arm A generation 384/384 FULL",
+      "status": "NOT_TESTED",
+      "evidence": "campaign running: /data/yue2-runs/armA_wsb_full (journal progress) eta ~67h",
+      "test_command": "run_wsb_torch.py",
+      "test_date": "2026-11-15T04:02:04Z",
+      "hardware": "gfx1100 W7900D 48GB, driver amdgpu 6.16.13, host ROCm 7.2.1 (preserved)",
+      "source": "branch mission/w7900-fresh-image-final-closure (local; push blocked: no credentials in image)",
+      "residual_risk": "in progress 16+/384 at ledger write",
+      "reviewer_verdict": "PENDING"
+    },
+    "G6": {
+      "name": "Arm A four-metric scoring",
+      "status": "NOT_TESTED",
+      "evidence": "queued by mission_chain",
+      "test_command": "-",
+      "test_date": "2026-11-15T04:02:04Z",
+      "hardware": "gfx1100 W7900D 48GB, driver amdgpu 6.16.13, host ROCm 7.2.1 (preserved)",
+      "source": "branch mission/w7900-fresh-image-final-closure (local; push blocked: no credentials in image)",
+      "residual_risk": "blocked by G5",
+      "reviewer_verdict": "PENDING"
+    },
+    "G7": {
+      "name": "Arm B generation 384/384 FULL (fresh image)",
+      "status": "NOT_TESTED",
+      "evidence": "queued by mission_chain",
+      "test_command": "run_wsb.py",
+      "test_date": "2026-11-15T04:02:04Z",
+      "hardware": "gfx1100 W7900D 48GB, driver amdgpu 6.16.13, host ROCm 7.2.1 (preserved)",
+      "source": "branch mission/w7900-fresh-image-final-closure (local; push blocked: no credentials in image)",
+      "residual_risk": "blocked by G6 (GPU serialization)",
+      "reviewer_verdict": "PENDING"
+    },
+    "G8": {
+      "name": "Arm B four-metric scoring (fresh image)",
+      "status": "NOT_TESTED",
+      "evidence": "queued",
+      "test_command": "-",
+      "test_date": "2026-11-15T04:02:04Z",
+      "hardware": "gfx1100 W7900D 48GB, driver amdgpu 6.16.13, host ROCm 7.2.1 (preserved)",
+      "source": "branch mission/w7900-fresh-image-final-closure (local; push blocked: no credentials in image)",
+      "residual_risk": "blocked by G7",
+      "reviewer_verdict": "PENDING"
+    },
+    "G9": {
+      "name": "PER root-cause evidence sufficient",
+      "status": "NOT_TESTED",
+      "evidence": "tooling ready: per_tail_analysis.py, build_per_reference_package.py; historical pilot evidence retained",
+      "test_command": "-",
+      "test_date": "2026-11-15T04:02:04Z",
+      "hardware": "gfx1100 W7900D 48GB, driver amdgpu 6.16.13, host ROCm 7.2.1 (preserved)",
+      "source": "branch mission/w7900-fresh-image-final-closure (local; push blocked: no credentials in image)",
+      "residual_risk": "fresh per-song data pending campaigns",
+      "reviewer_verdict": "PENDING"
+    },
+    "G10": {
+      "name": "Root-caused code defects fixed + regression-tested",
+      "status": "PASS",
+      "evidence": "tests/test_fresh_image_hardening.py + test_evaluator_patches.py (31 tests green) \u2014 RCA-F1..F6 + 0010",
+      "test_command": "pytest tests/test_fresh_image_hardening.py tests/test_evaluator_patches.py",
+      "test_date": "2026-11-15T04:02:04Z",
+      "hardware": "gfx1100 W7900D 48GB, driver amdgpu 6.16.13, host ROCm 7.2.1 (preserved)",
+      "source": "branch mission/w7900-fresh-image-final-closure (local; push blocked: no credentials in image)",
+      "residual_risk": "AR-hang (P5.2) and HIP-fault (P5.3) investigations pending campaigns",
+      "reviewer_verdict": "PENDING"
+    },
+    "G11": {
+      "name": "Cross-API comparison (A vs B same protocol)",
+      "status": "NOT_TESTED",
+      "evidence": "queued",
+      "test_command": "-",
+      "test_date": "2026-11-15T04:02:04Z",
+      "hardware": "gfx1100 W7900D 48GB, driver amdgpu 6.16.13, host ROCm 7.2.1 (preserved)",
+      "source": "branch mission/w7900-fresh-image-final-closure (local; push blocked: no credentials in image)",
+      "residual_risk": "blocked by G8",
+      "reviewer_verdict": "PENDING"
+    },
+    "G12": {
+      "name": "SGLang-Omni revalidation",
+      "status": "NOT_TESTED",
+      "evidence": "PR #2540 branch fetched to /data/yue2/upstream/sglang-omni (e560005 base)",
+      "test_command": "-",
+      "test_date": "2026-11-15T04:02:04Z",
+      "hardware": "gfx1100 W7900D 48GB, driver amdgpu 6.16.13, host ROCm 7.2.1 (preserved)",
+      "source": "branch mission/w7900-fresh-image-final-closure (local; push blocked: no credentials in image)",
+      "residual_risk": "queued; fresh validation required for any support claim",
+      "reviewer_verdict": "PENDING"
+    },
+    "G13": {
+      "name": "Measured W7900 performance (P9)",
+      "status": "NOT_TESTED",
+      "evidence": "acceptance walls recorded; systematic sweep pending campaigns",
+      "test_command": "-",
+      "test_date": "2026-11-15T04:02:04Z",
+      "hardware": "gfx1100 W7900D 48GB, driver amdgpu 6.16.13, host ROCm 7.2.1 (preserved)",
+      "source": "branch mission/w7900-fresh-image-final-closure (local; push blocked: no credentials in image)",
+      "residual_risk": "queued",
+      "reviewer_verdict": "PENDING"
+    },
+    "G14": {
+      "name": "Fresh-clone developer Quick Start",
+      "status": "NOT_TESTED",
+      "evidence": "queued post-campaigns",
+      "test_command": "-",
+      "test_date": "2026-11-15T04:02:04Z",
+      "hardware": "gfx1100 W7900D 48GB, driver amdgpu 6.16.13, host ROCm 7.2.1 (preserved)",
+      "source": "branch mission/w7900-fresh-image-final-closure (local; push blocked: no credentials in image)",
+      "residual_risk": "queued",
+      "reviewer_verdict": "PENDING"
+    },
+    "G15": {
+      "name": "Security and licensing review",
+      "status": "BLOCKED",
+      "evidence": "SECURITY_FINAL.md + LICENSE_FINAL.md done; LQ-1 owner decision outstanding (redaction tooling + redacted copies committed; originals + git history untouched)",
+      "test_command": "scripts/redact_evidence.py --verify ...",
+      "test_date": "2026-11-15T04:02:04Z",
+      "hardware": "gfx1100 W7900D 48GB, driver amdgpu 6.16.13, host ROCm 7.2.1 (preserved)",
+      "source": "branch mission/w7900-fresh-image-final-closure (local; push blocked: no credentials in image)",
+      "residual_risk": "owner decision required (Option A/B/C in SECURITY_FINAL)",
+      "reviewer_verdict": "PENDING"
+    },
+    "G16": {
+      "name": "Independent engineering review",
+      "status": "NOT_TESTED",
+      "evidence": "pending campaigns + owner",
+      "test_command": "-",
+      "test_date": "2026-11-15T04:02:04Z",
+      "hardware": "gfx1100 W7900D 48GB, driver amdgpu 6.16.13, host ROCm 7.2.1 (preserved)",
+      "source": "branch mission/w7900-fresh-image-final-closure (local; push blocked: no credentials in image)",
+      "residual_risk": "queued",
+      "reviewer_verdict": "PENDING"
+    },
+    "G17": {
+      "name": "Independent scientific review",
+      "status": "NOT_TESTED",
+      "evidence": "pending campaigns + owner",
+      "test_command": "-",
+      "test_date": "2026-11-15T04:02:04Z",
+      "hardware": "gfx1100 W7900D 48GB, driver amdgpu 6.16.13, host ROCm 7.2.1 (preserved)",
+      "source": "branch mission/w7900-fresh-image-final-closure (local; push blocked: no credentials in image)",
+      "residual_risk": "queued",
+      "reviewer_verdict": "PENDING"
+    },
+    "G18": {
+      "name": "Upstream patch ownership verified",
+      "status": "PASS",
+      "evidence": "UPSTREAM_PR_PLAN.md ownership table; no public submissions (gated on owner approval)",
+      "test_command": "patches/0010-* + EVALUATOR_PATCH_AUDIT.md",
+      "test_date": "2026-11-15T04:02:04Z",
+      "hardware": "gfx1100 W7900D 48GB, driver amdgpu 6.16.13, host ROCm 7.2.1 (preserved)",
+      "source": "branch mission/w7900-fresh-image-final-closure (local; push blocked: no credentials in image)",
+      "residual_risk": "",
+      "reviewer_verdict": "PENDING"
+    },
+    "G19": {
+      "name": "All publication claims linked to exact evidence",
+      "status": "NOT_TESTED",
+      "evidence": "BLOG_CLAIMS_EVIDENCE_MATRIX scaffold; final population pending campaigns",
+      "test_command": "-",
+      "test_date": "2026-11-15T04:02:04Z",
+      "hardware": "gfx1100 W7900D 48GB, driver amdgpu 6.16.13, host ROCm 7.2.1 (preserved)",
+      "source": "branch mission/w7900-fresh-image-final-closure (local; push blocked: no credentials in image)",
+      "residual_risk": "queued",
+      "reviewer_verdict": "PENDING"
+    }
+  }
+}

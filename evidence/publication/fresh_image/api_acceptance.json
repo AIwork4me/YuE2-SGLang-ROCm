@@ -1,0 +1,166 @@
+[
+  {
+    "test": "fresh_model_load",
+    "pass": true,
+    "load_s": 5.5,
+    "torch": "2.10.0+rocm7.1",
+    "hip": "7.1.25424",
+    "gpu": "AMD Radeon Graphics",
+    "weights_sha": "1d55c42c1a9875c3",
+    "vae_sha": "b6d283628913bb41"
+  },
+  {
+    "test": "cot_full_small",
+    "pass": true,
+    "wall_s": 404.9,
+    "audio_seconds": 56.76,
+    "truncated": {
+      "abc": false,
+      "semantic": false
+    },
+    "shape": [
+      2724416,
+      2
+    ],
+    "finite": null,
+    "sr": 48000
+  },
+  {
+    "test": "save_reload_verify",
+    "pass": true
+  },
+  {
+    "test": "cot_melody",
+    "pass": true,
+    "wall_s": 201.3,
+    "audio_seconds": 29.12,
+    "truncated": {
+      "abc": false,
+      "semantic": false
+    },
+    "shape": [
+      1397696,
+      2
+    ],
+    "finite": null,
+    "sr": 48000
+  },
+  {
+    "test": "cot_off",
+    "pass": true,
+    "wall_s": 251.7,
+    "audio_seconds": 37.52,
+    "truncated": {
+      "abc": false,
+      "semantic": false
+    },
+    "shape": [
+      1800896,
+      2
+    ],
+    "finite": null,
+    "sr": 48000
+  },
+  {
+    "test": "external_abc",
+    "pass": true,
+    "wall_s": 72.5,
+    "audio_seconds": 42.12,
+    "truncated": {
+      "abc": false,
+      "semantic": false
+    },
+    "shape": [
+      2021696,
+      2
+    ],
+    "finite": null,
+    "sr": 48000
+  },
+  {
+    "test": "replay_0",
+    "pass": true,
+    "wall_s": 329.7,
+    "audio_seconds": 54.36,
+    "truncated": {
+      "abc": false,
+      "semantic": false
+    },
+    "shape": [
+      2609216,
+      2
+    ],
+    "finite": null,
+    "sr": 48000
+  },
+  {
+    "test": "replay_1",
+    "pass": true,
+    "wall_s": 165.5,
+    "audio_seconds": 54.36,
+    "truncated": {
+      "abc": false,
+      "semantic": false
+    },
+    "shape": [
+      2609216,
+      2
+    ],
+    "finite": null,
+    "sr": 48000
+  },
+  {
+    "test": "deterministic_replay_same_seed",
+    "pass": true,
+    "semantic_sha": "5172dd1bfdda7915"
+  },
+  {
+    "test": "error_handling_empty_lyrics",
+    "pass": true,
+    "accepted": true
+  },
+  {
+    "test": "gpu_healthy_after_error",
+    "pass": true
+  },
+  {
+    "test": "long_request_official_budget",
+    "pass": true,
+    "wall_s": 327.7,
+    "audio_seconds": 72.24,
+    "truncated": {
+      "abc": false,
+      "semantic": false
+    },
+    "shape": [
+      3467456,
+      2
+    ],
+    "finite": null,
+    "sr": 48000
+  },
+  {
+    "test": "memory_cleanup_on_close",
+    "pass": false,
+    "freed_gib": 0.61,
+    "used_after_gib": 2.93
+  },
+  {
+    "test": "staged_api",
+    "pass": true,
+    "wall_s": 165.1,
+    "audio_seconds": 42.64,
+    "shape": [
+      2046656,
+      2
+    ],
+    "finite": true,
+    "sr": 48000,
+    "audio_sha256": "5099e122b5d146ac",
+    "close_probe": {
+      "used_before_close_gib": 10.22,
+      "used_after_close_gib": 9.89,
+      "freed_gib": 0.34
+    }
+  }
+]

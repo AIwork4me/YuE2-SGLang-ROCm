@@ -1,0 +1,21 @@
+{
+  "snapshot_utc": "2026-11-16T11:45:00Z",
+  "event": "IMAGE SWAP \u2014 graceful stop by owner decision",
+  "run_id": "armA_full_20261115f",
+  "verified_complete": 177,
+  "failed": 0,
+  "total": 384,
+  "prompts_covered": 89,
+  "mean_wall_s": 710.0,
+  "remaining_gpu_hours_est": 40.8,
+  "audio_archive": {
+    "file": "armA_state_20261116T1145Z.tar.gz",
+    "bytes": 7670242173,
+    "sha256": "45e7c0f9a443cdbd4e822536214155c9c3905da611e55a04c15cf98fe4c32da7",
+    "contents": "177 complete bundles + journal + run_config(+bak) + evaluation_inputs + _gen_worker.py + logs",
+    "restore": "reports/publication/fresh_image/IMAGE_SWAP_HANDOFF.md",
+    "restriction": "restricted storage only (licensed lyrics sung); NEVER public GitHub"
+  },
+  "stop_evidence": "driver log tail: '[armA] stopped by signal; state is resume-safe' after in-flight #177 completed",
+  "cpu_engineering": "frozen: main=PR#7 merged; PR#10 8756125; PR#11 4d9f4a2; PR#12 d66ffbf (all CI green)"
+}

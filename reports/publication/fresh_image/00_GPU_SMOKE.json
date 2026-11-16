@@ -1,0 +1,35 @@
+{
+  "executed_at_utc": "2026-11-14T23:55Z",
+  "environment": "base-image /opt/venv torch 2.9.1+git ROCm (preinstalled; P0.2 hardware validation only)",
+  "note": "first run had two test-authoring bugs (corner-block reference math; byte-count threshold). Test corrected, not weakened; both runs archived in /data/yue2/logs/.",
+  "python": "3.12.3",
+  "torch": "2.9.1+gitff65f5b",
+  "cuda_available": true,
+  "torch_cuda_version": null,
+  "torch_hip_version": "7.2.53211-e1a6bc5663",
+  "device_count": 1,
+  "gpu_name": "AMD Radeon Graphics",
+  "gpu_total_mem_bytes": 51522830336,
+  "gpu_cc": "11.0",
+  "gpu_gcnarch": "gfx1100",
+  "hip_architecture": [
+    11,
+    0
+  ],
+  "bf16_matmul_ms": 13.006,
+  "fp32_matmul_ms": 6.583,
+  "fp32_relerr": 2.197e-06,
+  "sdpa_math_vs_default_maxdiff": 0.002,
+  "mem_before_gb": 1.903,
+  "mem_after_alloc_gb": 4.903,
+  "mem_after_release_gb": 0.776,
+  "checks": {
+    "bf16_finite": true,
+    "fp32_relerr_small": true,
+    "sdpa_math_finite": true,
+    "sdpa_default_finite": true,
+    "mem_released": true,
+    "sync_add": true
+  },
+  "overall_pass": true
+}

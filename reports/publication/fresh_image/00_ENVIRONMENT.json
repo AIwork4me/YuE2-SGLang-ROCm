@@ -1,0 +1,56 @@
+{
+  "captured_at_utc": "2026-11-14T23:55:23.797972+00:00",
+  "image_identity": "fresh image (no prior /data, no prior /workspace repo) \u2014 first boot for mission/w7900-fresh-image-final-closure",
+  "hostname": "j-g44ww5j6zarwb5vcuuqwk5s3rv",
+  "os": "PRETTY_NAME=\"Ubuntu 24.04.4 LTS\"",
+  "kernel": "6.8.0-79-generic",
+  "cpu": "Model name:                           AMD EPYC 9334 32-Core Processor",
+  "nproc_visible": 128,
+  "system_ram_free_h": "Mem:           503Gi        97Gi       137Gi       492Mi       274Gi       406Gi",
+  "cgroup_memory_max_bytes": 59055800320,
+  "cgroup_memory_max_gib": 55.0,
+  "cgroup_memory_current_bytes": 2073808896,
+  "gpu": {
+    "count_visible_to_container": 1,
+    "pci_bdf": "0000:03:00.0",
+    "pci_device_id": "0x744b",
+    "marketing_name": "AMD Radeon Pro W7900D (W7900-class variant; gfx1100, 48GB) per env-B torch 2.12.0+rocm7.14.1 probe",
+    "architecture": "gfx1100",
+    "vram_total_bytes": 51522830336,
+    "vram_total_gib": 47.98,
+    "uuid": "GPU-3d1e08ee04727918"
+  },
+  "rocm": {
+    "kernel_driver": "amdgpu 6.16.13",
+    "userspace_version": "7.2.1 (/opt/rocm-7.2.1)",
+    "hip_runtime_version": "1.18",
+    "hipcc_hip_version": "7.2.53211-e1a6bc5663",
+    "preinstalled": true,
+    "decision": "PRESERVED unmodified (mission rule P0.1); env-specific torch wheels bring their own userspace subsets"
+  },
+  "python": {
+    "system": "3.12.3 (/usr/bin/python3)",
+    "base_venv": "/opt/venv (AMD oneclick base image: torch 2.9.1+git ROCm build, transformers 4.57.6, vllm 0.16.1.dev rocm721, aiter, apex 7.2.1)"
+  },
+  "storage": {
+    "workspace_mount": "/workspace loop 98G (93G free)",
+    "root_overlay": "/ overlay 3.5T (1.6T free) -> /data created here",
+    "tmp_warning": "/tmp is 4G tmpfs \u2014 benchmark data and TMPDIR MUST live on /data",
+    "persistent_layout": "/data/yue2/{models,hf-cache,environments,upstream,benchmark,logs,tmp} + /data/yue2-runs/"
+  },
+  "network": {
+    "egress": "HTTP(S)_PROXY=notebook-egress-proxy...:3128 (k8s lab)",
+    "verified_reachable_200": [
+      "https://github.com",
+      "https://huggingface.co",
+      "https://pypi.org",
+      "https://download.pytorch.org"
+    ]
+  },
+  "gpu_processes_at_capture": [],
+  "deviations_vs_mission_brief": [
+    "Mission brief said 'one physical W7900'; host actually has 8x 0x744b but the container cgroup exposes exactly 1 (consistent with brief from the container's viewpoint).",
+    "Preinstalled ROCm userspace is 7.2.1 (not 6.x/7.1); frozen stacks install their own torch wheel ROCm subsets on top \u2014 driver 6.16.13 is newer than all frozen pins, which is the supported direction.",
+    "Cgroup memory ceiling is 55 GiB (matches handoff gotcha 13's '59 GB' marketing-GB ceiling)."
+  ]
+}

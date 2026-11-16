@@ -1,0 +1,13 @@
+{
+  "snapshot_utc": "20261115T114755Z",
+  "run_id": "armA_full_20261115f",
+  "verified_complete": 56,
+  "failed": 0,
+  "total": 384,
+  "prompts_covered": 28,
+  "mean_wall_s": 698.1,
+  "eta_h_remaining": 63.6,
+  "quarantine_dirs": 0,
+  "real_truncated": 0,
+  "note": "read-only snapshot from live campaign (driver pid 16537, tree 8c242ba untouched); audio machine-local (regenerable from pinned seeds); C1/C2 CPU engineering frozen (PR #10 head 8756125, PR #11 head 4d9f4a2, CI green); post-campaign chain armed via mission_chain (audit->PER/SongBench->MuLan/AMC->ArmB)"
+}

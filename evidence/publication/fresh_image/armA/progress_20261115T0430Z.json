@@ -1,0 +1,10 @@
+{
+  "snapshot_utc": "2026-11-15T04:14:02Z",
+  "run_id": "armA_full_20261115f",
+  "journal_rows": 17,
+  "verified_complete": 17,
+  "total": 384,
+  "truncated_but_valid": 0,
+  "mean_wall_s": 688.5,
+  "note": "in-progress snapshot; journal copy + run_config in this dir; audio stays machine-local (regenerable from pinned seeds)"
+}

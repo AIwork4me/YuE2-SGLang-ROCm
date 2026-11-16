@@ -1,0 +1,35 @@
+{
+  "identity_schema": "armA-run-config/v2",
+  "run_id": "armA_full_20261115f",
+  "platform": "gfx1100",
+  "arm": "A-torch",
+  "backend": "torch-eager",
+  "model_revision": "1a96eca688d6ae5d7f0feb88573fec89920fcd19",
+  "vae_revision": "b54118f0fc462f08999d1ec07e88817f4ee3f770",
+  "model_sha256": "1d55c42c1a9875c34f5d736e15078449992b044e807ce2a138e6cf289a1e59e9",
+  "vae_sha256": "b6d283628913bb41145ba99e2314eef613905ee95f690eb70e8212d5f4965044",
+  "manifest_sha256": "859e5225d319912efb64d587d1d5eb6cf0abc9fb162cc3d5f02d1688cff2edc0",
+  "evaluator_bundle_sha256": "bd550b36f1fc43cad3254a9897dd3a078e50c4eb9e8d4f295ac4b5e81d1fc4fd",
+  "generation_contract": {
+    "cot": "full",
+    "cfg_scale": 1.0,
+    "candidates_per_prompt": 2,
+    "seeds": "831001+i / 831019+i via frozen manifest candidate_ar_seeds",
+    "memory_budget_gib": 24,
+    "request_contract": "SongRequest.text() == row.generation_prompt (asserted per candidate)"
+  },
+  "driver_source_sha256": "d2b983c88a658cf6aa6032193ecf7ab3ef38b7db08462c87421da7e9b2324e40",
+  "generator_worker_sha256": "c1c04fd95b2744953a94a2e0df4065910d0e1be5dfae8aa7b2e53243c195416a",
+  "protocol_lock": "configs/benchmark.lock.yaml profile=benchmark-reproduction frozen 2026-11-11",
+  "runtime": {
+    "python": "3.12.3",
+    "torch": "2.10.0+rocm7.1",
+    "hip": "7.1.25424",
+    "gpu": "AMD Radeon Graphics",
+    "gcn_arch": "gfx1100",
+    "vram_bytes": 51522830336
+  },
+  "created_at_utc": "2026-11-15T00:22:29Z",
+  "driver_protocol": "armA-driver/1",
+  "informational_note": "driver_source/generator_worker/created_at are informational (never compared); driver_protocol labels generation semantics. One-time migration 2026-11-15T01:00Z by mission executor, logged in mission_chain.log; no stable field changed."
+}
