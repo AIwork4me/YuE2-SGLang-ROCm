@@ -217,6 +217,35 @@ class TestScoreGate:
         assert (asides[0] / "evidence.txt").read_text() == "keep me"
 
 
+class TestArmBLauncherAndAcceptance:
+    """Wiring checks for the real Arm B acceptance + campaign launcher."""
+
+    def test_acceptance_script_exists_and_is_real(self):
+        p = REPO / "scripts/campaign_ops/armB_acceptance.sh"
+        assert p.is_file()
+        src = p.read_text()
+        for needle in ("gpu_lock.py", "serve_yue2_gfx1100.sh", "server_identity.py",
+                       "/health", "ARMB_ACCEPTANCE_PASS"):
+            assert needle in src, f"acceptance must exercise {needle}"
+
+    def test_acceptance_uses_actual_identity_cli(self):
+        src = (REPO / "scripts/campaign_ops/armB_acceptance.sh").read_text()
+        assert "capture --run-state" in src
+        assert "--out" not in src  # old wrong flag must not linger
+
+    def test_armB_launcher_exists_and_guards(self):
+        p = REPO / "scripts/campaign_ops/run_armB_campaign.sh"
+        assert p.is_file()
+        src = p.read_text()
+        for needle in ("flock -n 9", "driver_alive.py", "gpu_lock.py",
+                       "server_identity.py", "run_wsb.py", "stop_server"):
+            assert needle in src, f"launcher must include {needle}"
+
+    def test_armB_launcher_resumes_existing_run_id(self):
+        src = (REPO / "scripts/campaign_ops/run_armB_campaign.sh").read_text()
+        assert "run_config.json" in src and "run_id" in src
+
+
 class TestArmBAcceptanceGate:
     def test_no_command_configured_blocks(self, tmp_path, monkeypatch):
         monkeypatch.delenv("YUE2_ARMB_ACCEPTANCE_CMD", raising=False)
