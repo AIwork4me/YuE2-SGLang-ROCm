@@ -70,3 +70,41 @@ the public remote today.
 - **Code/infra security: PASS** (no secrets, no unsafe transport, no weights in git).
 - **Publication security: BLOCKED on the owner's LQ-1 decision** (Option A/B/C
   above). This mirrors historical gate G13 and is unchanged by the fresh image.
+
+
+## 2026-11-15 CPU-only corrective proposal (Draft PR #10)
+
+A separate Draft PR proposes a *current-tree* change: remove the 17MB raw
+`evidence/per_song.jsonl` and the duplicate incomplete `*.redacted*`
+exports, replace five remaining text-bearing JSON/JSONL receipts with
+numeric-only forms (retained numeric leaves compared exactly), and add a
+GitHub CI public-evidence gate plus regression tests. The older 2.6MB Arm B
+`per_song_redacted.jsonl` also contained unsafe fields and is excluded
+from the proposed public tree; the original candidate manifest, aggregate
+scores and hashes remain. A rights-cleared, numeric-only 384-row public
+replacement requires re-exporting from restricted originals, not copying
+uninspected redacted files. No historical scores were changed.
+
+**Historical Git objects still remain publicly accessible.** This Draft PR
+has not been merged into the already-public main/mission branch. Consult the
+owner and rights holders before any history rewrite or public release.
+
+The script `scripts/redact_evidence.py` now strips text fields and
+phoneme arrays regardless of character length; previous length>50 hashing
+was inadequate for short lyrics and phoneme strings. Use the CI guard for
+all future exports. The W7900 run /data directories were not accessed.
+
+
+## 2026-11-15 independent-final-review correction (PR #10)
+
+This section **supersedes outdated early-fresh-image wording above**:
+
+- Security PR #7 was **MERGED** into `main` at `ba99c4d` (2026-11-15T06:39:14Z); the current-tree security fix on main is no longer only "prepared".
+- PR #10 is **Draft / NOT MERGED**. Its current proposed tree removes raw `per_song.jsonl`, pseudo-redacted derivative files and text-bearing structured evidence, preserving public numeric receipts. PR #9 and other historic branch heads were NOT rewritten or force-pushed.
+- PR #10's public CI verifies known structured evidence with Tier 1 and uses **invented synthetic lyrics** to exercise Tier 2. The true WildSongBench Manifest is not available to GitHub Actions, so its real Tier 2 is **NOT TESTED in public CI**. This distinction is deliberate, and `--require-ground-truth` is mandatory for a rights-cleared *release* scan.
+- Numeric evidence validation now compares the complete non-sensitive numeric leaf sets: four JSONL receipts (24 candidate rows) and snapshot (1883 numeric leaves). Values match; a limited number of `1.0` / `0.0` literals were previously serialized as `1` / `0`, so the guarantee is value equality, **not byte-identical JSON or unchanged int/float lexical type**.
+- Git history, earlier branches, forks/caches and the dataset's redistribution permissions are still unresolved. G15 **BLOCKED**; no PR #10 merge, historical rewrite, upstream release, or raw-data publication is authorized by this report.
+- No GPU job, Arm A run directory, running driver, live model, or audio file was accessed in this GitHub-only independent review.
+
+See `reports/publication/cpu_only_closure/10_FINAL_INDEPENDENT_REVIEW.md`
+and the exact-head CI runs linked in PR #10.

@@ -17,8 +17,11 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 import shutil
 from pathlib import Path
+
+from per_tail_analysis import choose_rows
 
 
 def sha(p: Path) -> str:
@@ -29,26 +32,28 @@ def sha(p: Path) -> str:
     return h.hexdigest()
 
 
-def pick_stratified(per_song: Path, songs_dir: Path, n_per_bucket=2):
+def pick_stratified(per_song: Path, songs_dir: Path, summary: dict,
+                    n_per_bucket=2):
     rows = [json.loads(l) for l in per_song.read_text().splitlines() if l.strip()]
-    sel = {}
-    # selected = lower per candidate per prompt (evaluator selection semantics)
-    by_prompt = {}
-    for r in rows:
-        k = r["prompt_index"]
-        if k not in by_prompt or r["metrics"]["per"]["per"] < by_prompt[k]["metrics"]["per"]["per"]:
-            by_prompt[k] = r
+    # Only the official scorer knows the full best-of-two tie-break.
+    selected, _, provenance = choose_rows(rows, summary)
+    if provenance != "OFFICIAL_SELECTED_CANDIDATES_VERIFIED":
+        raise ValueError("Official scorer selection receipt is mandatory")
 
     def bucket(rs, name):
         rs = sorted(rs, key=lambda r: r["metrics"]["per"]["per"])
         out = []
         if rs:
-            out += [(name, "lowest", rs[i]) for i in range(min(n_per_bucket, len(rs)))]
-            out += [(name, "median", rs[len(rs) // 2 + i]) for i in range(min(n_per_bucket, len(rs)))]
-            out += [(name, "highest", rs[-1 - i]) for i in range(min(n_per_bucket, len(rs)))]
+            size = min(n_per_bucket, len(rs))
+            for label, ids in (
+                ("lowest", range(size)),
+                ("median", range(max(0, len(rs)//2 - size//2),
+                                 min(len(rs), max(0, len(rs)//2 - size//2) + size))),
+                ("highest", range(len(rs)-size, len(rs)))):
+                out += [(name, label, rs[i]) for i in ids]
         return out
 
-    sel_rows = list(by_prompt.values())
+    sel_rows = selected
     picked = []
     capped = [r for r in sel_rows if r["metrics"]["per"].get("selected_asr_truncated")]
     emptyish = [r for r in sel_rows if r["metrics"]["per"]["per"] >= 0.999]
@@ -69,18 +74,48 @@ def pick_stratified(per_song: Path, songs_dir: Path, n_per_bucket=2):
     return strat
 
 
+def restricted_per_numeric_record(row: dict) -> dict:
+    """Never include target lyrics, ASR transcript or phoneme sequences."""
+    m = row["metrics"]["per"]
+    return {
+        "id": row["id"],
+        "prompt_index": row["prompt_index"],
+        "candidate_index": row["candidate_index"],
+        "seed": row["seed"],
+        "audio_sha256": row.get("audio_sha256"),
+        "lang": row.get("lang"),
+        "metrics": {"per": {
+            key: m.get(key)
+            for key in ("per", "edits", "reference_phonemes",
+                        "selected_asr_truncated", "truncated")
+        }},
+    }
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--run", type=Path, required=True, help="campaign run dir (armA/armB)")
     ap.add_argument("--out", type=Path, required=True)
+    ap.add_argument("--rights-confirmed", action="store_true",
+                    help="I have checked permission for restricted sharing of the song audio")
     args = ap.parse_args()
+    if not args.rights_confirmed:
+        ap.error("Audio contains benchmark-derived lyrics; explicit rights clearance is required")
+    if args.out.exists() and any(args.out.iterdir()):
+        ap.error("Destination must be empty; existing evidence must not be overwritten")
     per_song = args.run / "scores" / "per_song.jsonl"
+    summary_file = args.run / "scores" / "summary.json"
+    if not summary_file.is_file():
+        ap.error("Frozen official selection scores/summary.json is required")
+    summary = json.loads(summary_file.read_text())
     songs = args.run / "songs"
-    strat = pick_stratified(per_song, songs)
+    strat = pick_stratified(per_song, songs, summary)
     audio_out = args.out / "audio"
     audio_out.mkdir(parents=True, exist_ok=True)
     manifest = []
     for s in strat:
+        if not re.fullmatch(r"wsb_\d{3}_r[01]_s\d+", s["id"]):
+            raise ValueError("Unexpected candidate ID; refusing filesystem path")
         src = songs / s["id"] / "audio.flac"
         if not src.is_file():
             src = songs / f"{s['id']}.wav"
@@ -132,11 +167,7 @@ def main() -> int:
         if line.strip():
             r = json.loads(line)
             if r["id"] in {m["id"] for m in manifest}:
-                d = dict(r)
-                d["metrics"] = {"per": {k: v for k, v in r["metrics"]["per"].items()
-                                        if k in ("per", "edits", "reference_phonemes",
-                                                 "selected_asr_truncated", "truncated")}}
-                ref[r["id"]] = d
+                ref[r["id"]] = restricted_per_numeric_record(r)
     (args.out / "reference_per.jsonl").write_text(
         "".join(json.dumps(ref[m["id"]]) + "\n" for m in manifest))
     (args.out / "evaluation_inputs.jsonl").write_text(

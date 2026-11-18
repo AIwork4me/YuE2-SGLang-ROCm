@@ -1,18 +1,32 @@
 name: ci
 on:
   push:
-    branches: ["main", "validation/**", "feat/**"]
+    branches: ["main", "validation/**", "feat/**", "fix/**", "mission/**"]
   pull_request:
 jobs:
   cpu:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # numeric-integrity check diffs against pre-redaction history
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
       - name: Install test deps
         run: python -m pip install pytest numpy soundfile
+      - name: Public evidence guard (no raw benchmark text)
+        run: python3 scripts/public_evidence_guard.py
+      - name: Evidence lyrics detector (key-scan tier; ground-truth tier auto-off without dataset)
+        run: python3 scripts/evidence_lyrics_detector.py
+      - name: Evidence lyrics detector unit tests (synthetic fixtures only)
+        run: python -m pytest -q tests/test_evidence_lyrics_detector.py
+      - name: Exercise tier-2 matcher end-to-end (synthetic data only)
+        run: python -m pytest -q tests/test_evidence_detector_integration.py
+      - name: Numeric receipt integrity (redaction vs pre-redaction originals)
+        run: python3 scripts/verify_numeric_receipt_integrity.py
+      - name: Public evidence guard unit tests
+        run: python3 -m pytest -q tests/test_public_evidence.py
       - name: Compile-check all python (scripts + supervisor)
         run: python -m compileall -q scripts supervisor
       - name: Shell syntax check (all scripts)
