@@ -140,10 +140,16 @@ def launch_detached(argv: list[str], err_log: Path) -> bool:
 
 
 def audit(run_dir: Path, mode: str = "full") -> bool:
-    """C4: verdict must come from the auditor's audit.json (file + exit code)."""
+    """C4: verdict must come from the auditor's audit.json (file + exit code).
+
+    The auditor resolves the workspace via YUE2_WORKSPACE (or repo layout);
+    the chain always passes it explicitly so a bare shell environment can
+    never turn into a false NOT-FULL (live defect: chain started without the
+    env var made every audit fail with FileNotFoundError)."""
+    env = {**os.environ, "YUE2_WORKSPACE": str(WS), "TMPDIR": str(WS / "tmp")}
     r = subprocess.run([PY_A, str(REPO / "scripts/verify_wsb_artifacts.py"),
                         "--runs", str(run_dir), "--mode", mode],
-                       capture_output=True, text=True, timeout=7200)
+                       capture_output=True, text=True, timeout=7200, env=env)
     (run_dir / f"audit_chain_{int(time.time())}.log").write_text(
         r.stdout + "\n--- stderr ---\n" + r.stderr)
     if r.returncode != 0:
