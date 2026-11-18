@@ -23,15 +23,19 @@ PORT="${ARMB_PORT:-31000}"
 HOST="${ARMB_HOST:-127.0.0.1}"
 URL="http://$HOST:$PORT"
 LOG="$WS/logs"
-RECEIPT="$LOG/armB_server_identity.json"
+RECEIPT="$LOG/armB_server_identity/server-identity.json"
 HEALTH_TIMEOUT_S="${ARMB_HEALTH_TIMEOUT_S:-1800}"
+PY_B="$WS/environments/yue2-gfx1100/bin/python"
 
 acceptance_flow() {
   local rc=0
   echo "[armB-acceptance] starting server (serve_yue2_gfx1100.sh)"
+  # server boot output goes to a FILE, never /dev/null — a server that dies
+  # during boot must leave evidence (the 22:55Z attempt died silently)
   setsid nohup env YUE2_WORKSPACE="$WS" YUE2_VENV="$WS/environments/yue2-gfx1100" \
     PORT="$PORT" HOST="$HOST" \
-    bash "$REPO/scripts/serve_yue2_gfx1100.sh" >/dev/null 2>&1 < /dev/null &
+    bash "$REPO/scripts/serve_yue2_gfx1100.sh" \
+    > "$LOG/armB_server_boot.log" 2>&1 < /dev/null &
 
   echo "[armB-acceptance] polling $URL/health (bounded ${HEALTH_TIMEOUT_S}s)"
   local t0=$(date +%s) ok=0
@@ -78,6 +82,11 @@ acceptance_flow() {
 }
 
 mkdir -p "$LOG"
-exec "$WS/environments/yue2-gfx1100/bin/python" "$REPO/scripts/gpu_lock.py" \
+# export (not command-prefix assignment): acceptance_flow reads $WS/$REPO/...
+# directly — the 22:55Z attempt died instantly because WS was empty in the
+# bash -c environment and serve_yue2_gfx1100.sh fell back to the repo root
+# (no environments/ there -> source activate failed under set -e).
+export WS REPO PORT HOST URL LOG RECEIPT HEALTH_TIMEOUT_S
+exec "$PY_B" "$REPO/scripts/gpu_lock.py" \
   wait --who armB-acceptance --wait-s "${ARMB_GPU_LOCK_WAIT_S:-7200}" -- \
-  bash -c "$(declare -f acceptance_flow); YUE2_WORKSPACE='$WS' REPO='$REPO' PORT='$PORT' HOST='$HOST' LOG='$LOG' RECEIPT='$RECEIPT' HEALTH_TIMEOUT_S='$HEALTH_TIMEOUT_S' acceptance_flow"
+  bash -c "$(declare -f acceptance_flow); acceptance_flow"

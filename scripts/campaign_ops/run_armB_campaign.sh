@@ -17,7 +17,7 @@ PORT="${ARMB_PORT:-31000}"
 HOST="${ARMB_HOST:-127.0.0.1}"
 URL="http://$HOST:$PORT"
 LOG="$WS/logs"
-RECEIPT="$LOG/armB_server_identity.json"
+RECEIPT="$LOG/armB_server_identity/server-identity.json"
 HEALTH_TIMEOUT_S="${ARMB_HEALTH_TIMEOUT_S:-1800}"
 
 [ -x "$PY_B" ] || { echo "FATAL: Environment B python missing: $PY_B (build_envB.sh first)"; exit 2; }
@@ -54,7 +54,8 @@ campaign_flow() {
   echo "[armB-launcher] starting server"
   setsid nohup env YUE2_WORKSPACE="$WS" YUE2_VENV="$WS/environments/yue2-gfx1100" \
     PORT="$PORT" HOST="$HOST" \
-    bash "$REPO/scripts/serve_yue2_gfx1100.sh" >/dev/null 2>&1 < /dev/null &
+    bash "$REPO/scripts/serve_yue2_gfx1100.sh" \
+    > "$LOG/armB_server_boot.log" 2>&1 < /dev/null &
 
   local t0=$(date +%s) ok=0
   while [ $(( $(date +%s) - t0 )) -lt "$HEALTH_TIMEOUT_S" ]; do
