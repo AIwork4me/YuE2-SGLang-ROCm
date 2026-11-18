@@ -206,7 +206,11 @@ def main() -> int:
     w = sub.add_parser("wait")
     w.add_argument("--who", required=True)
     w.add_argument("--wait-s", type=float, default=3600.0)
-    w.add_argument("cmd", nargs=argparse.REMAINDER)
+    # NOTE: dest must NOT be "cmd" — the subparsers' dest is also "cmd" and a
+    # positional with the same name silently overwrites it, making every
+    # `wait` invocation fall through to `return 2` (live defect found while
+    # wiring armB_acceptance.sh; the library API was unaffected).
+    w.add_argument("cmd_args", nargs=argparse.REMAINDER)
     s = sub.add_parser("stop")
     s.add_argument("--yes", action="store_true")
     args = ap.parse_args()
@@ -216,7 +220,7 @@ def main() -> int:
     if args.cmd == "stop":
         return graceful_stop(args.lock, confirmed=args.yes)
     if args.cmd == "wait":
-        cmd = args.cmd
+        cmd = args.cmd_args
         if cmd and cmd[0] == "--":
             cmd = cmd[1:]
         if not cmd:

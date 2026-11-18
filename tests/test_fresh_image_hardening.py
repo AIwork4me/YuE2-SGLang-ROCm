@@ -258,3 +258,28 @@ class TestRcaF6GateStatusVocabulary:
                and not s["status"].startswith("PARTIAL")}
         assert not bad, (
             f"statuses must be from the vocabulary or start with PARTIAL: {bad}")
+
+
+# --------------------------------------------------------------- CLI wait
+class TestGpuLockCliWait:
+    def test_wait_subcommand_runs_command_under_lock(self, tmp_path):
+        """Regression: the positional 'cmd' silently overwrote the subcommand
+        dest, so `gpu_lock.py wait -- ...` ALWAYS exited 2 without running
+        anything (found live while wiring armB_acceptance.sh)."""
+        import subprocess as sp
+        lock = tmp_path / "gpu.lock"
+        r = sp.run([sys.executable, str(REPO / "scripts/gpu_lock.py"),
+                    "--lock", str(lock), "wait", "--who", "t", "--wait-s", "5",
+                    "--", "echo", "CLI-WAIT-OK"],
+                   capture_output=True, text=True)
+        assert r.returncode == 0, r.stderr
+        assert "CLI-WAIT-OK" in r.stdout
+
+    def test_wait_without_command_exits_2(self, tmp_path):
+        import subprocess as sp
+        lock = tmp_path / "gpu.lock"
+        r = sp.run([sys.executable, str(REPO / "scripts/gpu_lock.py"),
+                    "--lock", str(lock), "wait", "--who", "t"],
+                   capture_output=True, text=True)
+        assert r.returncode == 2
+        assert "no command given" in r.stderr
