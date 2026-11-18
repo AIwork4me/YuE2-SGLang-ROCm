@@ -56,7 +56,9 @@ LAUNCHER_B = REPO / "scripts/campaign_ops/run_armB_campaign.sh"
 ARMB_ACCEPTANCE = REPO / "scripts/campaign_ops/armB_acceptance.sh"
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(REPO / "scripts"))
 from driver_alive import driver_alive  # noqa: E402
+from gpu_lock import gpu_ownership  # noqa: E402
 
 SCORE_ENV = {
     **os.environ,
@@ -200,8 +202,13 @@ def score(run_dir: Path, metrics: str, out_subdir: str, per_results: Path | None
     if per_results is not None:
         cmd += ["--per-results", str(per_results)]
     log(f"{log_name}: launching scoring -> {out}")
-    proc = subprocess.run(cmd, cwd=str(WSB_ROOT), env=SCORE_ENV,
-                          capture_output=True, text=True)
+    # GPU-heavy scoring MUST hold the single-GPU ownership lock (C4; the doc
+    # claim previously had no code behind it). Bounded wait; a competing
+    # holder is never preempted.
+    with gpu_ownership(f"scoring:{log_name}",
+                       wait_s=float(os.environ.get("YUE2_GPU_LOCK_WAIT_S", "7200"))):
+        proc = subprocess.run(cmd, cwd=str(WSB_ROOT), env=SCORE_ENV,
+                              capture_output=True, text=True)
     ts = int(time.time())
     logs_dir = WS / "logs"
     logs_dir.mkdir(parents=True, exist_ok=True)
