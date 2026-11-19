@@ -40,9 +40,26 @@ import time
 from contextlib import contextmanager
 from pathlib import Path
 
-DEFAULT_LOCK = Path(os.environ.get(
-    "YUE2_GPU_LOCK",
-    str(Path(os.environ.get("YUE2_WORKSPACE", "/data/yue2")) / "gpu.lock")))
+def resolve_default_lock() -> Path:
+    """Resolve the default lock path at CALL time — never import time.
+
+    An import-time frozen default broke isolation twice in practice:
+      * CI runners (non-root, no /data): gpu_ownership() did
+        ``path.parent.mkdir(parents=True)`` on the frozen /data/yue2/gpu.lock
+        default -> PermissionError: [Errno 13] '/data' (PR #13 run 44421080608,
+        5 failures in TestScoreGate).
+      * any caller that exports YUE2_WORKSPACE/YUE2_GPU_LOCK after importing
+        this module silently locked the wrong file.
+    All internal code paths resolve lazily via this function.
+    """
+    return Path(os.environ.get(
+        "YUE2_GPU_LOCK",
+        str(Path(os.environ.get("YUE2_WORKSPACE", "/data/yue2")) / "gpu.lock")))
+
+
+# Backwards-compatible module constant: snapshot at import. New code must call
+# resolve_default_lock() instead of reading this.
+DEFAULT_LOCK = resolve_default_lock()
 
 
 def _pid_alive(pid: int) -> bool:
@@ -87,9 +104,10 @@ def _holder_is_live(holder: dict | None) -> bool:
     return bool(cmd) and (not recorded or recorded[:120] in cmd or cmd[:120] in recorded)
 
 
-def status(lock_path: Path = DEFAULT_LOCK) -> dict:
+def status(lock_path: Path | None = None) -> dict:
     """Report lock state. The KERNEL flock is authoritative for held/not-held;
     the receipt file only identifies who holds it (or last held it)."""
+    lock_path = Path(lock_path) if lock_path else resolve_default_lock()
     holder = _read_holder(lock_path)
     held = False
     try:
@@ -112,7 +130,7 @@ def status(lock_path: Path = DEFAULT_LOCK) -> dict:
 def gpu_ownership(who: str, wait_s: float = 0.0, poll_s: float = 10.0,
                   lock_path: Path | None = None):
     """Acquire the single-GPU ownership lock; yields the receipt dict."""
-    path = Path(lock_path) if lock_path else DEFAULT_LOCK
+    path = Path(lock_path) if lock_path else resolve_default_lock()
     path.parent.mkdir(parents=True, exist_ok=True)
     deadline = time.monotonic() + max(0.0, wait_s)
     fd = None
@@ -165,7 +183,8 @@ def gpu_ownership(who: str, wait_s: float = 0.0, poll_s: float = 10.0,
         os.close(fd)
 
 
-def graceful_stop(lock_path: Path = DEFAULT_LOCK, confirmed: bool = False) -> int:
+def graceful_stop(lock_path: Path | None = None, confirmed: bool = False) -> int:
+    lock_path = Path(lock_path) if lock_path else resolve_default_lock()
     st = status(lock_path)
     holder = st["holder"]
     if not holder or not st["holder_live"]:
@@ -200,7 +219,9 @@ def graceful_stop(lock_path: Path = DEFAULT_LOCK, confirmed: bool = False) -> in
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--lock", type=Path, default=DEFAULT_LOCK)
+    # default resolved at call time (see resolve_default_lock); an import-time
+    # frozen default silently broke env overrides set after module import.
+    ap.add_argument("--lock", type=Path, default=None)
     sub = ap.add_subparsers(dest="cmd", required=True)
     sub.add_parser("status")
     w = sub.add_parser("wait")
@@ -214,11 +235,12 @@ def main() -> int:
     s = sub.add_parser("stop")
     s.add_argument("--yes", action="store_true")
     args = ap.parse_args()
+    lock = Path(args.lock) if args.lock else resolve_default_lock()
     if args.cmd == "status":
-        print(json.dumps(status(args.lock), indent=2))
+        print(json.dumps(status(lock), indent=2))
         return 0
     if args.cmd == "stop":
-        return graceful_stop(args.lock, confirmed=args.yes)
+        return graceful_stop(lock, confirmed=args.yes)
     if args.cmd == "wait":
         cmd = args.cmd_args
         if cmd and cmd[0] == "--":
@@ -226,7 +248,7 @@ def main() -> int:
         if not cmd:
             print("no command given", file=sys.stderr)
             return 2
-        with gpu_ownership(args.who, wait_s=args.wait_s, lock_path=args.lock):
+        with gpu_ownership(args.who, wait_s=args.wait_s, lock_path=lock):
             return subprocess.run(cmd).returncode
     return 2
 

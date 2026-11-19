@@ -60,6 +60,20 @@ def make_run(ws: Path, name: str, indices, corrupt=(), wrong_seed=None,
     songs = runs / "songs"
     songs.mkdir(parents=True)
     inputs = []
+    # the auditor recomputes finalize_candidate's identity over
+    # {request, config, weights} canonical JSON — synthetic bundles must be
+    # self-consistent or every candidate reports 'identity recheck FAILED'
+    # (dormant test defect: these tests only execute where the pinned
+    # manifest exists, and CI skips them).
+    weights = {"mot": {"config_sha256": "a" * 64}, "vae": {"config_sha256": "b" * 64}}
+
+    def _identity(request, config):
+        blob = json.dumps({"request": request, "config": config,
+                           "weights": weights}, ensure_ascii=False,
+                          sort_keys=True, separators=(",", ":"), allow_nan=False)
+        import hashlib
+        return hashlib.sha256(blob.encode()).hexdigest()
+
     for i in indices:
         for j in (0, 1):
             if (i, j) in drop:
@@ -72,18 +86,26 @@ def make_run(ws: Path, name: str, indices, corrupt=(), wrong_seed=None,
                            "seed": seed, "path": f"songs/{ident}"})
             cand = songs / ident
             cand.mkdir()
+            request = {"seed": seed, "cot": "full", "cfg_scale": 1.0}
+            config = {"generation": "x", "backend": "torch"}
             (cand / "result.json").write_text(json.dumps(
-                {"status": "complete", "truncated": (i, j) in truncated}))
-            (cand / "request.json").write_text(json.dumps(
-                {"seed": seed, "cot": "full", "cfg_scale": 1.0}))
+                {"status": "complete", "truncated": (i, j) in truncated,
+                 "weights": weights, "identity": _identity(request, config)}))
+            (cand / "request.json").write_text(json.dumps(request))
+            (cand / "config.json").write_text(json.dumps(config))
             if (i, j) in corrupt:
                 (cand / "corrupt").write_text("x")
     if duplicate is not None:
         ident = duplicate
         cand = songs / ident
         cand.mkdir(parents=True, exist_ok=True)
-        (cand / "result.json").write_text('{"status": "complete", "truncated": false}')
-        (cand / "request.json").write_text('{"seed": 0, "cot": "full", "cfg_scale": 1.0}')
+        request = {"seed": 0, "cot": "full", "cfg_scale": 1.0}
+        config = {"generation": "x", "backend": "torch"}
+        (cand / "result.json").write_text(json.dumps(
+            {"status": "complete", "truncated": False, "weights": weights,
+             "identity": _identity(request, config)}))
+        (cand / "request.json").write_text(json.dumps(request))
+        (cand / "config.json").write_text(json.dumps(config))
     if extra_dir:
         (songs / extra_dir).mkdir()
         (songs / extra_dir / "result.json").write_text('{"status": "complete"}')
@@ -149,7 +171,10 @@ def test_duplicate_candidate_rejected(tmp_path):
     r = run_validator(ws, runs, "--mode", "pilot")
     assert r.returncode != 0
     a = audit(runs)
-    assert any("duplicate entry" in p for p in a["problems"]), a["problems"]
+    # current auditor vocabulary: duplicate rows in evaluation_inputs are
+    # reported as 'duplicate (prompt_index, candidate_index) ... (2x)'
+    assert any("duplicate (prompt_index, candidate_index)" in p
+               for p in a["problems"]), a["problems"]
 
 
 def test_unexpected_candidate_dir_rejected(tmp_path):
@@ -167,7 +192,10 @@ def test_corrupted_artifact_rejected(tmp_path):
     r = run_validator(ws, runs, "--mode", "pilot")
     assert r.returncode != 0
     a = audit(runs)
-    assert any("official verify_result FAILED" in p for p in a["problems"]), a["problems"]
+    # current auditor vocabulary: a candidate failing the official checker is
+    # reported as '<ident>: artifact integrity FAILED: <ExcType>: <msg>'
+    assert any("artifact integrity FAILED" in p and "simulated corruption" in p
+               for p in a["problems"]), a["problems"]
 
 
 def test_truncated_but_valid_passes(tmp_path):

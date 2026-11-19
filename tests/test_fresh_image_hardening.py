@@ -149,6 +149,36 @@ class TestRcaF3ExactExperimentIdentity:
 
 # --------------------------------------------------------------- RCA-F4
 class TestRcaF4GpuLock:
+    def test_default_lock_resolves_at_call_time_not_import_time(self, monkeypatch, tmp_path):
+        """M1.1 regression: the import-time frozen DEFAULT_LOCK caused
+        PermissionError '/data' on CI (PR #13 run 44421080608). All library
+        entry points must re-resolve the default from the environment at
+        call time."""
+        monkeypatch.setenv("YUE2_GPU_LOCK", str(tmp_path / "a" / "gpu.lock"))
+        assert str(G.resolve_default_lock()) == str(tmp_path / "a" / "gpu.lock")
+        monkeypatch.setenv("YUE2_GPU_LOCK", str(tmp_path / "b" / "gpu.lock"))
+        assert str(G.resolve_default_lock()) == str(tmp_path / "b" / "gpu.lock")
+        # workspace-relative default still honored when no explicit lock env
+        monkeypatch.delenv("YUE2_GPU_LOCK")
+        monkeypatch.setenv("YUE2_WORKSPACE", str(tmp_path / "ws1"))
+        assert str(G.resolve_default_lock()) == str(tmp_path / "ws1" / "gpu.lock")
+
+    def test_ownership_without_lock_path_honors_late_env(self, tmp_path, monkeypatch):
+        """gpu_ownership() with no explicit path must use the CURRENT env
+        default (call-time), never the import-time snapshot — and must not
+        need any pre-existing parent directory outside tmp."""
+        monkeypatch.setenv("YUE2_GPU_LOCK", str(tmp_path / "deep" / "nest" / "gpu.lock"))
+        with G.gpu_ownership("late-env", wait_s=0) as receipt:
+            assert receipt["who"] == "late-env"
+        assert (tmp_path / "deep" / "nest" / "gpu.lock").exists()
+
+    def test_cli_lock_flag_defaults_to_call_time_env(self, tmp_path, monkeypatch):
+        monkeypatch.setenv("YUE2_GPU_LOCK", str(tmp_path / "cli.lock"))
+        r = subprocess.run([sys.executable, str(REPO / "scripts" / "gpu_lock.py"),
+                            "status"], capture_output=True, text=True, timeout=15)
+        assert r.returncode == 0
+        assert str(tmp_path / "cli.lock") in r.stdout
+
     def test_exclusion_and_release(self, tmp_path):
         lock = tmp_path / "gpu.lock"
         with G.gpu_ownership("t1", wait_s=0, lock_path=lock):
