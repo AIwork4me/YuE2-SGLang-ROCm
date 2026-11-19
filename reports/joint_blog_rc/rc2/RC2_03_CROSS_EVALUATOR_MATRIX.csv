@@ -1,0 +1,9 @@
+Cell,Audio,Evaluator backend,Hardware,Status,PER (selected-192),95% CI (prompt bootstrap),Evidence / blocker
+A1,Arm A fresh (armA_full_20261115f),ROCm frozen evaluator (patches 0006/0007/0009 disclosed),W7900D gfx1100,DONE,0.168292,"[0.1487, 0.1892]",/data/yue2-runs/armA_wsb_full/scores/summary.json + 03_PER_CAUSAL_ANALYSIS.md
+B1,Arm B pre-swap (2026-11-14),ROCm frozen evaluator (same),W7900 pre-swap,DONE,0.1777,"[0.1520, 0.2068]",historical generation; summaries only
+B1',Arm B fresh this image (armB_full_20261119T015756Z),ROCm frozen evaluator (same),W7900D,IN_PROGRESS,-,-,campaign running (RC2_00 §2); scoring via mission chain after audit
+G1,gfx1151 (Oct 2026),ROCm frozen evaluator (same),Radeon 8060S gfx1151,DONE,0.1722,"[0.1493, 0.1980]",evidence/per_song.jsonl (restricted; aggregates in-repo)
+A2,Arm A fresh (same audio as A1),Official CUDA evaluator (authors' pinned tree),CUDA host (any),BLOCKED_EXTERNAL,-,-,VALIDATED kit ready: rc2/RC2_03_AUTHOR_CUDA_HANDOFF/ (full-bundle 16.3 GiB + manifest + verifier + runbook); needs owner-approved private transfer + CUDA host
+B2,Arm B fresh (same audio as B1'),Official CUDA evaluator,CUDA host,BLOCKED_EXTERNAL,-,-,kit ready; blocked on Arm B completion + same as A2
+C1,Author reference audio (8.44% run),ROCm frozen evaluator,W7900D,BLOCKED_EXTERNAL,-,-,author request prepared (RC2_06); requires authors to share reference audio privately
+C2,Author reference audio,Official CUDA evaluator (their 8.44% context),authors',BLOCKED_EXTERNAL,-,-,author request: per-song receipts or reference audio; evaluator commit + ASR config
