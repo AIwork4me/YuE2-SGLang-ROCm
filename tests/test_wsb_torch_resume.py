@@ -79,3 +79,42 @@ def test_run_identity_mismatch_refused(tmp_path, monkeypatch):
              "manifest_sha256": A.OFFICIAL["manifest_sha256"]}
     prev = json.loads((runs / "run_config.json").read_text())
     assert prev != ident  # differing backend must never silently resume
+
+
+# ------------------------------------------- ported from PR #8 (journal
+# recovery guarantees) onto the current read_journal/atomic_append API
+def test_torn_tail_quarantined_not_counted(tmp_path):
+    j = tmp_path / "generation_manifest.jsonl"
+    j.write_bytes(b'{"id":"a","status":"complete"}\n{"id":"b","status":"comp')
+    done, problems = A.read_journal(j)
+    assert done == {"a"} and any("torn" in p for p in problems)
+    sidecars = list(tmp_path.glob("generation_manifest.jsonl.corrupt-tail-*.bin"))
+    assert len(sidecars) == 1 and sidecars[0].read_bytes() == \
+        b'{"id":"b","status":"comp'
+    # journal was fsync-truncated back to the last good newline
+    assert j.read_bytes() == b'{"id":"a","status":"complete"}\n'
+
+
+def test_last_status_wins(tmp_path):
+    j = tmp_path / "generation_manifest.jsonl"
+    A.atomic_append(j, {"id": "a", "status": "complete"})
+    A.atomic_append(j, {"id": "a", "status": "failed"})
+    done, problems = A.read_journal(j)
+    assert "a" not in done
+    assert any("latest status wins" in p for p in problems)
+
+
+def test_append_rejects_incomplete_tail(tmp_path):
+    j = tmp_path / "generation_manifest.jsonl"
+    j.write_bytes(b'{"id":"a","status":"complete"}')  # no trailing newline
+    import pytest as _pytest
+    with _pytest.raises(ValueError, match="torn"):
+        A.atomic_append(j, {"id": "b", "status": "complete"})
+
+
+def test_interior_corrupt_line_fails_closed(tmp_path):
+    j = tmp_path / "generation_manifest.jsonl"
+    j.write_bytes(b'{"id":"a","status":"complete"}\nNOT-JSON\n')
+    import pytest as _pytest
+    with _pytest.raises(ValueError, match="[Ii]nvalid"):
+        A.read_journal(j)
