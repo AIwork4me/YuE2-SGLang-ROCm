@@ -1,0 +1,9 @@
+cell,audio_source,evaluator_backend,status,value_per_micro_selected192,ci95_low,ci95_high,evidence_path,notes
+A1,armA_fresh_384,ROCm_transformers_qwen3asr_patch0007,DONE,0.168292,0.148710,0.189162,/data/yue2-runs/armA_wsb_full/scores/summary.json + per_song.jsonl,official torch-eager implementation on W7900D
+B1,armB_fresh_preswap_384,ROCm_transformers_qwen3asr_patch0007,DONE,0.177700,0.152000,0.206800,evidence/publication/armB_campaign/official_summary.json,SGLang on W7900 pre-swap image 2026-11-14
+B1p,armB_fresh_thisimage_384,ROCm_transformers_qwen3asr_patch0007,IN_PROGRESS,,,,/data/yue2-runs/armB_wsb_full/,campaign armB_full_20261119T015756Z running
+G1,gfx1151_oct_384,ROCm_transformers_qwen3asr,DONE,0.172200,0.149300,0.198000,evidence/per_song.jsonl,SGLang on Radeon 8060S iGPU 2026-10
+A2,armA_fresh_384,official_CUDA_reference,BLOCKED_EXTERNAL,,,,reports/joint_blog_rc/03_CUDA_REFERENCE_HANDOFF.md,kit prepared; needs CUDA host or author execution
+B2,armB_fresh_384,official_CUDA_reference,BLOCKED_EXTERNAL,,,,reports/joint_blog_rc/03_CUDA_REFERENCE_HANDOFF.md,kit prepared; audio privately transferable
+C1,author_reference_audio,ROCm_transformers_qwen3asr,BLOCKED_EXTERNAL,,,,reports/joint_blog_rc/07_AUTHOR_REVIEW_REQUEST.md,author audio not distributed
+C2,author_reference_audio,official_CUDA_reference,BLOCKED_EXTERNAL,,,,,authors own 8.44 percent context; per-song receipts requested

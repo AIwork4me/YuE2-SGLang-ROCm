@@ -38,6 +38,13 @@ def _pinned_manifest() -> Path:
 
     Skips honestly (visible SKIP, not silent pass) when no workspace with the
     pinned dataset has been materialized (e.g. pristine CI container).
+
+    When found, the supplying workspace is exported to the auditor subprocess
+    environment (ENV["YUE2_WORKSPACE"]): on a campaign host the manifest may
+    be discovered via a parent-directory fallback (repo nested under the
+    workspace), and the subprocess must resolve the SAME workspace instead of
+    failing (or, worse, picking up a different one). Isolation defect found
+    while reproducing the PR #13 CI failures on the physical host.
     """
     try:
         ws = resolve_workspace(SCRIPT)
@@ -50,6 +57,7 @@ def _pinned_manifest() -> Path:
         candidates.append(WS.parents[1] / "benchmark/WildSongBench/benchmark/reproduction_manifest.jsonl")
     for c in candidates:
         if c.is_file():
+            ENV["YUE2_WORKSPACE"] = str(c.parents[3])
             return c
     pytest.skip("pinned WildSongBench manifest not available; "
                 "run scripts/download_pins.py to materialize the workspace")

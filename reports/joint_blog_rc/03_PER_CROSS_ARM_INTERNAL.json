@@ -1,0 +1,154 @@
+{
+ "armA_fresh": {
+  "selected_192": {
+   "micro": 0.16829238416359898,
+   "ci95": [
+    0.14871004016064257,
+    0.18916218340451718
+   ],
+   "n": 192
+  },
+  "unselected_384": {
+   "micro": 0.24386084803785676,
+   "ci95": [
+    0.19848898616163707,
+    0.3103174654374907
+   ],
+   "n": 384
+  },
+  "selected_capped": {
+   "micro": 0.19276571734030232,
+   "ci95": [
+    0.15317153304011447,
+    0.23294594758186551
+   ],
+   "n": 36
+  },
+  "selected_uncapped": {
+   "micro": 0.16150628304155207,
+   "ci95": [
+    0.13912347913947712,
+    0.18550366470876992
+   ],
+   "n": 156
+  },
+  "selected_per_eq_1": {
+   "n": 3,
+   "edits_share_of_selected": 0.0679589334967821
+  },
+  "selected_empty_transcript": {
+   "n": 3
+  },
+  "memberships": {
+   "capped_and_per1": 0,
+   "capped_and_empty": null,
+   "note": "groups overlap; contributions must not be summed"
+  },
+  "asr_repeat_determinism": {
+   "candidates_with_repeats": 384,
+   "all_repeats_identical": 384
+  },
+  "by_lang": {
+   "zh": {
+    "micro": 0.1731989702501411,
+    "ci95": [
+     0.148560499007979,
+     0.19875329331558791
+    ],
+    "n": 94
+   },
+   "en": {
+    "micro": 0.16397080221165972,
+    "ci95": [
+     0.1342183957941446,
+     0.19698825813609466
+    ],
+    "n": 98
+   }
+  },
+  "selected_gt_30pct": 23,
+  "unselected_capped_of_384": 72
+ },
+ "gfx1151_sglang": {
+  "selected_192": {
+   "micro": 0.17215413478089883,
+   "ci95": [
+    0.1493163535428821,
+    0.1980003154076644
+   ],
+   "n": 192
+  },
+  "unselected_384": {
+   "micro": 0.25337016717060684,
+   "ci95": [
+    0.21510278645808598,
+    0.3074094765425041
+   ],
+   "n": 384
+  },
+  "selected_capped": {
+   "micro": 0.2075711171812488,
+   "ci95": [
+    0.14371104090171632,
+    0.2894958304643868
+   ],
+   "n": 44
+  },
+  "selected_uncapped": {
+   "micro": 0.16135545310764882,
+   "ci95": [
+    0.14039088498116523,
+    0.18496994155069915
+   ],
+   "n": 148
+  },
+  "selected_per_eq_1": {
+   "n": 3,
+   "edits_share_of_selected": 0.056510504437703626
+  },
+  "selected_empty_transcript": {
+   "n": 3
+  },
+  "memberships": {
+   "capped_and_per1": 0,
+   "capped_and_empty": null,
+   "note": "groups overlap; contributions must not be summed"
+  },
+  "asr_repeat_determinism": {
+   "candidates_with_repeats": 384,
+   "all_repeats_identical": 384
+  },
+  "by_lang": {
+   "zh": {
+    "micro": 0.17815498561378873,
+    "ci95": [
+     0.15463655610444602,
+     0.20266071746301137
+    ],
+    "n": 94
+   },
+   "en": {
+    "micro": 0.16686875545639732,
+    "ci95": [
+     0.12951327597486761,
+     0.2111272431616238
+    ],
+    "n": 98
+   }
+  },
+  "selected_gt_30pct": 23,
+  "unselected_capped_of_384": 88
+ },
+ "paired_per_prompt": {
+  "unit": "prompt (unselected, both candidates, official frozen seeds)",
+  "n_prompts": 192,
+  "pearson_r": 0.34881194380713876,
+  "spearman_rho": 0.7545057188295813,
+  "mean_paired_difference": 0.011056392688563524,
+  "diff_ci95": [
+   -0.03731118280280193,
+   0.055857544783490955
+  ],
+  "interpretation": "high correlation => shared prompt-structural difficulty; the systematic offset vs the official baseline is then common-mode (generation numerics and/or evaluator backend), not arm-specific"
+ }
+}

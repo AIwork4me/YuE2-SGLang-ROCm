@@ -1,7 +1,8 @@
 # 02 INSTALLATION — Fresh Image (Phase P2)
 
-Written: 2026-11-15T00:30Z (live document; evaluator venv step marked in-progress
-until confirmed) · Machine: fresh W7900D image (see 00_ENVIRONMENT).
+Originally written: 2026-11-15T00:30Z. C1 CPU-only receipt reconciliation:
+2026-11-15. Machine: fresh W7900D image (see 00_ENVIRONMENT).
+This is a historical installation receipt, not a new GPU re-run.
 
 ## Frozen contract
 
@@ -69,9 +70,16 @@ lock arm_b_stack). Torch wheel provenance: repo.amd.com whl-multi-arch with
      (with per-stage sha table + per-patch disclosure).
 3. Assets: fetched + verified (above).
 4. venvs: `prepare --install` (uv-managed 3.12.11, eval + metrics roles from
-   frozen locks) → **in progress at time of writing**; torch-family substitution
-   under `WSB_ROCM_TORCH_OVERRIDE=1` follows per DEV-3.
-5. Offline check: pending venv completion.
+   frozen locks) → initially pending at 00:30Z; subsequently finalized during
+   C1. Torch-family substitution under `WSB_ROCM_TORCH_OVERRIDE=1` follows
+   DEV-3. The evaluator uv-managed envs lack standalone `pip`, so the two
+   original pip-freeze captures were empty, **not** proof of empty environments.
+5. C1 re-exported evaluator receipts using bundled `uv pip list`: metrics
+   **232** and eval **76** installed package records, saved at
+   `evidence/publication/fresh_image/dependency_inventory/`. G1 was
+   restored to PASS on those host-backed receipts. Independent offline
+   evaluation and real-W7900 performance were not re-run in C1; do not read
+   this dependency audit as a new GPU/score result.
 
 ## Deviations on this image (all inherited, disclosed)
 
@@ -85,5 +93,6 @@ lock arm_b_stack). Torch wheel provenance: repo.amd.com whl-multi-arch with
 
 ## Inventory receipts
 
-`evidence/publication/fresh_image/dependency_inventory/` (populated at env
-finalization): pip freeze per environment + evaluator venv lock check output.
+`evidence/publication/fresh_image/dependency_inventory/`: populated
+with 5 non-empty environment inventory files after C1; evaluator
+uv-managed packages were captured by `uv pip list`, not `pip freeze`.

@@ -20,6 +20,7 @@ import argparse
 import gzip
 import hashlib
 import json
+import os
 import sys
 import tarfile
 import time
@@ -68,11 +69,26 @@ def main() -> int:
     ap.add_argument("--dest", type=Path, required=True)
     ap.add_argument("--expect-top", default=None,
                     help="expected single top-level directory inside the archive")
+    ap.add_argument("--expect-sha256", default=None,
+                    help="frozen archive SHA256 pin; extraction is refused on "
+                         "mismatch (fail-closed: the operator's separate "
+                         "sha256sum check is evidence, not enforcement)")
     args = ap.parse_args()
 
     if not args.archive.is_file():
         print(f"FATAL: archive missing: {args.archive}")
         return 2
+    h = hashlib.sha256()
+    with args.archive.open("rb") as f:
+        while True:
+            chunk = f.read(1 << 22)
+            if not chunk:
+                break
+            h.update(chunk)
+    digest = h.hexdigest()
+    if args.expect_sha256 and digest != args.expect_sha256:
+        print(f"FATAL: archive sha256 {digest} != pinned {args.expect_sha256}")
+        return 6
     if not gzip_integrity_ok(args.archive):
         return 2
 
@@ -81,36 +97,55 @@ def main() -> int:
         print(f"FATAL: destination not empty (P0 no-clobber): {args.dest}")
         return 3
 
-    with tarfile.open(args.archive, "r:gz") as tf:
-        problems = validate_members(tf, args.dest.resolve())
-        if problems:
-            print(f"FATAL: unsafe archive ({len(problems)} problems):")
-            for p in problems[:20]:
-                print(" -", p)
-            return 4
-        tops = {m.name.split("/")[0] for m in tf.getmembers() if m.name.strip()}
-        if args.expect_top and tops != {args.expect_top}:
-            print(f"FATAL: unexpected archive top level {sorted(tops)} "
-                  f"!= [{args.expect_top}]")
-            return 5
-        n = 0
-        t0 = time.time()
-        for m in tf.getmembers():
-            tf.extract(m, args.dest, filter="data",
-                       set_attrs=False)
-            n += 1
-            if n % 200 == 0:
-                print(f"  extracted {n} members...", flush=True)
+    # crash-safe completion: extract into a private staging dir, atomically
+    # rename into place ONLY after the last member verified. A crash leaves
+    # <dest>.staging-<pid> for inspection — it is never auto-deleted, and it
+    # can never block or contaminate a retry (dest itself stays absent/empty).
+    staging = args.dest.parent / f"{args.dest.name}.staging-{os.getpid()}"
+    if staging.exists():
+        print(f"FATAL: stale staging dir present (inspect/remove manually): "
+              f"{staging}")
+        return 7
+    staging.mkdir(parents=True)
+    ok = False
+    try:
+        with tarfile.open(args.archive, "r:gz") as tf:
+            problems = validate_members(tf, staging.resolve())
+            if problems:
+                print(f"FATAL: unsafe archive ({len(problems)} problems):")
+                for p in problems[:20]:
+                    print(" -", p)
+                return 4
+            tops = {m.name.split("/")[0] for m in tf.getmembers() if m.name.strip()}
+            if args.expect_top and tops != {args.expect_top}:
+                print(f"FATAL: unexpected archive top level {sorted(tops)} "
+                      f"!= [{args.expect_top}]")
+                return 5
+            n = 0
+            t0 = time.time()
+            for m in tf.getmembers():
+                tf.extract(m, staging, filter="data",
+                           set_attrs=False)
+                n += 1
+                if n % 200 == 0:
+                    print(f"  extracted {n} members...", flush=True)
+        staging.rename(args.dest)
+        ok = True
+    finally:
+        if not ok and staging.exists():
+            print(f"NOTE: incomplete extraction left for inspection: {staging}")
 
     receipt = {
         "archive": str(args.archive),
+        "archive_sha256": digest,
+        "sha256_pinned": bool(args.expect_sha256),
         "dest": str(args.dest),
         "members": n,
         "top_level": sorted(tops),
         "extracted_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "wall_s": round(time.time() - t0, 1),
         "policy": "path-safety validated (no absolute/traversal/unsafe links/"
-                  "specials); no-clobber enforced",
+                  "specials); no-clobber enforced; staged + atomic rename",
     }
     rcpt = args.dest.parent / (args.dest.name + ".extract_receipt.json")
     rcpt.write_text(json.dumps(receipt, indent=2) + "\n")

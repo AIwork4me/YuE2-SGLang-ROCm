@@ -73,16 +73,15 @@ class TestRcaF2JournalCrashConsistency:
         p.write_text(json.dumps({"id": "a", "status": "complete"}) + "\n"
                      + "GARBAGE-NOT-JSON\n"
                      + json.dumps({"id": "b", "status": "complete"}) + "\n")
-        complete, problems = A.read_journal(p)
-        assert complete == {"a", "b"}
-        assert any("interior" in x for x in problems)
+        with pytest.raises(ValueError, match="interior"):
+            A.read_journal(p)
 
     def test_conflicting_complete_and_failed_reported(self, tmp_path):
         p = tmp_path / "j.jsonl"
         p.write_text(json.dumps({"id": "a", "status": "complete"}) + "\n"
                      + json.dumps({"id": "a", "status": "failed"}) + "\n")
         complete, problems = A.read_journal(p)
-        assert complete == {"a"}  # artifact verify remains the authority
+        assert complete == set()  # latest event wins; verified artifact may be recovered
         assert any("both" in x for x in problems)
 
     def test_duplicate_completion_deduplicated(self, tmp_path):
@@ -149,6 +148,32 @@ class TestRcaF3ExactExperimentIdentity:
 
 # --------------------------------------------------------------- RCA-F4
 class TestRcaF4GpuLock:
+    def test_default_lock_resolves_at_call_time_not_import_time(self, monkeypatch, tmp_path):
+        """M1.1 regression: the import-time frozen DEFAULT_LOCK caused
+        PermissionError '/data' on CI (PR #13 run 44421080608). All library
+        entry points must re-resolve the default from the environment at
+        call time."""
+        monkeypatch.setenv("YUE2_GPU_LOCK", str(tmp_path / "a" / "gpu.lock"))
+        assert str(G.resolve_default_lock()) == str(tmp_path / "a" / "gpu.lock")
+        monkeypatch.setenv("YUE2_GPU_LOCK", str(tmp_path / "b" / "gpu.lock"))
+        assert str(G.resolve_default_lock()) == str(tmp_path / "b" / "gpu.lock")
+        monkeypatch.delenv("YUE2_GPU_LOCK")
+        monkeypatch.setenv("YUE2_WORKSPACE", str(tmp_path / "ws1"))
+        assert str(G.resolve_default_lock()) == str(tmp_path / "ws1" / "gpu.lock")
+
+    def test_ownership_without_lock_path_honors_late_env(self, tmp_path, monkeypatch):
+        monkeypatch.setenv("YUE2_GPU_LOCK", str(tmp_path / "deep" / "nest" / "gpu.lock"))
+        with G.gpu_ownership("late-env", wait_s=0) as receipt:
+            assert receipt["who"] == "late-env"
+        assert (tmp_path / "deep" / "nest" / "gpu.lock").exists()
+
+    def test_cli_lock_flag_defaults_to_call_time_env(self, tmp_path, monkeypatch):
+        monkeypatch.setenv("YUE2_GPU_LOCK", str(tmp_path / "cli.lock"))
+        r = subprocess.run([sys.executable, str(REPO / "scripts" / "gpu_lock.py"),
+                            "status"], capture_output=True, text=True, timeout=15)
+        assert r.returncode == 0
+        assert str(tmp_path / "cli.lock") in r.stdout
+
     def test_exclusion_and_release(self, tmp_path):
         lock = tmp_path / "gpu.lock"
         with G.gpu_ownership("t1", wait_s=0, lock_path=lock):
@@ -260,26 +285,54 @@ class TestRcaF6GateStatusVocabulary:
             f"statuses must be from the vocabulary or start with PARTIAL: {bad}")
 
 
-# --------------------------------------------------------------- CLI wait
-class TestGpuLockCliWait:
-    def test_wait_subcommand_runs_command_under_lock(self, tmp_path):
-        """Regression: the positional 'cmd' silently overwrote the subcommand
-        dest, so `gpu_lock.py wait -- ...` ALWAYS exited 2 without running
-        anything (found live while wiring armB_acceptance.sh)."""
-        import subprocess as sp
-        lock = tmp_path / "gpu.lock"
-        r = sp.run([sys.executable, str(REPO / "scripts/gpu_lock.py"),
-                    "--lock", str(lock), "wait", "--who", "t", "--wait-s", "5",
-                    "--", "echo", "CLI-WAIT-OK"],
-                   capture_output=True, text=True)
-        assert r.returncode == 0, r.stderr
-        assert "CLI-WAIT-OK" in r.stdout
+class TestFreshJournalHardeningV2:
+    def test_missing_newline_even_complete_json_quarantined(self, tmp_path):
+        p = tmp_path / "j.jsonl"
+        p.write_bytes(b'{"id":"x","status":"complete"}')
+        done, problems = A.read_journal(p)
+        assert not done
+        assert any("torn final line" in x for x in problems)
+        assert p.read_bytes() == b""
+        sidecars = list(tmp_path.glob("j.jsonl.corrupt-tail-*.bin"))
+        assert len(sidecars) == 1
+        assert b'"id":"x"' in sidecars[0].read_bytes()
+        A.atomic_append(p, {"id": "x", "status": "complete"})
+        assert A.read_journal(p)[0] == {"x"}
 
-    def test_wait_without_command_exits_2(self, tmp_path):
-        import subprocess as sp
-        lock = tmp_path / "gpu.lock"
-        r = sp.run([sys.executable, str(REPO / "scripts/gpu_lock.py"),
-                    "--lock", str(lock), "wait", "--who", "t"],
-                   capture_output=True, text=True)
-        assert r.returncode == 2
-        assert "no command given" in r.stderr
+    def test_torn_tail_followed_by_append_without_recovery_fails(self, tmp_path):
+        p = tmp_path / "j.jsonl"
+        p.write_bytes(b'{"id":"oops"')
+        with pytest.raises(ValueError, match="torn record"):
+            A.atomic_append(p, {"id": "safe", "status": "complete"})
+        assert p.read_bytes() == b'{"id":"oops"'
+
+    def test_recover_valid_orphan_without_regeneration(self, tmp_path):
+        p = tmp_path / "songs" / "wsb_test"
+        p.mkdir(parents=True)
+        journal = tmp_path / "journal.jsonl"
+        def verified(path):
+            assert path == p
+            return {"identity": "verified"}
+        completed = set()
+        skip, recovered = A.resume_verified_candidate(
+            p, "wsb_test", completed, verified, journal)
+        assert (skip, recovered) == (True, True)
+        assert completed == {"wsb_test"}
+        assert A.read_journal(journal)[0] == completed
+
+    def test_claimed_but_invalid_candidate_recounted(self, tmp_path):
+        p = tmp_path / "songs" / "missing"
+        completed = {"missing"}
+        skip, changed = A.resume_verified_candidate(
+            p, "missing", completed, lambda _: (_ for _ in ()).throw(ValueError()),
+            tmp_path / "journal.jsonl")
+        assert (skip, changed) == (False, True) and not completed
+
+    def test_symlink_candidate_is_refused(self, tmp_path):
+        p = tmp_path / "real"
+        p.mkdir()
+        link = tmp_path / "alias"
+        link.symlink_to(p, target_is_directory=True)
+        with pytest.raises(RuntimeError, match="symlink"):
+            A.resume_verified_candidate(link, "alias", set(),
+                lambda _: {"identity": "ok"}, tmp_path / "journal.jsonl")

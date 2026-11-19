@@ -55,8 +55,10 @@
   published PER uses the qwen_asr transformers backend on ROCm (patch 0007,
   env-gated). Cross-backend equivalence with the official vLLM backend is
   NOT claimed. Fresh evidence (2026-11-12): the substituted evaluator scores
-  official-range PER (6.5%) on good audio; the historical 17% aggregates are
-  tail-driven (capping + empty transcripts + weak candidates).
+  official-range PER (6.5%) on one strong-audio pilot. This does NOT prove
+  evaluator-backend equivalence. The 17% aggregates include capped ASR,
+  empty transcripts, and weak candidates; causal attribution versus the
+  official 8.44% remains OPEN until same-audio cross-evaluator controls.
 - **Official `--backend torch` (graph capture) is broken on ROCm**
   (`mha_varlen_fwd: seqused_k must be nullopt`); the benchmark Arm A uses
   the official `torch-eager` backend (public SDPA). Disclosed as DEV-1 in

@@ -1,0 +1,71 @@
+{
+  "metric": "PER (phoneme error rate, lower is better)",
+  "protocol": "WildSongBench standard YuE2: 192 prompts x 2 candidates (official seeds 831001+i / 831019+i), 4-pass ASR min per candidate, lower-PER candidate selected",
+  "official_reference": {
+    "value": 0.0844,
+    "source": "m-a-p/WildSongBench README + benchmark/results.md, September 12 2026 comparison, verified 2026-11-11",
+    "per_song_receipts_public": false
+  },
+  "amd_measurements": {
+    "armA_fresh_thisimage": {
+      "implementation": "official native PyTorch torch-eager",
+      "gpu": "AMD Radeon Pro W7900D (gfx1100, 48GB)",
+      "per_micro_selected192": 0.168292,
+      "ci95_prompt_bootstrap": [0.148710, 0.189162],
+      "difference_pp": 8.39,
+      "asr_backend": "Qwen3-ASR via transformers on ROCm (disclosed patch 0007)",
+      "audit": "FULL 384/384",
+      "scoring_completed_utc": "2026-11-18T19:55:25Z"
+    },
+    "armB_fresh_preswap": {
+      "implementation": "SGLang ROCm serving",
+      "gpu": "W7900-class (pre-swap image)",
+      "per_micro_selected192": 0.1777,
+      "ci95_prompt_bootstrap": [0.1520, 0.2068],
+      "difference_pp": 9.33
+    },
+    "gfx1151_oct": {
+      "implementation": "SGLang ROCm serving",
+      "gpu": "Radeon 8060S (gfx1151 iGPU)",
+      "per_micro_selected192_recomputed": 0.1722,
+      "ci95_prompt_bootstrap": [0.1493, 0.1980],
+      "difference_pp": 8.78
+    },
+    "armB_fresh_thisimage": {
+      "status": "IN_PROGRESS",
+      "run_id": "armB_full_20261119T015756Z",
+      "started_utc": "2026-11-19T01:57:56Z"
+    }
+  },
+  "acceptance_target": {
+    "tolerance_abs_pp": 2.0,
+    "registration": "provisional pre-existing project target; author confirmation requested (mission M3.4)",
+    "current_status": "NOT_MET (all completed cells exceed +8 pp)"
+  },
+  "cross_arm_findings": {
+    "uncapped_selected_per": {"armA": 0.16151, "gfx1151": 0.16143,
+      "interpretation": "identical to 0.01pp across implementation+GPU families: common-mode cause"},
+    "paired_per_prompt": {"n_prompts": 192, "spearman_rho": 0.7545,
+      "mean_paired_diff_pp": 1.11, "ci95": [-3.73, 5.59],
+      "interpretation": "shared prompt-structural difficulty; arm difference not significant"},
+    "asr_repeat_determinism": {"candidates": 384, "all_four_repeats_identical": 384,
+      "arms": ["armA_fresh", "gfx1151_oct"]},
+    "non_asr_metrics_parity_armA": {"songbench": [6.7044, 6.7316],
+      "mulan": [0.4970, 0.5068], "allmusiccaps": [0.4010, 0.4054],
+      "note": "[measured, official] - judges not using the ASR layer match the reference"}
+  },
+  "hypothesis_ledger": {
+    "H1_rocm_asr_backend": "PRIME_SUSPECT (common-mode, deterministic, survives uncapped filter)",
+    "H2_generation_numerics": "POSSIBLE_C0FACTOR (needs A2/B2 or C2 to exclude)",
+    "H3_evaluator_version_drift": "OPEN (author confirmation of evaluator commit requested)",
+    "H4_aggregation_selection": "EXCLUDED (independent recomputation reproduces evaluator aggregates exactly)",
+    "H5_asr_capping": "EXCLUDED_as_primary (uncapped ~= 16.1% both arms)",
+    "H6_language_skew": "EXCLUDED (zh/en balanced)",
+    "H7_serving_stack": "WEAKENED_SHARPLY (official torch-eager arm shows same gap)"
+  },
+  "closure_requirements": [
+    "A2/B2: same-audio scoring with the official CUDA evaluator (kit: 03_CUDA_REFERENCE_HANDOFF.md)",
+    "C1/C2: author reference audio or official per-song receipts (request prepared)",
+    "author confirmation of the +-2pp provisional tolerance and evaluator identity"
+  ]
+}

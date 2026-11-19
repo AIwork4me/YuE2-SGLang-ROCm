@@ -9,7 +9,15 @@ MODEL_PATH="${MODEL_PATH:-$WS/models/YuE2-3B}"
 VAE_PATH="${VAE_PATH:-$WS/models/YuE2-Vae-legacy}"
 HOST="${HOST:-127.0.0.1}"
 PORT="${PORT:-31000}"
-LOG="${LOG:-$WS/logs/server_yue2_gfx1100.log}"
+# SERVER_LOG is a FILE. The historical env name was LOG, which collided with
+# callers that export LOG as a logs DIRECTORY (armB_acceptance.sh /
+# run_armB_campaign.sh) — the server then died at boot with
+# "line 45: /data/yue2/logs: Is a directory" (live 2026-11-18T23:55Z attempt).
+# A directory-valued legacy LOG is ignored for safety.
+if [ -n "${LOG:-}" ] && [ ! -d "${LOG}" ]; then
+  SERVER_LOG="${SERVER_LOG:-$LOG}"
+fi
+SERVER_LOG="${SERVER_LOG:-$WS/logs/server_yue2_gfx1100.log}"
 GPU_ID="${GPU_ID:-0}"
 
 source "$VENV/bin/activate"
@@ -36,15 +44,15 @@ export SGLANG_YUE2_BATCHED_AR=0     # BatchedGraphSampler needs DeepSelect
 export SGLANG_YUE2_SESSION=1        # session GraphAR works (HIP graphs + ATen flash)
 export SGLANG_YUE2_GRAPH_POOL=1
 
-mkdir -p "$(dirname "$LOG")"
+mkdir -p "$(dirname "$SERVER_LOG")"
 {
   echo "=== serve_yue2_gfx1100 $(date -u +%FT%TZ) ==="
   echo "model=$MODEL_PATH vae=$VAE_PATH host=$HOST port=$PORT gpu=$GPU_ID"
   echo "flags: FAST_SAMPLER=0 STEP_GRAPH=0 FUSED_DECODE=0 FAST_NAR=0 FA3=0 BATCHED_AR=0 SESSION=1 GRAPH_POOL=1"
   env | grep -E '^SGLANG_YUE2|^ROCR_VISIBLE' | sort
-} >> "$LOG"
+} >> "$SERVER_LOG"
 
-echo "launching sglang serve on $HOST:$PORT (log: $LOG)"
+echo "launching sglang serve on $HOST:$PORT (log: $SERVER_LOG)"
 exec sglang serve \
   --model-path "$MODEL_PATH" \
   --host "$HOST" \
@@ -53,4 +61,4 @@ exec sglang serve \
   --ulysses-degree 1 \
   --ring-degree 1 \
   --warmup-mode off \
-  >>"$LOG" 2>&1
+  >>"$SERVER_LOG" 2>&1
