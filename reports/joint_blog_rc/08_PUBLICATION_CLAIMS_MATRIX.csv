@@ -1,0 +1,17 @@
+claim_id,claim_text,evidence_path,status,notes
+C1,YuE2 runs natively on AMD Radeon W7900D (gfx1100) via official PyTorch implementation,reports/publication/fresh_image/PYTORCH_API_ACCEPTANCE.md + evidence/publication/armA_campaign/,VERIFIED,
+C2,Full official WildSongBench protocol executed on W7900D Arm A: 384/384 audit FULL,/data/yue2-runs/armA_wsb_full/audit.json (mirror to repo pending),VERIFIED,this-image receipts
+C3,Arm A SongBench GA 6.7044 vs official 6.7316 (delta -0.0272),/data/yue2-runs/armA_wsb_full/scores/summary.json,VERIFIED,within +-0.05 target
+C4,Arm A MuLan 0.4970 vs official 0.5068 (delta -0.0098),/data/yue2-runs/armA_wsb_full/additional/summary.json,VERIFIED,within +-0.01 target
+C5,Arm A AllMusicCaps 0.4010 vs official 0.4054 (delta -0.0044),/data/yue2-runs/armA_wsb_full/additional/summary.json,VERIFIED,within +-0.01
+C6,Arm A PER 16.83 pct vs official 8.44 pct (delta +8.39 pp) - gap under investigation,reports/joint_blog_rc/03_PER_CAUSAL_ANALYSIS.md,VERIFIED_MEASUREMENT_OPEN_CAUSE,must not be presented as parity
+C7,Arm B fresh SGLang campaign (this image) executing with full lifecycle guarantees,/data/yue2-runs/armB_wsb_full/ + mission_chain logs,IN_PROGRESS,eta ~2026-11-20T23Z
+C8,Arm B pre-swap SongBench 6.7376 / MuLan 0.5093 / AMC 0.4056 / PER 17.77 pct,evidence/publication/armB_campaign/official_summary.json,VERIFIED_HISTORICAL,pre-swap image generation - label separately
+C9,SGLang serving acceptance includes real full-pipeline music generation,/data/yue2/logs/armB_acceptance/acceptance_receipt.json,VERIFIED,33.1 s audio 48 kHz non-silent sha256 receipt
+C10,GPU single-tenant policy enforced by ownership lock (flock + verified identity),scripts/gpu_lock.py + tests/test_armB_lifecycle.py,VERIFIED,
+C11,Server stop only via verified identity receipt never pkill,scripts/server_identity.py + 16-scenario suite,VERIFIED,
+C12,Q3O reproduces official on W7900D,,NOT_TESTED,48 GB below official judge requirement; scope reduction to be agreed
+C13,PER within 2 pp of official,,NOT_MET,blocked on cross-evaluator cells A2/B2/C1/C2
+C14,Performance numbers (latency/RTF/throughput/memory),,NOT_TESTED,M5 characterization after campaign in uncontended window
+C15,Author endorsement of blog claims,,NOT_PRESENT,requested via 07_AUTHOR_REVIEW_REQUEST.md; never implied
+C16,AMD publication approval,,NOT_PRESENT,
