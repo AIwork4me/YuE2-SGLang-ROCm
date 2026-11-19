@@ -42,8 +42,8 @@ bash scripts/campaign_ops/build_envB.sh                              # Env B (be
 
 ```bash
 source $YUE2_WORKSPACE/environments/yue2-torch/bin/activate
-# minimal full-pipeline generation (official implementation, torch-eager):
-python scripts/run_smoke_test.py --workspace $YUE2_WORKSPACE    # short smoke
+# environment smoke (GPU checks + imports; no server, no benchmark protocol):
+bash scripts/run_smoke_test.sh
 # full-song example: see docs/QUICKSTART_W7900.md (exact, tested commands)
 ```
 
