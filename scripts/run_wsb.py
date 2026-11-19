@@ -306,6 +306,7 @@ def main() -> int:
     poller = MemoryPoller().start()
     started = time.time()
     done = fail = skipped = 0
+    disk_stop = False
     quarantine = args.runs / "quarantine"
     try:
         for row in selected:
@@ -322,7 +323,14 @@ def main() -> int:
                           "run_id": run_id, "config": OFFICIAL}
 
                 if candidate_complete(cand):
-                    record["status"] = "complete(resumed)"
+                    # status stays exactly "complete" so downstream counters
+                    # (mission_chain.journal_complete, auditors) never miss a
+                    # verified candidate whose original journal row was lost
+                    # to a crash (torn tail). "complete(resumed)" previously
+                    # failed the exact-match count and could stall the chain
+                    # in a relaunch loop during recovery.
+                    record["status"] = "complete"
+                    record["resumed"] = True
                     append(manifest_path, record)
                     done += 1
                     skipped += 1
@@ -344,8 +352,10 @@ def main() -> int:
                     record["free_gb"] = round(free_gb, 1)
                     append(manifest_path, record)
                     fail += 1
+                    disk_stop = True
                     print(f"[disk] only {free_gb:.1f} GiB free (< {MIN_FREE_GB}); "
                           f"stopping to protect artifacts", flush=True)
+                    STOP.set()
                     break
 
                 wav_name = f"{ident_str}.wav"
@@ -424,6 +434,7 @@ def main() -> int:
         "peak_vram_bytes": mem["peak_vram_bytes"],
         "peak_gtt_bytes": mem["peak_gtt_bytes"],
         "stopped_by_signal": STOP.is_set(),
+        "stopped_by_disk_guard": disk_stop,
         "finished_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
     }
     atomic_write(args.runs / "generation_summary.json",

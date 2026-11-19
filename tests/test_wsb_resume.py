@@ -27,6 +27,22 @@ sys.path.insert(0, str(SCRIPTS))
 import run_wsb  # noqa: E402
 
 
+@pytest.fixture(autouse=True)
+def _fresh_artifact_storage():
+    """Host-specific isolation fix (RC2 review): on a manifest-equipped host,
+    an earlier test file (e.g. test_restoration_audit) can import the REAL
+    frozen artifact_storage into sys.modules; run_wsb.candidate_complete's
+    sys.path insertion then silently resolves to that cached module instead
+    of this file's stub, breaking the stub-based resume tests. Purge the
+    cache module around every test in this file (order-independent)."""
+    saved = sys.modules.pop("artifact_storage", None)
+    yield
+    if saved is not None:
+        sys.modules["artifact_storage"] = saved
+    else:
+        sys.modules.pop("artifact_storage", None)
+
+
 def test_atomic_write(tmp_path):
     p = tmp_path / "a.json"
     run_wsb.atomic_write(p, '{"x": 1}\n')
@@ -134,3 +150,54 @@ def test_resume_skips_complete(tmp_path, monkeypatch):
 
 if __name__ == "__main__":
     sys.exit(pytest.main([__file__, "-v"]))
+
+
+def test_resume_journals_exact_complete_status(tmp_path, monkeypatch):
+    """RC2 R1-D1: a pre-verified candidate resumed by the driver must be
+    journaled with status exactly 'complete' (+ resumed flag) — the chain's
+    advancement gate counts exact-prefix matches, and the historical
+    'complete(resumed)' spelling could stall recovery into a relaunch loop."""
+    ws = tmp_path / "ws"
+    (ws / "benchmark/WildSongBench/benchmark").mkdir(parents=True)
+    (ws / "benchmark/wsb_metrics").mkdir(parents=True)
+    rows = [{"prompt_index": i, "candidate_ar_seeds": [831001 + i, 831019 + i],
+             "style": "s", "lyrics": "l"} for i in range(192)]
+    (ws / "benchmark/WildSongBench/benchmark/reproduction_manifest.jsonl").write_text(
+        "".join(json.dumps(r) + "\n" for r in rows))
+    (ws / "benchmark/wsb_metrics/artifact_storage.py").write_text(
+        "import json, pathlib\n"
+        "def verify_result(c):\n"
+        "    p = pathlib.Path(c)\n"
+        "    r = json.loads((p / 'result.json').read_text())\n"
+        "    if r.get('status') != 'complete':\n"
+        "        raise ValueError('not complete')\n"
+        "    return r\n")
+    runs = ws / "runs/r"
+    cand = runs / "songs/wsb_000_r0_s831001"
+    cand.mkdir(parents=True)
+    (cand / "result.json").write_text('{"status": "complete"}')
+    monkeypatch.setattr(run_wsb, "WS", ws)
+    monkeypatch.setattr(run_wsb, "MANIFEST",
+                        ws / "benchmark/WildSongBench/benchmark/reproduction_manifest.jsonl")
+    monkeypatch.setattr(run_wsb, "MODEL_DIR", ws / "models/YuE2-3B")
+    monkeypatch.setattr(run_wsb, "VAE_DIR", ws / "models/YuE2-Vae-legacy")
+    monkeypatch.setattr(run_wsb, "detect_platform",
+                        lambda: {"platform": "t", "gpu": "t", "torch": "t"})
+    monkeypatch.setattr(run_wsb, "patchset_hash", lambda: "0" * 64)
+
+    monkeypatch.setattr(run_wsb, "MIN_FREE_GB", 0.0)  # tmpfs is small
+    argv = ["--runs", str(runs), "--indices", "0", "--run-id", "t",
+            "--server", "http://127.0.0.1:1", "--max-retries", "0",
+            "--timeout", "2"]
+    monkeypatch.setattr(sys, "argv", [str(RUN_WSB), *argv])
+    rc = run_wsb.main()
+    # candidate 0 resumed; candidate 1 fails fast against the dead server
+    assert rc == 1
+    manifest = [json.loads(l) for l in
+                (runs / "generation_manifest.jsonl").read_text().splitlines()
+                if l.strip()]
+    by_id = {r["id"]: r for r in manifest}
+    resumed = by_id["wsb_000_r0_s831001"]
+    assert resumed["status"] == "complete"
+    assert resumed.get("resumed") is True
+    assert by_id["wsb_000_r1_s831019"]["status"] == "generation_failed"

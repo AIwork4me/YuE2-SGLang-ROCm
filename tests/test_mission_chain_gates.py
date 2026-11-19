@@ -365,3 +365,101 @@ class TestArmBAcceptanceGate:
         monkeypatch.setattr(M, "WS", tmp_path)
         ok, _ = M.run_armb_acceptance()
         assert ok is True
+
+
+# ------------------------------------------------- RC2 review regressions
+class TestJournalCompleteCountsResumed:
+    """RC2 R1-D1: a verified candidate resumed after journal-tail loss must
+    still be counted by the chain's advancement gate."""
+
+    def _write(self, run_dir, rows):
+        run_dir.mkdir(parents=True, exist_ok=True)
+        (run_dir / "generation_manifest.jsonl").write_text(
+            "".join(json.dumps(r) + "\n" for r in rows))
+
+    def test_complete_and_complete_resumed_both_count(self, tmp_path):
+        rd = tmp_path / "run"
+        self._write(rd, [
+            {"id": "a", "status": "complete"},
+            {"id": "b", "status": "complete(resumed)"},
+            {"id": "c", "status": "complete", "resumed": True},
+            {"id": "d", "status": "generation_failed"},
+            {"id": "e", "status": "finalize_failed"},
+        ])
+        assert M.journal_complete(rd) == 3
+
+    def test_torn_tail_row_ignored(self, tmp_path):
+        rd = tmp_path / "run"
+        rd.mkdir(parents=True)
+        (rd / "generation_manifest.jsonl").write_text(
+            json.dumps({"id": "a", "status": "complete"}) + "\n"
+            '{"id": "b", "status": "comp')  # torn tail
+        assert M.journal_complete(rd) == 1
+
+    def test_missing_manifest_is_zero(self, tmp_path):
+        assert M.journal_complete(tmp_path / "none") == 0
+
+
+class TestScoreBoundedExecution:
+    def test_scoring_timeout_fails_gate(self, tmp_path, monkeypatch):
+        run_dir = tmp_path / "run"; run_dir.mkdir(parents=True)
+        seen = {}
+
+        def hang(*a, **k):
+            seen["timeout"] = k.get("timeout")
+            raise M.subprocess.TimeoutExpired(cmd="wsb_eval", timeout=7)
+
+        monkeypatch.setattr(M.subprocess, "run", hang)
+        monkeypatch.setattr(M, "WS", tmp_path)
+        assert M.score(run_dir, "per,songbench", "out", None, "logx") is False
+        # the evaluator invocation itself must carry a bounded timeout —
+        # an unbounded subprocess.run is the mutation this pins
+        assert seen.get("timeout"), "score() launched the evaluator WITHOUT a timeout"
+
+    def test_audit_timeout_fails_not_crash(self, tmp_path, monkeypatch):
+        run_dir = tmp_path / "run"; run_dir.mkdir(parents=True)
+
+        def hang(*a, **k):
+            raise M.subprocess.TimeoutExpired(cmd="verify", timeout=7200)
+
+        monkeypatch.setattr(M.subprocess, "run", hang)
+        assert M.audit(run_dir) is False  # previously: uncaught -> chain death
+
+    def test_acceptance_timeout_fails_not_crash(self, tmp_path, monkeypatch):
+        monkeypatch.setattr(M, "ARMB_ACCEPTANCE", tmp_path / "acc.sh")
+        (tmp_path / "acc.sh").write_text("#!/bin/sh\nexit 0\n")
+
+        def hang(*a, **k):
+            raise M.subprocess.TimeoutExpired(cmd="acc", timeout=7200)
+
+        monkeypatch.setattr(M.subprocess, "run", hang)
+        ok, why = M.run_armb_acceptance()
+        assert ok is False and "timed out" in why
+
+
+class TestScoreStageRetryBounds:
+    def test_attempts_escalate_to_blocked(self, tmp_path, monkeypatch):
+        run_dir = tmp_path / "run"; run_dir.mkdir(parents=True)
+        state = {"stage": "x", "history": [],
+                 "score_attempts": {"logx": 8}}
+        monkeypatch.setenv("YUE2_SCORE_MAX_ATTEMPTS", "8")
+        launched = []
+        monkeypatch.setattr(M, "score",
+                            lambda *a, **k: launched.append(1) or False)
+        assert M.score_stage(state, run_dir, "m", "o", None, "logx") is False
+        assert launched == []  # evaluator NOT re-armed after the cap
+        assert "YUE2_SCORE_MAX_ATTEMPTS" in state["blocked_reason"]
+
+    def test_success_resets_counter(self, tmp_path, monkeypatch):
+        run_dir = tmp_path / "run"; run_dir.mkdir(parents=True)
+        state = {"stage": "x", "history": [], "score_attempts": {"logx": 3}}
+        monkeypatch.setattr(M, "score", lambda *a, **k: True)
+        assert M.score_stage(state, run_dir, "m", "o", None, "logx") is True
+        assert state["score_attempts"]["logx"] == 0
+
+    def test_failure_increments_counter(self, tmp_path, monkeypatch):
+        run_dir = tmp_path / "run"; run_dir.mkdir(parents=True)
+        state = {"stage": "x", "history": []}
+        monkeypatch.setattr(M, "score", lambda *a, **k: False)
+        assert M.score_stage(state, run_dir, "m", "o", None, "logx") is False
+        assert state["score_attempts"]["logx"] == 1
