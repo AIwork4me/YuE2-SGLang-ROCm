@@ -204,11 +204,22 @@ def score(run_dir: Path, metrics: str, out_subdir: str, per_results: Path | None
     log(f"{log_name}: launching scoring -> {out}")
     # GPU-heavy scoring MUST hold the single-GPU ownership lock (C4; the doc
     # claim previously had no code behind it). Bounded wait; a competing
-    # holder is never preempted.
-    with gpu_ownership(f"scoring:{log_name}",
-                       wait_s=float(os.environ.get("YUE2_GPU_LOCK_WAIT_S", "7200"))):
-        proc = subprocess.run(cmd, cwd=str(WSB_ROOT), env=SCORE_ENV,
-                              capture_output=True, text=True)
+    # holder is never preempted. The lock path is derived from THIS module's
+    # WS (dependency injection) — gpu_lock's process-global default must not
+    # be consulted, or test/CI isolation breaks on machines without /data
+    # (live defect: PR #13 CI run 44421080608, TestScoreGate PermissionError).
+    # A lock that cannot be acquired within the bounded wait is a FAIL for
+    # this attempt (recorded, retried later) — never a silent pass-through.
+    try:
+        with gpu_ownership(f"scoring:{log_name}",
+                           wait_s=float(os.environ.get(
+                               "YUE2_GPU_LOCK_WAIT_S", "7200")),
+                           lock_path=WS / "gpu.lock"):
+            proc = subprocess.run(cmd, cwd=str(WSB_ROOT), env=SCORE_ENV,
+                                  capture_output=True, text=True)
+    except TimeoutError as exc:
+        log(f"{log_name}: GPU lock unavailable: {exc} -> FAIL (retry later)")
+        return False
     ts = int(time.time())
     logs_dir = WS / "logs"
     logs_dir.mkdir(parents=True, exist_ok=True)

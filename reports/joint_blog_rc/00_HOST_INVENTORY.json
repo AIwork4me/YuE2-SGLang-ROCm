@@ -1,0 +1,93 @@
+{
+  "captured_at_utc": "2026-11-19T00:05:00Z",
+  "captured_by": "YUE2-AMD-JOINT-BLOG-RC P0 read-only audit",
+  "host": {
+    "hostname": "j-7uqnwhrwmv2s44k6zdqzoq5idj",
+    "kernel": "6.8.0-79-generic",
+    "os_base": "Ubuntu 24.04.4 LTS (AMD oneclick lab image)",
+    "cpu": "2x AMD EPYC 9334 (128 threads visible)",
+    "ram_total": "503GiB",
+    "ram_available": "365GiB"
+  },
+  "gpu": {
+    "count_visible_to_container": 1,
+    "pci_bdf": "0000:03:00.0",
+    "pci_device_id": "0x744b",
+    "subsystem_id": "0x0e0c",
+    "card_sku": "D7070910",
+    "marketing_name_torch": "AMD Radeon Pro W7900D",
+    "class_note": "W7900-class 48GB variant; gfx1100; naming preserved per mission rule",
+    "architecture": "gfx1100",
+    "compute_units": 96,
+    "wavefront_size": 32,
+    "vram_bytes": 51522830336,
+    "vram_gib": 47.98,
+    "uuid": "GPU-3d1e08ee04727918",
+    "state_at_capture": "idle (0% util, 7W, VRAM 0%)"
+  },
+  "rocm": {
+    "kernel_driver": "amdgpu 6.16.13",
+    "host_userspace": "7.2.1 (/opt/rocm-7.2.1), HIP 1.18, hipcc 7.2.53211-e1a6bc5663"
+  },
+  "environments": {
+    "envA_yue2_torch": {
+      "python": "3.12",
+      "torch": "2.12.0+rocm7.14.1",
+      "torchaudio": "2.11.0+rocm7.14.1",
+      "transformers": "5.17.0",
+      "numpy": "2.3.5",
+      "purpose": "Arm A native PyTorch generation + artifact verification",
+      "freeze": "/data/yue2/logs/phase1_pip_freeze.txt"
+    },
+    "envB_yue2_gfx1100": {
+      "python": "3.12",
+      "torch": "2.12.0+rocm7.14.1",
+      "torchaudio": "2.11.0+rocm7.14.1",
+      "torchvision": "0.27.0+rocm7.14.1",
+      "transformers": "5.17.0",
+      "triton": "3.8.0+git4cff872c.rocm7.14.1",
+      "sglang": "0.0.0 (source install; pinned)",
+      "numpy": "2.3.5",
+      "purpose": "Arm B SGLang serving + driver",
+      "freeze": "/data/yue2/logs/sglang_gfx1100_pip_freeze.txt"
+    },
+    "envC_metrics": {
+      "purpose": "official WildSongBench evaluator (metrics venv)",
+      "path": "/data/yue2/benchmark/WildSongBench/wsb_metrics/.venvs/metrics"
+    }
+  },
+  "model_and_data_pins": {
+    "model": "YuE2-3B rev 1a96eca688d6ae5d7f0feb88573fec89920fcd19 (sha256 1d55c42c...a1e59e9)",
+    "vae": "YuE2-Vae-legacy rev b54118f0fc462f08999d1ec07e88817f4ee3f770 (sha256 b6d28362...f4965044)",
+    "benchmark": "WildSongBench at /data/yue2/benchmark/WildSongBench",
+    "protocol_lock": "configs/benchmark.lock.yaml profile=benchmark-reproduction frozen 2026-11-11"
+  },
+  "campaign_state": {
+    "supervisor": {"pid": 3363794, "script": "/workspace/YuE2-SGLang-ROCm/scripts/campaign_ops/mission_chain.py", "repo_head": "f7fda39", "branch": "fix/w7900-fresh-image-resume-hardening", "started": "2026-11-18T11:14:31Z"},
+    "stage": "armB_acceptance",
+    "armA": {"complete_candidates": 384, "expected": 384, "audit_verdict": "FULL", "score_per_sb": "PASS 2026-11-18T19:29:03Z", "score_mulan_amc": "PASS 2026-11-18T19:55:25Z"},
+    "armB_acceptance_attempts": ["2026-11-18T22:25:25Z rc=2", "2026-11-18T22:55:25Z (fixed between attempts)", "2026-11-18T23:25:31Z rc=1", "2026-11-18T23:55:31Z in-flight (server died at boot: LOG env collision)"],
+    "gpu_lock_holder_at_capture": {"who": "armB-acceptance", "pid": 433588, "acquired_at_utc": "2026-11-18T23:55:31Z"}
+  },
+  "fresh_armA_results_selected192": {
+    "songbench_global_avg": 6.704365049089704,
+    "per_micro": 0.16829238416359898,
+    "per_macro": 0.16551487585545424,
+    "mulan": 0.4970138712087646,
+    "allmusiccaps": 0.40099294540656655,
+    "asr_truncated_samples_of_384": 72,
+    "receipts": ["/data/yue2-runs/armA_wsb_full/scores/summary.json", "/data/yue2-runs/armA_wsb_full/additional/summary.json"]
+  },
+  "armA_archive": {
+    "path": "/workspace/armA_state_20261116T1145Z.tar.gz",
+    "size_bytes": 7670242173,
+    "sha256_pinned": "45e7c0f9a443cdbd4e822536214155c9c3905da611e55a04c15cf98fe4c32da7",
+    "sha256_recomputed_20261119": "45e7c0f9a443cdbd4e822536214155c9c3905da611e55a04c15cf98fe4c32da7",
+    "verification": "MATCH"
+  },
+  "storage": {
+    "root_overlay_free": "849G of 3.5T",
+    "workspace_nfs_free": "18G of 25G",
+    "tmp_is_tmpfs_4G_warning": true
+  }
+}

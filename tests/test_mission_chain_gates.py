@@ -22,11 +22,23 @@ import mission_chain as M  # noqa: E402
 @pytest.fixture(autouse=True)
 def _isolate_machine_paths(tmp_path, monkeypatch):
     """Chain globals point at real machine paths (/data/yue2, ...); tests must
-    not read or create them (CI has neither the dirs nor permissions)."""
+    not read or create them (CI has neither the dirs nor permissions).
+
+    Isolation is done TWO ways, on purpose:
+      * module attributes (WS/RUNS/STATE/LOG) -> tmp_path
+      * the gpu_lock default-path ENVIRONMENT (YUE2_WORKSPACE/YUE2_GPU_LOCK)
+        is scrubbed and pointed at tmp_path, because gpu_lock resolves its
+        default lazily at call time. The original CI failure (PR #13 run
+        44421080608: PermissionError '/data' in TestScoreGate) happened
+        exactly because score() consulted gpu_lock's process-global default
+        instead of an injected lock path.
+    """
     monkeypatch.setattr(M, "WS", tmp_path)
     monkeypatch.setattr(M, "RUNS", tmp_path / "runs")
     monkeypatch.setattr(M, "STATE", tmp_path / "state.json")
     monkeypatch.setattr(M, "LOG", tmp_path / "logs" / "mission_chain.log")
+    monkeypatch.setenv("YUE2_WORKSPACE", str(tmp_path))
+    monkeypatch.setenv("YUE2_GPU_LOCK", str(tmp_path / "gpu.lock"))
 
 
 @pytest.fixture(autouse=True)
@@ -215,6 +227,81 @@ class TestScoreGate:
         asides = list(run_dir.glob("out4_partial_*"))
         assert len(asides) == 1
         assert (asides[0] / "evidence.txt").read_text() == "keep me"
+
+    def test_lock_unavailable_fails_gate_without_running_evaluator(
+            self, tmp_path, monkeypatch):
+        """C4 + M1.1: if the GPU ownership lock cannot be acquired (bounded
+        wait exhausted), the score gate must FAIL and the evaluator must not
+        run — a lock failure can never produce a successful score gate."""
+        import subprocess as sp
+        import sys as _sys
+        run_dir = tmp_path / "run"
+        run_dir.mkdir(parents=True)
+        holder = sp.Popen(
+            [_sys.executable, "-c",
+             "import fcntl,sys,time\n"
+             "fd=open(sys.argv[1],'w')\n"
+             "fcntl.flock(fd,fcntl.LOCK_EX)\n"
+             "print('held',flush=True)\n"
+             "time.sleep(30)\n",
+             str(tmp_path / "gpu.lock")],
+            stdout=sp.PIPE)
+        try:
+            assert holder.stdout.readline().strip() == b"held"
+            called = []
+
+            class R:
+                returncode = 0
+                stdout = ""
+                stderr = ""
+
+            monkeypatch.setattr(
+                M.subprocess, "run",
+                lambda *a, **k: called.append(1) or R())
+            monkeypatch.setattr(M, "WS", tmp_path)
+            monkeypatch.setenv("YUE2_GPU_LOCK_WAIT_S", "0.3")
+            assert M.score(run_dir, "per,songbench", "outx", None,
+                           "lockx") is False
+            assert called == []  # evaluator never launched
+        finally:
+            holder.kill()
+            holder.wait(timeout=10)
+
+    def test_score_lock_derived_from_chain_workspace_not_global_default(
+            self, tmp_path, monkeypatch):
+        """M1.1 root cause regression: score() must lock WS/gpu.lock (the
+        chain's injected workspace), never gpu_lock's process-global default
+        (which pointed at /data/yue2 on CI runners without /data)."""
+        import sys as _sys
+        sys.path.insert(0, str(REPO / "scripts"))
+        import gpu_lock as G
+        run_dir = tmp_path / "run"
+        run_dir.mkdir(parents=True)
+        seen = {}
+
+        real_ownership = G.gpu_ownership
+
+        def spy(who, **kw):
+            seen["lock_path"] = kw.get("lock_path")
+            return real_ownership(who, **kw)
+
+        monkeypatch.setattr(M, "gpu_ownership", spy)
+
+        class R:
+            returncode = 0
+            stdout = ""
+            stderr = ""
+
+        monkeypatch.setattr(M.subprocess, "run", lambda *a, **k: R())
+        monkeypatch.setattr(M, "WS", tmp_path)
+        out = run_dir / "outy"
+        out.mkdir()
+        (out / "summary.json").write_text(json.dumps({"complete": False}))
+        M.score(run_dir, "per,songbench", "outy", None, "logz")
+        assert seen["lock_path"] == tmp_path / "gpu.lock"
+        # and the global default was never touched (no /data access): the
+        # injected tmp lock file exists afterwards
+        assert (tmp_path / "gpu.lock").exists()
 
 
 class TestArmBLauncherAndAcceptance:
