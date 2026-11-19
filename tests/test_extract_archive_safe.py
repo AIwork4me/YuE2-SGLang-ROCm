@@ -95,3 +95,65 @@ def test_corrupt_gzip_rejected(tmp_path):
     r = run_tool(arc, tmp_path / "out")
     assert r.returncode == 2
     assert "gzip" in r.stdout
+
+
+# ------------------------------------------------- M1.3 hardening
+def test_sha256_pin_mismatch_refused(tmp_path):
+    import hashlib
+    arc = tmp_path / "a.tar.gz"
+    make_tar(arc, lambda tf: tf.addfile(
+        tarfile.TarInfo("armA_wsb_full/x"), __import__("io").BytesIO(b"1")))
+    wrong = "0" * 64
+    r = run_tool(arc, tmp_path / "out", "--expect-sha256", wrong)
+    assert r.returncode == 6
+    assert not (tmp_path / "out").exists()
+    # nothing extracted -> no staging leftovers from THIS pid's attempt
+    stagings = list(tmp_path.glob("out.staging-*"))
+    assert stagings == []
+
+
+def test_sha256_pin_match_extracts_and_records_digest(tmp_path):
+    import hashlib, io, json
+    arc = tmp_path / "a.tar.gz"
+
+    def build(tf):
+        ti = tarfile.TarInfo("armA_wsb_full/x"); ti.size = 1
+        tf.addfile(ti, io.BytesIO(b"1"))
+    make_tar(arc, build)
+    pin = hashlib.sha256(arc.read_bytes()).hexdigest()
+    r = run_tool(arc, tmp_path / "out", "--expect-sha256", pin)
+    assert r.returncode == 0, r.stdout + r.stderr
+    rcpt = json.loads((tmp_path / "out.extract_receipt.json").read_text())
+    assert rcpt["archive_sha256"] == pin
+    assert rcpt["sha256_pinned"] is True
+    assert (tmp_path / "out" / "armA_wsb_full" / "x").read_bytes() == b"1"
+
+
+def test_incomplete_extraction_never_lands_in_dest(tmp_path):
+    """Crash-safety: dest is created by atomic rename only; a failing
+    extraction leaves a staging dir for inspection and NEVER a partial dest."""
+    # valid gzip wrapper, tar payload truncated INSIDE the second member's
+    # data blocks: header scan succeeds, data read fails mid-extract
+    import io, gzip as gz
+    buf = io.BytesIO()
+    with tarfile.open(fileobj=buf, mode="w") as tf:
+        ti = tarfile.TarInfo("armA_wsb_full/ok"); ti.size = 512
+        tf.addfile(ti, io.BytesIO(b"k" * 512))
+        ti2 = tarfile.TarInfo("armA_wsb_full/second"); ti2.size = 8192
+        tf.addfile(ti2, io.BytesIO(b"z" * 8192))
+    raw = buf.getvalue()
+    cut = raw.index(b"z" * 512) + 512 + 1024  # inside second member's data
+    arc = tmp_path / "trunc.tar.gz"
+    with gz.open(arc, "wb") as f:
+        f.write(raw[:cut])
+    r = run_tool(arc, tmp_path / "out")
+    assert r.returncode != 0
+    assert not (tmp_path / "out").exists(), "partial dest must never exist"
+    stagings = list(tmp_path.glob("out.staging-*"))
+    assert stagings, "failed extraction evidence must be preserved"
+    # retry with the same dest still works (no no-clobber false trigger)
+    good = tmp_path / "good.tar.gz"
+    make_tar(good, lambda tf: tf.addfile(
+        tarfile.TarInfo("armA_wsb_full/x"), __import__("io").BytesIO(b"1")))
+    r2 = run_tool(good, tmp_path / "out")
+    assert r2.returncode == 0, r2.stdout + r2.stderr
