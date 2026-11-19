@@ -1,5 +1,18 @@
 # 03 — CUDA reference-evaluator handoff kit (A2/B2 cells of the M3.2 matrix)
 
+> **RC2 CORRECTION (2026-11-19):** an exact-HEAD audit + live validation
+> found this kit's §1–2 procedure NON-EXECUTABLE as written: (1) the
+> `python -m wsb_metrics.wsb_eval` invocation fails (not a package);
+> (2) mp3-only transfer is insufficient — the official scorer's `standard`
+> mode requires each candidate's FULL verified bundle (~15 GiB/arm);
+> (3) the documented layout does not match the scorer's input-path
+> resolution; (4) the `prepare --install` step was missing.
+> The corrected, **validated** kit (official `prepare_inputs` accepted
+> 384/384 real Arm A bundles on this host) lives in
+> `rc2/RC2_03_AUTHOR_CUDA_HANDOFF/README_CUDA_RUNBOOK.md` + full-bundle
+> manifest + receiving-side verifier. The interpretation table (§4 below)
+> and privacy policy are UNCHANGED.
+
 **Purpose:** score OUR audio with the AUTHORS' official CUDA evaluator to
 separate evaluator-backend effects (H1) from generation effects (H2) in the
 PER gap. This host has no CUDA GPU; cells A2/B2 are `BLOCKED_EXTERNAL` until

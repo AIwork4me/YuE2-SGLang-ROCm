@@ -1,0 +1,36 @@
+{
+ "n_selected": 192,
+ "selection_source": "official summary.selected_candidates",
+ "spearman_per_vs": {
+  "ref_phonemes": 0.1337,
+  "hyp_chars": -0.0833,
+  "audio_seconds": 0.0702
+ },
+ "pearson_per_vs": {
+  "ref_phonemes": 0.0531,
+  "hyp_chars": -0.1537,
+  "audio_seconds": 0.1468
+ },
+ "direction": {
+  "mean_net_chars": -47.7,
+  "ci95_net_chars": [
+   -70.3,
+   -28.5
+  ],
+  "candidates_net_negative": 140,
+  "candidates_net_positive": 50,
+  "interpretation_hint": "net-negative dominance = hypothesis transcripts shorter than references (deletion/under-transcription signal); net-positive = insertion signal"
+ },
+ "empty_transcripts": 3,
+ "truncated_asr": 36,
+ "per_zh_mean": 0.16494,
+ "per_zh_ci95": [
+  0.14317,
+  0.18843
+ ],
+ "per_en_mean": 0.16606,
+ "per_en_ci95": [
+  0.13238,
+  0.20532
+ ]
+}
