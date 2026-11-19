@@ -43,7 +43,7 @@ def test_atomic_append(tmp_path):
     A.atomic_append(p, {"id": "y", "status": "failed"})
     lines = p.read_text().splitlines()
     assert [json.loads(l)["id"] for l in lines] == ["x", "y"]
-    assert not (tmp_path / "journal.tmp").exists() or True  # tmp file reused name-safe
+    assert not (tmp_path / "journal.tmp").exists()
 
 
 def test_expected_inputs_shape(tmp_path):

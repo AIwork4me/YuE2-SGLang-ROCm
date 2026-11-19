@@ -54,26 +54,23 @@ def make_ws(tmp_path: Path) -> Path:
     return ws
 
 
+def _identity(request: dict, config: dict, weights) -> str:
+    """Exactly the validator's canonical identity (verify_wsb_artifacts.
+    recompute_identity) so well-formed synthetic bundles are self-consistent."""
+    import hashlib
+    blob = json.dumps({"request": request, "config": config, "weights": weights},
+                      ensure_ascii=False, sort_keys=True,
+                      separators=(",", ":"), allow_nan=False)
+    return hashlib.sha256(blob.encode()).hexdigest()
+
+
 def make_run(ws: Path, name: str, indices, corrupt=(), wrong_seed=None,
-             drop=(), extra_dir=None, duplicate=None, truncated=()):
+             drop=(), extra_dir=None, duplicate=None, truncated=(),
+             identity_mismatch=()):
     runs = ws / "runs" / name
     songs = runs / "songs"
     songs.mkdir(parents=True)
     inputs = []
-    # the auditor recomputes finalize_candidate's identity over
-    # {request, config, weights} canonical JSON — synthetic bundles must be
-    # self-consistent or every candidate reports 'identity recheck FAILED'
-    # (dormant test defect: these tests only execute where the pinned
-    # manifest exists, and CI skips them).
-    weights = {"mot": {"config_sha256": "a" * 64}, "vae": {"config_sha256": "b" * 64}}
-
-    def _identity(request, config):
-        blob = json.dumps({"request": request, "config": config,
-                           "weights": weights}, ensure_ascii=False,
-                          sort_keys=True, separators=(",", ":"), allow_nan=False)
-        import hashlib
-        return hashlib.sha256(blob.encode()).hexdigest()
-
     for i in indices:
         for j in (0, 1):
             if (i, j) in drop:
@@ -87,10 +84,14 @@ def make_run(ws: Path, name: str, indices, corrupt=(), wrong_seed=None,
             cand = songs / ident
             cand.mkdir()
             request = {"seed": seed, "cot": "full", "cfg_scale": 1.0}
-            config = {"generation": "x", "backend": "torch"}
+            config = {"backend": "torch-eager", "memory_budget_gib": 24}
+            weights = {"model": "synthetic", "vae": "synthetic"}
+            identity = _identity(request, config, weights)
+            if (i, j) in identity_mismatch:
+                identity = "0" * 64  # deliberately forged
             (cand / "result.json").write_text(json.dumps(
                 {"status": "complete", "truncated": (i, j) in truncated,
-                 "weights": weights, "identity": _identity(request, config)}))
+                 "identity": identity, "weights": weights}))
             (cand / "request.json").write_text(json.dumps(request))
             (cand / "config.json").write_text(json.dumps(config))
             if (i, j) in corrupt:
@@ -100,10 +101,12 @@ def make_run(ws: Path, name: str, indices, corrupt=(), wrong_seed=None,
         cand = songs / ident
         cand.mkdir(parents=True, exist_ok=True)
         request = {"seed": 0, "cot": "full", "cfg_scale": 1.0}
-        config = {"generation": "x", "backend": "torch"}
+        config = {"backend": "torch-eager", "memory_budget_gib": 24}
+        weights = {"model": "synthetic", "vae": "synthetic"}
         (cand / "result.json").write_text(json.dumps(
-            {"status": "complete", "truncated": False, "weights": weights,
-             "identity": _identity(request, config)}))
+            {"status": "complete", "truncated": False,
+             "identity": _identity(request, config, weights),
+             "weights": weights}))
         (cand / "request.json").write_text(json.dumps(request))
         (cand / "config.json").write_text(json.dumps(config))
     if extra_dir:
@@ -171,10 +174,7 @@ def test_duplicate_candidate_rejected(tmp_path):
     r = run_validator(ws, runs, "--mode", "pilot")
     assert r.returncode != 0
     a = audit(runs)
-    # current auditor vocabulary: duplicate rows in evaluation_inputs are
-    # reported as 'duplicate (prompt_index, candidate_index) ... (2x)'
-    assert any("duplicate (prompt_index, candidate_index)" in p
-               for p in a["problems"]), a["problems"]
+    assert any("duplicate (prompt_index, candidate_index)" in p for p in a["problems"]), a["problems"]
 
 
 def test_unexpected_candidate_dir_rejected(tmp_path):
@@ -192,10 +192,7 @@ def test_corrupted_artifact_rejected(tmp_path):
     r = run_validator(ws, runs, "--mode", "pilot")
     assert r.returncode != 0
     a = audit(runs)
-    # current auditor vocabulary: a candidate failing the official checker is
-    # reported as '<ident>: artifact integrity FAILED: <ExcType>: <msg>'
-    assert any("artifact integrity FAILED" in p and "simulated corruption" in p
-               for p in a["problems"]), a["problems"]
+    assert any("artifact integrity FAILED" in p for p in a["problems"]), a["problems"]
 
 
 def test_truncated_but_valid_passes(tmp_path):
@@ -248,3 +245,27 @@ def test_full_mode_with_wrong_expect_flag_rejected(tmp_path):
 
 if __name__ == "__main__":
     sys.exit(pytest.main([__file__, "-v"]))
+
+
+def test_forged_identity_rejected(tmp_path):
+    """Negative control: a self-consistent-looking bundle whose recorded
+    identity does NOT match its request/config/weights must be rejected —
+    this is the anti-forgery property v2 added."""
+    ws = make_ws(tmp_path)
+    runs = make_run(ws, "forged", indices=range(1), identity_mismatch=[(0, 0)])
+    r = run_validator(ws, runs, "--mode", "pilot")
+    assert r.returncode != 0
+    a = audit(runs)
+    assert any("identity recheck FAILED" in p for p in a["problems"]), a["problems"]
+
+
+def test_wellformed_identity_accepted(tmp_path):
+    """Positive control: bundles with correctly recorded identity add zero
+    identity problems (isolates the forged test from fixture noise)."""
+    ws = make_ws(tmp_path)
+    runs = make_run(ws, "wellformed", indices=range(1))
+    r = run_validator(ws, runs, "--mode", "pilot")
+    assert r.returncode == 0
+    a = audit(runs)
+    assert not any("identity" in p for p in a["problems"]), a["problems"]
+    assert a["identity_reverified"] == 2

@@ -27,6 +27,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import fcntl
 import hashlib
 import json
 import os
@@ -34,6 +35,7 @@ import signal
 import subprocess
 import sys
 import time
+import uuid
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -55,56 +57,121 @@ MIN_FREE_GB = float(os.environ.get("YUE2_MIN_FREE_GB", "100"))
 
 
 def atomic_append(path: Path, obj: dict) -> None:
-    """Crash-consistent journal append (RCA-F2).
-
-    fsync before close so a completed candidate can never be lost to a crash
-    after the process reported it; the append itself is a single small write to
-    an O_APPEND fd, so a crash mid-write can only ever tear the FINAL line,
-    which read_journal() tolerates (and reports) explicitly.
-    """
-    data = (json.dumps(obj) + "\n").encode()
-    with open(path, "ab") as f:
-        f.write(data)
-        f.flush()
-        os.fsync(f.fileno())
+    """Durable, serialized append; refuse an unquarantined torn tail."""
+    data = (json.dumps(obj, separators=(",", ":")) + "\n").encode("utf-8")
+    fd = os.open(path, os.O_CREAT | os.O_APPEND | os.O_RDWR, 0o600)
+    try:
+        fcntl.flock(fd, fcntl.LOCK_EX)
+        size = os.fstat(fd).st_size
+        if size:
+            os.lseek(fd, -1, os.SEEK_END)
+            if os.read(fd, 1) != b"\n":
+                raise ValueError("Journal ends in an unquarantined torn record")
+        offset = 0
+        while offset < len(data):
+            n = os.write(fd, data[offset:])
+            if n <= 0:
+                raise OSError("Journal write returned zero bytes")
+            offset += n
+        os.fsync(fd)
+    finally:
+        fcntl.flock(fd, fcntl.LOCK_UN)
+        os.close(fd)
 
 
 def read_journal(path: Path) -> tuple[set[str], list[str]]:
-    """Read a completion journal crash-consistently (RCA-F2).
+    """Read a journal without ever treating torn data as a completion.
 
-    Returns (complete_ids, problems).
-      * a torn/partial FINAL line (crash during append) is reported as a
-        problem but NOT treated as completion — the campaign regenerates it;
-      * an unparseable INTERIOR line is reported (should be impossible with
-        single-write O_APPEND appends; would indicate external tampering);
-      * duplicate completion records are deduplicated; a record marked
-        complete and later failed for the same id is a conflict → problem
-        (the resume verify_result gate is the real authority either way).
-    A campaign must never falsely count a candidate as complete.
+    The incomplete final record is copied, fsynced, then truncated with
+    fsync under the same file lock as append. A corrupt *complete* record
+    fails closed. A later 'failed' event cancels an earlier 'complete'.
     """
-    complete: set[str] = set()
+    completed: set[str] = set()
     problems: list[str] = []
-    if not path.is_file():
-        return complete, problems
-    lines = path.read_text().splitlines()
-    for idx, line in enumerate(lines):
-        if not line.strip():
-            continue
+    if not path.exists():
+        return completed, problems
+    with path.open("r+b") as stream:
+        fcntl.flock(stream.fileno(), fcntl.LOCK_EX)
         try:
-            rec = json.loads(line)
-        except ValueError:
-            kind = ("torn final line (crash during append) — not counted complete"
-                    if idx == len(lines) - 1 else
-                    "unparseable interior line — possible tampering")
-            problems.append(f"{path.name}:{idx + 1}: {kind}: {line[:120]!r}")
-            continue
-        status = rec.get("status")
-        if status == "complete":
-            complete.add(rec["id"])
-        elif status == "failed" and rec.get("id") in complete:
-            problems.append(f"{path.name}:{idx + 1}: id {rec.get('id')!r} both "
-                            f"complete and failed — deferring to artifact verify")
-    return complete, problems
+            raw = stream.read()
+            if raw and not raw.endswith(b"\n"):
+                last_break = raw.rfind(b"\n") + 1
+                tail = raw[last_break:]
+                sidecar = path.with_name(
+                    path.name + ".corrupt-tail-" + uuid.uuid4().hex + ".bin"
+                )
+                with sidecar.open("xb") as f:
+                    f.write(tail)
+                    f.flush()
+                    os.fsync(f.fileno())
+                stream.seek(last_break)
+                stream.truncate()
+                stream.flush()
+                os.fsync(stream.fileno())
+                raw = raw[:last_break]
+                problems.append(
+                    f"torn final line quarantined in {sidecar.name} (not counted)"
+                )
+            for no, line in enumerate(raw.splitlines(), 1):
+                if not line.strip():
+                    continue
+                try:
+                    rec = json.loads(line)
+                except (ValueError, UnicodeDecodeError) as exc:
+                    raise ValueError(
+                        f"Invalid complete interior journal line {no}; manual audit required"
+                    ) from exc
+                if not isinstance(rec, dict) or not isinstance(rec.get("id"), str):
+                    raise ValueError(f"Invalid journal schema at line {no}")
+                if rec.get("status") == "complete":
+                    completed.add(rec["id"])
+                elif rec.get("status") == "failed":
+                    if rec["id"] in completed:
+                        problems.append(
+                            f"id {rec['id']!r} both complete and failed; latest status wins"
+                        )
+                    completed.discard(rec["id"])
+                else:
+                    raise ValueError(f"Invalid journal status at line {no}")
+        finally:
+            fcntl.flock(stream.fileno(), fcntl.LOCK_UN)
+    return completed, problems
+
+
+def resume_verified_candidate(candidate: Path, candidate_id: str,
+                              completed: set[str], verify_result,
+                              journal: Path) -> tuple[bool, bool]:
+    """Return (skip_generation, was_recovered_or_invalidated).
+
+    A verified artifact is authoritative even if the journal append was
+    interrupted. A missing/broken claimed completion MUST be regenerated.
+    The caller updates its completed counter on invalidation/recovery.
+    """
+    claimed = candidate_id in completed
+    if candidate.is_symlink():
+        raise RuntimeError("Refusing symlink candidate artifact")
+    if candidate.exists():
+        try:
+            receipt = verify_result(candidate)
+        except Exception:
+            if claimed:
+                completed.discard(candidate_id)
+                return False, True
+            return False, False
+        if claimed:
+            return True, False
+        atomic_append(journal, {
+            "id": candidate_id,
+            "status": "complete",
+            "recovered_from_verified_artifact": True,
+            "identity": receipt.get("identity"),
+        })
+        completed.add(candidate_id)
+        return True, True
+    if claimed:
+        completed.discard(candidate_id)
+        return False, True
+    return False, False
 
 
 def sha256_file(p: Path) -> str:
@@ -159,8 +226,147 @@ def detect_runtime(args) -> dict:
     return {"python": "unknown", "torch": "unknown", "hip": "unknown"}
 
 
+# --------------------------------------------------------------------------
+# C2 P3: immutable source snapshots + per-attempt provenance
+# (C2.1 P1-A hardening: symlink refusal is TYPE-BASED, not hash-based; writes
+#  are crash-safe via tmp+fsync+link so a crash can never leave a partial
+#  file at the content-addressed name)
+# --------------------------------------------------------------------------
+def _publish_snapshot(tmp: Path, final: Path) -> bool:
+    """Atomically link tmp -> final (no-clobber). Returns True if THIS call
+    created final; False if another writer won the race (their content is
+    then verified by the caller)."""
+    try:
+        os.link(tmp, final)
+        return True
+    except FileExistsError:
+        return False
+    finally:
+        if os.path.lexists(tmp):
+            tmp.unlink()
+
+
+def _verify_snapshot_file(path: Path, expected_sha: str) -> None:
+    """Type-strict verification: the snapshot must be a REGULAR FILE (never a
+    symlink — even one whose target content hashes correctly, since the
+    symlink itself is mutable state outside the store), and its bytes must
+    hash to expected_sha."""
+    if path.is_symlink():
+        raise RuntimeError(f"worker snapshot is a SYMLINK (refused even if "
+                           f"target content matches): {path.name}")
+    if not path.is_file():
+        raise RuntimeError(f"worker snapshot path has unexpected type: {path.name}")
+    actual = sha256_file(path)
+    if actual != expected_sha:
+        raise RuntimeError(f"worker snapshot tampered: {path.name} "
+                           f"hashes {actual[:12]}… not {expected_sha[:12]}…")
+
+
+def snapshot_worker_source(runs_dir: Path) -> tuple[Path, str]:
+    """Write-once worker source snapshot at worker_sources/<sha>.py.
+
+    Rules:
+      * content-addressed: the EXECUTED file is always the snapshot whose name
+        is its own sha256 — a modified worker is a NEW sha, never an overwrite;
+      * an existing snapshot must be a REGULAR FILE (symlink refused on TYPE)
+        and hash-verify, else refuse (tamper detection);
+      * creation is crash-safe: content lands in a private tmp name (fsynced),
+        then a hardlink publishes it atomically — a crash mid-write can never
+        leave a partial file at the content-addressed name;
+      * the legacy mutable `_gen_worker.py` is never overwritten: if present
+        with different content it is preserved untouched (legacy evidence).
+    """
+    src_dir = runs_dir / "worker_sources"
+    src_dir.mkdir(parents=True, exist_ok=True)
+    if src_dir.is_symlink():
+        raise RuntimeError("worker_sources is a symlink — refusing (escape)")
+    worker_sha = hashlib.sha256(GEN_WORKER.encode()).hexdigest()
+    snap = src_dir / f"{worker_sha}.py"
+    if os.path.lexists(snap):
+        _verify_snapshot_file(snap, worker_sha)
+    else:
+        tmp = src_dir / f".snap-tmp-{uuid.uuid4().hex}"
+        fd = os.open(tmp, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o444)
+        try:
+            os.write(fd, GEN_WORKER.encode())
+            os.fsync(fd)
+        finally:
+            os.close(fd)
+        created = _publish_snapshot(tmp, snap)
+        # verify whichever instance won the race (ours or the concurrent one)
+        _verify_snapshot_file(snap, worker_sha)
+        if not created:
+            # concurrent writer produced identical content — fine
+            pass
+    legacy = runs_dir / "_gen_worker.py"
+    if legacy.is_symlink():
+        raise RuntimeError("legacy _gen_worker.py is a symlink — refusing")
+    if legacy.is_file():
+        legacy_sha = sha256_file(legacy)
+        if legacy_sha != worker_sha:
+            preserve = src_dir / f"{legacy_sha}.py"
+            if not os.path.lexists(preserve):
+                tmp = src_dir / f".snap-tmp-{uuid.uuid4().hex}"
+                fd = os.open(tmp, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o444)
+                try:
+                    os.write(fd, legacy.read_bytes())
+                    os.fsync(fd)
+                finally:
+                    os.close(fd)
+                _publish_snapshot(tmp, preserve)
+    elif not os.path.lexists(legacy):
+        # fresh run: also expose the conventional path for older tooling,
+        # write-once, same content
+        tmp = src_dir / f".snap-tmp-{uuid.uuid4().hex}"
+        fd = os.open(tmp, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o444)
+        try:
+            os.write(fd, GEN_WORKER.encode())
+            os.fsync(fd)
+        finally:
+            os.close(fd)
+        _publish_snapshot(tmp, legacy)
+    return snap, worker_sha
+
+
+def write_provenance_receipt(path: Path, obj: dict) -> None:
+    """O_EXCL write-once receipt (launched/result). Refuses duplicates."""
+    fd = os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o444)
+    try:
+        os.write(fd, (json.dumps(obj, sort_keys=True) + "\n").encode())
+        os.fsync(fd)
+    finally:
+        os.close(fd)
+
+
+def start_driver_session(runs_dir: Path, args, worker_sha: str,
+                         driver_sha: str) -> str:
+    """One provenance session per driver start: environment identity is
+    captured once per contiguous execution (a torch-import probe per candidate
+    would cost hours across 384 candidates)."""
+    session_id = uuid.uuid4().hex
+    sessions = runs_dir / "provenance" / "driver_sessions"
+    sessions.mkdir(parents=True, exist_ok=True)
+    write_provenance_receipt(sessions / f"{session_id}.json", {
+        "session_id": session_id,
+        "started_at_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "driver_source_sha256": driver_sha,
+        "worker_source_sha256": worker_sha,
+        "runtime": detect_runtime(args),
+        "driver_pid": os.getpid(),
+        "driver_cmdline": "/proc/self/cmdline unavailable; see run log",
+    })
+    return session_id
+
+
+def attempt_receipt_path(runs_dir: Path, candidate_id: str, attempt_id: str,
+                         phase: str) -> Path:
+    d = runs_dir / "provenance" / candidate_id
+    d.mkdir(parents=True, exist_ok=True)
+    return d / f"{attempt_id}.{phase}.json"
+
+
 GEN_WORKER = r'''
-import json, os, sys, time, traceback
+import json, os, sys, time, traceback, uuid
 from pathlib import Path
 
 def main() -> int:
@@ -175,16 +381,17 @@ def main() -> int:
     ident = f"wsb_{row['prompt_index']:03d}_r{j}_s{seed}"
     out = Path(spec["out"]) / "songs" / ident
     tmp = out.with_name(ident + ".partial")
+    if tmp.is_symlink() or out.is_symlink():
+        raise RuntimeError("Refusing symlink output paths")
     if tmp.exists():
-        # RCA-F1: QUARANTINE, never delete — a partial dir is campaign evidence
-        # (docs promise quarantine-not-delete; the old rmtree violated that).
-        import time as _t, shutil
-        q = tmp.with_name(ident + ".partial.quarantine-" + str(int(_t.time())))
+        # Unique names prevent overwrite when the same candidate is retried.
+        import shutil
+        q = tmp.with_name(ident + ".partial.quarantine-" + uuid.uuid4().hex)
         shutil.move(str(tmp), str(q))
-    tmp.mkdir(parents=True, exist_ok=True)
-    if out.exists():  # quarantine, never delete (immutable artifacts rule)
-        import time as _t, shutil
-        q = out.with_name(ident + ".quarantine-" + str(int(_t.time())))
+    tmp.mkdir(parents=True, exist_ok=False)
+    if out.exists():
+        import shutil
+        q = out.with_name(ident + ".quarantine-" + uuid.uuid4().hex)
         shutil.move(str(out), str(q))
     t0 = time.time()
     with YuE2Pipeline.from_pretrained(
@@ -241,7 +448,11 @@ def main() -> int:
                     help="python of the generation venv (default: this interpreter)")
     ap.add_argument("--cache-dir", default=None)
     ap.add_argument("--run-id", default=None)
+    ap.add_argument("--worker-timeout-s", type=int, default=10800,
+                    help="Bound one worker process (default 10800 seconds)")
     args = ap.parse_args()
+    if args.worker_timeout_s <= 0:
+        ap.error("--worker-timeout-s must be positive")
     if WS is None:
         WS = resolve_workspace(__file__)
 
@@ -329,6 +540,12 @@ def main() -> int:
 
     journal = args.runs / "generation_manifest.jsonl"
     done_ok, journal_problems = read_journal(journal)
+    allowed_ids = {
+        f"wsb_{row['prompt_index']:03d}_r{j}_s{row['candidate_ar_seeds'][j]}"
+        for row in rows for j in (0, 1)
+    }
+    if not done_ok.issubset(allowed_ids):
+        raise ValueError("Journal contains completed ID outside frozen run scope")
     for p in journal_problems:
         print(f"[journal] WARNING: {p}", flush=True)
     sys.path.insert(0, str(WS / "benchmark/WildSongBench/evaluation/wsb_metrics"))
@@ -342,8 +559,10 @@ def main() -> int:
     signal.signal(signal.SIGINT, _sig)
     signal.signal(signal.SIGTERM, _sig)
 
-    worker_path = args.runs / "_gen_worker.py"
-    worker_path.write_text(GEN_WORKER)
+    # C2 P3: execute the CONTENT-ADDRESSED snapshot; never a mutable path
+    worker_path, worker_sha = snapshot_worker_source(args.runs)
+    driver_sha = sha256_file(Path(__file__).resolve())
+    session_id = start_driver_session(args.runs, args, worker_sha, driver_sha)
     py = child_python(args)
     completed = len(done_ok)
     total = len(rows) * 2
@@ -356,13 +575,19 @@ def main() -> int:
         for r in rows:
             for j, seed in enumerate(r["candidate_ar_seeds"][:2]):
                 ident_c = f"wsb_{r['prompt_index']:03d}_r{j}_s{seed}"
-                if ident_c in done_ok:
-                    cand = args.runs / "songs" / ident_c
-                    try:
-                        verify_result(cand)
-                        continue  # verified complete: skip
-                    except Exception:
-                        print(f"[armA] {ident_c}: journal said complete but verify failed -> regenerating", flush=True)
+                cand = args.runs / "songs" / ident_c
+                was_complete = ident_c in done_ok
+                skip, changed = resume_verified_candidate(
+                    cand, ident_c, done_ok, verify_result, journal
+                )
+                if changed:
+                    completed += (1 if not was_complete and skip else
+                                  -1 if was_complete and not skip else 0)
+                if skip:
+                    continue
+                if changed and was_complete:
+                    print(f"[armA] {ident_c}: invalid completion quarantined on regeneration",
+                          flush=True)
                 if stop["requested"]:
                     print("[armA] stopped by signal; state is resume-safe", flush=True)
                     return 4
@@ -378,22 +603,73 @@ def main() -> int:
                         "memory_budget_gib": OFFICIAL["memory_budget_gib"],
                         "cache_dir": args.cache_dir}
                 print(f"[armA] generating {ident_c} ({completed+1}/{total})", flush=True)
+                attempt_id = uuid.uuid4().hex
+                write_provenance_receipt(
+                    attempt_receipt_path(args.runs, ident_c, attempt_id,
+                                         "launched"),
+                    {"attempt_id": attempt_id, "candidate_id": ident_c,
+                     "session_id": session_id,
+                     "driver_source_sha256": driver_sha,
+                     "worker_source_sha256": worker_sha,
+                     "seed": seed, "prompt_index": r["prompt_index"],
+                     "candidate_index": j,
+                     "launched_at_utc": time.strftime(
+                         "%Y-%m-%dT%H:%M:%SZ", time.gmtime())})
                 t0 = time.time()
-                proc = subprocess.run([py, str(worker_path), json.dumps(spec)],
-                                      capture_output=True, text=True)
+                try:
+                    proc = subprocess.run(
+                        [py, str(worker_path), json.dumps(spec)],
+                        capture_output=True, text=True, timeout=args.worker_timeout_s)
+                    stdout, stderr = proc.stdout or "", proc.stderr or ""
+                except subprocess.TimeoutExpired as exc:
+                    proc = None
+                    stdout = (exc.stdout or b"")
+                    stderr = (exc.stderr or b"")
+                    if isinstance(stdout, bytes):
+                        stdout = stdout.decode(errors="replace")
+                    if isinstance(stderr, bytes):
+                        stderr = stderr.decode(errors="replace")
+                    stderr += f"\nWorker exceeded {args.worker_timeout_s}s; partial preserved"
                 status, extra = None, {}
-                last = [l for l in (proc.stdout or "").splitlines() if l.strip()]
+                last = [l for l in stdout.splitlines() if l.strip()]
                 for line in reversed(last):
                     if line.startswith("RESULT "):
                         extra = json.loads(line[7:]); status = "complete"; break
-                if status != "complete":
-                    err = (proc.stderr or proc.stdout or "")[-1500:]
+                if status != "complete" or proc is None or proc.returncode != 0:
+                    err = (stderr or stdout or "Worker did not complete")[-1500:]
                     rec = {"id": ident_c, "status": "failed", "seed": seed,
                            "prompt_index": r["prompt_index"], "candidate_index": j,
-                           "error": err, "wall_s": round(time.time() - t0, 1)}
+                           "error": err, "wall_s": round(time.time() - t0, 1),
+                           "attempt_id": attempt_id,
+                           "worker_source_sha256": worker_sha,
+                           "driver_source_sha256": driver_sha,
+                           "session_id": session_id}
+                    write_provenance_receipt(
+                        attempt_receipt_path(args.runs, ident_c, attempt_id,
+                                             "result"),
+                        {**rec, "result_at_utc": time.strftime(
+                            "%Y-%m-%dT%H:%M:%SZ", time.gmtime())})
                     atomic_append(journal, rec)
                     print(f"[armA] FAILED {ident_c}: {err[:200]}", flush=True)
                     continue
+                extra.update({"attempt_id": attempt_id,
+                              "worker_source_sha256": worker_sha,
+                              "driver_source_sha256": driver_sha,
+                              "session_id": session_id})
+                write_provenance_receipt(
+                    attempt_receipt_path(args.runs, ident_c, attempt_id,
+                                         "result"),
+                    {"attempt_id": attempt_id, "candidate_id": ident_c,
+                     "status": "complete", "seed": seed,
+                     "prompt_index": r["prompt_index"], "candidate_index": j,
+                     "audio_seconds": extra.get("audio_seconds"),
+                     "identity": extra.get("identity"),
+                     "worker_source_sha256": worker_sha,
+                     "driver_source_sha256": driver_sha,
+                     "session_id": session_id,
+                     "wall_s": extra.get("wall_s"),
+                     "result_at_utc": time.strftime(
+                         "%Y-%m-%dT%H:%M:%SZ", time.gmtime())})
                 atomic_append(journal, extra)
                 completed += 1
                 eta_h = (time.time() - t_start) / max(1, completed - (len(done_ok))) * (total - completed) / 3600
