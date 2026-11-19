@@ -318,7 +318,11 @@ class TestArmBLauncherAndAcceptance:
     def test_acceptance_uses_actual_identity_cli(self):
         src = (REPO / "scripts/campaign_ops/armB_acceptance.sh").read_text()
         assert "capture --run-state" in src
-        assert "--out" not in src  # old wrong flag must not linger
+        # the old wrong flag must not linger (--out-dir of the acceptance
+        # request helper is a different, valid flag)
+        stripped = src.replace("--out-dir", "")
+        assert " --out " not in stripped and '--out "' not in stripped \
+            and "--out=" not in stripped
 
     def test_armB_launcher_exists_and_guards(self):
         p = REPO / "scripts/campaign_ops/run_armB_campaign.sh"
