@@ -1,0 +1,27 @@
+{
+ "schema": "w7900-rc4/reproducibility-verdict/v1",
+ "issued_at_utc": "2026-11-22T18:10:00Z",
+ "FRESH_CLONE_SAME_HOST_PASS": true,
+ "INDEPENDENT_THIRD_PARTY_REPRODUCED": false,
+ "verdict": "CLEAN_CLONE_SAME_HOST_PASS",
+ "same_host_caveat": "Executed on the same physical W7900D host and by the same operator tooling lineage as the original campaigns. An independent third party (different executor, different machine/instance, fresh network) has NOT reproduced this. G8 same-host criterion: PASS; third-party criterion: NOT_PRESENT.",
+ "checklist": {
+  "pinned_clone": "PASS (HEAD == 48d1cb6 == live PR #16 head)",
+  "environment_check": "PASS (no blockers/warnings)",
+  "pins_verified": "PASS (ALL PINS VERIFIED; 56 evaluator assets)",
+  "envA_fresh": "PASS",
+  "envB_fresh": "PASS (GPU-validated asserts)",
+  "evaluator_rebuilt": "PASS (hash-gated chain; venvs python 3.12.11; ROCm torch substitution receipts)",
+  "gpu_smoke": "PASS (after D1 fix; failure reproduced first)",
+  "native_full_song": "PASS (2/2, official seeds, artifacts complete, audio 191.3s/154.8s)",
+  "sglang_full_song": "PASS (2/2, identity-verified lifecycle, peak VRAM 47.1GiB)",
+  "audio_validity": "PASS (ffprobe FLAC 48kHz stereo; auditor-verified)",
+  "pilot_audit": "PASS (PILOT, 0 problems, both arms)",
+  "pilot_scoring": "PENDING_GPU_WINDOW (evaluator ready; scoring executes in the post-window GPU slot — see 05_CI_AND_GPU_REGRESSION.md for final rc)",
+  "verified_shutdown": "PASS (receipt stop rc=0, port freed, VRAM 28MB)",
+  "negative_controls": "PASS (NC1-NC10 fail-closed; 2 produced fixes)",
+  "docs_match_reality": "PASS (4 divergences found -> fixed -> re-executed)"
+ },
+ "defects_found_and_fixed_during_reproduction": 7,
+ "mode_B_fresh_acquisition": "PARTIAL (code+venvs+evaluator tree+small dataset files fresh; large weights hash-verified from cache — pins make the copies byte-identical)"
+}

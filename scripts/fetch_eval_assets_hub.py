@@ -59,6 +59,18 @@ def main() -> int:
             repos.setdefault((row["repo_id"], row["revision"]), []).append(row)
     from huggingface_hub import snapshot_download
     for (repo_id, revision), rrows in sorted(repos.items()):
+        # RC4: offline/cache-friendly fast path — if every pinned file for
+        # this repo already exists at the expected path with matching
+        # sha256+size, skip the network snapshot entirely (a stalled mirror
+        # must not block verification of an already-complete tree).
+        def _local_ok(row):
+            dst = args.root / row["path"]
+            return dst.is_file() and dst.stat().st_size == row["bytes"] \
+                and sha256_of(dst) == row["sha256"]
+        if all(_local_ok(row) for row in rrows):
+            print(f"SKIP-VERIFIED {repo_id} @ {revision[:8]} "
+                  f"({len(rrows)} pinned files already correct on disk)", flush=True)
+            continue
         rt = "dataset" if row_is_dataset(repo_id) else "model"
         print(f"snapshot {repo_id} @ {revision[:8]} ({len(rrows)} pinned files)", flush=True)
         snap = snapshot_download(repo_id=repo_id, revision=revision, repo_type=rt,

@@ -69,3 +69,30 @@
 - **Single-GPU serialization:** benchmark arms run sequentially on one GPU;
   concurrent evaluation during generation is not attempted (VRAM
   contention).
+
+---
+
+## Additions (W7900-RC4, 2026-11-22)
+
+- **SGLang scheduler idle busy-loop (R1-class):** after a completed request
+  batch, the `sgl_diffusion::scheduler` child has been observed spinning one
+  CPU core at ~99% with 0% GPU utilization for hours while the HTTP frontend
+  stays healthy (live capture 2026-11-22 04:51–13:36Z, ~8.7 h, 22.7 GB VRAM
+  retained; evidence `reports/w7900_rc4/02_RUNTIME_RCA.md` R1-E1). Related
+  launcher defect (resume pilot exited without stopping its server) is
+  documented there as R1-L1. The historical ~1/300 in-request hang is NOT
+  claimed fixed; no statistical claim is made from RC4 sample sizes.
+- **Scheduler-stack diagnostics blocked in-container:** py-spy/gdb cannot
+  attach (yama ptrace_scope=1, no CAP_SYS_PTRACE) — Python-level stack traces
+  of a spinning scheduler are unavailable on this rig.
+- **Native close() memory (R3, refined):** `YuE2Pipeline.close()` releases
+  torch device allocations (346→80 MB in 5 measured cycles); the residual
+  ~80 MB allocator baseline plus host RSS retention is bounded and
+  non-cumulative — not a leak. The RC1 "memory cleanup unresolved" item is
+  narrowed to this bounded residual.
+- **Host HF_* env overrides:** system-wide `HF_HOME`/`HF_HUB_CACHE` silently
+  redirect caches on this rig (see QUICKSTART §0 note); unset-friendly
+  behavior is not assumed.
+- **uv through the egress proxy stalls on large PyPI wheels** (evaluator
+  venv builds); the documented workaround is plain `pip` (or retrying uv),
+  with identical hash-gated results.

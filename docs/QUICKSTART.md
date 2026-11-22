@@ -12,6 +12,20 @@ cd YuE2-SGLang-ROCm
 python3 scripts/check_environment.py          # ✅
 ```
 
+RC4 notes (all four verified on a fresh clone 2026-11-22):
+
+- **TMPDIR**: pip/uv build temp can exhaust small `/tmp` filesystems. Export
+  `TMPDIR=$YUE2_WORKSPACE/tmp` before the venv builds (mkdir it first).
+- **HF cache env**: on hosts that export `HF_HOME`/`HF_HUB_CACHE`/`HUGGINGFACE_HUB_CACHE`
+  system-wide, those **override** per-command settings — export the full set
+  pointing at your workspace cache, or the wrong (possibly incomplete) cache is
+  used silently.
+- **Smoke test**: `bash scripts/run_smoke_test.sh` honors `YUE2_VENV` (default
+  `$YUE2_WORKSPACE/environments/yue2-gfx1100`).
+- **Offline generation**: with all pins materialized, export
+  `HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1` plus the HF cache set above —
+  otherwise weight resolution may hang on unreachable huggingface.co.
+
 ## 1. Materialize the pinned workspace (models, dataset, evaluator)
 
 ```bash
@@ -55,7 +69,17 @@ YUE2_WORKSPACE=$YUE2_WORKSPACE bash scripts/setup_sglang_gfx1100.sh       # ✅
 YUE2_WORKSPACE=$YUE2_WORKSPACE bash scripts/serve_yue2_gfx1100.sh         # ✅ health OK on :31000
 curl http://127.0.0.1:31000/health                                       # ✅ {"status":"ok"}
 
-# one generation (48 kHz stereo + full artifact bundle):
+# campaign-style generation driver (resume-safe, quarantining, provenance
+# receipts): MUST run under the Environment B python — finalization imports
+# sglang in-process (the driver fails fast with a clear error otherwise):
+YUE2_WORKSPACE=$YUE2_WORKSPACE \
+  $YUE2_WORKSPACE/environments/yue2-gfx1100/bin/python scripts/run_wsb.py \
+  --runs $YUE2_WORKSPACE/runs/pilot0 --run-id pilot0 --indices 0 --server http://127.0.0.1:31000   # ✅ 2/2 (RC4)
+```
+
+One-shot generation without the driver (48 kHz stereo + full artifact bundle):
+
+```bash
 python3 - <<'PY'                                                          # ✅ 12s audio verified
 import json, urllib.request
 payload = {"style": "[Tags]\nsoft pop\n", "lyrics": "[Lyrics]\nA tiny phrase.\n",

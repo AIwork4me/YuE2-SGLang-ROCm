@@ -1,0 +1,24 @@
+{
+ "schema": "w7900-rc4/command-receipts/v1",
+ "note": "one row per executed public/developer command; rc = exit code at the point of capture (pipeline-safe rc noted where the shell reported otherwise)",
+ "receipts": [
+  {"step": "clone", "cmd": "git clone https://github.com/AIwork4me/YuE2-SGLang-ROCm.git && git checkout 48d1cb64fa2b4653ee40606a8dfbe3593c5b0b6f", "rc": 0, "evidence": "fresh clone at /data/rc4/fresh_clone/YuE2-SGLang-ROCm, HEAD==pin", "ts": "2026-11-22T13:52Z"},
+  {"step": "env check", "cmd": "python3 scripts/check_environment.py", "rc": 0, "evidence": "BLOCKERS none / WARNINGS none; log archived in mission session", "ts": "2026-11-22T14:05Z"},
+  {"step": "pins", "cmd": "HF_ENDPOINT=https://hf-mirror.com python3 scripts/download_pins.py --workspace /data/rc4/ws", "rc": 0, "evidence": "ALL PINS VERIFIED (7 pinned files sha256; HF metadata re-check)", "ts": "2026-11-22T14:12Z"},
+  {"step": "modeB fresh-download probe (dataset file)", "cmd": "hf_hub_download WildSongBench prompts.jsonl @ pinned revision", "rc": 0, "evidence": "sha256 == pin (byte-identical)", "ts": "2026-11-22T13:47Z"},
+  {"step": "env A build", "cmd": "venv + pip torch==2.10.0+rocm7.1 + pins + yue2_infer wheel (QUICKSTART manual path, TMPDIR fix)", "rc": 0, "evidence": "pip check clean; ENVA_BUILD_OK (first attempt failed: pip temp exhausted /tmp -> documented QUICKSTART TMPDIR gap)", "ts": "2026-11-22T15:05Z"},
+  {"step": "env B build", "cmd": "YUE2_WORKSPACE=/data/rc4/ws bash scripts/setup_gfx1100_rocm7141.sh && bash scripts/setup_sglang_gfx1100.sh", "rc": 0, "evidence": "SETUP OK on real GPU (W7900D, torch 2.12.0+rocm7.14.1); sglang editable install; yue2 modules import OK; ENVB_BUILD_OK", "ts": "2026-11-22T15:00Z"},
+  {"step": "sglang patch apply", "cmd": "git init + git apply 0001-0005 + 0008 in ws/upstream/sglang", "rc": 0, "evidence": "git apply --check OK both; 10 files modified; committed", "ts": "2026-11-22T14:55Z"},
+  {"step": "evaluator tree build", "cmd": "build_evaluator_tree.sh (paths adapted to fresh ws)", "rc": 0, "evidence": "GATE-OK at every stage: tarball/pristine/0006/0007/0009/0010", "ts": "2026-11-22T15:10Z"},
+  {"step": "evaluator assets", "cmd": "scripts/fetch_eval_assets_hub.py --root <fresh> --cache <fresh>", "rc": 0, "evidence": "verify_assets OK: 56 pinned files valid (SKIP-VERIFIED fast path after hash check)", "ts": "2026-11-22T16:05Z"},
+  {"step": "GPU smoke (docs command, pre-fix)", "cmd": "YUE2_WORKSPACE=/data/rc4/ws bash scripts/run_smoke_test.sh", "rc": 2, "evidence": "REPRODUCED DEFECT: activates nonexistent environments/yue2 -> fixed in RC4 (venv resolution + repo-relative phase0 script)", "ts": "2026-11-22T15:30Z"},
+  {"step": "GPU smoke (post-fix)", "cmd": "YUE2_WORKSPACE=... YUE2_VENV=... bash scripts/run_smoke_test.sh", "rc": 0, "evidence": "SMOKE_RESULT PASS (fp32/fp16/bf16 finite; W7900D gfx1100) + yue2 module imports + SMOKE PASS", "ts": "2026-11-22T15:35Z"},
+  {"step": "Arm A full songs (native PyTorch)", "cmd": "run_wsb_torch.py --runs rc4_pilot_armA --run-id rc4_pilot_armA --indices 0 (env A python, gpu_lock held)", "rc": 0, "evidence": "2/2 complete (694.9s / 620.5s; audio 191.3s / 154.8s); interruption at 15:52Z quarantined partial + resume regenerated (live resume-safety evidence)", "ts": "2026-11-22T16:05Z"},
+  {"step": "Arm A audit", "cmd": "YUE2_WORKSPACE=... verify_wsb_artifacts.py --runs rc4_pilot_armA --mode pilot", "rc": 0, "evidence": "verdict PILOT, problem_count 0, quarantined partial counted as evidence (auditor fix)", "ts": "2026-11-22T16:12Z"},
+  {"step": "Arm B full songs (SGLang serving)", "cmd": "serve_yue2_gfx1100.sh -> identity capture/verify -> run_wsb.py --indices 0 -> identity-verified stop", "rc": 0, "evidence": "2/2 complete (wall 635.5s total, peak VRAM 47.1GB); stop rc=0 'gone after SIGINT'; first attempt reproduced the host-python finalize defect -> fail-fast guard added", "ts": "2026-11-22T16:39Z"},
+  {"step": "Arm B audit", "cmd": "verify_wsb_artifacts.py --runs rc4_pilot_armB --mode pilot", "rc": 0, "evidence": "verdict PILOT, problem_count 0", "ts": "2026-11-22T16:45Z"},
+  {"step": "negative controls", "cmd": "see 01_NEGATIVE_CONTROLS.md (NC1..NC8)", "rc": 0, "evidence": "all fail-closed; NC5 produced a robustness fix (receipt validation)", "ts": "2026-11-22T16:50Z"},
+  {"step": "R3 memory lifecycle", "cmd": "rc4_memory_lifecycle.py --cycles 5 (env A, gpu_lock)", "rc": 0, "evidence": "30 stage rows recovered; close() releases alloc (346->80MB); no cumulative growth; 02_MEMORY_LIFECYCLE.csv", "ts": "2026-11-22T16:55Z"},
+  {"step": "pilot scoring", "cmd": "wsb_eval score (per,songbench) + (mulan,allmusiccaps --per-results) under gpu_lock", "rc": null, "evidence": "PENDING evaluator venv completion (uv proxy stalls; manual pip build in progress)", "ts": null}
+ ]
+}
