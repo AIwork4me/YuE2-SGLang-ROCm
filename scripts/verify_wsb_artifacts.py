@@ -64,6 +64,21 @@ REQUIRED_ARTIFACTS = {"audio.flac", "prefix.npy", "semantic.npy", "latent.npy",
                       "request.json", "config.json"}
 
 
+def is_truncated(value) -> bool:
+    """Schema-portable truncation test.
+
+    The torch driver (Arm A lineage) records a per-stage mapping
+    {"abc": bool, "semantic": bool}; the SGLang driver records a plain bool.
+    A non-empty dict is truthy in Python, which previously counted every
+    Arm A candidate (all-stages-False included) as truncated — inflating
+    truncated_but_complete from the true 0 to 384. Only an actually-truncated
+    stage (or a True scalar) counts.
+    """
+    if isinstance(value, dict):
+        return any(bool(v) for v in value.values())
+    return bool(value)
+
+
 def sha256_file(p: Path) -> str:
     h = hashlib.sha256()
     with open(p, "rb") as f:
@@ -268,7 +283,7 @@ def main() -> int:
         if status == "finalize_failed" and (songs / ident / "result.json").is_file():
             classification["driver:finalize_failed (recovered)"] += 1
 
-    truncated = sum(1 for r in results.values() if r.get("truncated"))
+    truncated = sum(1 for r in results.values() if is_truncated(r.get("truncated")))
     complete = len(results)
     if args.mode == "full":
         verdict = "FULL" if (complete == 384 and not problems

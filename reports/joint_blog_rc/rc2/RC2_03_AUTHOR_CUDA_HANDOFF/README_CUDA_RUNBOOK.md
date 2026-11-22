@@ -77,10 +77,10 @@ Notes (verified from the pinned scorer source):
 
 | File | Purpose |
 |---|---|
-| `README_CUDA_RUNBOOK.md` | this file |
-| `verify_transfer_bundle.py` | receiving-side fail-closed bundle verification |
-| `armA_bundle_manifest.json` | Arm A full-bundle manifest: 384 candidates / 4224 files, per-file SHA256 + bytes (16.3 GiB payload; end-to-end verified against the real bundle: `bundle OK: 384 candidates, 4224 files verified`) |
-| (after Arm B completes) | `armB_bundle_manifest.json` + same procedure with `armB_transfer/` |
+| `README_CUDA_RUNBOOK.md` | this runbook |
+| `verify_transfer_bundle.py` | receiving-side fail-closed bundle verification (RC3-hardened: symlink escape, path traversal via manifest ids, non-`songs/<id>` input paths, duplicate ids and index disagreements all rejected; pinned by `tests/test_transfer_bundle_verifier.py`) |
+| `armA_bundle_manifest.json` | Arm A full-bundle manifest: 384 candidates / 4224 files, per-file SHA256 + bytes (16.26 GiB payload; end-to-end verified against the real bundle: `bundle OK: 384 candidates, 4224 files verified`) |
+| `armB_bundle_manifest.json` | Arm B full-bundle manifest (RC3): 384 candidates / 4224 files / 8.62 GiB, end-to-end verified; official frozen `prepare_inputs()` additionally accepted the real Arm B bundle **384/384** in a clean report dir (1017 s) |
 
 Privacy: bundles contain performances of licensed WildSongBench lyrics and
 model outputs — **private channel only, never the public repository** (same
