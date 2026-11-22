@@ -266,6 +266,17 @@ def main() -> int:
     # ---- immutable run identity -------------------------------------------------
     run_id = args.run_id or time.strftime("run%Y%m%dT%H%M%SZ", time.gmtime())
     ident = detect_platform()
+    # RC4 M4.4: record the DRIVER repo git HEAD so new runs carry their
+    # source identity in the immutable run_config (LEGACY runs predate this
+    # field and stay honestly attributable only at run level).
+    try:
+        repo = Path(__file__).resolve().parents[1]
+        head = subprocess.run(["git", "-C", str(repo), "rev-parse", "HEAD"],
+                              capture_output=True, text=True, timeout=10)
+        if head.returncode == 0:
+            ident["driver_repo_head"] = head.stdout.strip()
+    except Exception:
+        pass
     ident.update({
         "run_id": run_id,
         "sglang_commit": "ced0ef7d1bbbe703607b302ec86bb20a5c06bc8f",
