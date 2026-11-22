@@ -30,4 +30,13 @@
 - 无原始音频/歌词/转录入 Git（bundle manifest 仅 sha256+bytes；音素分解仅聚合）
 - 无大战役证据文件改动（ Arm A/B 冻结产物仅读；audit.json 重跑输出逐字节一致）
 
-## 实况（推送后填写）
+## 实况（推送后填写，已填写为真实结果）
+
+| 项 | 值 |
+|---|---|
+| 推送 | `f6b24d7..3adf913` → origin/mission/joint-blog-rc2（fast-forward，无 force） |
+| 远端 SHA 复核 | `3adf91357011cde0b68a4b13432f0972fb392ddc` = 本地 HEAD（fetch 后逐位确认） |
+| 精确 HEAD CI | cpu-tests **2×SUCCESS**：run [44987814341](https://github.com/AIwork4me/YuE2-SGLang-ROCm/actions/runs/44987814341) 与 [44987809220](https://github.com/AIwork4me/YuE2-SGLang-ROCm/actions/runs/44987809220)（4m19s / 4m23s） |
+| PR 评论 | https://github.com/AIwork4me/YuE2-SGLang-ROCm/pull/16#issuecomment-7074590938（最终工程审阅结论 + 证据链接） |
+| 提交 | `86355b3` fix(symlink/traversal/truncation) + `3adf913` analysis(evidence)（+ 本文件更新的收尾提交） |
+| 敏感性 | 推送 diff 仅含文件名字符串（audio.flac 等）；无歌词文本/音频字节/二进制；guard+tier2 PASS |
