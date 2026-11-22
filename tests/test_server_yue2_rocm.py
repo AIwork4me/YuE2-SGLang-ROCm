@@ -1,8 +1,9 @@
 """Serving-layer robustness tests for the YuE2 SGLang server (Phase 12).
 
-Runs against a LIVE server (default http://127.0.0.1:31000) using SMALL
-budgets so each request finishes fast. Execute only when the server is not
-processing the frozen scientific run (mission rule) - the suite is opt-in:
+Runs against a LIVE server that YOU designate explicitly, using SMALL
+budgets so each request finishes fast. OPT-IN only — the suite skips unless
+SGLANG_TEST_SERVER is set, and additionally refuses to run while a GPU
+ownership lock is held (frozen scientific run in progress):
 
   SGLANG_TEST_SERVER=http://127.0.0.1:31000 python -m pytest \
       tests/test_server_yue2_rocm.py -v
@@ -25,7 +26,32 @@ import pytest
 import soundfile as sf
 import numpy as np
 
-SERVER = os.environ.get("SGLANG_TEST_SERVER", "http://127.0.0.1:31000")
+SERVER = os.environ.get("SGLANG_TEST_SERVER", "")
+if not SERVER:
+    # OPT-IN, as documented: this suite drives REAL generation requests.
+    # A default of 127.0.0.1:31000 made `pytest tests/` on a benchmark host
+    # send traffic to the frozen campaign server mid-run (RC2 live defect).
+    pytest.skip("live-server suite is opt-in: set SGLANG_TEST_SERVER=http://… "
+                "against an idle, non-campaign server", allow_module_level=True)
+
+# second guard: never point this suite at a server while a GPU-ownership lock
+# is held (i.e., during any campaign/scoring window) unless explicitly forced
+def _gpu_lock_holder() -> str:
+    lock = Path(os.environ.get(
+        "YUE2_GPU_LOCK",
+        str(Path(os.environ.get("YUE2_WORKSPACE", "/data/yue2")) / "gpu.lock")))
+    try:
+        d = json.loads(lock.read_text())
+        return str(d.get("who") or "")
+    except (OSError, ValueError):
+        return ""
+
+_holder = _gpu_lock_holder()
+if _holder and os.environ.get("SGLANG_TEST_ALLOW_LOCKED") != "1":
+    pytest.skip(f"GPU ownership lock held by {_holder!r} — refusing to "
+                "disturb a live campaign (override: SGLANG_TEST_ALLOW_LOCKED=1)",
+                allow_module_level=True)
+
 SMALL = {"cot": "full", "ode_steps": 4, "semantic_max_tokens": 300,
          "abc_max_tokens": 256, "vae_core_frames": 192, "vae_halo_frames": 16}
 

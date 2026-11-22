@@ -1,0 +1,22 @@
+claim_id,claim_text,evidence_path,status,reviewer,verdict,rc2_delta
+C1,YuE2 runs natively on AMD Radeon W7900D (gfx1100) via official PyTorch implementation,reports/publication/fresh_image/PYTORCH_API_ACCEPTANCE.md + armA campaign receipts,VERIFIED,RC2 AI review (evidence chain),PASS,unchanged
+C2,Full official WildSongBench protocol on W7900D Arm A: 384/384 audit FULL,/data/yue2-runs/armA_wsb_full/audit.json (mirror pending),VERIFIED,RC2 AI review (lineage matrix RC2_00),PASS,lineage-to-RC confirmed at content-hash level
+C3,Arm A SongBench GA 6.7044 vs official 6.7316 (delta -0.0272),armA scores/summary.json,VERIFIED,RC2 AI review,PASS,unchanged
+C4,Arm A MuLan 0.4970 vs official 0.5068,armA additional/summary.json,VERIFIED,RC2 AI review,PASS,unchanged
+C5,Arm A AllMusicCaps 0.4010 vs official 0.4054,armA additional/summary.json,VERIFIED,RC2 AI review,PASS,unchanged
+C6,Arm A PER 16.83 pct vs official 8.44 pct - gap under joint investigation,03_PER_CAUSAL_ANALYSIS.md + rc2/RC2_03_*,VERIFIED_MEASUREMENT_OPEN_CAUSE,RC2 AI review,PASS-as-measurement,must not be presented as parity; direction finding added (deletion-dominant)
+C7,Arm B fresh SGLang campaign executing with full lifecycle guarantees,/data/yue2-runs/armB_wsb_full/ + mission_chain logs,IN_PROGRESS,RC2 live reconciliation,IN_PROGRESS,33+/384 at 04:37Z; ETA ~11-20T23Z
+C8,Arm B pre-swap SongBench 6.7376 / MuLan 0.5093 / AMC 0.4056 / PER 17.77 pct,evidence/publication/armB_campaign/official_summary.json,VERIFIED_HISTORICAL,RC2 AI review,PASS-separate-generation,label separately in publication
+C9,SGLang serving acceptance includes real full-pipeline music generation,/data/yue2/logs/armB_acceptance/acceptance_receipt.json,VERIFIED,RC2 AI review,PASS,unchanged (33.079 s / RMS 0.1486 / sha256)
+C10,GPU single-tenant policy enforced by ownership lock,scripts/gpu_lock.py + tests,VERIFIED,RC2 review + live lock audit,PASS,call-time resolution verified; mutation-killed
+C11,Server stop only via verified identity receipt never pkill,scripts/server_identity.py + 16-scenario suite + 2 new reverify tests,VERIFIED,RC2 AI review,PASS,re-verification path now mutation-pinned (F5)
+C12,Q3O reproduces official on W7900D,,NOT_TESTED,RC2,NOT_TESTED,48 GB below official judge requirement; scope reduction pending owner+authors
+C13,PER within 2 pp of official,,NOT_MET,RC2,NOT_MET,blocked on A2/B2/C1/C2; kit now validated end-to-end
+C14,Performance numbers (latency/RTF/throughput/memory),,NOT_TESTED,RC2,NOT_TESTED,M5 methodology frozen (05); execution queued behind campaign
+C15,Author endorsement of blog claims,,NOT_PRESENT,RC2,NOT_PRESENT,message prepared (RC2_06) NOT SENT; no response exists
+C16,AMD publication approval,,NOT_PRESENT,RC2,NOT_PRESENT,
+C17,Independent engineering review of the integrated RC,rc2/RC2_01_PR15_INDEPENDENT_REVIEW.md + PR #16,VERIFIED_AI_SECOND_PASS,RC2 (AI),PASS_WITH_CONDITIONS,2xP1+2xP2+3xP3 found and fixed on rc2 branch; CI green; NOT a human approval
+C18,Campaign tooling preserves verified candidates across crashes (resume),tests/test_wsb_resume.py + TestJournalCompleteCountsResumed,VERIFIED,RC2 mutation controls F1/F2,PASS,was a latent P1 (complete(resumed) invisible to chain gate)
+C19,Live-server test suite cannot disturb a running campaign,tests/test_server_yue2_rocm.py + test_live_server_optin.py,VERIFIED,RC2 mutation control F3,PASS,was default-on (P1); now opt-in + lock-aware
+C20,Scoring stages bounded (timeout + retry cap),mission_chain.py + TestScoreBoundedExecution/TestScoreStageRetryBounds,VERIFIED,RC2 mutation controls F7/F8,PASS,hung evaluator can no longer hold the GPU lock forever
+C21,Official CUDA-side procedure for cross-evaluator cells is executable,rc2/RC2_03_AUTHOR_CUDA_HANDOFF/ (prepare_inputs 384/384 PASS),VERIFIED_LOCALLY,RC2 validation,PASS_CPU_SIDE,A2/B2 execution still BLOCKED_EXTERNAL

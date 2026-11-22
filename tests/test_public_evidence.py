@@ -37,3 +37,25 @@ def test_target_object_and_text_phonemes_are_rejected():
     obj = {"target": {"reference_lyrics": "private"},
            "phonemes": ["p", "r", "i", "v", "a", "t", "e"]}
     assert list(guard.sensitive_paths(obj)) == ["target", "phonemes"]
+
+
+EXPECTED_FORBIDDEN = {
+    "target", "reference_lyrics", "reference_tokens", "control_prompt",
+    "style_target", "tags_full", "genre_raw", "audio_path",
+    "raw_chunks", "phonemes", "text", "lyrics", "transcript",
+    "asr_text", "generation_prompt", "prompt_text", "title",
+}
+
+
+def test_forbidden_vocabulary_is_pinned():
+    """The vocabulary itself is a security invariant: removing keys from
+    guard.FORBIDDEN must fail (mutation control A7 originally survived)."""
+    assert guard.FORBIDDEN == EXPECTED_FORBIDDEN
+
+
+def test_every_forbidden_key_is_flagged():
+    """Each pinned key must actually be flagged by sensitive_paths."""
+    for key in sorted(EXPECTED_FORBIDDEN):
+        obj = {key: "x"}
+        issues = list(guard.sensitive_paths(obj))
+        assert issues == [key], f"FORBIDDEN key {key!r} not flagged"

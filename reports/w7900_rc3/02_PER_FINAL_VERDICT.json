@@ -1,0 +1,49 @@
+{
+ "schema": "w7900-rc3/per-final-verdict/v1",
+ "verdict": "PER_PARITY_OPEN",
+ "why": "decisive cross-evaluator cells (A2/B2 on a real CUDA host; C1/C2 with author assets) not executed; W7900 is gfx1100 ROCm, not a CUDA device; no CUDA scorer was simulated or claimed",
+ "executed_cells": {
+  "A1": {
+   "status": "DONE",
+   "per_selected_micro": 0.168292,
+   "verified": "independent aggregate+selection recomputation this session"
+  },
+  "B1": {
+   "status": "DONE",
+   "per_selected_micro": 0.177628,
+   "verified": "independent aggregate+selection recomputation this session"
+  },
+  "B1g_gfx1151": {
+   "status": "DONE_PRIOR",
+   "per_selected_micro": 0.1722
+  }
+ },
+ "blocked_cells": {
+  "A2": {
+   "status": "BLOCKED_EXTERNAL_CUDA_HOST",
+   "kit": "validated (RC2, re-confirmed)"
+  },
+  "B2": {
+   "status": "BLOCKED_EXTERNAL_CUDA_HOST",
+   "kit": "validated THIS session (prepare_inputs 384/384; bundle manifest verified; verifier hardened)"
+  },
+  "C1": {
+   "status": "BLOCKED_EXTERNAL_AUTHOR_ASSETS"
+  },
+  "C2": {
+   "status": "BLOCKED_EXTERNAL_AUTHOR_ASSETS"
+  }
+ },
+ "hypothesis_ledger": {
+  "H1_rocm_asr_backend": "STRENGTHENED_NOT_CLOSED (deletion-dominant phoneme decomposition both arms+langs; deterministic; cross-stack common-mode)",
+  "H2_generation_numerics": "WEAKENED_NOT_EXCLUDED (two independent stacks statistically indistinguishable; non-ASR judges at parity; no CUDA-side score of our audio yet)",
+  "H3_evaluator_drift": "OPEN (author ask prepared, unsent)",
+  "H4_local_protocol_mismatch": "EXCLUDED_LOCAL (selection/aggregate/input-chain recomputed exactly; evaluator identity verified; capping semantics audited)"
+ },
+ "acceptance_criterion": "+/-2pp provisional, pre-registered, author confirmation pending - unchanged, not widened",
+ "official_reference_per_selected_micro": 0.0844,
+ "arm_rocm_per_selected_micro": {
+  "armA": 0.168292,
+  "armB": 0.177628
+ }
+}

@@ -1,0 +1,17 @@
+claim_id,claim,scope,status,supporting_evidence,publicly_shareable
+CL-1,Arm B completed 384/384 with FULL artifact audit and official frozen-evaluator four-metric scoring,engineering,PASS,reports/w7900_rc3/01_*.{md,json} + campaign receipts (private) + aggregates (public),aggregates+hashes only
+CL-2,SongBench 6.7383 vs official 6.7316 (selected-192),scientific reproduction,PASS,01_ARMB_METRICS.json / 01_ARMA_ARMB_COMPARISON.csv,YES (aggregate)
+CL-3,MuLan 0.5092 vs official 0.5068 (selected-192),scientific reproduction,PASS,same,YES (aggregate)
+CL-4,AllMusicCaps 0.4056 vs official 0.4054 (selected-192),scientific reproduction,PASS,same,YES (aggregate)
+CL-5,PER 17.76% vs official 8.44% — gap NOT causally closed,scientific,OPEN (parity) — report honestly,02_PER_FINAL_VERDICT.json,YES (aggregate + status)
+CL-6,PER parity (H1) confirmed,scientific,NOT_CLAIMED,decisive cells blocked; do not claim,NO — must not be claimed
+CL-7,CUDA-side validation executed,external validation,NOT_EXECUTED (BLOCKED_EXTERNAL),02_CUDA_HANDOFF_STATUS.md,YES (status)
+CL-8,Two independent generation stacks on the same GPU give statistically indistinguishable PER (paired CI includes 0),scientific observation,PASS (descriptive),01_ARMB_FINAL_ACCEPTANCE.md §4,YES (aggregate)
+CL-9,Phoneme-level error decomposition is deletion-dominant with systematic under-transcription (both arms & languages),scientific observation,PASS (descriptive; direction only),02_PER_CAUSAL_ANALYSIS.md E13,YES (aggregate)
+CL-10,PR #16 zero open reproducible P0/P1; CI green at exact HEAD,engineering,PASS (post-push confirmation in 04_GITHUB_HANDOFF),03_PR16_INDEPENDENT_REVIEW.md / 03_CI_AND_MUTATION_RESULTS.md,YES
+CL-11,Physical runtime regression incl. real generation + interruption/resume + graceful stop on W7900D,engineering,PASS,03_PHYSICAL_REGRESSION.md,YES (logs summarized)
+CL-12,CUDA handoff kit validated for BOTH arms (prepare_inputs 384/384 each; manifests verified; verifier hardened),engineering,PASS,02_CUDA_HANDOFF_STATUS.md,YES (procedures+hashes)
+CL-13,Author approval of reproduction/interpretation,governance,NOT_PRESENT (message unsent),RC2_06 draft,NO — must not be inferred
+CL-14,AMD publication approval,governance,NOT_PRESENT,—,NO — must not be inferred
+CL-15,Q3O metric reproduction,scientific,NOT_TESTED (48GiB < judge requirement),04_RELEASE_GATE_LEDGER.json G6,YES (status)
+CL-16,Deterministic same-seed regeneration (identity byte-identical across sessions),engineering observation,PASS (2 samples),03_PHYSICAL_REGRESSION.md P4/P8,YES

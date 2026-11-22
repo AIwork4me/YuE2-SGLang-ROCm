@@ -29,7 +29,7 @@ over.
 
 ```bash
 git clone https://github.com/AIwork4me/YuE2-SGLang-ROCm.git
-cd YuE2-SGLang-ROCm && git checkout <pinned-release-branch>   # exact RC tag after merge
+cd YuE2-SGLang-ROCm && git checkout <pinned-release-branch>   # TEMPLATE: replace with the exact RC branch/tag after merge (until then: integration/joint-blog-rc @ its merged SHA)
 python3 scripts/check_environment.py
 export YUE2_WORKSPACE=/data/yue2 && mkdir -p $YUE2_WORKSPACE/{logs,tmp,hf-cache} /data/yue2-runs
 python3 scripts/download_pins.py --workspace $YUE2_WORKSPACE          # full pin-hash verification
@@ -42,8 +42,8 @@ bash scripts/campaign_ops/build_envB.sh                              # Env B (be
 
 ```bash
 source $YUE2_WORKSPACE/environments/yue2-torch/bin/activate
-# minimal full-pipeline generation (official implementation, torch-eager):
-python scripts/run_smoke_test.py --workspace $YUE2_WORKSPACE    # short smoke
+# environment smoke (GPU checks + imports; no server, no benchmark protocol):
+bash scripts/run_smoke_test.sh
 # full-song example: see docs/QUICKSTART_W7900.md (exact, tested commands)
 ```
 
@@ -58,7 +58,9 @@ $YUE2_WORKSPACE/environments/yue2-gfx1100/bin/python \
   --out-dir /data/yue2/logs/armB_acceptance
 # stop ONLY via verified identity (never pkill):
 $YUE2_WORKSPACE/environments/yue2-gfx1100/bin/python scripts/server_identity.py \
-  stop --receipt $YUE2_WORKSPACE/logs/armB_server_identity/server-identity.json --yes-path: see script help
+  stop --receipt $YUE2_WORKSPACE/logs/armB_server_identity/server-identity.json --timeout 180
+# exit 0 = stopped | 2 = verify-failed | 3 = ambiguous | 4 = refused |
+# 5 = BLOCKED (survived SIGINT+SIGTERM; inspect manually - never SIGKILL)
 ```
 
 ## 4. Official WildSongBench reproduction (the real protocol)

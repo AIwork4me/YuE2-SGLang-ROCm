@@ -121,7 +121,11 @@ def journal_complete(run_dir: Path) -> int:
         if line.strip():
             try:
                 r = json.loads(line)
-                if r.get("status") == "complete":
+                # "complete" and historical "complete(resumed)" both count:
+                # a verified candidate must never be invisible to the chain
+                # (live defect class found in RC2 review: exact-match missed
+                # resumed rows after journal-tail loss -> relaunch loop).
+                if str(r.get("status", "")).startswith("complete"):
                     done.add(r["id"])
             except ValueError:
                 continue
@@ -149,9 +153,16 @@ def audit(run_dir: Path, mode: str = "full") -> bool:
     never turn into a false NOT-FULL (live defect: chain started without the
     env var made every audit fail with FileNotFoundError)."""
     env = {**os.environ, "YUE2_WORKSPACE": str(WS), "TMPDIR": str(WS / "tmp")}
-    r = subprocess.run([PY_A, str(REPO / "scripts/verify_wsb_artifacts.py"),
-                        "--runs", str(run_dir), "--mode", mode],
-                       capture_output=True, text=True, timeout=7200, env=env)
+    try:
+        r = subprocess.run([PY_A, str(REPO / "scripts/verify_wsb_artifacts.py"),
+                            "--runs", str(run_dir), "--mode", mode],
+                           capture_output=True, text=True, timeout=7200, env=env)
+    except subprocess.TimeoutExpired:
+        # the auditor is CPU-only but must still be bounded — an audit that
+        # never returns must not take the whole supervisor down (it previously
+        # propagated TimeoutExpired and killed the chain)
+        log(f"audit({run_dir.name}): timed out after 7200s -> FAIL (retry later)")
+        return False
     (run_dir / f"audit_chain_{int(time.time())}.log").write_text(
         r.stdout + "\n--- stderr ---\n" + r.stderr)
     if r.returncode != 0:
@@ -193,7 +204,8 @@ def score(run_dir: Path, metrics: str, out_subdir: str, per_results: Path | None
         log(f"{log_name}: already complete (summary.complete=true)")
         return True
     if out.exists():
-        aside = run_dir / f"{out_subdir}_partial_{time.strftime('%Y%m%dT%H%M%SZ')}"
+        aside = run_dir / (f"{out_subdir}_partial_{time.strftime('%Y%m%dT%H%M%SZ')}"
+                           f"_p{os.getpid()}")
         shutil.move(str(out), str(aside))
         log(f"{log_name}: moved partial output aside -> {aside.name}")
     cmd = [EV_METRICS, "wsb_metrics/wsb_eval.py", "score",
@@ -215,10 +227,26 @@ def score(run_dir: Path, metrics: str, out_subdir: str, per_results: Path | None
                            wait_s=float(os.environ.get(
                                "YUE2_GPU_LOCK_WAIT_S", "7200")),
                            lock_path=WS / "gpu.lock"):
-            proc = subprocess.run(cmd, cwd=str(WSB_ROOT), env=SCORE_ENV,
-                                  capture_output=True, text=True)
+            proc = subprocess.run(
+                cmd, cwd=str(WSB_ROOT), env=SCORE_ENV,
+                capture_output=True, text=True,
+                timeout=float(os.environ.get("YUE2_SCORE_TIMEOUT_S", "21600")))
     except TimeoutError as exc:
         log(f"{log_name}: GPU lock unavailable: {exc} -> FAIL (retry later)")
+        return False
+    except subprocess.TimeoutExpired as exc:
+        # a hung evaluator must never hold the stage (and the GPU lock)
+        # forever — bounded failure, evidence preserved, retried later
+        logs_dir = WS / "logs"
+        logs_dir.mkdir(parents=True, exist_ok=True)
+        ts = int(time.time())
+        for stream, name in ((exc.stdout, "out"), (exc.stderr, "err")):
+            if isinstance(stream, bytes):
+                stream = stream.decode(errors="replace")
+            (logs_dir / f"{log_name}_timeout_{ts}.{name}").write_text(
+                (stream or "")[-200000:])
+        log(f"{log_name}: scoring exceeded YUE2_SCORE_TIMEOUT_S "
+            f"({exc.timeout}s) -> FAIL (retry later)")
         return False
     ts = int(time.time())
     logs_dir = WS / "logs"
@@ -237,6 +265,38 @@ def armA_driver_alive(run_dir: Path) -> tuple[bool, list[int]]:
     return driver_alive(script="run_wsb_torch.py", runs_dir=run_dir)
 
 
+def score_stage(s: dict, run_dir: Path, metrics: str, out_subdir: str,
+                per_results: Path | None, log_name: str) -> bool:
+    """score() with BOUNDED attempts (RC2: retry bounds + failure propagation).
+
+    A scoring stage that keeps failing must escalate to blocked_reason after
+    YUE2_SCORE_MAX_ATTEMPTS (default 8) instead of retrying GPU-heavy work
+    forever. The counter is persisted in mission_state.json; an operator who
+    has fixed the cause resets it explicitly (documented in blocked_reason).
+    A successful score resets the counter for that stage.
+    """
+    max_attempts = int(os.environ.get("YUE2_SCORE_MAX_ATTEMPTS", "8"))
+    attempts = dict(s.get("score_attempts") or {})
+    n = attempts.get(log_name, 0)
+    if n >= max_attempts:
+        s["blocked_reason"] = (
+            f"{log_name}: {n} failed attempts (>= YUE2_SCORE_MAX_ATTEMPTS="
+            f"{max_attempts}); inspect {WS}/logs/{log_name}_*.out/.err and "
+            "the moved-aside partial outputs, then reset score_attempts in "
+            "mission_state.json to re-arm the stage")
+        save_state(s)
+        log(f"{log_name}: BLOCKED — {s['blocked_reason']}")
+        return False
+    attempts[log_name] = n + 1
+    s["score_attempts"] = attempts
+    save_state(s)
+    ok = score(run_dir, metrics, out_subdir, per_results, log_name)
+    if ok:
+        attempts[log_name] = 0
+        s["score_attempts"] = attempts
+    return ok
+
+
 def armB_driver_alive(run_dir: Path) -> tuple[bool, list[int]]:
     return driver_alive(script="run_wsb.py", runs_dir=run_dir)
 
@@ -251,18 +311,23 @@ def run_armb_acceptance() -> tuple[bool, str]:
     acc_cmd = os.environ.get("YUE2_ARMB_ACCEPTANCE_CMD")
     logs_dir = WS / "logs"
     logs_dir.mkdir(parents=True, exist_ok=True)
-    if acc_cmd:
-        r = subprocess.run(["bash", "-c", acc_cmd], capture_output=True,
-                           text=True, timeout=7200)
+    def _run_acc(argv: list[str]) -> tuple[bool, str]:
+        try:
+            r = subprocess.run(argv, capture_output=True, text=True,
+                               timeout=7200)
+        except subprocess.TimeoutExpired:
+            # bounded: an acceptance flow that includes a gpu_lock wait can
+            # legitimately outlive a fixed timeout; that is a FAIL for this
+            # attempt (retried by the stage loop), never a supervisor crash
+            return False, "acceptance timed out after 7200s (retry later)"
         (logs_dir / "armB_acceptance.out").write_text(r.stdout or "")
         (logs_dir / "armB_acceptance.err").write_text(r.stderr or "")
         return r.returncode == 0, f"cmd rc={r.returncode}"
+
+    if acc_cmd:
+        return _run_acc(["bash", "-c", acc_cmd])
     if ARMB_ACCEPTANCE.is_file():
-        r = subprocess.run(["bash", str(ARMB_ACCEPTANCE)], capture_output=True,
-                           text=True, timeout=7200)
-        (logs_dir / "armB_acceptance.out").write_text(r.stdout or "")
-        (logs_dir / "armB_acceptance.err").write_text(r.stderr or "")
-        return r.returncode == 0, f"script rc={r.returncode}"
+        return _run_acc(["bash", str(ARMB_ACCEPTANCE)])
     return False, ("BLOCKED: no real Arm B acceptance command configured "
                    "(set YUE2_ARMB_ACCEPTANCE_CMD or provide "
                    "scripts/campaign_ops/armB_acceptance.sh); refusing to "
@@ -308,8 +373,8 @@ def main() -> int:
                 log("armA audit NOT FULL — blocking (manual inspection)")
                 sleep(1800)
         elif stage == "armA_score_per_sb":
-            if score(RUNS / "armA_wsb_full", "per,songbench", "scores", None,
-                     "armA_score_per_sb"):
+            if score_stage(s, RUNS / "armA_wsb_full", "per,songbench", "scores",
+                           None, "armA_score_per_sb"):
                 s["stage"] = "armA_score_mulan_amc"
                 s.pop("blocked_reason", None)
                 save_state(s)
@@ -319,9 +384,9 @@ def main() -> int:
                 log("armA per+songbench scoring failed; retrying in 30min")
                 sleep(1800)
         elif stage == "armA_score_mulan_amc":
-            if score(RUNS / "armA_wsb_full", "mulan,allmusiccaps", "additional",
-                     RUNS / "armA_wsb_full/scores/per_song.jsonl",
-                     "armA_score_mulan_amc"):
+            if score_stage(s, RUNS / "armA_wsb_full", "mulan,allmusiccaps",
+                           "additional", RUNS / "armA_wsb_full/scores/per_song.jsonl",
+                           "armA_score_mulan_amc"):
                 s["stage"] = "armB_acceptance"
                 s.pop("blocked_reason", None)
                 save_state(s)
@@ -377,8 +442,8 @@ def main() -> int:
                 log("armB audit NOT FULL — blocking")
                 sleep(1800)
         elif stage == "armB_score_per_sb":
-            if score(RUNS / "armB_wsb_full", "per,songbench", "scores", None,
-                     "armB_score_per_sb"):
+            if score_stage(s, RUNS / "armB_wsb_full", "per,songbench", "scores",
+                           None, "armB_score_per_sb"):
                 s["stage"] = "armB_score_mulan_amc"
                 s.pop("blocked_reason", None)
                 save_state(s)
@@ -387,9 +452,9 @@ def main() -> int:
                 save_state(s)
                 sleep(1800)
         elif stage == "armB_score_mulan_amc":
-            if score(RUNS / "armB_wsb_full", "mulan,allmusiccaps", "additional",
-                     RUNS / "armB_wsb_full/scores/per_song.jsonl",
-                     "armB_score_mulan_amc"):
+            if score_stage(s, RUNS / "armB_wsb_full", "mulan,allmusiccaps",
+                           "additional", RUNS / "armB_wsb_full/scores/per_song.jsonl",
+                           "armB_score_mulan_amc"):
                 s["stage"] = "done"
                 s.pop("blocked_reason", None)
                 save_state(s)

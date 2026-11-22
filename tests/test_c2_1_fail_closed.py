@@ -485,3 +485,23 @@ class TestAtomicPackagePublication:
                 _s.argv = old
         assert rc != 0
         assert not os.path.lexists(out)
+
+
+class TestRenameat2UnsupportedFailsClosed:
+    def test_enosys_raises_publish_error_not_clobber(self, tmp_path, monkeypatch):
+        """RC2 mutation control A10: on a filesystem without renameat2 support
+        the publication must FAIL CLOSED — a clobbering os.rename fallback
+        previously survived the entire suite."""
+        import errno as _errno
+
+        def _nosys(old, new, flags):
+            raise OSError(_errno.ENOSYS, "Function not implemented")
+
+        monkeypatch.setattr(AP, "_renameat2", _nosys)
+        staging = tmp_path / "staging"; final = tmp_path / "final"
+        staging.mkdir(); (staging / "a.txt").write_text("x")
+        with pytest.raises(AP.PublishError):
+            AP.publish_directory_no_clobber(staging, final)
+        # nothing was clobbered or moved
+        assert staging.is_dir() and (staging / "a.txt").is_file()
+        assert not final.exists()

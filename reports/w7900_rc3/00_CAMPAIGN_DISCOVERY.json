@@ -1,0 +1,40 @@
+{
+ "captured_at_utc": "2026-11-22T05:00:00Z",
+ "mission_state": {
+  "stage": "done",
+  "final_transition": "2026-11-20 20:31:36 armB_score_mulan_amc -> done"
+ },
+ "campaigns": {
+  "armA": {
+   "run_id": "armA_full_20261115f",
+   "dir": "/data/yue2-runs/armA_wsb_full",
+   "source_head": "0dedd415-lineage driver (torch-eager, run_wsb_torch)",
+   "audit_verdict": "FULL (384/384)",
+   "scores": "complete (per/songbench + mulan/amc)"
+  },
+  "armB": {
+   "run_id": "armB_full_20261119T015756Z",
+   "dir": "/data/yue2-runs/armB_wsb_full",
+   "source_head": "fee027d (campaign checkout; driver byte-identical at PR #15)",
+   "audit_verdict": "FULL (384/384) [independently re-verified this session]",
+   "scores": "complete (per/songbench + mulan/amc), chain rc=0"
+  }
+ },
+ "gpu_lock": {
+  "released_by_campaign_at": "2026-11-20T09:34:44Z",
+  "live_holder": null
+ },
+ "processes": {
+  "live_campaign": 0,
+  "zombies": 2,
+  "note": "defunct sglang, no GPU usage"
+ },
+ "key_evidence_sha256": {
+  "armB/audit.json": "18a1b325e298e4409b97cc68c71afa0bd6787b111fa81481b73037fd365c9433",
+  "armB/generation_summary.json": "3048d829b60de05a8019f4e79913a225df638274b6fedb964c5df3264b0dd1fe",
+  "armB/scores/summary.json": "2306fb354fe18ac75f50c5e4da22a977c8b18296116f6ee568967b719eeb160d",
+  "armB/additional/summary.json": "ec5d3a62ee65f6461f8cb59f28daa562fb701ee4eee6c7b136b1e1b19b2ab5ee",
+  "armA/scores/summary.json": "3109f49ade60ca9ec1ecbb55323fb2521b68eba830f2d08e468642c05bb8e6ad",
+  "armA/additional/summary.json": "6e85dc95575e1a6c2596737045d97a1a7e8a2ee735f8820e1a42a35b8c9a2ef9"
+ }
+}
