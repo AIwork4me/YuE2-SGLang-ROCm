@@ -1,5 +1,5 @@
 {
- "rows_total": 786,
+ "rows_total": 791,
  "aggregates": {
   "armA_native_torch_eager|campaign_frozen|campaign_window": {
    "n": 384,
@@ -13,14 +13,14 @@
    "failures": 0
   },
   "armA_native_torch_eager|rc4_fresh|rc4_fresh_cold_process": {
-   "n": 2,
-   "p50_wall_s": 657.7,
-   "p95_wall_s": 694.9,
-   "mean_wall_s": 657.7,
-   "min_wall_s": 620.5,
-   "max_wall_s": 694.9,
-   "mean_audio_realtime_multiplier": 0.2623,
-   "p95_audio_realtime_multiplier": 0.2753,
+   "n": 7,
+   "p50_wall_s": 630.4,
+   "p95_wall_s": 858.6,
+   "mean_wall_s": 658.6,
+   "min_wall_s": 516.1,
+   "max_wall_s": 858.6,
+   "mean_audio_realtime_multiplier": 0.2906,
+   "p95_audio_realtime_multiplier": 0.3203,
    "failures": 0
   },
   "armB_sglang_serving|campaign_frozen|campaign_window": {
