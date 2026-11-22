@@ -236,19 +236,25 @@ def main() -> int:
         MANIFEST = WS / "benchmark/WildSongBench/benchmark/reproduction_manifest.jsonl"
         MODEL_DIR = WS / "models/YuE2-3B"
         VAE_DIR = WS / "models/YuE2-Vae-legacy"
-    # RC4 M1.5 fail-fast: candidate finalization imports sglang.srt.utils
-    # (orjson et al.) IN THIS PROCESS. Running the driver under a python
-    # without the Environment B stack (e.g. bare host python) fails only at
-    # the FIRST finalize after a full generation — wasted GPU work (live:
-    # 2026-11-16:18Z fresh-clone pilot). Fail up front with a clear message.
+    # RC4 M1.5: candidate finalization runs finalize_candidate.py as a
+    # SUBPROCESS of this interpreter, and that script imports sglang
+    # in-process. Running the driver under a python without the Environment B
+    # stack wastes a full server-side generation before the first finalize
+    # fails (live evidence: 2026-11-22T16:18Z fresh-clone pilot). Warn up
+    # front; the finalize spawn below auto-selects the Env B interpreter when
+    # it exists, which fixes the failure mode outright.
     try:
         import sglang.srt.utils.common  # noqa: F401
     except Exception as _e:  # pragma: no cover - environment guard
-        print("FATAL: run_wsb.py must run with the Environment B python "
-              "(<ws>/environments/yue2-gfx1100/bin/python); finalization "
-              f"imports sglang in-process (import failed: {_e})",
-              file=sys.stderr)
-        return 2
+        envb = WS / "environments/yue2-gfx1100/bin/python" if WS else None
+        if envb and envb.is_file():
+            print(f"[warn] driver python lacks sglang ({_e}); finalize "
+                  f"subprocess will use {envb}", file=sys.stderr)
+        else:
+            print("[warn] driver python lacks sglang and no Env B interpreter "
+                  "was found; candidate finalization WILL fail once a "
+                  "generation succeeds (run the driver with "
+                  "<ws>/environments/yue2-gfx1100/bin/python)", file=sys.stderr)
     ap = argparse.ArgumentParser()
     ap.add_argument("--runs", type=Path, required=True,
                     help="run directory, e.g. runs/gfx1100/<run_id>/wsb_full")
@@ -413,8 +419,14 @@ def main() -> int:
 
                 if ok and wav is not None and wav.is_file():
                     record["status"] = "generated"
+                    # RC4 M1.5: finalize imports sglang in-process; prefer
+                    # the Env B interpreter (driver may run under host python)
+                    fin_py = sys.executable
+                    envb = WS / "environments/yue2-gfx1100/bin/python" if WS else None
+                    if envb is not None and envb.is_file():
+                        fin_py = str(envb)
                     fin = subprocess.run(
-                        [sys.executable, str(FINALIZE),
+                        [fin_py, str(FINALIZE),
                          str(cand), str(wav), str(MODEL_DIR), str(VAE_DIR)],
                         capture_output=True, text=True)
                     if fin.returncode == 0 and candidate_complete(cand):
