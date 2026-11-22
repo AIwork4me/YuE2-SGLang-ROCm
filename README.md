@@ -2,7 +2,16 @@
 
 ## Generate music with the official YuE2 model on AMD GPUs — native PyTorch and SGLang
 
-**Fresh-image audit (2026-11-15):** W7900D native PyTorch API acceptance 13/14 (memory cleanup unresolved); the new 384-candidate Arm A campaign is in progress (17/384 at last published checkpoint), while a fresh Arm B has not yet run. Historical 384/384 SGLang results are not fresh-image validation. See [fresh-image release ledger](reports/publication/fresh_image/FINAL_RELEASE_GATE_LEDGER.json). The proposed CPU-only safety patch removes raw text from the current tree; historical Git objects remain exposed pending owner action.
+**Status (2026-11-22, RC4):** both official WildSongBench campaigns on this
+W7900D rig are complete and frozen — Arm A (native PyTorch) 384/384 FULL and
+Arm B (SGLang) 384/384 FULL with zero generation failures, official frozen
+four-metric scoring, and 384/384 candidate-identity reverification (RC3).
+RC4 added a fresh-clone end-to-end developer reproduction (both paths
+generate complete songs on a clean workspace), runtime-reliability evidence,
+and W7900 performance/resource boundaries. PER cross-evaluator parity
+(CUDA-side) remains **OPEN**; no YuE2-author or AMD publication approval is
+implied. See [RC4 reports](reports/w7900_rc4/) and the
+[evidence index](docs/EVIDENCE_INDEX.md).
 
 Run the official YuE2 weights (m-a-p/YuE2-3B) on AMD Radeon GPUs through two
 verified paths on the same hardware:
@@ -18,8 +27,8 @@ verified paths on the same hardware:
 
 | GPU | Status |
 |---|---|
-| AMD Radeon PRO W7900 48GB (gfx1100) | **HISTORICAL** (prior image, 2026-11-14 receipts): SGLang 384/384 scored; PyTorch campaign reached 108/384, never scored |
-| AMD Radeon PRO W7900D 48GB (gfx1100) | **THIS MISSION'S RIG** (fresh image 2026-11-15; Arm A 384-candidate campaign in progress; all fresh claims gated by the fresh-image ledger) |
+| AMD Radeon PRO W7900D 48GB (gfx1100) | **CURRENT RIG**: RC2/RC3 campaigns Arm A + Arm B 384/384 FULL with official scoring; RC4 fresh-clone reproduction + performance boundaries (2026-11-22) |
+| AMD Radeon PRO W7900 48GB (gfx1100) | **HISTORICAL** (prior image, 2026-11-14 receipts): SGLang 384/384 scored |
 | AMD Radeon 8060S 32GB (gfx1151) | Historical 384/384 campaign (SGLang) |
 
 ### Quick start (copy-paste; see docs/QUICKSTART.md for receipts)

@@ -1,7 +1,20 @@
 # Evidence Index — where every published number comes from
 
 All times UTC. "Pinned" links reference exact commits so evidence stays reproducible
-even if branches move. Verification snapshot: 2026-10-17.
+even if branches move. Verification snapshot: 2026-10-17 (historical) · RC3/RC4
+additions 2026-11-22.
+
+## Current-generation runs (W7900D, RC2–RC4 lineage) — read this first
+
+| run_id | backend | GPU | finished (UTC) | source | pins | audio | audit | metrics (selected-192) | limitations | evidence |
+|---|---|---|---|---|---|---|---|---|---|---|
+| `armA_full_20261116*` (dir `armA_wsb_full`) | native torch-eager 2.10.0+rocm7.1 | W7900D gfx1100 | 2026-11-18 | RC2 campaign (`reports/joint_blog_rc`) | model `1a96eca6` · VAE `b54118f0` · WSB `e361b85a` · patchset `c1e0445…` | 384 | FULL 384/384 (audit.json predates truncation-schema fix; corrected count = 5 truncated, see RC4 04_TRUNCATION_AUDIT) | SongBench/MuLan/AMC in `scores/summary.json`; PER with ROCm ASR backend | PER parity vs CUDA OPEN (G4) | `/data/yue2-runs/armA_wsb_full` (receipts hashed in RC4 M0) |
+| `armB_full_20261119T015756Z` (dir `armB_wsb_full`) | SGLang ced0ef7d + patches 0001-0005/0008, torch 2.12.0+rocm7.14.1 | W7900D gfx1100 | 2026-11-20 09:34 | RC3 campaign | same pins | 384 (0 failures/retries) | FULL 384/384, identity reverified 384/384 | SongBench **6.7383** · MuLan **0.5092** · AMC **0.4056** · PER **17.76%** (official ref 8.44%) | PER parity OPEN; LEGACY provenance honestly marked | `/data/yue2-runs/armB_wsb_full`; RC3 report `reports/w7900_rc3/01_ARMB_*` |
+| `rc4_pilot_armA` / `rc4_pilot_armB` | same stacks, FRESH clone + fresh venvs | W7900D | 2026-11-22 16:05 / 16:38 | RC4 fresh-clone reproduction | same pins (re-verified) | 2+2 | PILOT 0 problems each | (pilot-scale; not comparable to 192-prompt metrics) | pilot n=1 prompt | `reports/w7900_rc4/01_*` |
+| RC4 perf window (`rc4_perf_armB` etc.) | same | W7900D | 2026-11-22 | RC4 M3 | same | see raw CSV | n/a (performance only) | wall/RTF distributions | fresh-sample n smaller than campaign n=384 (stated per figure) | `reports/w7900_rc4/03_*` |
+
+Historical runs (pre-RC2, earlier image) follow; **never mix their metrics with the
+current-generation table above** (different patchsets/source commits).
 
 | # | Claim / artifact | Value(s) | Repository ref · commit | Path |
 |---|---|---|---|---|

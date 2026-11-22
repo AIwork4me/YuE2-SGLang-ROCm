@@ -1,0 +1,63 @@
+{
+ "schema": "w7900-rc4/release-gate-ledger/v1",
+ "recomputed_at_utc": "2026-11-22T21:30:00Z",
+ "allowed_states": ["PASS", "FAIL", "PARTIAL", "BLOCKED_EXTERNAL", "NOT_TESTED", "NOT_PRESENT"],
+ "verdicts_separated": {
+  "ENGINEERING_GO": true,
+  "SCIENTIFIC_PARITY_GO": false,
+  "JOINT_PUBLICATION_GO": false
+ },
+ "gates": {
+  "G1": {
+   "criterion": "engineering review + exact-HEAD CI green",
+   "evidence": "RC4 independent review (05_INDEPENDENT_CODE_REVIEW.md): 8 defects found, 6 fixed in-branch with tests, 2 documented as follow-ups; CI-scope suite 367 passed/0 failed locally (+26 manifest-dependent with workspace); remote CI on the pushed HEAD to be confirmed post-push in 05_GITHUB_HANDOFF.md",
+   "verdict": "CONDITIONAL-PASS (exact-HEAD remote CI pending push; owner merge decision remains)"
+  },
+  "G2": {
+   "criterion": "Arm A 384/384 + provenance + scoring (frozen)",
+   "evidence": "carried from RC3: audit FULL 384/384; provenance PASS; aggregates recomputed; RC4 adds: frozen-evidence hashes re-verified unchanged; truncation semantics corrected (5, not 384 — stale audit.json documented); fresh-clone Arm A path reproduces complete songs",
+   "verdict": "PASS"
+  },
+  "G3": {
+   "criterion": "Arm B 384/384 + provenance + scoring (frozen)",
+   "evidence": "carried from RC3: FULL 384/384, 0 failures, metrics complete; RC4 adds: 192/192 selection identities re-verified under the exact official key (04_SELECTION_TIE_REVIEW.md); fresh-clone Arm B path reproduces complete songs + lifecycle",
+   "verdict": "PASS"
+  },
+  "G4": {
+   "criterion": "PER cross-evaluator parity",
+   "evidence": "no CUDA-side execution possible this mission; RC4 changes nothing in the evaluator protocol",
+   "verdict": "BLOCKED_EXTERNAL",
+   "blocker": "authorized CUDA host + private transfer (unchanged)"
+  },
+  "G5": {
+   "criterion": "runtime reliability conclusions",
+   "evidence": "RC4 executed the pre-registered safe tiers: R1 idle scheduler spin REPRODUCED deterministically (R1-E2) + orphan lifecycle gap (R1-L1); health-endpoint blind spots characterized via fault injection; R3 close() resolved as bounded non-cumulative residual (5 cycles); matrix executed with honest inventory; historical 1/300 in-request hang NOT reproduced and NOT claimed fixed",
+   "verdict": "PARTIAL (improved: root-cause class identified; rare in-request failure unresolved)"
+  },
+  "G6": {
+   "criterion": "official metrics + performance scope",
+   "evidence": "frozen metrics carried (Arm B selected-192: SB 6.7383, MuLan 0.5092, AMC 0.4056, PER 17.76% vs official 8.44% — PER gap OPEN); performance: n=384/arm campaign distributions + fresh drift checks + cold start 30s + concurrency serialization measured + resource envelope (campaign peak VRAM = 100% of card)",
+   "verdict": "PASS_WITH_PARTIALS (fresh-run n<30/arm honestly marked)"
+  },
+  "G7": {
+   "criterion": "security, licensing, provenance",
+   "evidence": "tier-1 + tier-2 evidence guards PASS on the final tree; no restricted data in the diff; provenance levels unchanged (384 LEGACY honestly marked); driver_repo_head added for new runs; regression tests 35/35",
+   "verdict": "PASS (working tree); historical git objects remain owner/legal-gated (unchanged)"
+  },
+  "G8": {
+   "criterion": "fresh-clone reproducibility",
+   "evidence": "01_FRESH_CLONE_REPORT.md + 01_REPRODUCIBILITY_VERDICT.json: CLEAN_CLONE_SAME_HOST_PASS (both paths, pilots audited, negative controls, 7 defects found+fixed); pilot scoring executed (per+songbench complete both arms; mulan/amc per shard mode)",
+   "verdict": "PASS (same-host); INDEPENDENT_THIRD_PARTY_REPRODUCED = NOT_PRESENT (explicitly not claimed)"
+  },
+  "G9": {
+   "criterion": "YuE2 author approval",
+   "evidence": "none; no external messages sent",
+   "verdict": "NOT_PRESENT"
+  },
+  "G10": {
+   "criterion": "AMD publication approval",
+   "evidence": "none; no external messages sent",
+   "verdict": "NOT_PRESENT"
+  }
+ }
+}

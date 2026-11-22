@@ -236,6 +236,25 @@ def main() -> int:
         MANIFEST = WS / "benchmark/WildSongBench/benchmark/reproduction_manifest.jsonl"
         MODEL_DIR = WS / "models/YuE2-3B"
         VAE_DIR = WS / "models/YuE2-Vae-legacy"
+    # RC4 M1.5: candidate finalization runs finalize_candidate.py as a
+    # SUBPROCESS of this interpreter, and that script imports sglang
+    # in-process. Running the driver under a python without the Environment B
+    # stack wastes a full server-side generation before the first finalize
+    # fails (live evidence: 2026-11-22T16:18Z fresh-clone pilot). Warn up
+    # front; the finalize spawn below auto-selects the Env B interpreter when
+    # it exists, which fixes the failure mode outright.
+    try:
+        import sglang.srt.utils.common  # noqa: F401
+    except Exception as _e:  # pragma: no cover - environment guard
+        envb = WS / "environments/yue2-gfx1100/bin/python" if WS else None
+        if envb and envb.is_file():
+            print(f"[warn] driver python lacks sglang ({_e}); finalize "
+                  f"subprocess will use {envb}", file=sys.stderr)
+        else:
+            print("[warn] driver python lacks sglang and no Env B interpreter "
+                  "was found; candidate finalization WILL fail once a "
+                  "generation succeeds (run the driver with "
+                  "<ws>/environments/yue2-gfx1100/bin/python)", file=sys.stderr)
     ap = argparse.ArgumentParser()
     ap.add_argument("--runs", type=Path, required=True,
                     help="run directory, e.g. runs/gfx1100/<run_id>/wsb_full")
@@ -266,6 +285,17 @@ def main() -> int:
     # ---- immutable run identity -------------------------------------------------
     run_id = args.run_id or time.strftime("run%Y%m%dT%H%M%SZ", time.gmtime())
     ident = detect_platform()
+    # RC4 M4.4: record the DRIVER repo git HEAD so new runs carry their
+    # source identity in the immutable run_config (LEGACY runs predate this
+    # field and stay honestly attributable only at run level).
+    try:
+        repo = Path(__file__).resolve().parents[1]
+        head = subprocess.run(["git", "-C", str(repo), "rev-parse", "HEAD"],
+                              capture_output=True, text=True, timeout=10)
+        if head.returncode == 0:
+            ident["driver_repo_head"] = head.stdout.strip()
+    except Exception:
+        pass
     ident.update({
         "run_id": run_id,
         "sglang_commit": "ced0ef7d1bbbe703607b302ec86bb20a5c06bc8f",
@@ -389,8 +419,14 @@ def main() -> int:
 
                 if ok and wav is not None and wav.is_file():
                     record["status"] = "generated"
+                    # RC4 M1.5: finalize imports sglang in-process; prefer
+                    # the Env B interpreter (driver may run under host python)
+                    fin_py = sys.executable
+                    envb = WS / "environments/yue2-gfx1100/bin/python" if WS else None
+                    if envb is not None and envb.is_file():
+                        fin_py = str(envb)
                     fin = subprocess.run(
-                        [sys.executable, str(FINALIZE),
+                        [fin_py, str(FINALIZE),
                          str(cand), str(wav), str(MODEL_DIR), str(VAE_DIR)],
                         capture_output=True, text=True)
                     if fin.returncode == 0 and candidate_complete(cand):
