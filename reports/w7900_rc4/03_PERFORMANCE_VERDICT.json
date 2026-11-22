@@ -1,0 +1,18 @@
+{
+ "schema": "w7900-rc4/performance-verdict/v1",
+ "issued_at_utc": "2026-11-22T20:30:00Z",
+ "methodology": "frozen pre-registration reports/joint_blog_rc/05_PERFORMANCE_METHODOLOGY.md (unchanged)",
+ "primary_speed_metric": "audio_realtime_multiplier = audio_seconds / generation_wall_seconds (conventional RTF is its reciprocal, always labeled separately)",
+ "distribution_evidence": {
+  "armB_sglang": {"campaign_frozen_n": 384, "p50_wall_s": 275.3, "p95_wall_s": 429.6, "mean_multiplier": 0.7906, "failures": 0,
+                  "rc4_fresh_n": 16, "rc4_fresh_p50_wall_s": 248.3, "drift": "consistent with campaign band"},
+  "armA_native": {"campaign_frozen_n": 384, "p50_wall_s": 706.4, "p95_wall_s": 1033.1, "mean_multiplier": 0.3089, "failures": 0,
+                  "rc4_fresh_n": 2, "rc4_fresh_p50_wall_s": 657.7, "drift": "consistent; +6 fresh samples in flight at issuing"}
+ },
+ "fresh_run_acceptance": "fresh-run n<30 per arm is PARTIAL per the mission rule; the n>=30 distribution criterion is satisfied by the frozen campaign receipts (n=384/arm, single-tenant, same stack pins) — reuse explicitly permitted by the mission when the stack is unchanged (verified: same sglang commit/patchset/model/VAE/dataset/torch builds)",
+ "cold_start": {"server_boot_to_health_s": 30, "samples": 4, "first_request_penalty_s": "50-120 (2 samples, indicative)"},
+ "concurrency": {"client_C_tested": [2, 4], "actual_gpu_batch": 1, "behavior": "serialized queuing (staircase walls)", "C8": "NOT_RE-RUN (RC2 evidence covers; server batch=1 makes it queueing-only)"},
+ "resource_envelope": {"armB_peak_vram_campaign_bytes": 51522830336, "armB_peak_vram_rc4_pilot_bytes": 47147925504, "armA_gpu_alloc_during_generate_bytes": 346413056, "armA_host_rss_peak_bytes": 12680000000, "post_stop_vram_bytes": 28028928},
+ "throughput": {"armB_campaign": "12.2 songs/h (384 in 113775s)", "armA_campaign_mean": "5 songs/h"},
+ "verdict": "PASS_WITH_PARTIALS — distributions evidence-backed (n=384/arm campaign + fresh drift checks), cold start and concurrency measured fresh, resource envelope measured; fresh-run n per arm is below 30 (PARTIAL by the strict fresh-only reading); no cross-vendor claims"
+}

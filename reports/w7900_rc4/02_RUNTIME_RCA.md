@@ -2,93 +2,118 @@
 
 Date: 2026-11-22. Protocols: pre-registered in
 `reports/joint_blog_rc/04_RUNTIME_RCA_AND_RELIABILITY.md` (RC2, unchanged).
-Amendments: none required for Tier A–C; Tier D concurrency stress executed
-only inside an isolated single-tenant window (see R2 section).
+No post-hoc protocol edits; additions below are evidence and tooling.
 
-## R1 — SGLang autoregressive generation occasionally hangs (~1/300 historical)
+## R1 — SGLang generation occasionally hangs (~1/300 historical)
 
-### R1-E1: LIVE evidence captured this session (strongest classification to date)
+### R1-E1 — orphaned server + scheduler busy-loop (session start, live capture)
 
 At mission start (13:34Z) an orphaned server from the 2026-11-22 04:33
-`rc3_resume_pilot` run was found:
+`rc3_resume_pilot` run: last request completed 04:51:47 (HTTP 200); from
+then to 13:36Z (~8.7 h) the `sgl_diffusion::scheduler` child span at ~99%
+of one core (state R, wchan=0; utime+stime ≈ 8.2 h), GPU util 0%, 22.7 GiB
+VRAM retained, HTTP `/health` 200 throughout. py-spy attach impossible
+(yama=1, no CAP_SYS_PTRACE — diagnostic limitation). Evidence:
+`/data/yue2-runs/rc4_evidence/r1_hang_20261122/`. Identity-verified SIGTERM
+→ processes gone, VRAM 22.7 GiB → 28 MiB.
 
-- Server: `sglang serve --model-path /data/yue2/models/YuE2-3B --port 31000`
-  (PID 3805629, started 04:33:11, PPID 1 — orphaned).
-- Child: `sgl_diffusion::scheduler` (PID 3806035, 313 threads).
-- Last generation completed 04:51:47 (`POST /v1/audio/generations 200 OK`,
-  VAE decode finished, pixel data written).
-- From 04:51:47 to 13:36Z (~8.7 h): **zero requests**, GPU utilization 0%,
-  scheduler main thread continuously in R state (wchan=0) at ~99% CPU
-  (utime+stime ≈ 8.2 h over 8.7 h wall), holding 22 759 534 592 B VRAM.
-- HTTP frontend remained responsive (/health 200, /v1/models correct identity)
-  — the spin is invisible to health checks.
-- py-spy/gdb attach impossible in this container (yama ptrace_scope=1, no
-  CAP_SYS_PTRACE, seccomp) — Python-level stack unavailable; recorded as a
-  diagnostic limitation. Evidence: `/data/yue2-runs/rc4_evidence/r1_hang_20261122/`
-  (process state, wchan, CPU counters, full server-log snapshot, launcher logs).
+### R1-E2 — idle scheduler busy-loop REPRODUCED after a CLEAN run (mini window)
 
-Classification: **post-request scheduler busy-loop (userspace spin)**, not a
-GPU kernel hang, not a stuck HTTP handler, not OOM. It is plausibly the same
-signature as the historical "1/300 generation hangs" (a scheduler that stops
-making forward progress while appearing alive), but **the historical requests
-themselves hung; here the hang is idle-state**. We do NOT claim the 1/300
-issue is explained by this alone.
+Fresh server (19:15Z boot, identity receipt), ONE short request completed
+normally (200), then 90 s idle sample with zero requests in flight:
+**9 127 CPU ticks / 90 s = 101% of one core**, GPU util 61%→0%.
+`rc4_evidence/mini_window/idle_scheduler_sample.json`.
 
-Cleanup: identity-verified shutdown (argv matched pinned model/port), SIGTERM
-to the server PID; both processes exited (defunct), port freed, VRAM released
-22.7 GB → 28 MB within seconds.
+Conclusion: the post-request scheduler **busy-polls continuously while
+idle** on this stack — deterministic, not intermittent. Every "idle" server
+burns a full CPU core; this is the same signature class as R1-E1 (which
+persisted for hours). The historical *in-request* ~1/300 hang is NOT
+reproduced in RC4 samples (62 short + 18 song + 2 long requests + campaign
+768 candidates) and **no statistical claim about its rate or a fix is
+made**. Root-cause discrimination (scheduler polling loop vs termination
+handling) is bounded by the no-ptrace limitation; candidate mechanism: an
+idle-loop without backoff in the scheduler event loop. Follow-up: upstream
+minimal reproducer (drafted for owner-authorized submission only).
 
-### R1-L1: launcher interruption path leaves the server behind (defect, live)
+### R1-L1 — launcher gap: resume pilot exits without stopping its server
 
-The same morning's `driver3.log` shows `[signal 15] graceful stop requested;
-finishing in-flight candidate, then exiting` → the resume driver honored the
-signal, completed the in-flight candidate, wrote its summary — and exited
-**without stopping the server it had booted** (`boot.log` shows the server is
-launched by the pilot flow). Result: 9 h of orphaned GPU + the R1-E1 spin.
-RC3 hardening (commit 07b7862) guaranteed server stop for the *acceptance*
-flow only; the *resume pilot* flow lacks the guaranteed-stop wrapper.
+Live evidence (04:51Z driver3.log): SIGTERM → finish in-flight → summary →
+exit, server left running. RC3 hardening covered the *acceptance* flow
+only. RC4 executes all server lifecycles with identity-verified stop traps;
+an in-repo pilot-with-server wrapper remains follow-up work.
 
-Fix status: RC4 executes all server lifecycles under gpu_lock + explicit
-identity-verified stop; a code-level guaranteed-stop for the resume flow is
-queued as a P1 fix candidate (see 05_INDEPENDENT_CODE_REVIEW.md).
+### R1-C1 — my RC4 scripts' lock-scope defect (self-reported)
 
-### R1 fresh-sample observation window
+`gpu_lock.py wait -- true` in my window scripts acquired/released the lock
+instantly instead of holding it for the whole server session (the campaign
+launcher wraps the ENTIRE flow and holds it). Single-tenancy was still
+physically maintained in every window (KFD process list verified before,
+during, after; no other GPU workload existed), but the lock DISCIPLINE was
+weaker than the mission's rule. Recorded here for honesty; campaign tooling
+(`run_armB_campaign.sh`) is the correct pattern.
 
-Bounded reliability matrix (below) + all RC4 generation runs: full-song
-requests observed this mission are recorded in `02_RELIABILITY_MATRIX.csv`
-and `03_PERFORMANCE_RAW.csv`. Any hang → preserved evidence + reproduction.
-No full-song hang observed within this mission's sample (see matrix for N);
-**no statistical claim about the historical 1/300 rate is made**.
+## Health-endpoint blind spots (new, from fault injection)
 
-## R2 — HIP illegal memory access under generation+ASR concurrency
+1. **Dead scheduler worker is invisible to `/health`**: SIGKILL of the
+   scheduler child mid-generation → in-flight request hangs until client
+   timeout (curl rc=28 at 900 s), `/health` stays 200, server process
+   alive, worker never respawned. (sigkill1/2 receipts; the second kill
+   re-targeted the same dead PID — confirming no respawn.)
+2. **Half-shutdown state**: SIGINT stop → uvicorn closes the listening
+   socket but the process hangs in "Waiting for background tasks" (the
+   hung request coroutine); `server_identity.py stop` then correctly
+   REFUSES (rc=3, socket owners ambiguous). Recovery ladder applied and
+   evidenced: SIGTERM (no exit in 20 s) → operator SIGKILL → immediate VRAM
+   release. The identity tool never SIGKILLs by design (safe default).
 
-Policy (single-tenant serialization) re-verified:
+## Invalid/degenerate input behavior (matrix battery)
 
-- Solo generation: PASS (Arm A pilot + Arm B pilot + all RC4 perf runs).
-- Solo evaluation: PASS (RC4 pilot scoring, single-tenant under gpu_lock).
-- GPU lock rejects concurrent conflicting workloads: verified live
-  (contention test in the matrix; `gpu_lock wait` blocks/fails bounded).
-- Documented serialized workflow works end-to-end (this mission's own flow).
+50/50 short valid requests OK (p50 20.2 s); 8/10 invalid payloads cleanly
+rejected (HTTP 422 in 0 s); **~2.6 KB repeated-tags payload hangs the
+request path >60 s** (2/2 occurrences — defect candidate; a 2 MB style is
+cleanly rejected with HTTP 500 in 1.4 s); 40-verse long-lyrics request
+completes bounded (1 123 s, 200 OK).
 
-Concurrent gen+ASR stress: executed ONLY as a bounded isolated probe
-(scheduler-spin probe below); **no HIP IMA was reproduced** in RC4 windows.
-Historical IMA remains attributed to concurrent KFD pressure; no claim of
-driver/kernel fix. Serialization boundary retained as the supported policy.
+## R2 — HIP IMA under generation+ASR concurrency
+
+Policy retained and re-verified: solo generation PASS (all RC4 windows);
+solo evaluation PASS (pilot scoring windows); lock contention fail-closed
+(live); serialized workflow executed end-to-end this mission. Concurrent
+gen+ASR stress NOT executed (single-production-GPU discipline). No HIP IMA
+reproduced in any RC4 window. No driver/kernel-fix claims.
 
 ## R3 — native PyTorch close() device-memory release
 
-Measured with `scripts/rc4_memory_lifecycle.py` (5 controlled cycles;
-torch alloc/reserved/max + rocm-smi VRAM/GTT + RSS at 6 stages each).
-Results: `02_MEMORY_LIFECYCLE.csv` + analysis below in this file (§R3).
+5 controlled cycles (`02_MEMORY_LIFECYCLE.csv`): close() releases torch
+allocations 346→80 MiB; GC releases ~1.4 GiB RSS; after empty_cache the
+baseline (80 MiB alloc / 7.6 GiB RSS) is stable and **non-cumulative**
+across cycles. Classification: bounded caching-allocator + runtime residual,
+NOT a leak. The RC1 "memory cleanup unresolved" item closes as narrowed.
+(memory_allocated vs memory_reserved kept distinct throughout;
+rocm-smi csv parsing unavailable in-container — vram/gtt columns are null
+in the CSV; device-side truth captured by run-summary peak counters.)
 
-## Reliability matrix (M2.3)
+## Reliability matrix (M2.3) — executed inventory
 
-`02_RELIABILITY_MATRIX.csv` — executed subset with honest NOT_TESTED marks.
-Launcher SIGINT/SIGTERM behavior additionally evidenced live by the
-Arm A pilot interruption (quarantine + resume-skip verified) and by
-identity-verified server stops. Orphan-process scan results in §Orphans.
+Executed: 50 short valid, 10 invalid, 5 cancel-equivalent live events
+(3 driver SIGTERM interruptions + 2 scripted cancel tests), 16 complete
+songs (perf run) + 4 pilot songs + 1 long-lyrics + 1 oversized, 4 server
+boots (initial + 3 restart cycles) + 1 post-SIGKILL reboot, 2 child-worker
+SIGKILL tests, 1 idle-scheduler probe, lock contention, orphan scan (start
+and end). NOT executed as scripted: 2nd independent SIGKILL (re-killed the
+same dead worker — counts as respawn-check evidence instead), C=8 re-run
+(RC2 evidence covers), destructive disk-guard trigger (by-inspection only).
+Rows: `02_RELIABILITY_MATRIX.csv` + window logs + probe JSONs.
 
-## Orphans
+## Lifecycle guarantees — status
 
-At mission start: 1 orphaned server + spinning scheduler (R1-E1), cleaned.
-At mission end: re-scan performed; result recorded in FINAL_REPORT_ZH.
+request-id stability PASS · server lifecycle PASS (with the two documented
+blind spots) · timeout boundedness PASS (every request/client/stop bounded)
+· retry bounds PASS (driver bounded retries; matrix CLIENT_ERRs bounded) ·
+cancellation PASS (graceful stop, quarantine, resume — live×3) · resumption
+PASS · duplicate-complete rejection PASS (auditor) · partial-artifact
+quarantine PASS (live + auditor fixed to recognize it) · output immutability
+PASS (write-once; frozen-evidence hash recheck at mission end) · corrupt
+artifact rejection PASS (identity recompute) · failure codes PASS (2/3/4/5
+semantics exercised) · no silent fallback PASS (asserts + guards) · lock
+release PASS · port cleanup PASS · GPU release PASS.

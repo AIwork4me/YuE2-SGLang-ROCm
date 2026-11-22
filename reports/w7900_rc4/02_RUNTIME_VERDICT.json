@@ -1,0 +1,37 @@
+{
+ "schema": "w7900-rc4/runtime-verdict/v1",
+ "issued_at_utc": "2026-11-22T19:45:00Z",
+ "R1_autoregressive_hang": {
+  "historical_rate": "~1/300 full-song requests (RC-era observation)",
+  "rc4_evidence": "R1-E1 live capture: post-request idle scheduler busy-loop (8.7h at ~99% CPU, 0% GPU, 22.7GB VRAM retained, HTTP healthy) + R1-L1 launcher gap (resume pilot exits without stopping its server)",
+  "fresh_observations_n": "see 02_RELIABILITY_MATRIX.csv and 03_PERFORMANCE_RAW.csv rows",
+  "classification": "IDENTIFIED_AND_PARTIALLY_CHARACTERIZED — the idle-spin signature is captured and reproducible evidence exists; the historical in-request hang is NOT reproduced in RC4 samples and NO statistical claim is made about its rate or fix",
+  "verdict": "PARTIAL"
+ },
+ "R2_hip_ima_concurrency": {
+  "policy": "single-tenant serialization (gpu_lock)",
+  "rc4_evidence": "solo generation PASS (all runs); solo evaluation PASS (pilot scoring windows); lock contention fail-closed verified live; no concurrent gen+ASR stress executed against production assets",
+  "verdict": "BOUNDARY_RETAINED; concurrent stress NOT_TESTED (by design this mission)"
+ },
+ "R3_native_close_memory": {
+  "rc4_evidence": "5 controlled load/generate/close/GC/cleanup cycles (02_MEMORY_LIFECYCLE.csv): close() releases torch allocations 346->80MB; GC releases ~1.4GB RSS; baseline stable and NON-CUMULATIVE across cycles",
+  "classification": "bounded allocator/runtime residual, NOT a leak",
+  "verdict": "PASS (narrowed; RC1 'unresolved' item closed with evidence)"
+ },
+ "lifecycle_guarantees": {
+  "request_id_stability": "PASS (ids deterministic wsb_XXX_rY_sZ across arms; identity reverified)",
+  "cancellation": "PASS (graceful driver SIGTERM x3 live: finish-in-flight, quarantine partial, resume-skip verified)",
+  "resume": "PASS (armA interrupted->resumed complete; armB identity-mismatch refusal correct)",
+  "timeout_boundedness": "PASS (client timeouts bounded all requests; gpu_lock waits bounded; scoring timeouts bounded)",
+  "no_duplicate_complete_events": "PASS (journal write-once semantics; auditors reject duplicates)",
+  "partial_artifact_quarantine": "PASS (live quarantine evidence both drivers; auditor now recognizes it)",
+  "output_immutability": "PASS (write-once inputs/config; no-clobber atomic writes; frozen runs untouched — end-of-mission hash recheck pending)",
+  "no_corrupt_artifact_accepted": "PASS (official verify_result + identity recompute at audit)",
+  "lock_release": "PASS (verified after every window)",
+  "port_cleanup": "PASS (port freed on every verified stop)",
+  "gpu_resource_release": "PASS (VRAM -> 28MB baseline after stops; R1-E1 cleanup)",
+  "orphan_scan": "PASS at start (1 orphan found, evidence captured, cleaned); final scan in FINAL_REPORT_ZH"
+ },
+ "matrix_summary": "02_RELIABILITY_MATRIX.csv (see FINAL_REPORT_ZH for executed/not-tested inventory)",
+ "verdict": "PARTIAL (R1 historical rate unresolved; R2 boundary not stress-tested by design; core lifecycle guarantees PASS on real hardware)"
+}
