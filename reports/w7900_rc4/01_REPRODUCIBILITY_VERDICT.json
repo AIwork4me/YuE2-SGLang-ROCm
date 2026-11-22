@@ -17,7 +17,7 @@
   "sglang_full_song": "PASS (2/2, identity-verified lifecycle, peak VRAM 47.1GiB)",
   "audio_validity": "PASS (ffprobe FLAC 48kHz stereo; auditor-verified)",
   "pilot_audit": "PASS (PILOT, 0 problems, both arms)",
-  "pilot_scoring": "PENDING_GPU_WINDOW (evaluator ready; scoring executes in the post-window GPU slot — see 05_CI_AND_GPU_REGRESSION.md for final rc)",
+   "pilot_scoring": "PASS (all four metrics complete=true, both arms; final rc in 05_CI_AND_GPU_REGRESSION.md — at snapshot 2026-11-22T18:10Z this field still carried the mid-run gpu-window placeholder; superseded by RC4.1 evidence reconciliation, see reports/w7900_rc4_1/04_RECONCILIATION.json)",
   "verified_shutdown": "PASS (receipt stop rc=0, port freed, VRAM 28MB)",
   "negative_controls": "PASS (NC1-NC10 fail-closed; 2 produced fixes)",
   "docs_match_reality": "PASS (4 divergences found -> fixed -> re-executed)"
