@@ -35,8 +35,16 @@ INVALID_PAYLOADS = [
     {"style": "[Tags]\nx\n", "lyrics": 12345},          # wrong type
     {"style": "[Tags]\nx\n", "lyrics": "[Lyrics]\nA.\n", "seed": "not-a-seed"},
     {"style": "[Tags]\nx\n", "lyrics": "[Lyrics]\nA.\n", "ode_steps": -5},
-    {"style": "[Tags]\nx\n" * 200, "lyrics": "[Lyrics]\nA.\n"},  # oversized style
+    {"style": "[Tags]\nx\n" * 200, "lyrics": "[Lyrics]\nA.\n"},  # repeated tags
 ]
+# RC4.1 M3.3 RCA: payload #5 is schema-VALID; the server therefore applies
+# DEFAULT full-song budgets (semantic_max_tokens=9000, ode_steps=32) and
+# legitimately generates for minutes. The RC4 "hang >60 s" was an
+# under-budgeted test timeout, NOT a server-side loop. Three consequences:
+#   a) it is prechecked by scripts/input_budget.py (bounded rejection, no GPU)
+#   b) a SHORT-budget variant proves the server handles it boundedly
+#   c) the default-budget variant is opt-in with a full-song-class timeout
+REPEATED_TAGS_PAYLOAD = INVALID_PAYLOADS[4]
 
 
 def post(server: str, payload: dict, timeout: float):
@@ -75,6 +83,13 @@ def main() -> int:
                     help="complete-song requests (expensive; opt-in)")
     ap.add_argument("--long-lyrics", action="store_true")
     ap.add_argument("--oversized", action="store_true")
+    ap.add_argument("--repeated-tags-short", action="store_true",
+                    help="repeated-tags payload with short generation budgets")
+    ap.add_argument("--repeated-tags-default", action="store_true",
+                    help="repeated-tags payload with server DEFAULT budgets "
+                         "(full-song class; completes in minutes)")
+    ap.add_argument("--repeated-tags-default-timeout", type=float,
+                    default=1800.0)
     ap.add_argument("--short-timeout", type=float, default=300.0)
     ap.add_argument("--song-timeout", type=float, default=1800.0)
     ap.add_argument("--tag", default="rc4")
@@ -112,10 +127,38 @@ def main() -> int:
             rec("health_after_failure", i + 1, st2, 0, "", "server unhealthy after case")
 
     # 2) invalid requests (cycled payloads)
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from input_budget import check_payload
     for i in range(args.invalid):
         p = INVALID_PAYLOADS[i % len(INVALID_PAYLOADS)]
+        # RC4.1: bounded-input precheck BEFORE any GPU-facing request
+        verdict = check_payload(p)
+        if not verdict["ok"]:
+            rows.append({"tag": args.tag, "case": "invalid_request", "n": i + 1,
+                         "http_status": "", "wall_s": 0.0,
+                         "outcome": "BOUNDED_REJECT",
+                         "error": f"{verdict['class']}: {verdict['reason']}",
+                         "body_head": "", "ts_utc": time.strftime(
+                             "%Y-%m-%dT%H:%M:%SZ", time.gmtime())})
+            print(f"[invalid_request #{i+1}] BOUNDED_REJECT "
+                  f"{verdict['class']}", flush=True)
+            continue
         s, d, b, e = post(args.server, p, 60.0)
         rec("invalid_request", i + 1, s, d, b, e)
+
+    # 2b) repeated-tags SHORT budget: server must handle it boundedly
+    if args.repeated_tags_short:
+        p = dict(REPEATED_TAGS_PAYLOAD, seed=760001, ode_steps=4,
+                 semantic_max_tokens=300, abc_max_tokens=512)
+        s, d, b, e = post(args.server, p, args.short_timeout)
+        rec("repeated_tags_short_budget", 1, s, d, b, e)
+
+    # 2c) repeated-tags DEFAULT budgets: full-song-class request (opt-in;
+    # completes in minutes — RC4.1 RCA proof that it is NOT a hang)
+    if args.repeated_tags_default:
+        p = dict(REPEATED_TAGS_PAYLOAD, seed=760002)
+        s, d, b, e = post(args.server, p, args.repeated_tags_default_timeout)
+        rec("repeated_tags_default_budget", 1, s, d, b, e)
 
     # 3) complete songs (official-ish parameters, distinct seeds)
     for i in range(args.songs):
