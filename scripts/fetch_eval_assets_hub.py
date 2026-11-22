@@ -38,11 +38,18 @@ def sha256_of(p: Path) -> str:
 
 
 def main() -> int:
+    # RC4 M1.5 portability fix: the WSB root was hardcoded to /data/yue2,
+    # which silently imported the evaluator inventory from the ORIGINAL
+    # campaign tree even when --root pointed elsewhere. Derive the import
+    # path from --root (default unchanged for compatibility).
     ap = argparse.ArgumentParser()
-    ap.add_argument("--root", type=Path, default=WSB / "wsb_metrics")
+    ap.add_argument("--root", type=Path, default=WSB / "wsb_metrics",
+                    help="wsb_metrics tree to fetch assets into")
     ap.add_argument("--metrics", default="per,songbench,mulan,allmusiccaps")
     ap.add_argument("--cache", type=Path, default=Path("/data/yue2/hf-cache"))
     args = ap.parse_args()
+    sys.path.insert(0, str(Path(args.root).resolve()))
+    sys.path.insert(0, str(Path(args.root).resolve() / "src"))
     metrics = [m for m in args.metrics.split(",") if m]
     rows = asset_rows(args.root, metrics)
     # group by repo to snapshot once per repo

@@ -88,13 +88,17 @@ def main():
             by_prompt.setdefault(r["prompt_index"], []).append(r)
         selected_ids = set()
         for _, cands in by_prompt.items():
-            selected_ids.add(min(
-                cands, key=lambda r: (r["metrics"]["per"]["per"],
-                                      r["metrics"]["per"]["edits"],
-                                      abs(r["metrics"]["per"]["reference_phonemes"]
-                                          - r["metrics"]["per"]["per"]),
-                                      r["metrics"]["per"].get("selected_asr_repeat", 0))
-            )["id"])
+            # Exact official frozen key (RC4 M4.2 fix): the previous fallback
+            # used abs(reference_phonemes - per) — a phoneme COUNT minus the
+            # PER RATE — and selected_asr_repeat as the final component, both
+            # deviating from wsb_eval.py select_candidates.
+            def _official_key(r):
+                m = r["metrics"]["per"]
+                rep = m["asr_repeats"][m["selected_asr_repeat"]]
+                return (m["per"], m["edits"],
+                        abs(len(rep["phonemes"]) - m["reference_phonemes"]),
+                        r["candidate_index"])
+            selected_ids.add(min(cands, key=_official_key)["id"])
 
     feats = []
     for r in rows:

@@ -1,0 +1,81 @@
+{
+ "schema": "w7900-rc4/environment/v1",
+ "captured_at_utc": "2026-11-22T13:38:00Z",
+ "host": {
+  "hostname": "j-7uqnwhrwmv2s44k6zdqzoq5idj",
+  "os": "Ubuntu 24.04.4 LTS (Noble Numbat)",
+  "kernel": "6.8.0-79-generic",
+  "cpu": "AMD EPYC 9334 32-Core Processor (dual-socket)",
+  "ram_total_gib": 503,
+  "container": {
+   "seccomp": 2,
+   "ptrace_scope": 1,
+   "cap_sys_ptrace": false,
+   "note": "py-spy/gdb cannot attach to running processes (diagnostic limitation for RCA)"
+  }
+ },
+ "gpu": {
+  "count_visible": 1,
+  "model": "AMD Radeon Pro W7900D (per torch device name; PCI 0x744b, SKU D7070910)",
+  "gfx_arch": "gfx1100",
+  "vram_total_bytes": 51522830336,
+  "kfd_node_id": 2,
+  "vram_used_at_audit_bytes": 28028928,
+  "gpu_util_at_audit_pct": 0,
+  "initial_state_note": "At session start an orphaned sglang server (PID 3805629 + sgl_diffusion::scheduler child PID 3806035) from the 2026-11-22 04:33 rc3_resume_pilot run held 22792097792 bytes VRAM with the scheduler spinning at 99% CPU for ~9h with 0% GPU utilization. Diagnostics captured to /data/yue2-runs/rc4_evidence/r1_hang_20261122/, then identity-verified shutdown performed; VRAM fully released. See 02_RUNTIME_RCA.md R1-E1."
+ },
+ "rocm": {
+  "version": "7.2.1",
+  "hip_runtime": "1.18",
+  "hip_runtime_ext": "1.15"
+ },
+ "environments": {
+  "yue2-gfx1100": {
+   "path": "/data/yue2/environments/yue2-gfx1100",
+   "python": "3.12.3",
+   "torch": "2.12.0+rocm7.14.1",
+   "hip": "7.14.60850",
+   "sglang_version": "0.0.0 (dev install)",
+   "sglang_commit": "ced0ef7d1bbbe703607b302ec86bb20a5c06bc8f",
+   "sglang_patchset_sha256": "c1e04454854c9abf0386a0dcb987302c78606854cda48cc47f54c5ed4853ed7f",
+   "role": "SGLang serving (Arm B) environment"
+  },
+  "yue2-torch": {
+   "path": "/data/yue2/environments/yue2-torch",
+   "python": "3.12.3",
+   "torch": "2.10.0+rocm7.1",
+   "role": "native YuE2 PyTorch (Arm A) environment"
+  },
+  "opt-venv": {
+   "path": "/opt/venv",
+   "python": "3.12.3",
+   "torch": "2.9.1+gitff65f5b",
+   "role": "host tooling (jupyter)"
+  }
+ },
+ "storage": {
+  "/": {"type": "overlay", "total": "3.5T", "avail": "941G"},
+  "/data": {"type": "overlay (local)", "note": "preferred class for fresh clone + benchmarks"},
+  "/workspace": {"type": "NFS", "total": "25G", "avail": "2.4G", "note": "near-full NFS; NOT used for performance measurement"}
+ },
+ "model_pins": {
+  "model": "m-a-p/YuE2-3B@1a96eca688d6ae5d7f0feb88573fec89920fcd19",
+  "vae": "m-a-p/YuE2-Vae-legacy@b54118f0fc462f08999d1ec07e88817f4ee3f770",
+  "dataset": "m-a-p/WildSongBench@e361b85a8d7365d3079fa9647641a87ce3c8c5b5",
+  "local_model_path": "/data/yue2/models/YuE2-3B"
+ },
+ "frozen_evidence": {
+  "armA": "/data/yue2-runs/armA_wsb_full",
+  "armB": "/data/yue2-runs/armB_wsb_full",
+  "armB_run_id": "armB_full_20261119T015756Z",
+  "armA_audit": "FULL 384/384 (truncated_but_complete=384)",
+  "armB_audit": "FULL 384/384 (truncated_but_complete=5)",
+  "armB_wall_s": 113775.0,
+  "armB_peak_vram_bytes": 51522830336,
+  "armB_finished_at": "2026-11-20T09:34:43Z"
+ },
+ "gpu_lock": {
+  "path": "/data/yue2/gpu.lock",
+  "state_at_audit": "released (last holder armB-acceptance, released_at_utc 2026-11-22T04:32:51Z)"
+ }
+}

@@ -38,12 +38,21 @@ def load_rows(path: str | Path) -> list[dict]:
 
 
 def sel_key(r: dict):
+    """Exact mirror of the official frozen selection key (wsb_eval.py
+    select_candidates): (per, edits, |len(phonemes of the SELECTED asr repeat)
+    - reference_phonemes|, candidate_index), minimized per prompt.
+
+    RC4 M4.2: the previous key summed phonemes over ALL asr_repeats and used
+    selected_asr_repeat as the final component — it diverged from the official
+    selection exactly at prompt 19 of armB_full_20261119T015756Z (PER and edits
+    tie; official third component 3 (r1) vs 11 (r0)). See
+    reports/w7900_rc4/04_SELECTION_TIE_REVIEW.md.
+    """
     m = r["metrics"]["per"]
-    hyp = sum(len(x.get("phonemes", [])) for x in m.get("asr_repeats", [])
-              ) or m.get("reference_phonemes", 0)
+    rep = m["asr_repeats"][m["selected_asr_repeat"]]
     return (m.get("per", 1.0), m.get("edits", 10**9),
-            abs(hyp - m.get("reference_phonemes", 0)),
-            m.get("selected_asr_repeat", 0))
+            abs(len(rep["phonemes"]) - m.get("reference_phonemes", 0)),
+            r["candidate_index"])
 
 
 def group_rows(rows: list[dict]) -> dict:
