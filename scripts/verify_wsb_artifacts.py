@@ -265,10 +265,20 @@ def main() -> int:
         results[key] = r
 
     # 4) unexpected candidate directories (cross-run contamination)
+    #    RC4 M2 fix: the torch driver (run_wsb_torch.py) quarantines partially
+    #    written candidate dirs IN PLACE as <id>.partial.quarantine-<uuid>
+    #    (never deletes them); the SGLang driver moves them to a top-level
+    #    quarantine/ dir. Quarantined partials are legitimate resume-safety
+    #    evidence, not cross-run contamination: count them in the report
+    #    (quarantined_partials) instead of failing the audit. Anything else
+    #    unexpected still fails.
     known = {ident for (_, ident) in expected.values()}
+    quarantined = sorted(p.name for p in songs.glob("*.partial.quarantine-*") if p.is_dir())
     for p in sorted(songs.glob("wsb_*")):
         if not p.is_dir():
             continue  # per-candidate .wav exports are expected byproducts
+        if p.name in quarantined:
+            continue  # torch-driver in-place quarantine: evidence, not anomaly
         if p.name not in known:
             problems.append(f"unexpected candidate directory: {p.name} (not in this run's "
                             f"evaluation_inputs)")
@@ -300,6 +310,7 @@ def main() -> int:
         "verified_complete": complete,
         "missing_or_invalid": (384 if args.mode == "full" else len(expected)) - complete,
         "truncated_but_complete": truncated,
+        "quarantined_partials": quarantined,
         "unique_prompt_coverage": len({k[0] for k in results}),
         "identity_reverified": identity_reverified,
         "classification": dict(classification),

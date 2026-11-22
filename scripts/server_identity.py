@@ -297,9 +297,16 @@ def load_receipt(path):
     if not p.is_file():
         raise IdentError(4, f"receipt missing: {p}")
     try:
-        return json.loads(p.read_text())
+        r = json.loads(p.read_text())
     except Exception as e:
         raise IdentError(4, f"receipt unreadable: {e}")
+    # RC4 M1.4 (NC5): a malformed/incomplete receipt must be a CLEAN denial,
+    # not a KeyError crash. Fail closed with exit code 4.
+    missing = [k for k in ("pid", "uid", "starttime", "argv_sha256", "port")
+               if k not in r]
+    if missing:
+        raise IdentError(4, f"receipt missing required fields: {', '.join(missing)}")
+    return r
 
 
 def cmd_verify(a):

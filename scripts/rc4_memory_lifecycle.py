@@ -91,6 +91,8 @@ def main() -> int:
               f"gtt={r['rocm_gtt_used']} rss={r['host_rss']}", flush=True)
 
     from yue2 import YuE2Pipeline
+    from yue2.protocol import Sampling
+    short_sampling = Sampling(max_tokens=300)
 
     for cycle in range(1, args.cycles + 1):
         pipe = None
@@ -105,8 +107,8 @@ def main() -> int:
             plan = pipe.plan(style="[Tags]\nsoft pop\n",
                              lyrics="[Lyrics]\nA tiny phrase.\n",
                              seed=700000 + cycle, cot="full")
-            semantic = pipe.generate_semantic(plan, max_tokens=300)
-            latents = pipe.synthesize(semantic, ode_steps=4)
+            semantic = pipe.generate_semantic(plan, sampling=short_sampling)
+            latents = pipe.synthesize(semantic)
             audio = pipe.decode(latents)
             rec(cycle, "after_generate",
                 {"generate_s": round(time.monotonic() - t0, 1),
@@ -123,8 +125,13 @@ def main() -> int:
             rec(cycle, "after_empty_cache")
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
+    fieldnames: list = []
+    for r in rows:  # union: extra stage keys (load_s/generate_s/close_s) vary per row
+        for k in r:
+            if k not in fieldnames:
+                fieldnames.append(k)
     with args.out.open("w", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
+        w = csv.DictWriter(f, fieldnames=fieldnames)
         w.writeheader()
         w.writerows(rows)
     print(f"MEMORY LIFECYCLE DONE: {len(rows)} rows -> {args.out}")
