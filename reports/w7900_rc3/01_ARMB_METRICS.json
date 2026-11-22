@@ -1,0 +1,91 @@
+{
+ "schema": "w7900-rc3/armb-metrics/v1",
+ "run_id": "armB_full_20261119T015756Z",
+ "audit_verdict": "FULL",
+ "official_reference": {
+  "songbench_global": 6.7316,
+  "mulan": 0.5068,
+  "allmusiccaps": 0.4054,
+  "per_selected_micro": 0.0844
+ },
+ "per": {
+  "selected_192": {
+   "micro": 0.17762763440374957,
+   "macro": 0.1653546316761942,
+   "ci95_prompt_bootstrap_seed20261122": [
+    0.152211,
+    0.206349
+   ],
+   "reference_phonemes": 155111,
+   "edits": 27552,
+   "asr_truncated_samples": 60
+  },
+  "unselected_384": {
+   "micro": 0.24417675084294474,
+   "macro": 0.2277396714178922,
+   "asr_truncated_samples": 120
+  },
+  "lang": {
+   "lang/zh": {
+    "micro": 0.17677831467944216,
+    "n": 94,
+    "trunc": 27
+   },
+   "lang/en": {
+    "micro": 0.1783756911436609,
+    "n": 98,
+    "trunc": 33
+   }
+  },
+  "independent_recomputation": {
+   "micro": 0.177628,
+   "selection_identity": "192/192 prompts; 191/192 identical to official, 1 tie at PER=0.226013 broken differently (protocol-compliant, aggregates identical)"
+  }
+ },
+ "songbench": {
+  "selected_192_global": 6.7382640874102,
+  "unselected_384_global": 6.731116583127352,
+  "dims_selected": {
+   "Melody": 6.6728007445732755,
+   "Arrangement": 6.9553413564960165,
+   "Musicality": 5.924524704615275,
+   "Vocal": 7.139729286233584,
+   "Instrumental": 7.035772956907749,
+   "Mixing": 6.857101495067279,
+   "Structure": 6.582578067978223,
+   "Global Avg": 6.7382640874102
+  }
+ },
+ "mulan": {
+  "selected_192": 0.509166007473444
+ },
+ "allmusiccaps": {
+  "selected_192": 0.40555624475625035
+ },
+ "generation": {
+  "expected": 384,
+  "complete": 384,
+  "resumed": 0,
+  "failed": 0,
+  "pending": 0,
+  "wall_s": 113775.0,
+  "peak_vram_bytes": 51522830336,
+  "peak_gtt_bytes": 3142885376,
+  "finished_at": "2026-11-20T09:34:43Z"
+ },
+ "receipts": {
+  "per_song_rows": 384,
+  "per_receipts": 384,
+  "mulan_amc_receipts": 192,
+  "evaluator_code_files_verified": 104,
+  "evaluator_asset_hashes": 116,
+  "audio_manifest_sha256_verified": "384/384 mp3 + 192/192 additional"
+ },
+ "source_provenance": {
+  "verified_complete": 384,
+  "legacy_provenance": 384,
+  "full_source_provenance": 0,
+  "unknown_identity": 0,
+  "note": "LEGACY per C2.1 honest-marking policy; identities re-verified by auditor for all 384"
+ }
+}

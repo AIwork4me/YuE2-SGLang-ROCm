@@ -1,0 +1,126 @@
+{
+ "schema": "w7900-rc3/release-gate-ledger/v1",
+ "recomputed_at_utc": "2026-11-22T05:10:00Z",
+ "allowed_states": [
+  "PASS",
+  "FAIL",
+  "PARTIAL",
+  "BLOCKED_EXTERNAL",
+  "NOT_TESTED",
+  "NOT_PRESENT"
+ ],
+ "verdicts_separated": {
+  "ENGINEERING_GO": true,
+  "SCIENTIFIC_PARITY_GO": false,
+  "JOINT_PUBLICATION_GO": false
+ },
+ "gates": {
+  "G1": {
+   "criterion": "PR engineering review + exact-HEAD CI green",
+   "evidence": "RC3 second review (03_PR16_INDEPENDENT_REVIEW): zero open reproducible P0/P1; D1/D2 fixed with pinned tests; local CI-scope 388/0; remote CI on exact HEAD to be confirmed in 04_GITHUB_HANDOFF after push",
+   "artifacts": [
+    "reports/w7900_rc3/03_PR16_INDEPENDENT_REVIEW.md",
+    "reports/w7900_rc3/03_CI_AND_MUTATION_RESULTS.md"
+   ],
+   "verdict": "CONDITIONAL-PASS (owner review of PR #16 merge remains)",
+   "blocker": "owner merge decision",
+   "next": "owner reviews & merges #16 (or requests changes)"
+  },
+  "G2": {
+   "criterion": "Arm A 384/384 + provenance + scoring verified",
+   "evidence": "audit FULL (384/384); aggregates independently recomputed this session; evaluator identity 104/104+116 verified; provenance PASS 0 violations (LEGACY honestly marked)",
+   "artifacts": [
+    "/data/yue2-runs/armA_wsb_full/{audit.json,scores/summary.json}"
+   ],
+   "verdict": "PASS",
+   "blocker": null,
+   "next": null
+  },
+  "G3": {
+   "criterion": "Arm B 384/384 + provenance + scoring verified",
+   "evidence": "campaign done 2026-11-20T20:31:36Z; audit FULL independently re-run byte-identical; four metrics complete rc=0; selection/aggregate recomputation exact; 384+192 input hashes verified; CUDA kit Arm B validated",
+   "artifacts": [
+    "reports/w7900_rc3/01_ARMB_FINAL_ACCEPTANCE.md",
+    "reports/w7900_rc3/01_ARMB_MANIFEST.json",
+    "reports/w7900_rc3/01_ARMB_METRICS.json"
+   ],
+   "verdict": "PASS",
+   "blocker": null,
+   "next": null
+  },
+  "G4": {
+   "criterion": "PER cross-evaluator parity closed",
+   "evidence": "A1/B1 done+verified; phoneme-level I/D/S decomposition added; H4 excluded locally; decisive cells A2/B2/C1/C2 blocked",
+   "artifacts": [
+    "reports/w7900_rc3/02_PER_EXPERIMENT_MATRIX.csv",
+    "reports/w7900_rc3/02_PER_CAUSAL_ANALYSIS.md",
+    "reports/w7900_rc3/02_PER_FINAL_VERDICT.json"
+   ],
+   "verdict": "BLOCKED_EXTERNAL",
+   "blocker": "authorized CUDA host + private transfer (EXT-5) + optionally author assets",
+   "next": "owner authorizes transfer; CUDA host executes validated kit"
+  },
+  "G5": {
+   "criterion": "runtime reliability conclusions (AR hang / HIP IMA / close() memory)",
+   "evidence": "no reproduction in this window (by design, no fault injection into frozen evidence); PR #16 bounds hung evaluators (timeout+bounded retry+evidence preservation) verified by tests; pre-registered protocols unchanged",
+   "artifacts": [
+    "reports/joint_blog_rc/04_RUNTIME_RCA_AND_RELIABILITY.md",
+    "reports/w7900_rc3/03_PHYSICAL_REGRESSION.md"
+   ],
+   "verdict": "PARTIAL",
+   "blocker": "dedicated GPU fault-injection window",
+   "next": "execute pre-registered M4 experiments in a later window"
+  },
+  "G6": {
+   "criterion": "official metrics + performance scope acceptance",
+   "evidence": "Arm B: SB 6.7383 (official 6.7316), MuLan 0.5092 (0.5068), AMC 0.4056 (0.4054) selected-192; PER 17.76% vs 8.44% OPEN; wall ~296 s/cand SGLang; Q3O not tested (VRAM)",
+   "artifacts": [
+    "reports/w7900_rc3/01_ARMB_METRICS.json",
+    "reports/w7900_rc3/01_ARMA_ARMB_COMPARISON.csv"
+   ],
+   "verdict": "PARTIAL",
+   "blocker": "PER gap (G4) + Q3O scope decision (owner+authors)",
+   "next": "close G4; explicit Q3O scope decision"
+  },
+  "G7": {
+   "criterion": "security / licensing / provenance",
+   "evidence": "guards PASS (tier1+tier2, 1813 windows); numeric integrity 0 diffs; kit hardened (symlink/traversal fail-closed); no licensed content in this push (guard-verified); historical Git objects remain an owner legal decision (OPEN, not silently solved)",
+   "artifacts": [
+    "reports/w7900_rc3/03_CI_AND_MUTATION_RESULTS.md",
+    "reports/joint_blog_rc/rc2/RC2_07_SECURITY_LICENSE_REVIEW.md"
+   ],
+   "verdict": "PASS (with owner item: historical git objects)",
+   "blocker": "owner legal decision on history",
+   "next": "owner picks option a/b/c"
+  },
+  "G8": {
+   "criterion": "fresh-clone reproduction",
+   "evidence": "command matrix validated CPU-side; physical regression executed on existing workspace (P1-P11); full fresh-clone end-to-end not executed this session",
+   "artifacts": [
+    "reports/joint_blog_rc/rc2/RC2_07_EXECUTABLE_QUICKSTART.md",
+    "reports/w7900_rc3/03_PHYSICAL_REGRESSION.md"
+   ],
+   "verdict": "PARTIAL",
+   "blocker": "independent executor + GPU window",
+   "next": "run M8.1 checklist on a fresh clone"
+  },
+  "G9": {
+   "criterion": "YuE2 author scientific approval",
+   "evidence": "author message prepared (RC2_06) with accurate statuses; NOT SENT (owner gate); no approval inferred",
+   "artifacts": [
+    "reports/joint_blog_rc/rc2/RC2_06_AUTHOR_MESSAGE_EN.md"
+   ],
+   "verdict": "NOT_PRESENT",
+   "blocker": "owner authorization of venue + EXT-5 channel",
+   "next": "owner authorizes send; log response"
+  },
+  "G10": {
+   "criterion": "AMD publication approval",
+   "evidence": "none; no joint publication claims made",
+   "artifacts": [],
+   "verdict": "NOT_PRESENT",
+   "blocker": "AMD review",
+   "next": "after G4/G9"
+  }
+ }
+}

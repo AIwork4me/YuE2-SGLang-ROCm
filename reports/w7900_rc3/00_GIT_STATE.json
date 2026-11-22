@@ -1,0 +1,30 @@
+{
+ "captured_at_utc": "2026-11-22T05:00:00Z",
+ "repo": "/tmp/opencode/rc2 (mission/joint-blog-rc2)",
+ "engineering_head": "f6b24d797e810ef8984166f7721933eab8375cb6",
+ "campaign_checkout": {
+  "path": "/workspace/YuE2-SGLang-ROCm",
+  "head": "fee027d5a27c30536ed001c136fa774745b28d32",
+  "branch": "fix/w7900-fresh-image-resume-hardening",
+  "dirty": false
+ },
+ "host": {
+  "hostname": "j-7uqnwhrwmv2s44k6zdqzoq5idj",
+  "os": "Ubuntu 24.04.4 LTS",
+  "kernel": "6.8.0-79-generic"
+ },
+ "gpu": {
+  "device_id": "0x744c/0x744b class",
+  "arch": "gfx1100",
+  "marketing": "AMD Radeon Pro W7900D",
+  "vram_gib": 48,
+  "status_at_capture": "idle 0%, 27C, 11W"
+ },
+ "torch_envB": "2.12.0+rocm7.14.1",
+ "mission_state_stage": "done (2026-11-20 20:31:36)",
+ "gpu_lock": {
+  "who_last": "armB-acceptance",
+  "released_at_utc": "2026-11-22T04:32:51Z",
+  "holder": null
+ }
+}

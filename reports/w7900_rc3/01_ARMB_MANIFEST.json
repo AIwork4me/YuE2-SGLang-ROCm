@@ -1,0 +1,46 @@
+{
+ "schema": "w7900-rc3/armb-manifest/v1",
+ "run_id": "armB_full_20261119T015756Z",
+ "generated_at_utc": "2026-11-22T05:05:00Z",
+ "identity": {
+  "generation_head": "fee027d5a27c30536ed001c136fa774745b28d32",
+  "scoring_trees": "mission_chain on campaign checkout (fee027d); evaluator frozen bundle (104 code files, hashes in scores/protocol.json)",
+  "model_revision": "m-a-p/YuE2-3B@1a96eca688d6ae5d7f0feb88573fec89920fcd19",
+  "vae_revision": "m-a-p/YuE2-Vae-legacy@b54118f0fc462f08999d1ec07e88817f4ee3f770",
+  "dataset_revision": "m-a-p/WildSongBench@e361b85a8d7365d3079fa9647641a87ce3c8c5b5",
+  "sglang_commit": "ced0ef7d1bbbe703607b302ec86bb20a5c06bc8f",
+  "patchset_sha256": "c1e04454854c9abf0386a0dcb987302c78606854cda48cc47f54c5ed4853ed7f"
+ },
+ "counts": {
+  "candidates": 384,
+  "prompts": 192,
+  "songs_files": 4224,
+  "songs_bytes": 9259783803,
+  "score_receipts_per_sb": 384,
+  "score_receipts_mulan_amc": 192
+ },
+ "evidence_sha256": {
+  "audit.json": "18a1b325e298e4409b97cc68c71afa0bd6787b111fa81481b73037fd365c9433",
+  "generation_summary.json": "3048d829b60de05a8019f4e79913a225df638274b6fedb964c5df3264b0dd1fe",
+  "generation_manifest.jsonl": "fb0916849ed356af3d3f1f7c826f3fa26ef1b72a0927fe02bccfa4c3a0177470",
+  "run_config.json": "3c15572002402046f8b62a45d317c57f25b9d98577da26d3d00d250a4efa57aa",
+  "scores/summary.json": "2306fb354fe18ac75f50c5e4da22a977c8b18296116f6ee568967b719eeb160d",
+  "scores/per_song.jsonl": "03e1e38e2c6a932b366a03aa0a59a957a5b05b805265de7fad68cdd37cd69ee6",
+  "scores/protocol.json": "1603254be460970a155720fbb038fa22ec4703a9606dfe294038e57a59c2a7e8",
+  "additional/summary.json": "ec5d3a62ee65f6461f8cb59f28daa562fb701ee4eee6c7b136b1e1b19b2ab5ee",
+  "additional/protocol.json": "b7d61ea0024f0fd5d9b25966ebd568f1a92b8474e0749aae43feba1230cb1d0e",
+  "evaluation_inputs.jsonl": "a906ab391bf80992549fafd4b12631ec335963676d67fd790d30c39d588ac100"
+ },
+ "cuda_handoff": {
+  "armB_bundle_manifest": "/data/yue2/tmp/rc3_kit_validation/armB_bundle_manifest.json (384 candidates / 4224 files / 8.62 GiB, all sha256 verified end-to-end; copy into the RC2 handoff kit dir)",
+  "official_prepare_inputs_validation": "384/384 PASS (1017s, clean report dir, frozen wsb_eval.prepare_inputs)"
+ },
+ "verification_steps": [
+  "verify_wsb_artifacts.py --mode full (independent re-run, byte-identical to chain audit)",
+  "verify_provenance.py (0 violations, 384 LEGACY honestly marked)",
+  "manifest/journal/seed bottom-up recomputation",
+  "384+192 audio input sha256 re-verified",
+  "independent selection + aggregate recomputation (exact match; 1 benign PER tie)",
+  "frozen evaluator identity: 104/104 code + 116 asset hashes match both arms"
+ ]
+}
