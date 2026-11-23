@@ -1,0 +1,27 @@
+{
+ "schema": "w7900-rc4_1/gpu-verdict/v1",
+ "issued_at_utc": "2026-11-23T00:10:00Z",
+ "GPU_EXECUTION_IDENTITY_VERDICT": "PASS",
+ "hardware": "AMD Radeon PRO W7900D 48GB gfx1100 PCI 0000:03:00.0 (51522830336 B = 47.98 GiB = 51.5 decimal GB)",
+ "evidence": {
+  "envB_sglang_stack": "GPU_EXECUTION_VERIFIED rc0 (phase_a/gpu_identity_envB.json)",
+  "envA_native_stack": "GPU_EXECUTION_VERIFIED rc0 (phase_a/gpu_identity_envA.json)",
+  "nc_wrong_arch": "GPU_DEVICE_MISMATCH rc3",
+  "nc_wrong_bdf": "GPU_DEVICE_MISMATCH rc3",
+  "native_real_generation": "rc41_native_pilot candidate wsb_000_r0_s831001 complete wall=596.2s official protocol (phase_c receipts); see FINAL update for candidate 2",
+  "sglang_real_generation": "phase B1 short gen 200/37.2s real audio 2.3MB + repeated-tags default-budget full-song-class 200/335.8s"
+ },
+ "rc4_cpu_fallback_suspect": {
+  "classification": "SUSPECT_UNCONFIRMED (mechanism)",
+  "reason": "no stack captured (no ptrace in RC4); code path pins device=cuda:0 with no fallback branch; most plausible: host-side load/transfer stall under external VRAM pressure; NOT proven CPU fallback",
+  "blindspot_closure": "gpu_identity chain + fail-loud contract makes any recurrence loud (GPU_UNAVAILABLE / GPU_DEVICE_MISMATCH / GPU_EXECUTION_FAILED receipts); silent third state no longer exists for project-run workloads"
+ },
+ "contract": {
+  "GPU_REQUIRED_default": true,
+  "cpu_only_with_explicit_authorization": "CPU_TEST_MODE_AUTHORIZED (never GPU PASS)",
+  "device_mismatch_fails_immediately": true,
+  "failed_candidates_never_complete": true,
+  "notable_vram_overhead": "probe is a 256x256 fp32 matmul (~768 KiB) — negligible",
+  "normal_path_perf_impact": "single matmul + two props reads at session boundaries only"
+ }
+}

@@ -1,0 +1,30 @@
+{
+ "schema": "w7900-rc4_1/baseline-sha/v1",
+ "captured_at_utc": "2026-11-22T22:50:00Z",
+ "repo": "AIwork4me/YuE2-SGLang-ROCm",
+ "rc41_base_sha": "16f2504cbc6aaae92276e2bc03c83836fb78d2d2",
+ "rc41_base_confirmed_as": "origin/mission/w7900-rc4-repro-reliability == PR #17 head at mission start (OPEN/DRAFT, both cpu workflows SUCCESS on this SHA)",
+ "pr17": {
+  "url": "https://github.com/AIwork4me/YuE2-SGLang-ROCm/pull/17",
+  "state_at_start": "OPEN/DRAFT",
+  "head": "16f2504cbc6aaae92276e2bc03c83836fb78d2d2",
+  "base": "mission/joint-blog-rc2"
+ },
+ "pr16": {
+  "url": "https://github.com/AIwork4me/YuE2-SGLang-ROCm/pull/16",
+  "state_at_start": "OPEN/DRAFT",
+  "head": "48d1cb64fa2b4653ee40606a8dfbe3593c5b0b6f",
+  "base": "integration/joint-blog-rc"
+ },
+ "branch": "mission/w7900-rc4-1-fail-loud-health-evidence",
+ "branch_created_from": "16f2504cbc6aaae92276e2bc03c83836fb78d2d2 (local == remote, verified via git fetch)",
+ "no_force_push": true,
+ "main_touched": false,
+ "frozen_evidence_manifest_before": "sha256 over 15825 files under /data/yue2-runs/{armA_wsb_full,armB_wsb_full,rc4_evidence} \u2014 /tmp/opencode/rc41/frozen_manifest_before_20261122T2250UTC.sha256 (copy archived into this report dir)",
+ "final_head_sha": "c2dc61995fa48afabc6236c4f0766b20cbd47ce0",
+ "pr_url": "https://github.com/AIwork4me/YuE2-SGLang-ROCm/pull/18",
+ "exact_head_ci": [
+  "https://github.com/AIwork4me/YuE2-SGLang-ROCm/actions/runs/45090002171/job/137417183311",
+  "https://github.com/AIwork4me/YuE2-SGLang-ROCm/actions/runs/45089997300/job/137417167015"
+ ]
+}

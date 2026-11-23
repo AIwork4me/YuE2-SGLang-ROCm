@@ -9,7 +9,7 @@ runtime, `02_MEMORY_LIFECYCLE.csv`, server boot/state receipts.
 | State | Peak VRAM | Notes |
 |---|---|---|
 | SGLang server idle (loaded, no request) | ~10.3–11.7 GiB | boot + first short request observed |
-| SGLang generating (official full-song params) | **47.1 GiB** (pilot receipt) / **51.5 GiB = 100% of 48 GiB** (campaign receipt) | campaign peak equals total VRAM — the full-campaign envelope SATURATES the card; OOM headroom is zero at official parameters |
+| SGLang generating (official full-song params) | **47.1 GiB** (pilot receipt) / **51.5 decimal GB (= 47.98 GiB) = 100% of the 48 GiB card** (campaign receipt) | campaign peak equals total VRAM (51,522,830,336 bytes) — the full-campaign envelope SATURATES the card; OOM headroom is zero at official parameters |
 | Native torch-eager (24 GiB budget) | GPU-side torch alloc ~0.35 GiB during generate; weights streamed from host (RSS ~12.7 GiB) | budget-bound by design |
 | After identity-verified server stop | 28 MiB | full release verified every window |
 | After orphaned-server cleanup (R1-E1) | 22.7 GiB → 28 MiB | release on shutdown is immediate once the process actually exits |

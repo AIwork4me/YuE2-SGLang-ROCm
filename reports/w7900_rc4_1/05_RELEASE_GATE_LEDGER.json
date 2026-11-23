@@ -1,0 +1,26 @@
+{
+ "schema": "w7900-rc4_1/release-gate-ledger/v1",
+ "issued_at_utc": "2026-11-23T00:40:00Z",
+ "G1_ci_exact_head": "PASS (both cpu workflows SUCCESS on c2dc61995fa48afabc6236c4f0766b20cbd47ce0 \u2014 PR #18)",
+ "G2_evidence_integrity": "PASS (frozen 15825 files byte-identical; in-repo evidence audit PASS via verify_rc4_evidence_consistency.py, CI-guarded)",
+ "G3_no_silent_degradation": "PASS (gpu_identity fail-loud chain; no CPU-fallback code path; RC4 suspect blind spot closed; mechanism itself SUSPECT_UNCONFIRMED)",
+ "G4_per_cross_evaluator_parity": "BLOCKED_EXTERNAL (unchanged; needs authorized CUDA host)",
+ "G5_runtime_reliability": "IMPROVED_PARTIAL (health blind spot DETECTED project-side; lifecycle wrapper + lock closure live-proven; scheduler idle-spin + no-respawn remain upstream)",
+ "G6_performance_validation": "PASS_WITH_PARTIALS (unchanged RC4 basis: 384/384 frozen per arm + fresh n=7/16; RC4.1 adds no perf claims beyond reconciliation)",
+ "G7_public_repo_hygiene": "PASS (guards re-run on final tree; no lyrics/audio/weights/secrets pushed)",
+ "G8_independent_reproduction": "PASS (same-host RC4) / NOT_PRESENT (third party)",
+ "G9_author_approval": "NOT_PRESENT",
+ "G10_amd_approval": "NOT_PRESENT",
+ "verdicts": {
+  "GPU_EXECUTION_IDENTITY_VERDICT": "PASS",
+  "SERVER_READINESS_VERDICT": "PASS (project-level; upstream scheduler defects UPSTREAM_BLOCKED)",
+  "LIFECYCLE_VERDICT": "PASS (wrapper + tests + live session proof; lock held whole-session)",
+  "INPUT_BOUNDARY_VERDICT": "PASS (RCA + bounded precheck + hardware proofs both budget regimes)",
+  "EVIDENCE_INTEGRITY_VERDICT": "PASS (791 reconciled; verifier CI-guarded; frozen untouched)",
+  "RC4_1_ENGINEERING_VERDICT": "GO",
+  "PER_SCIENTIFIC_PARITY_VERDICT": "BLOCKED_EXTERNAL",
+  "JOINT_PUBLICATION_VERDICT": "NOT_PRESENT"
+ },
+ "separation_of_verdicts": "ENGINEERING_GO yes; SCIENTIFIC_PARITY_GO no; JOINT_PUBLICATION_GO no",
+ "no_false_green": "upstream-owned failures recorded as UPSTREAM_BLOCKED, not closed"
+}

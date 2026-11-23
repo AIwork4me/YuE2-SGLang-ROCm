@@ -1,0 +1,38 @@
+{
+ "schema": "w7900-rc4_1/reconciliation/v1",
+ "generated_by": "scripts/verify_rc4_evidence_consistency.py --json",
+ "live_verdict": "PASS",
+ "csv_rows": 791,
+ "method": {
+  "percentile": "linear-interpolation (numpy default)",
+  "rounding": "wall 1dp, multiplier 4dp"
+ },
+ "discrepancies_found_and_fixed": [
+  {
+   "item": "row-count claims 786 -> 791 (SUMMARY + FINAL_REPORT_ZH)",
+   "class": "stale mid-run claim"
+  },
+  {
+   "item": "armA fresh n=2(+6 in flight) -> n=7",
+   "class": "stale mid-run claim"
+  },
+  {
+   "item": "aggregates p95 mixed-method drift (5 groups) -> declared linear percentile",
+   "class": "stale aggregate"
+  },
+  {
+   "item": "51.5 GiB mislabel -> 51.5 decimal GB (= 47.98 GiB); bytes stated",
+   "class": "unit hygiene"
+  },
+  {
+   "item": "01_REPRODUCIBILITY_VERDICT pilot_scoring stale placeholder -> PASS (final evidence existed)",
+   "class": "stale verdict"
+  },
+  {
+   "item": "02_RELIABILITY_MATRIX.csv / 02_MEMORY_LIFECYCLE.csv / 03_CONCURRENCY_RESULTS.csv referenced-but-missing -> committed (case A: existed under /data, never committed; guard-scanned)",
+   "class": "missing public evidence"
+  }
+ ],
+ "frozen_evidence": "byte-identical before/after (15825 files; see 00_FROZEN_EVIDENCE_INTEGRITY.md)",
+ "ci_guard": "tests/test_evidence_consistency_rc41.py (13 tests incl. live in-repo consistency + mutation controls M9-M12)"
+}

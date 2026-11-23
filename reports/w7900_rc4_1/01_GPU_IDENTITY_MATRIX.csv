@@ -1,0 +1,17 @@
+case,layer,expectation,result,evidence
+envB_verify_probe,real-gpu,GPU_EXECUTION_VERIFIED rc0,GPU_EXECUTION_VERIFIED rc0,/data/yue2-runs/rc4_1_evidence/20261122T2300Z/phase_a/gpu_identity_envB.json
+envA_verify_probe,real-gpu,GPU_EXECUTION_VERIFIED rc0,GPU_EXECUTION_VERIFIED rc0,/data/yue2-runs/rc4_1_evidence/20261122T2300Z/phase_a/gpu_identity_envA.json
+nc_wrong_arch,real-gpu,GPU_DEVICE_MISMATCH rc3,GPU_DEVICE_MISMATCH rc3,/data/yue2-runs/rc4_1_evidence/20261122T2300Z/phase_a/nc_wrong_arch.out
+nc_wrong_bdf,real-gpu,GPU_DEVICE_MISMATCH rc3,GPU_DEVICE_MISMATCH rc3,/data/yue2-runs/rc4_1_evidence/20261122T2300Z/phase_a/nc_wrong_bdf.out
+gpu_absent_no_cpu_auth,mock,GPU_UNAVAILABLE rc4,KILLED(test),tests/test_gpu_identity.py::test_gpu_unavailable_without_cpu_auth
+gpu_absent_cpu_authorized,mock,CPU_TEST_MODE_AUTHORIZED rc0 never GPU PASS,PASS(test),tests/test_gpu_identity.py::test_cpu_authorized_is_test_mode_not_gpu_pass
+cuda_only_build,mock,GPU_DEVICE_MISMATCH,GPU_DEVICE_MISMATCH(test),tests/test_gpu_identity.py::test_cuda_only_build_rejected
+hip_unavailable_import_error,mock,GPU_UNAVAILABLE,GPU_UNAVAILABLE(test),tests/test_gpu_identity.py::test_torch_import_failure_is_unavailable
+probe_raises,mock,GPU_EXECUTION_FAILED,GPU_EXECUTION_FAILED(test),tests/test_gpu_identity.py::test_probe_failure_is_execution_failed
+probe_wrong_result,mock,GPU_EXECUTION_FAILED,GPU_EXECUTION_FAILED(test),tests/test_gpu_identity.py::test_probe_wrong_result_fails
+model_params_on_cpu,design,placement receipts distinguish device strings,GPU_EXECUTION_VERIFIED requires device probe (probe_device recorded),gpu_identity.py probe_facts
+missing_kfd,mock,visibility recorded; visible=false fact,kfd_visibility() unit-covered via receipt field,scripts/gpu_identity.py
+skip_probe,mock,GPU_EXECUTION_UNVERIFIED (never PASS-as-verified),GPU_EXECUTION_UNVERIFIED(test),tests/test_gpu_identity.py::test_identity_verified_without_probe
+normal_cpu_prepost,design,CPU pre/post allowed; GPU model execution distinguished,contract documented; placement receipts,01_GPU_FALLBACK_RCA.md §2
+bdf_normalization,unit,0000:0b:00.0 == 0b:00.0,PASS(test),tests/test_gpu_identity.py::test_bdf_normalization
+cli_exit_codes,unit,0/3/4 by status,PASS(test),tests/test_gpu_identity.py::test_cli_exit_codes
