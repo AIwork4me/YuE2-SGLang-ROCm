@@ -157,6 +157,12 @@ def test_torch_import_failure_is_unavailable(tmp_path, monkeypatch):
     r = gi.verify(expected_arch="gfx1100")
     assert r["status"] == "GPU_UNAVAILABLE"
     assert "torch runtime unusable" in r["reason"]
+    # explicit test-mode authorization covers torch-less stub stacks (CI);
+    # still never a GPU PASS
+    r2 = gi.verify(expected_arch="gfx1100", cpu_authorized=True)
+    assert r2["status"] == "CPU_TEST_MODE_AUTHORIZED"
+    assert r2["ok"] is True
+    assert "never a GPU PASS" in r2["reason"]
 
 
 def test_probe_wrong_result_fails(tmp_path):

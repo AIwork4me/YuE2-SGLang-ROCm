@@ -164,9 +164,18 @@ def verify(expected_arch: str | None = "gfx1100", expected_bdf: str | None = Non
         }
     except Exception as e:  # import failure / broken runtime
         receipt["framework"] = {"error": f"{type(e).__name__}: {e}"}
-        receipt["status"] = "GPU_UNAVAILABLE"
-        receipt["reason"] = f"torch runtime unusable: {e}"
-        receipt["ok"] = False
+        if cpu_authorized:
+            # explicit test-mode authorization covers torch-less stub
+            # stacks (CI): still NEVER a GPU PASS
+            receipt["status"] = "CPU_TEST_MODE_AUTHORIZED"
+            receipt["reason"] = (f"torch runtime unusable ({e}); CPU mode "
+                                 "explicitly authorized (test-only, never "
+                                 "a GPU PASS)")
+            receipt["ok"] = True
+        else:
+            receipt["status"] = "GPU_UNAVAILABLE"
+            receipt["reason"] = f"torch runtime unusable: {e}"
+            receipt["ok"] = False
         return _finish(receipt, receipt_path)
 
     fw = receipt["framework"]
