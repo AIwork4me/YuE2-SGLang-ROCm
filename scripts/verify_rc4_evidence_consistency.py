@@ -151,12 +151,18 @@ def check_text_claims(problems: list, notes: list, expected_rows: int):
                                 f"amendment annotation ({len(bad)} line(s): "
                                 f"{bad[:2]})")
         # positive claim: the two top-level summaries must cite the ACTUAL
-        # csv row count somewhere (guards "791 written as any other number")
-        if fn in ("FINAL_REPORT_ZH.md", "03_PERFORMANCE_SUMMARY.md"):
-            if str(expected_rows) not in text:
+        # csv row count in their canonical claim forms (guards "791 written
+        # as any other number" — mutation control M10)
+        if fn == "FINAL_REPORT_ZH.md":
+            if f"{expected_rows}行" not in text.replace(" ", ""):
                 problems.append(
-                    f"{fn}: does not cite the actual raw-row count "
-                    f"{expected_rows} anywhere")
+                    f"{fn}: canonical raw-row claim "
+                    f"'{expected_rows} 行' not found")
+        if fn == "03_PERFORMANCE_SUMMARY.md":
+            if f"{expected_rows} measured rows" not in text:
+                problems.append(
+                    f"{fn}: canonical raw-row claim "
+                    f"'{expected_rows} measured rows' not found")
         if UNIT_BAN.search(text):
             problems.append(f"{fn}: '51.5 GiB' mislabel "
                             f"({BYTES_TOTAL_VRAM} bytes = {GIB} GiB = "

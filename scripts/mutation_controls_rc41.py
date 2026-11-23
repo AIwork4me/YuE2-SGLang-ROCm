@@ -42,8 +42,8 @@ MUTATIONS: list[dict] = [
     {
         "id": "M2", "desc": "downgrade GPU mismatch to warning (ok=True)",
         "file": "scripts/gpu_identity.py",
-        "old": 'receipt["ok"] = False\n        return _finish(receipt, receipt_path)\n\n    if expected_bdf and not bdf_matches',
-        "new": 'receipt["ok"] = True\n        return _finish(receipt, receipt_path)\n\n    if expected_bdf and not bdf_matches',
+        "old": 'receipt["reason"] = (\n            f"device arch {arch!r} does not include expected "\n            f"{expected_arch!r}")\n        receipt["ok"] = False',
+        "new": 'receipt["reason"] = (\n            f"device arch {arch!r} does not include expected "\n            f"{expected_arch!r}")\n        receipt["ok"] = True',
         "tests": ["tests/test_gpu_identity.py"],
     },
     {
@@ -84,8 +84,8 @@ MUTATIONS: list[dict] = [
     {
         "id": "M8", "desc": "delete input validity checks (always OK)",
         "file": "scripts/input_budget.py",
-        "old": '    receipt["class"] = "OK"\n    receipt["ok"] = True',
-        "new": '    receipt["class"] = "OK"\n    receipt["ok"] = True\n    return receipt',
+        "old": '    def reject(cls, reason, **measured):\n        receipt["class"] = cls',
+        "new": '    def reject(cls, reason, **measured):\n        receipt["class"] = cls\n        return',
         "tests": ["tests/test_input_budget.py"],
     },
     {

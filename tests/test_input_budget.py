@@ -118,11 +118,10 @@ def test_timeouts_bounded():
     unbounded (inf/None) client timeout — every post() call stays finite."""
     src = (REPO / "scripts" / "rc4_reliability_matrix.py").read_text()
     import re
-    calls = re.findall(r"post\(([^)]*)\)", src)
+    calls = re.findall(r"post\(([^;]*?)\)\n", src)
     assert calls, "no post() calls found (source drifted?)"
     for c in calls:
-        assert "inf" not in c and "None" not in c.lower().replace(
-            "none", "None") or "timeout" not in c, f"unbounded: post({c})"
-    # and the declared default budgets are finite numbers
+        assert "inf" not in c, f"unbounded timeout: post({c})"
+        assert "None" not in c, f"unbounded timeout: post({c})"
     for m in re.finditer(r'default=([0-9.]+)\)', src):
         assert float(m.group(1)) > 0
