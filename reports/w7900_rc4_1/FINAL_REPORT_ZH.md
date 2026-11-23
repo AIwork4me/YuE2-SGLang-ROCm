@@ -25,8 +25,11 @@
 - 基线：`16f2504cbc6aaae92276e2bc03c83836fb78d2d2`（= PR #17 head，
   推送前 git fetch 复核无漂移）
 - RC4.1 分支：`mission/w7900-rc4-1-fail-loud-health-evidence`
-- 最终 HEAD / 远端 SHA / PR URL / exact-head CI URL：
-  见 `05_GITHUB_HANDOFF.md`（推送后填定）
+- 最终 HEAD = 远端 SHA：`c2dc61995fa48afabc6236c4f0766b20cbd47ce0`
+- PR：https://github.com/AIwork4me/YuE2-SGLang-ROCm/pull/18（DRAFT，堆叠于 PR #17）
+- exact-head CI：双 cpu workflow 在该 SHA 全部 SUCCESS（runs 45090002171 /
+  45089997300；首推 3f1046a 的 CI 失败暴露真实契约缺口——无 torch 主机的
+  CPU 测试授权未覆盖导入失败分支——已修复并保留失败历史）
 - 未改 main；未 force-push；未自动合并
 
 ## C. GPU Fail-Loud
@@ -95,7 +98,7 @@ CPU 回退面；资源释放与孤儿扫描清洁。PR #17 合入建议：#16 �
 
 ## I. Release Gates
 
-G1 待推送后 exact-head 确认 · G2 PASS · G3 PASS · G4 BLOCKED_EXTERNAL ·
+G1 PASS（exact-head 双 workflow SUCCESS） · G2 PASS · G3 PASS · G4 BLOCKED_EXTERNAL ·
 G5 IMPROVED_PARTIAL · G6 PASS_WITH_PARTIALS · G7 PASS · G8 同机 PASS/
 第三方 NOT_PRESENT · G9/G10 NOT_PRESENT。三判定分离维持。
 

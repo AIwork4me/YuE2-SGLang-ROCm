@@ -1,7 +1,7 @@
 {
  "schema": "w7900-rc4_1/release-gate-ledger/v1",
  "issued_at_utc": "2026-11-23T00:40:00Z",
- "G1_ci_exact_head": "PENDING_PUSH (filled in 05_GITHUB_HANDOFF.md after push; local CI-scope suite 425/0/26)",
+ "G1_ci_exact_head": "PASS (both cpu workflows SUCCESS on c2dc61995fa48afabc6236c4f0766b20cbd47ce0 \u2014 PR #18)",
  "G2_evidence_integrity": "PASS (frozen 15825 files byte-identical; in-repo evidence audit PASS via verify_rc4_evidence_consistency.py, CI-guarded)",
  "G3_no_silent_degradation": "PASS (gpu_identity fail-loud chain; no CPU-fallback code path; RC4 suspect blind spot closed; mechanism itself SUSPECT_UNCONFIRMED)",
  "G4_per_cross_evaluator_parity": "BLOCKED_EXTERNAL (unchanged; needs authorized CUDA host)",
