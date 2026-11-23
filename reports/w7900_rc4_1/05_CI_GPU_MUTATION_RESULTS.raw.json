@@ -1,0 +1,116 @@
+{
+ "receipt_type": "rc4_1_mutation_controls",
+ "executed_at_utc": "2026-11-23T00:20:26Z",
+ "results": [
+  {
+   "id": "M1",
+   "desc": "remove GPU device guard (mismatch -> ok)",
+   "file": "scripts/gpu_identity.py",
+   "result": "KILLED",
+   "pytest_rc": 1,
+   "tail": "3 failed, 12 passed in 0.07s"
+  },
+  {
+   "id": "M2",
+   "desc": "downgrade GPU mismatch to warning (ok=True)",
+   "file": "scripts/gpu_identity.py",
+   "result": "KILLED",
+   "pytest_rc": 1,
+   "tail": "1 failed, 14 passed in 0.07s"
+  },
+  {
+   "id": "M3",
+   "desc": "dead scheduler returns READY",
+   "file": "scripts/server_readiness.py",
+   "result": "KILLED",
+   "pytest_rc": 1,
+   "tail": "3 failed, 9 passed in 0.61s"
+  },
+  {
+   "id": "M4",
+   "desc": "readiness only checks HTTP /health",
+   "file": "scripts/server_readiness.py",
+   "result": "KILLED",
+   "pytest_rc": 1,
+   "tail": "2 failed, 10 passed in 0.61s"
+  },
+  {
+   "id": "M5",
+   "desc": "gpu_lock released immediately after acquire",
+   "file": "scripts/gpu_lock.py",
+   "result": "KILLED",
+   "pytest_rc": 1,
+   "tail": "1 failed in 6.50s"
+  },
+  {
+   "id": "M6",
+   "desc": "skip server cleanup on wrapper exit",
+   "file": "scripts/campaign_ops/run_with_server.sh",
+   "result": "KILLED",
+   "pytest_rc": 1,
+   "tail": "1 failed in 3.92s"
+  },
+  {
+   "id": "M7",
+   "desc": "repeated-tags timeout made unbounded (inf)",
+   "file": "scripts/rc4_reliability_matrix.py",
+   "result": "KILLED",
+   "pytest_rc": 1,
+   "tail": "1 failed in 0.05s"
+  },
+  {
+   "id": "M8",
+   "desc": "delete input validity checks (always OK)",
+   "file": "scripts/input_budget.py",
+   "result": "KILLED",
+   "pytest_rc": 1,
+   "tail": "3 failed, 10 passed in 0.06s"
+  },
+  {
+   "id": "M9",
+   "desc": "mix an old run row into the evidence CSV",
+   "file": "reports/w7900_rc4/03_PERFORMANCE_RAW.csv",
+   "result": "KILLED",
+   "pytest_rc": 1,
+   "tail": "1 failed, 12 passed in 0.08s"
+  },
+  {
+   "id": "M10",
+   "desc": "cite 791 rows as 790 in the final report",
+   "file": "reports/w7900_rc4/FINAL_REPORT_ZH.md",
+   "result": "KILLED",
+   "pytest_rc": 1,
+   "tail": "1 failed, 12 passed in 0.08s"
+  },
+  {
+   "id": "M11",
+   "desc": "wrong GB/GiB conversion (51.5 'GiB')",
+   "file": "reports/w7900_rc4/03_RESOURCE_ENVELOPE.md",
+   "result": "KILLED",
+   "pytest_rc": 1,
+   "tail": "1 failed, 12 passed in 0.08s"
+  },
+  {
+   "id": "M12",
+   "desc": "stale PENDING reintroduced in verdict JSON",
+   "file": "reports/w7900_rc4/01_REPRODUCIBILITY_VERDICT.json",
+   "result": "KILLED",
+   "pytest_rc": 1,
+   "tail": "1 failed, 12 passed in 0.07s"
+  }
+ ],
+ "summary": {
+  "M1": "KILLED",
+  "M2": "KILLED",
+  "M3": "KILLED",
+  "M4": "KILLED",
+  "M5": "KILLED",
+  "M6": "KILLED",
+  "M7": "KILLED",
+  "M8": "KILLED",
+  "M9": "KILLED",
+  "M10": "KILLED",
+  "M11": "KILLED",
+  "M12": "KILLED"
+ }
+}
