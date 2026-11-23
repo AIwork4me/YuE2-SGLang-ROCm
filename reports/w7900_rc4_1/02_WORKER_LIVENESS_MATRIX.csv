@@ -1,0 +1,19 @@
+scenario,layer,http_health,readiness_state,expected,detected,evidence
+normal_boot,real-gpu,200,READY,READY,yes,/data/yue2-runs/rc4_1_evidence/20261122T2300Z/phase_b1.log (b1 readiness: READY)
+busy_generation,real-gpu,200,BUSY,BUSY,yes,phase_b1.json readiness_during_generation
+after_completion,real-gpu,200,READY,READY,yes,phase_b1.json readiness_final
+scheduler_sigkill_midrequest,real-gpu,200,WORKER_DEAD,WORKER_DEAD,yes,phase_b2.json after_kill (pid 1522879)
+inflight_request_after_kill,real-gpu,200,n/a (request),bounded client timeout,yes,phase_b2.json inflight_request
+reboot_after_recovery,real-gpu,200,READY,READY,yes,phase_b2.json reboot
+verified_stop_final,real-gpu,n/a,STOPPED,port free,yes,phase_b2.json port_free_after
+dead_scheduler_http200,mock,200,WORKER_DEAD,WORKER_DEAD,yes,tests/test_server_readiness.py::test_worker_dead_http_200_is_not_ready
+zombie_scheduler,mock,200,WORKER_DEAD,WORKER_DEAD,yes,tests/test_server_readiness.py::test_zombie_scheduler_counts_as_dead
+server_gone_port_free,mock,none,STOPPED,STOPPED,yes,tests/test_server_readiness.py::test_server_gone_stopped
+pid_reuse,mock,200,UNKNOWN,UNKNOWN (fail-closed),yes,tests/test_server_readiness.py::test_pid_reuse_unknown
+http_down_sched_alive,mock,none,DEGRADED,DEGRADED,yes,tests/test_server_readiness.py::test_http_down_scheduler_alive_degraded
+stale_receipt,mock,200,UNKNOWN,UNKNOWN (fail-closed),yes,tests/test_server_readiness.py::test_stale_receipt_fail_closed
+progress_deadline_exceeded,mock,200,BUSY+rc6,escalation,yes,tests/test_server_readiness.py::test_progress_file_deadline
+sched_via_cmdline_fallback,mock,200,READY,READY,yes,tests/test_server_readiness.py::test_scheduler_found_via_cmdline_fallback
+exit_code_mapping,mock,n/a,0/3 by state,yes,yes,tests/test_server_readiness.py::test_exit_code_mapping
+canary_real_request,stub-server,200,audio verified,ok,yes,tests/test_server_readiness.py::test_canary_against_real_local_server
+canary_live_server,opt-in,not run this mission,NOT_TESTED,NOT_TESTED,n/a,canary subcommand available; B1 driver exercised equivalent short generation directly

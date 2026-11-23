@@ -1,0 +1,17 @@
+case,layer,input,classification,server_result,bounded,evidence
+normal_tags,mock+real,"style='[Tags]\nsoft pop...', lyrics short",OK,200 audio,yes,tests/test_input_budget.py + phase_b1 short gen (37.2s)
+legal_repeated_tag_values,mock,"[Tags]\npop x30 lines",OK,n/a (precheck only),yes,tests/test_input_budget.py::test_legal_repeated_tag_values_pass
+legal_long_lyrics_40verse,mock+real(RC4),~5KB 40-verse lyrics,OK,200 in 1123s (RC4 receipt),yes,tests/test_input_budget.py::test_legal_long_lyrics_pass + rc4_evidence 02_RELIABILITY_MATRIX.csv
+repeated_tags_rc4_payload,mock,"[Tags]\nx\n x200 (~2.6KB)",STYLE_DEGENERATE_REPETITION,not sent (precheck),yes,tests/test_input_budget.py::test_repeated_tags_rejected_bounded
+repeated_tags_rc4_payload_short_budget,real-gpu,same payload + ode_steps=4/smt=300,n/a,200 in 9.0s,yes,phase_b1.json repeated_tags_short_budget
+repeated_tags_rc4_payload_default_budget,real-gpu,same payload + server defaults (9000/32),n/a,200 in 335.8s (full-song class),yes,phase_b1.json repeated_tags_default_budget
+oversized_style_2MB,mock+real(RC4),2,000,000-char style,STYLE_TOO_LARGE,500 in 1.4s (RC4 receipt),yes,tests + rc4_evidence
+multi_section_legal_style,mock,"[Tags]+[Mood]+[Genre]",OK,n/a,yes,tests/test_input_budget.py::test_multi_section_legal_style_pass
+unicode,mock,"CJK tags/lyrics",OK,n/a,yes,tests/test_input_budget.py::test_unicode_payload
+wrong_type_style,mock+real(RC4),style=123,TYPE_INVALID,422 in 0s (RC4 receipt),yes,tests + rc4_evidence
+wrong_type_lyrics,mock+real(RC4),lyrics=12345,TYPE_INVALID,422 in 0s,yes,tests + rc4_evidence
+bad_seed,mock+real(RC4),seed='not-a-seed',TYPE_INVALID,422 in 0s,yes,tests + rc4_evidence
+bad_ode_steps,mock+real(RC4),ode_steps=-5,TYPE_INVALID,422 in 0s,yes,tests + rc4_evidence
+empty_fields,mock,style=''+lyrics='',OK (server instrumental fallback),n/a,yes,tests/test_input_budget.py::test_empty_fields
+not_a_dict,mock,"payload='not-a-dict'",TYPE_INVALID,n/a,yes,tests/test_input_budget.py::test_type_errors
+matrix_precheck_integration,mock,reliability-matrix battery,bounded BOUNDED_REJECT rows,n/a,yes,tests/test_input_budget.py::test_matrix_carries_rca_flags

@@ -1,0 +1,27 @@
+{
+ "schema": "w7900-rc4_1/health-verdict/v1",
+ "issued_at_utc": "2026-11-23T00:10:00Z",
+ "SERVER_READINESS_VERDICT": "PASS (project-level detection; upstream scheduler defects remain UPSTREAM_BLOCKED)",
+ "http_health_vs_generation_ready": "distinct by construction: server_readiness.py FSM requires verified identity AND live scheduler worker AND HTTP facts; /health 200 alone yields WORKER_DEAD/UNKNOWN, never READY",
+ "key_negative_control_real_gpu": {
+  "scenario": "scheduler SIGKILL mid-request (phase B2)",
+  "http_health_after_kill": 200,
+  "readiness_after_kill": "WORKER_DEAD (exit 3)",
+  "inflight_request": "bounded by client timeout 120.1s (server never completes, never respawns — matches RC4 evidence)",
+  "graceful_stop": "refused rc3 (half-shutdown signature)",
+  "operator_ladder": "SIGTERM->(SIGKILL if needed) on OUR OWN verified pid; VRAM -> 28028928 B",
+  "reboot": "READY again; final verified stop; port free"
+ },
+ "idle_busy_loop": {
+  "rc4_1_reproduction": "9145 ticks/90s = 101.6% of one core after a clean request (phase_b1.json idle_scheduler_90s)",
+  "rc4_reference": "9127/90s = 101%",
+  "root_cause_location": "sglang multimodal_gen scheduler.py event_loop: empty waiting_queue -> continue with no sleep/poll (upstream commit ced0ef7d)",
+  "ownership": "UPSTREAM_BLOCKED (fix belongs to sglang); reproducer drafted in 02_IDLE_SPIN_REPRODUCER.md for owner-authorized submission; NOT submitted",
+  "operational_mitigation": "session-scoped servers via run_with_server.sh (idle = stopped)"
+ },
+ "level2_canary": "implemented (opt-in, short budgets, bounded timeout); live-server canary NOT_RUN as a separate invocation this mission — the equivalent real short generation was exercised directly in phase B1 (200/37.2s, audio verified)",
+ "explicit_non_claims": [
+  "historical ~1/300 in-request hang NOT reproduced; no rate/fix claim",
+  "no upstream code changed"
+ ]
+}

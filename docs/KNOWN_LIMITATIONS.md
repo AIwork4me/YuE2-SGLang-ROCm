@@ -96,3 +96,26 @@
 - **uv through the egress proxy stalls on large PyPI wheels** (evaluator
   venv builds); the documented workaround is plain `pip` (or retrying uv),
   with identical hash-gated results.
+
+## RC4.1 additions (2026-11-23)
+
+- **SGLang diffusion scheduler idles at ~100% of one CPU core** (upstream
+  defect at sglang ced0ef7d, `scheduler.py event_loop` — no sleep on the
+  empty-queue path; deterministic reproduction in
+  reports/w7900_rc4_1/02_IDLE_SPIN_REPRODUCER.md). Mitigation:
+  session-scoped servers (`scripts/campaign_ops/run_with_server.sh`).
+  Fix belongs upstream; not patched here.
+- **`/health` 200 does NOT mean generation-ready**: a scheduler-worker
+  SIGKILL leaves HTTP healthy while requests hang. Use
+  `scripts/server_readiness.py check --receipt <server-identity.json>`
+  (reports/w7900_rc4_1/02_HEALTH_RCA.md).
+- **Unbudgeted ad-hoc generation requests default to full-song budgets**
+  (semantic_max_tokens=9000, ode_steps=32): a small-but-valid payload is a
+  multi-minute GPU job by design. Precheck degenerate/ad-hoc inputs with
+  `scripts/input_budget.py` (reports/w7900_rc4_1/03_INPUT_RCA.md). The
+  frozen WildSongBench protocol path is unaffected and is not routed
+  through the precheck.
+- **RC4 CPU-fallback suspect remains SUSPECT_UNCONFIRMED** (mechanism not
+  proven; no stack was capturable); the blind spot is closed by
+  `scripts/gpu_identity.py` fail-loud receipts
+  (reports/w7900_rc4_1/01_GPU_FALLBACK_RCA.md).
