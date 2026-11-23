@@ -154,10 +154,10 @@ def check_text_claims(problems: list, notes: list, expected_rows: int):
         # csv row count in their canonical claim forms (guards "791 written
         # as any other number" — mutation control M10)
         if fn == "FINAL_REPORT_ZH.md":
-            if f"{expected_rows}行" not in text.replace(" ", ""):
+            if f"原始数据{expected_rows}行" not in text.replace(" ", ""):
                 problems.append(
                     f"{fn}: canonical raw-row claim "
-                    f"'{expected_rows} 行' not found")
+                    f"'原始数据 {expected_rows} 行' not found")
         if fn == "03_PERFORMANCE_SUMMARY.md":
             if f"{expected_rows} measured rows" not in text:
                 problems.append(

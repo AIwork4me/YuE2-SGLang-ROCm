@@ -42,8 +42,8 @@ MUTATIONS: list[dict] = [
     {
         "id": "M2", "desc": "downgrade GPU mismatch to warning (ok=True)",
         "file": "scripts/gpu_identity.py",
-        "old": 'receipt["reason"] = (\n            f"device arch {arch!r} does not include expected "\n            f"{expected_arch!r}")\n        receipt["ok"] = False',
-        "new": 'receipt["reason"] = (\n            f"device arch {arch!r} does not include expected "\n            f"{expected_arch!r}")\n        receipt["ok"] = True',
+        "old": 'f"{expected_arch!r}")\n        receipt["ok"] = False\n        return _finish(receipt, receipt_path)\n    if expected_bdf',
+        "new": 'f"{expected_arch!r}")\n        receipt["ok"] = True\n        return _finish(receipt, receipt_path)\n    if expected_bdf',
         "tests": ["tests/test_gpu_identity.py"],
     },
     {
