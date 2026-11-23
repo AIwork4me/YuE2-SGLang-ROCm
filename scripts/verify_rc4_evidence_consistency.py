@@ -126,7 +126,7 @@ def check_duplicates(rows: list[dict], problems: list):
         seen[k] = i
 
 
-def check_text_claims(problems: list, notes: list):
+def check_text_claims(problems: list, notes: list, expected_rows: int):
     for fn in TEXT_FILES:
         p = RC4 / fn
         if not p.is_file():
@@ -150,6 +150,13 @@ def check_text_claims(problems: list, notes: list):
                 problems.append(f"{fn}: cites 786 raw rows without "
                                 f"amendment annotation ({len(bad)} line(s): "
                                 f"{bad[:2]})")
+        # positive claim: the two top-level summaries must cite the ACTUAL
+        # csv row count somewhere (guards "791 written as any other number")
+        if fn in ("FINAL_REPORT_ZH.md", "03_PERFORMANCE_SUMMARY.md"):
+            if str(expected_rows) not in text:
+                problems.append(
+                    f"{fn}: does not cite the actual raw-row count "
+                    f"{expected_rows} anywhere")
         if UNIT_BAN.search(text):
             problems.append(f"{fn}: '51.5 GiB' mislabel "
                             f"({BYTES_TOTAL_VRAM} bytes = {GIB} GiB = "
@@ -218,7 +225,7 @@ def main(argv=None) -> int:
     else:
         problems.append(f"aggregates JSON missing: {AGG_JSON}")
 
-    check_text_claims(problems, notes)
+    check_text_claims(problems, notes, expected_rows=len(rows))
     check_required_csvs(problems)
 
     recon["verdict"] = "PASS" if not problems else "FAIL"

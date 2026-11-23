@@ -111,3 +111,18 @@ def test_repeated_tags_payload_shape():
     p = mx.REPEATED_TAGS_PAYLOAD
     assert p["style"] == "[Tags]\nx\n" * 200
     assert len(json.dumps(p).encode()) < 4096  # ~2.6 KB class
+
+
+def test_timeouts_bounded():
+    """Mutation control M7: no request in the matrix runner may carry an
+    unbounded (inf/None) client timeout — every post() call stays finite."""
+    src = (REPO / "scripts" / "rc4_reliability_matrix.py").read_text()
+    import re
+    calls = re.findall(r"post\(([^)]*)\)", src)
+    assert calls, "no post() calls found (source drifted?)"
+    for c in calls:
+        assert "inf" not in c and "None" not in c.lower().replace(
+            "none", "None") or "timeout" not in c, f"unbounded: post({c})"
+    # and the declared default budgets are finite numbers
+    for m in re.finditer(r'default=([0-9.]+)\)', src):
+        assert float(m.group(1)) > 0

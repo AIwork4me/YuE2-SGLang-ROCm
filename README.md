@@ -2,15 +2,22 @@
 
 ## Generate music with the official YuE2 model on AMD GPUs — native PyTorch and SGLang
 
-**Status (2026-11-22, RC4):** both official WildSongBench campaigns on this
+**Status (2026-11-22, RC4.1):** both official WildSongBench campaigns on this
 W7900D rig are complete and frozen — Arm A (native PyTorch) 384/384 FULL and
 Arm B (SGLang) 384/384 FULL with zero generation failures, official frozen
 four-metric scoring, and 384/384 candidate-identity reverification (RC3).
 RC4 added a fresh-clone end-to-end developer reproduction (both paths
 generate complete songs on a clean workspace), runtime-reliability evidence,
-and W7900 performance/resource boundaries. PER cross-evaluator parity
-(CUDA-side) remains **OPEN**; no YuE2-author or AMD publication approval is
-implied. See [RC4 reports](reports/w7900_rc4/) and the
+and W7900 performance/resource boundaries. RC4.1 added fail-loud GPU
+execution identity (`scripts/gpu_identity.py`), real generation readiness
+(`scripts/server_readiness.py` — HTTP 200 alone is never treated as
+generation-ready), a full server lifecycle wrapper
+(`scripts/campaign_ops/run_with_server.sh`, GPU lock held for the whole
+session), a bounded input contract (`scripts/input_budget.py`), and
+audited evidence consistency (791 raw rows reconciled). PER cross-evaluator
+parity (CUDA-side) remains **OPEN**; no YuE2-author or AMD publication
+approval is implied. See [RC4 reports](reports/w7900_rc4/),
+[RC4.1 reports](reports/w7900_rc4_1/) and the
 [evidence index](docs/EVIDENCE_INDEX.md).
 
 Run the official YuE2 weights (m-a-p/YuE2-3B) on AMD Radeon GPUs through two
@@ -38,8 +45,15 @@ git clone https://github.com/AIwork4me/YuE2-SGLang-ROCm.git && cd YuE2-SGLang-RO
 python3 scripts/check_environment.py
 export YUE2_WORKSPACE=/data/yue2    # large-volume workspace
 python3 scripts/download_pins.py --workspace $YUE2_WORKSPACE    # SHA256-verified pins
+# Verify REAL GPU execution (fail-loud; no silent CPU fallback):
+$YUE2_WORKSPACE/environments/yue2-gfx1100/bin/python scripts/gpu_identity.py verify --expect-arch gfx1100
 # Path A (native PyTorch): official generate.py with --backend torch-eager
-# Path B (SGLang): bash scripts/setup_gfx1100_rocm7141.sh && bash scripts/serve_yue2_gfx1100.sh
+# Path B (SGLang, session-scoped: boot -> use -> verified stop, GPU-locked):
+bash scripts/campaign_ops/run_with_server.sh --log-dir $YUE2_WORKSPACE/logs -- \
+  curl -s http://127.0.0.1:31000/v1/models
+# While a server runs, check GENERATION readiness (not just HTTP health):
+$YUE2_WORKSPACE/environments/yue2-gfx1100/bin/python scripts/server_readiness.py \
+  check --receipt $YUE2_WORKSPACE/logs/rws_server_identity/server-identity.json
 ```
 
 ### Official WildSongBench comparison
@@ -47,16 +61,24 @@ python3 scripts/download_pins.py --workspace $YUE2_WORKSPACE    # SHA256-verifie
 See [docs/RESULTS.md](docs/RESULTS.md): the Nov 2026 SGLang W7900 run
 completed 384/384 and scored SongBench **6.7376**, MuLan **0.5093**,
 AllMusicCaps **0.4056**, and PER **17.77%**, compared with the official
-8.44% PER. The PER tail is characterized but **its cross-backend root cause
-is NOT established**. Native PyTorch full-run results remain pending.
-No official quality-parity claim is made.
+8.44% PER. The native PyTorch (Arm A) full run is also complete — 384/384,
+official frozen four-metric scoring (PER micro 17.01%, MuLan 0.510, AMC
+0.405; see the evidence index). The PER tail is characterized but **its
+cross-backend root cause is NOT established**. No official quality-parity
+claim is made.
 
-### Real measured performance (W7900)
+### Real measured performance (W7900D, RC4 frozen campaign n=384/arm + RC4 fresh)
 
-| Path | Full-song wall time | Peak VRAM |
+| Path | Full-song wall P50 (campaign / RC4 fresh-warm) | Peak VRAM |
 |---|---|---|
-| PyTorch torch-eager | ~7 min/song | ~9–14 GiB (24 GiB budget) |
-| SGLang server | 245.8 s median | ~41 GiB generating / ~11 GiB idle |
+| PyTorch torch-eager (native) | 706.4 s / 630.4 s (fresh n=7) | GPU allocations ~0.35 GiB (24 GiB streaming budget) |
+| SGLang server | 275.3 s / 248.3 s (fresh-warm n=14) | 47.1 GiB (pilot) / 51.5 decimal GB = 47.98 GiB (campaign — card saturation) |
+
+Audio real-time multiplier (audio s per wall s): SGLang 0.791 mean,
+native 0.309 mean (campaign). Cold boot to /health 30 s; first request
++50–120 s. Sources and raw rows: `reports/w7900_rc4/03_PERFORMANCE_RAW.csv`
+(791 rows), audited by `scripts/verify_rc4_evidence_consistency.py`.
+Historical RC2-era figures remain in [docs/RESULTS.md](docs/RESULTS.md).
 
 ### Limitations & upstream status (honest, always current)
 

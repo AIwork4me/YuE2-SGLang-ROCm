@@ -131,6 +131,15 @@ def test_non_complete_status_fails(monkeypatch, tmp_path):
     assert run(monkeypatch, tmp_path, rows=rows) == 4
 
 
+def test_wrong_row_count_citation_fails(monkeypatch, tmp_path):
+    """Mutation control M10: '791 written as another number' must FAIL."""
+    assert run(monkeypatch, tmp_path) == 0
+    (ev.RC4 / "FINAL_REPORT_ZH.md").write_text("原始数据 786 行\n")
+    assert ev.main([]) == 4  # unannotated 786 AND missing actual count 4
+    (ev.RC4 / "FINAL_REPORT_ZH.md").write_text("原始数据 5 行\n")
+    assert ev.main([]) == 4  # annotated? no — and count 5 != 4 rows
+
+
 def test_percentile_linear():
     assert ev.percentile_linear([1.0, 2.0], 50) == 1.5
     assert ev.percentile_linear([1.0, 2.0, 3.0, 4.0], 95) == 3.85
