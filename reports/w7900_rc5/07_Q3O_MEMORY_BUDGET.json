@@ -18,7 +18,9 @@
   "thinker_visual": 1.002,
   "talker_total": 6.194,
   "code2wav_total": 0.404,
-  "experts_per_layer": 2.25
+  "experts_per_layer_GiB_CORRECTED": 1.125,
+  "layers_total_CORRECTED": 48,
+  "correction_2026-11-24": "the original draft said 24 layers x 2.250 GiB; the Thinker has 48 MoE layers x 128 experts x 9.44 MB = 1.125 GiB each (config.json: num_hidden_layers 48, num_experts 128, moe_intermediate_size 768, hidden_size 2048). Total expert memory 54.0 GiB was already correct."
  },
  "official_protocol_needs": {
   "audio_judge": "thinker (text MoE + audio tower) only: system prompt + [audio, text] -> JSON judgement",
@@ -51,20 +53,24 @@
   "full_model": "65.68 GiB: exceeds VRAM by 17.7 GiB and the 55 GiB host cgroup by 10.68 GiB (no full-precision CPU copy is possible either)"
  },
  "feasible_plan_Q2": {
-  "idea": "BF16, thinker-only (no visual), module-granular mixed placement with stock accelerate hooks",
-  "gpu_resident": {
+  "idea": "BF16, thinker-only (no visual), module-granular mixed placement; MoE layers replaced by the blocks of scripts/rc5_q3o_moe.py",
+  "gpu_resident_measured": {
    "dense (attention, embeddings, lm_head)": 2.871,
    "audio_tower": 1.207,
-   "moe_experts_of_layers_on_gpu": "16 of 24 layers x 2.250 GiB = 36.00 GiB",
-   "kv_cache_and_activations_estimate": 3.0,
-   "total_estimate_GiB": 43.08
+   "moe_experts_of_layers_on_gpu": "34 of 48 layers x 1.125 GiB = 38.25 GiB (batched-GPU block)",
+   "bytes_on_gpu_after_load": 45449714432,
+   "peak_vram_bytes_device": 46318702080
   },
-  "cpu_resident": {
-   "moe_experts_of_layers_on_cpu": "8 of 24 layers x 2.250 GiB = 18.00 GiB (cgroup limit 55 GiB)"
+  "cpu_resident_measured": {
+   "moe_experts_of_layers_on_cpu": "14 of 48 layers, fp32 copy = 31.5 GiB of host RAM",
+   "host_vmhwm_bytes": 53844590592,
+   "cgroup_memory_limit_bytes": 59055800320,
+   "headroom_GiB": 4.87,
+   "warning": "host peak is within 4.9 GiB of the 55 GiB cgroup limit: do NOT raise the CPU layer count (or switch the CPU copy to bf16 with fp32 compute at the GEMM inputs) without watching VmHWM"
   },
-  "compute_consequence": "per token each layer activates 8 of 256 experts: CPU layers do small batch-1 expert MLPs on CPU (cheap FLOPs, ~600 MB weight reads/token across the 8 CPU layers)",
-  "precision": "BF16 weights and BF16 compute everywhere - no quantization",
-  "status": "PLANNED - measured values will replace estimates after the pilot"
+  "compute_consequence": "GPU layers: two batched GEMMs per layer, no host loop. CPU layers: fp32 compute on bf16-valued operands with the official bf16 rounding points; one activation round trip per layer.",
+  "precision": "BF16 weights everywhere; no quantization; the CPU layers hold an fp32 copy of bf16 weights (exact)",
+  "status": "MEASURED on the retained pilot run (see 07_Q3O_48GB_PILOT.json); wall time 176 s per candidate before the batched-GPU block"
  },
  "status": "BUDGET_COMPUTED_FROM_SAFETENSORS_HEADERS; routes Q0..Q5 to be executed in M7"
 }

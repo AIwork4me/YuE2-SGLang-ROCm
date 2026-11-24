@@ -1,0 +1,57 @@
+{
+ "schema": "yue2-rc5-q3o-48gb-pilot/1",
+ "generated_at_utc": "2026-11-24T13:40:00Z",
+ "subject": "First complete Q3O judgements of WildSongBench candidates on a 48 GB AMD GPU (W7900D, gfx1100)",
+ "protocol": "WSB-paper-Control-20260905-frozen-candidate-weights (frozen weights, traditional-key MIREX override, 0-5)",
+ "official_engine_not_used": "vLLM 0.14.0 + flash-attn 2.8.3 on an 80 GB CUDA GPU (documented requirement of the evaluator bundle)",
+ "judge_provider": "rc5_hf_transformers_rocm (scripts/rc5_q3o_judge.py): HF transformers 4.57.6 Thinker-only BF16, accelerate mixed placement, greedy, eos 151645",
+ "equivalence_claim": "NONE. Same weights/prompts/decoding/precision intent, different engine, attention kernels and (for tied routing) tie-breaking. Scores from this judge are ROCm-adapted measurements, not official-protocol results.",
+ "retained_run": {
+  "when_utc": "2026-11-24T12:21:28Z..12:27:24Z",
+  "sample": "one pilot candidate (unselected arm)",
+  "placement": {"gpu_moe_layers": 34, "cpu_moe_layers": 14, "cpu_threads": 16,
+                "bytes_on_gpu_after_load": 45449714432, "meta_not_yet_materialised": 17988696544,
+                "cpu_leaf_modules_restored": 5376, "weights_map_references_released": 176,
+                "transformers": "4.57.6", "torch": "2.10.0+rocm7.14.1", "hip": "7.14.60850",
+                "attn_implementation": "sdpa", "dtype": "torch.bfloat16", "load_seconds": 152},
+  "result": {"status": "COMPLETE", "q3o_0_5": 4.833333, "overall_0_1": 0.9667,
+             "dimension_scores": {"vocal_timbre": 4, "vocal_gender": 5, "genre": 5, "mood": 5, "inst": 5, "tempo": 5, "key": "not_applicable (weight 0, no expected key)"},
+             "weight_sum": 30, "invalid_score_count": 0,
+             "prompt_tokens": 1884, "generated_tokens": 487, "finish_reason": "stop",
+             "prefill_seconds": 69.3, "decode_seconds": 104.12, "decode_seconds_per_token": 0.2142,
+             "total_seconds": 175.16, "audio_bytes": 6293996},
+  "resources": {"peak_vram_bytes_device": 46318702080, "peak_vram_bytes_torch_allocated": 45539216384,
+                "host_vmhwm_bytes": 53844590592, "cgroup_memory_limit_bytes": 59055800320,
+                "host_headroom_GiB": 4.87, "cgroup_memory_events": "max 36, oom_kill 0 (counters unchanged by this run)"},
+  "raw_artifacts": "local only at /data/yue2-runs/rc5-q3o/pilot1 (judge reasoning text and benchmark prompt text inside; NOT tracked in git)",
+  "raw_sha256": {"summary.json": "f86d6835ab0824d221233a7587c6e20c8dff738e6da9cf53549ba3abd1953b92",
+                 "runtime_receipt.json": "a76a25dfa0a12b905ab985c4ccc0848d2f8111a3642339d3315209a1df785a44",
+                 "judge.log": "d92cd3446d0aca27f344d4cc8062e3b2ac2f4fa57a73f981502505a2a05e5b89",
+                 "receipts/wsb_022_r0_s831023/q3o.json": "00d983248b5b4afc0e22b8a39359948d1623c277cf35216f752298998036500e"},
+  "generating_code_revision": "INTERMEDIATE and uncommitted (HF loop on the GPU layers + CpuResidentMoeBlock); the CPU block of that revision deviated from the official rounding points, see receipt_text_inaccuracy below. The batched GPU block of the current HEAD has not produced a retained run yet."
+ },
+ "unretained_observations_from_operator_notes": [
+  {"configuration": "A: stock accelerate device_map (CPU-mapped weights streamed to the GPU each forward), BF16",
+   "observed": {"generated_tokens": 434, "q3o_0_5": 5.0, "decode_seconds_per_token": 0.229},
+   "artifact_retained": false,
+   "why": "its output directory and log were overwritten by the next configuration's run (operator error, disclosed)"},
+  {"configuration": "B: CPU-resident fp32 MoE block, torch left at the default thread count (128 threads visible, quota 16)",
+   "observed": {"generated_tokens": 493, "q3o_0_5": 4.83, "prefill_seconds": 531, "decode_seconds_per_token": 0.69},
+   "artifact_retained": false,
+   "why": "same overwrite; the thread-count fix (torch.set_num_threads(16) from the cgroup quota) later cut prefill to 69 s and decode to 0.21 s/token with the same score 4.83"}
+ ],
+ "interpretation_caveats": [
+  "three SINGLE runs under three placements gave three different token counts and two different scores (5.0 / 4.83 / 4.83): judge output is sensitive to numerics on this stack",
+  "with the then-unfixed torch.topk tie handling, part of that spread may be run-to-run nondeterminism rather than placement (see 07_Q3O_MOE_EQUIVALENCE.json); the runs were not repeated, so the two effects are NOT separated",
+  "run-to-run stability of the FIXED judge (stable tie-break) is not yet measured; measure it before any full Q3O pass",
+  "the sample is one deliberately hard pilot candidate of the unselected arm; no comparison with official vLLM numbers is possible on this host"
+ ],
+ "receipt_text_inaccuracy": {
+  "where": "runtime_receipt.json of the retained run, placement.cpu_resident.mode",
+  "says": "fp32 compute with official bf16 rounding points",
+  "actually": "the CPU block of that revision kept fp32 router logits (not rounded to bf16 before routing) and did not round the silu output to bf16; both fixed in scripts/rc5_q3o_moe.py at the current HEAD, with regression tests (crafted-boundary-tie test) and mutation controls",
+  "effect_on_scores": "unknown direction; the 4.83 runs may change under the fixed block; the 5.0 streaming run was unaffected (no CPU block involved)"
+ },
+ "projection_if_unchanged": "at 176 s per candidate the full selected-192 pass would take about 9.4 h; the batched GPU block (not yet run on a real candidate) is expected to cut this substantially - unmeasured estimate.",
+ "status": "PILOT 1/1 complete; judge fixes landed; re-measure after review"
+}

@@ -1,6 +1,6 @@
 {
  "schema": "yue2-rc5-status/1",
- "updated_at_utc": "2026-11-24T07:47:56Z",
+ "updated_at_utc": "2026-11-24T13:47:00Z",
  "M0": {
   "hardware_identity": "PASS",
   "gpu_compute": "PASS",
@@ -31,22 +31,33 @@
   "gate": "PASS"
  },
  "M4": {
-  "status": "IN_PROGRESS",
+  "status": "PAUSED_BY_OPERATOR (Q3O/PER experiments)",
   "run_id": "rc5_armB_latest_upstream_20261124T065451Z",
-  "started_utc": "2026-11-24T06:54:51Z"
+  "started_utc": "2026-11-24T06:54:51Z",
+  "complete": "20/384",
+  "session_exit": "rc=143 cleanup=CLEAN lock released",
+  "checkpoint": "incremental-016 verified to second volume",
+  "complete_not_in_backup": 4,
+  "projected_remaining_hours": 27.9,
+  "snapshot": "reports/w7900_rc5/04_CAMPAIGN_PAUSE_SNAPSHOT.json"
  },
  "M5": {
   "status": "NOT_STARTED (evaluator environments installed and hash-gated)"
  },
  "M6": {
   "status": "IN_PROGRESS",
-  "finding": "English songs: empty transcripts (PER=1.0) and cap runaways; reproduced at batch_size=1"
+  "finding": "English songs: empty transcripts (PER=1.0) and cap runaways; reproduced at batch_size=1; Whisper reference transcribes the same candidates (ASR-side failure; backend vs ROCm numerics not separated)",
+  "evidence": "reports/w7900_rc5/06_PER_CAUSAL_PILOT.json, 06_PER_CAUSAL_MATRIX.csv"
  },
  "M7": {
-  "status": "NOT_STARTED",
-  "memory_budget": "computed",
-  "hf_judge": "written; protocol dry-run PASS",
-  "key_env": "installed; official key worker rc 0"
+  "status": "IN_PROGRESS",
+  "memory_budget": "computed and corrected (48 layers x 1.125 GiB; measured placement in 07_Q3O_MEMORY_BUDGET.json)",
+  "judge": "runs on 48 GB: retained pilot 1/1 COMPLETE (q3o 4.83, 176 s/candidate); two earlier single runs NOT retained (disclosed)",
+  "moe_blocks": "scripts/rc5_q3o_moe.py; equivalence vs HF loop <= 2 bf16 ulp on tie-free inputs; mutation controls 15/16 KILLED on GPU (survivor = near-equivalent rounding-placement mutant, disclosed)",
+  "batched_gpu_block_run_on_real_candidate": "NOT_YET",
+  "judge_run_to_run_stability_after_fixes": "NOT_MEASURED",
+  "finding": "torch.topk tie-breaking nondeterministic on the evaluator build (2.10.0+rocm7.14.1); stable tie-break implemented",
+  "host_headroom_GiB": 4.87
  },
  "M8": {
   "status": "NOT_STARTED"

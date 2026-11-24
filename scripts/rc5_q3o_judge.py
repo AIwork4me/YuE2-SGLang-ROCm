@@ -45,6 +45,28 @@ os.environ.setdefault("PYTHONDONTWRITEBYTECODE", "1")
 os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
 
 
+def cpu_quota() -> int:
+    """CPUs this container may actually use (cgroup cpu.max), not os.cpu_count().
+
+    The bench exposes 128 logical CPUs but grants a quota of 16: torch's
+    default intra-op pool (one thread per visible CPU) thrashes inside the
+    quota and makes small CPU matmuls ~100x slower (measured prefill 532 s)."""
+    try:
+        q, period = Path("/sys/fs/cgroup/cpu.max").read_text().split()
+        if q != "max":
+            return max(1, int(int(q) / int(period)))
+    except (OSError, ValueError):
+        pass
+    return max(1, len(os.sched_getaffinity(0)))
+
+
+def configure_cpu_threads():
+    import torch
+    n = cpu_quota()
+    torch.set_num_threads(n)
+    return n
+
+
 def sha_file(p: Path) -> str:
     h = hashlib.sha256()
     with open(p, "rb") as f:
@@ -61,6 +83,8 @@ def object_hash(obj) -> str:
 # ----------------------------------------------------------------- judge
 class Rc5HfQwenJudge:
     """Drop-in for eval_control.open_format_judge.LocalVllmQwenJudge.judge_score."""
+
+    THINKER_EOS_TOKEN_ID = 151645      # <|im_end|>: official HF thinker_eos_token_id default
 
     def __init__(self, evaluator_root: Path, config: dict, gpu_layers: int,
                  attn_implementation: str = "sdpa", log=print):
@@ -142,8 +166,196 @@ class Rc5HfQwenJudge:
                      "hip": torch.version.hip, "device_map_entries": len(device_map)}
         self.log(f"[q3o-judge] loaded in {load_s:.0f}s; bytes by device: "
                  + ", ".join(f"{k}={v/2**30:.2f}GiB" for k, v in bytes_by_dev.items()))
+        placement["moe_placement"] = self._install_moe_blocks(model, device_map, gpu_layers)
         self.model = model
+        placement["device_audit"] = self._audit_and_fix_devices(model, device_map)
         return placement
+
+    def _install_moe_blocks(self, model, device_map: dict, gpu_layers: int) -> dict:
+        """Place the 48 MoE layers of the Thinker (scripts/rc5_q3o_moe.py).
+
+        * layers < gpu_layers: experts stay on the GPU, replaced by a batched
+          block (two bmm per layer, no host loop) — the plain HF loop costs
+          about nine GPU->CPU synchronisations per layer (0.21 s/token).
+        * layers >= gpu_layers: accelerate maps device_map["cpu"] to "weights
+          in host RAM, streamed to the GPU for every forward" (~1 GB of expert
+          weights per decoded token); they are restored to the CPU and replaced
+          by a CPU-resident block (fp32 compute, official bf16 rounding points).
+        Both blocks are checked against the verbatim HF loop in
+        tests/test_rc5_q3o_moe.py."""
+        import torch
+        from accelerate.hooks import remove_hook_from_module
+        from accelerate.utils import set_module_tensor_to_device
+        from pathlib import Path as _P
+        import importlib.util as _iu
+        _spec = _iu.spec_from_file_location("rc5_q3o_moe", _P(__file__).with_name("rc5_q3o_moe.py"))
+        _mod = _iu.module_from_spec(_spec)
+        _spec.loader.exec_module(_mod)
+        threads = configure_cpu_threads()
+        self.log(f"[q3o-judge] CPU intra-op threads set to {threads} (cgroup quota)")
+        cpu_leaves = [n for n, d in device_map.items() if d == "cpu"]
+        restored, failures = 0, []
+        for name in cpu_leaves:
+            mod = model.get_submodule(name)
+            hook = getattr(mod, "_hf_hook", None)
+            wm = getattr(hook, "weights_map", None) if hook is not None else None
+            for pn, _p in mod.named_parameters(recurse=False):
+                value = wm[pn] if wm is not None else None
+                if value is None or value.is_meta:
+                    failures.append(f"{name}.{pn}")
+                    continue
+                set_module_tensor_to_device(mod, pn, torch.device("cpu"), value=value)
+                restored += 1
+            remove_hook_from_module(mod, recurse=False)
+        if failures:
+            raise RuntimeError(f"{len(failures)} CPU-mapped weights had no value in the "
+                               f"weights_map, e.g. {failures[:5]}")
+        # release the host copies accelerate still references BEFORE packing,
+        # so each layer's old weights are freed as soon as it is replaced
+        released = 0
+        for m in model.modules():
+            h = getattr(m, "_hf_hook", None)
+            if h is not None and getattr(h, "weights_map", None) is not None:
+                h.weights_map = None
+                released += 1
+        layers = model.model.layers
+        n_layers = len(layers)
+        gpu_idx, cpu_idx = [], []
+        for idx in range(n_layers):
+            block = layers[idx].mlp
+            if idx < gpu_layers:
+                layers[idx].mlp = _mod.BatchedGpuMoeBlock(block)
+                gpu_idx.append(idx)
+                if torch.cuda.is_available():
+                    torch.cuda.empty_cache()
+            else:
+                layers[idx].mlp = _mod.CpuResidentMoeBlock(block, log=self.log)
+                cpu_idx.append(idx)
+            del block
+        self._moe_modules = [layers[i].mlp for i in range(n_layers)]
+        return {"mode": "batched-GPU MoE (< gpu_layers) + CPU-resident MoE (>= gpu_layers), "
+                       "scripts/rc5_q3o_moe.py; official rounding points kept",
+                "cpu_leaf_modules": len(cpu_leaves), "weights_restored_to_cpu": restored,
+                "gpu_moe_layers": gpu_idx, "cpu_moe_layers": cpu_idx, "layers_total": n_layers,
+                "weights_map_references_released": released, "cpu_threads": threads}
+
+    def _audit_and_fix_devices(self, model, device_map: dict) -> dict:
+        """Make the placement TRUE before anything runs.
+
+        1. Non-persistent buffers are not in the checkpoint and are not covered
+           by a parameter-derived device map (the audio tower's sinusoidal
+           `positional_embedding` stayed on CPU -> 'Expected all tensors to be
+           on the same device, cuda:0 and cpu' in the first real attempt).
+           Buffers of GPU-resident sections are moved to the GPU explicitly.
+        2. Fail loud if any weight outside the disk-offloaded vision tower is
+           still on the meta device (i.e. was never materialised)."""
+        # accelerate >= 1.10 (verified 1.12.0): when an offload folder is in
+        # play, modules mapped to "cpu" are ALSO offloaded through a
+        # weights_map: their parameters sit on the meta device and a hook
+        # installs the real weights (held in host RAM) for the duration of
+        # each forward. "meta" therefore does NOT mean "never loaded". What
+        # must be true is: every meta parameter outside the disk-offloaded
+        # vision tower has an accelerate offload hook, and such a module
+        # really computes with its weights (checked once on a real module).
+        audit: dict = {"buffers_moved": 0, "meta_without_hook": 0,
+                       "cpu_offloaded_via_weights_map": 0, "by_section": {}}
+        model_root = model.model if hasattr(model, "model") else model
+        visual_prefix = "model.visual." if hasattr(model_root, "visual") else "visual."
+        sections: dict[tuple, dict] = {}
+        sample_cpu_module = None
+        for name, module in model.named_modules():
+            params = list(module.parameters(recurse=False))
+            if not params:
+                continue
+            dev = str(params[0].device)
+            if dev == "meta":
+                if name.startswith(visual_prefix):
+                    continue                      # disk-offloaded, never used (no image input)
+                hook = getattr(module, "_hf_hook", None)
+                if hook is not None and getattr(hook, "offload", False) \
+                        and getattr(hook, "weights_map", None) is not None:
+                    audit["cpu_offloaded_via_weights_map"] += len(params)
+                else:
+                    audit["meta_without_hook"] += len(params)
+                if sample_cpu_module is None and name.endswith("down_proj"):
+                    sample_cpu_module = (name, module)
+        probe_mlp = next((m for m in getattr(self, "_moe_modules", [])
+                         if type(m).__name__ == "CpuResidentMoeBlock"), None)
+        for name, param in model.named_parameters():
+            sec = "visual" if name.startswith(visual_prefix) else (
+                "experts" if ".mlp.experts." in name else ("audio_tower" if name.startswith("audio_tower.")
+                                                           else "dense"))
+            layer = int(name.split(".layers.")[1].split(".")[0]) if ".layers." in name else None
+            key = (sec, layer)
+            d = sections.setdefault(key, {"n": 0, "bytes": 0, "devices": set()})
+            d["n"] += 1
+            d["bytes"] += param.numel() * param.element_size()
+            d["devices"].add(str(param.device))
+        audit["by_section"] = {f"{k[0]}{'' if k[1] is None else '[%d]' % k[1]}":
+                               {"n": v["n"], "GiB": round(v["bytes"] / 2**30, 3),
+                                "devices": sorted(v["devices"])} for k, v in sorted(
+                                   sections.items(), key=lambda kv: (kv[0][0], kv[0][1] if kv[0][1] is not None else -1))}
+        audit["layers_total"] = getattr(model_root.config, "num_hidden_layers", None) if hasattr(model_root, "config") else None
+        if audit["meta_without_hook"]:
+            raise RuntimeError(f"{audit['meta_without_hook']} weights are on the meta device without an "
+                               f"offload hook (never materialised): {json.dumps(audit['by_section'])[:2500]}")
+        if probe_mlp is not None:
+            import torch
+            seen = {}
+            try:
+                with torch.no_grad():
+                    inp = torch.ones(1, 4, int(probe_mlp.gate_w.shape[1]), device=self.device,
+                                     dtype=torch.bfloat16)
+                    out, logits = probe_mlp(inp)
+                seen.update(out_device=str(out.device), out_dtype=str(out.dtype),
+                            out_finite=bool(torch.isfinite(out).all()),
+                            out_abs_sum=float(out.float().abs().sum()),
+                            logits_device=str(logits.device), logits_dtype=str(logits.dtype),
+                            weight_gib=round((probe_mlp.gate_up[0].numel() + probe_mlp.down[0].numel())
+                                             * 4 * probe_mlp.num_experts / 2**30, 3))
+            except Exception as exc:  # noqa: BLE001 - recorded, raised below
+                seen["error"] = f"{type(exc).__name__}: {exc}"
+            # behavioural proof that the CPU-resident block computes with the
+            # real weights: a ones-input must give a finite, non-zero output
+            audit["cpu_resident_smoke"] = seen
+            if "error" in seen or not seen.get("out_finite", False) \
+                    or not seen.get("out_abs_sum", 0.0) > 0.0:
+                raise RuntimeError(f"CPU-resident MoE block did not compute with real weights: "
+                                   f"{json.dumps(seen)}")
+        moved = []
+        for name, buf in model.named_buffers():
+            sec = "visual" if name.startswith(visual_prefix) else None
+            if sec == "visual" or str(buf.device) == self.device:
+                continue
+            # buffers belong to GPU-resident sections (experts layers on CPU have none)
+            if ".mlp.experts." in name and device_map.get(name.rsplit(".", 2)[0] if name.count(".") >= 2 else "", 0) == "cpu":
+                continue
+            parts = name.split(".")
+            owner = ".".join(parts[:-1])
+            target = device_map.get(owner)
+            if target is None:
+                # nearest mapped ancestor; `audio_tower` itself owns no
+                # parameter, so also fall back to its mapped descendants
+                for i in range(len(parts) - 2, 0, -1):
+                    target = device_map.get(".".join(parts[:i]))
+                    if target is not None:
+                        break
+            if target is None:
+                subs = [v for k, v in device_map.items() if k.startswith(owner + ".")]
+                if subs:
+                    target = subs[0]
+            if target is None or (target not in ("cpu", "disk") and not isinstance(target, str)):
+                target = 0                      # GPU-resident section by default
+            if target == 0 and buf.device.type != "cuda":
+                moved.append((name, str(buf.device)))
+        # perform the moves on the module tree (buffers are replaced in place)
+        for name, _src in moved:
+            module_name, buf_name = name.rsplit(".", 1) if "." in name else ("", name)
+            mod = model.get_submodule(module_name) if module_name else model
+            setattr(mod, buf_name, getattr(mod, buf_name).to(self.device))
+        audit["buffers_moved"] = len(moved)
+        audit["buffers_moved_names"] = [n for n, _ in moved][:20]
+        return audit
 
     # -- inference ---------------------------------------------------------
     def _generate_text(self, conversation: list, audio_path: Path, max_tokens: int) -> tuple[str, dict]:
@@ -154,9 +366,19 @@ class Rc5HfQwenJudge:
             raise ValueError(f"failed to load audio: {audio_path}")
         inputs = self.processor(text=[prompt], audio=audios, images=images, videos=videos,
                                 return_tensors="pt", padding=True, use_audio_in_video=False)
-        meta = {"prompt_tokens": int(inputs["input_ids"].shape[1])}
+        meta = {"prompt_tokens": int(inputs["input_ids"].shape[1]), "prompt": prompt}
         model = self.model
         target = self.device
+        marks = {}
+
+        class _Timer(torch.nn.Module):     # logits processor: marks prefill / decode boundary
+            def __call__(self, input_ids, scores):
+                now = time.time()
+                marks.setdefault("steps", 0)
+                marks["steps"] += 1
+                marks.setdefault("t_step1", now)
+                marks["t_last"] = now
+                return scores
         moved = {}
         for k, v in inputs.items():
             if hasattr(v, "to"):
@@ -166,9 +388,19 @@ class Rc5HfQwenJudge:
                 moved[k] = v
         t0 = time.time()
         with torch.inference_mode():
+            # The checkpoint's generation_config.json carries only talker
+            # settings (eos_token_id=None), so generation would never stop.
+            # The official HF entry point passes thinker_eos_token_id=151645;
+            # vLLM stops on the same model EOS.
             out = model.generate(**moved, do_sample=False, max_new_tokens=max_tokens,
-                                 use_audio_in_video=False)
+                                 use_audio_in_video=False, logits_processor=[_Timer()],
+                                 eos_token_id=self.THINKER_EOS_TOKEN_ID)
         gen_s = time.time() - t0
+        steps = marks.get("steps", 0)
+        if steps > 1:
+            meta["prefill_seconds"] = round(marks["t_step1"] - t0, 2)
+            meta["decode_seconds"] = round(marks["t_last"] - marks["t_step1"], 2)
+            meta["decode_seconds_per_token"] = round((marks["t_last"] - marks["t_step1"]) / (steps - 1), 4)
         n_in = moved["input_ids"].shape[1]
         cont = out[0][n_in:] if out.dim() == 2 else out.sequences[0][n_in:]
         n_tok = int(cont.shape[0])
@@ -200,12 +432,16 @@ class Rc5HfQwenJudge:
         content_text, meta = self._generate_text(conversation, audio_path, int(self.config["max_tokens"]))
         total_seconds = time.perf_counter() - total_start
         judgement = self._parse_json_object(content_text)
-        record = {"prompt": prompt, "text": content_text,
+        record = {"prompt": meta["prompt"], "text": content_text,
                   "generated_tokens": meta["generated_tokens"],
                   "finish_reason": meta["finish_reason"]}
         self.capture = [record]
         if self.scorer is not None:
             self.scorer.capture.append(record)      # official record() semantics
+        self.log(f"[q3o-judge]   prompt_tokens={meta['prompt_tokens']} generated={meta['generated_tokens']} "
+            f"({meta['finish_reason']}) prefill={meta.get('prefill_seconds')}s "
+                        f"decode={meta.get('decode_seconds')}s ({meta.get('decode_seconds_per_token')} s/token) "
+                        f"peak_vram={round((meta.get('peak_vram_bytes') or 0) / 2**30, 2)}GiB")
         return {
             **item.to_dict(),
             "provider": "rc5_hf_transformers_rocm",
@@ -217,7 +453,8 @@ class Rc5HfQwenJudge:
                        "finished_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
                        "http_seconds": meta["generation_seconds"], "total_seconds": round(total_seconds, 3),
                        "payload_bytes": meta["prompt_tokens"], "response_bytes": len(content_text.encode("utf-8")),
-                       "audio_bytes": audio_bytes, **{k: v for k, v in meta.items() if k != "generation_seconds"}},
+                       "audio_bytes": audio_bytes,
+                       **{k: v for k, v in meta.items() if k not in ("generation_seconds", "prompt")}},
             "judgement": judgement,
             "raw_response": {"text": content_text},
         }
@@ -303,8 +540,9 @@ def main() -> int:
     ap.add_argument("--rows", type=Path, required=True,
                     help="audio_manifest.jsonl rows (official prepare_inputs output)")
     ap.add_argument("--out", type=Path, required=True)
-    ap.add_argument("--gpu-layers", type=int, default=15,
-                    help="layers whose MoE experts stay on the GPU (2.25 GiB each); the rest go to CPU")
+    ap.add_argument("--gpu-layers", type=int, default=34,
+                    help="layers whose MoE experts stay on the GPU (48 layers x 1.125 GiB each); the rest are "
+                         "CPU-offloaded through accelerate's weights_map")
     ap.add_argument("--attn", default="sdpa")
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--ids", default="")

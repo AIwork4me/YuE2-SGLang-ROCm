@@ -1,0 +1,58 @@
+{
+ "schema": "yue2-rc5-q3o-moe-equivalence/1",
+ "generated_at_utc": "2026-11-24T13:40:00Z",
+ "subject": "scripts/rc5_q3o_moe.py (BatchedGpuMoeBlock + CpuResidentMoeBlock) vs the verbatim HF 4.57.6 SparseMoeBlock loop",
+ "why": "The Q3O judge on 48 GB needs a mixed MoE placement; these blocks replace the HF loop. Their arithmetic must be shown equal to HF up to the disclosed rounding deviations, and the test suite must be shown to catch real arithmetic errors (mutation controls).",
+ "reference_loop": "HF transformers 4.57.6 Qwen3OmniMoe SparseMoeBlock.forward, reproduced verbatim in tests/test_rc5_q3o_moe.py",
+ "measurement_setup": {
+  "gpu_block": "E=128 experts, top_k=8, H=2048, moe_intermediate=768 (the real Thinker layer), T=74 and T=1",
+  "cpu_block": "E=32, top_k=8, H=512, moe_intermediate=256 (scaled down for CPU time), T=74 and T=1",
+  "inputs": "bf16 activations x 0.5*N(0,1); router logits are bf16-valued, so inputs are perturbed until NO row is tied at the top-k boundary (precondition asserted in the tests): routing then has a unique answer and arithmetic can be compared",
+  "environments": ["torch 2.10.0+rocm7.14.1 (evaluator venv, the judge's environment)", "torch 2.12.0+rocm7.14.1 (generation venv)"],
+  "environments_note": "the metrics venv has no pytest; pytest was provided from outside via PYTHONPATH (no package was installed into any frozen venv)"
+ },
+ "measured_deviations_from_the_hf_loop": {
+  "cpu_block": {"T=74": {"relative_max": 0.00581, "bf16_ulp_reading": "1.5 ulp of the largest output"}, "T=1": {"relative_max": 0.00546}, "router_logits": "bit-identical to the reference GEMM on the tested inputs"},
+  "gpu_block": {"T=74": {"relative_max": 0.00581}, "T=1": {"relative_max": 0.00794}, "router_logits": "bit-identical (same F.linear kernel)"},
+  "identical_in_both_torch_versions": true,
+  "component_reference_points": {
+   "bmm_vs_per_expert_linear_gpu": "relative max 4.2e-3 (1 bf16 ulp) for T>=64; bit-identical for T<64 and on CPU",
+   "bf16_gemm_vs_fp32_gemm_of_the_same_inputs": "relative max 3.8e-3 (= the output bf16 rounding; accumulation is fp32)",
+   "sequential_bf16_sum_vs_fp32_sum_of_the_same_contributions": "relative max 8.2e-3 (2 bf16 ulp)"
+  }
+ },
+ "disclosed_deviations_from_the_official_rounding_points": [
+  "the order of fp32 additions inside a GEMM (kernel-dependent, <= 1 bf16 ulp of the output)",
+  "a token's contributions are summed in fp32 and rounded once; the HF loop adds them one by one in bf16 (<= 2 bf16 ulp; the official vLLM fused kernel also accumulates in fp32)",
+  "ties between equal routing probabilities are broken by the LOWEST expert index; the tie-breaking of the official vLLM/CUDA kernel is not known here, so equivalence for tied inputs is NOT claimed"
+ ],
+ "finding_topk_nondeterminism": {
+  "summary": "torch.topk on fp32 routing probabilities with bf16-valued logits: exact ties are common, and when a tie sits on the top-k boundary the chosen expert differs between backends AND, on torch 2.10.0+rocm7.14.1, between repeated calls with the same input.",
+  "probe": "[T,128] probabilities from bf16-valued logits, 200 calls per shape, compared with a CPU stable top-k and with the first call",
+  "torch_2.10.0+rocm7.14.1_W7900D": {
+   "T=1": "boundary-tied rows 1; expert set differing from CPU 0/200; index order differing from CPU 192/200",
+   "T=16": "boundary-tied rows 1; set differing 7/200 (1 row)",
+   "T=74": "boundary-tied rows 1; set differing 0/200 vs CPU, but 299/299 repeated calls differ from the first call in index order",
+   "T=512": "boundary-tied rows 39; set differing 200/200 (<=23 rows)",
+   "T=1884": "boundary-tied rows 148; set differing 200/200 (<=89 rows)"
+  },
+  "torch_2.12.0+rocm7.14.1_W7900D": "same expert-set differences vs CPU at boundary ties, but deterministic across repeated calls (0/299 at T=74)",
+  "other_ops_checked": "argmax correct 200/200 (both versions); scatter_add_ with a transposed index correct (both); argsort/sort with stable=True matches the CPU stable order, is deterministic and returns valid indices (100 calls x 6 shapes x both versions)",
+  "consequence_for_the_judge": "the stock HF loop routes through torch.topk, so a greedy judge built on it is not reproducible run-to-run on the evaluator torch build; both blocks now route through _topk_stable (stable argsort, lowest index first)",
+  "not_measured": "frequency of boundary ties in the real Q3O router (requires a model run; synthetic bf16-valued logits gave 7-8 percent of rows at T>=512)"
+ },
+ "tests_and_mutation_controls": {
+  "test_file": "tests/test_rc5_q3o_moe.py",
+  "tests": ["top-k tie rule (lowest index, stable across calls)", "routing equals the HF formulas bit-for-bit on tie-free logits", "weight normalisation", "bit-exact rounding points with top_k=1 (no summation freedom)", "crafted boundary tie: logits are rounded to bf16 BEFORE routing and the defined tie-break is applied", "output equals the HF loop within 2 percent on tie-free inputs, deterministic across calls"],
+  "harness": "scripts/mutation_controls_q3o_moe.py (16 single-edit arithmetic mutations; baseline control must pass first)",
+  "results": [
+   {"environment": "torch 2.12.0+rocm7.14.1, W7900D (GPU)", "killed": "15/16"},
+   {"environment": "torch 2.10.0+rocm7.14.1, W7900D (GPU)", "killed": "15/16"},
+   {"environment": "torch 2.10.0+rocm7.14.1, CPU only", "killed": "10/16 (the 5 GPU-block mutations survive because the GPU tests skip honestly; R4 survives: CPU argsort happens to be stable without the flag)"},
+   {"environment": "torch 2.12.0+rocm7.14.1, CPU only", "killed": "10/16 (same pattern)"}
+  ],
+  "survivor_G2_routing_weight_not_bf16": "near-equivalent mutant: keeping the routing weight in fp32 only moves WHERE the single rounding of a contribution happens; with top_k=1 it is arithmetically identical, with top_k=8 it is inside the disclosed fp32-summation deviation. Kept in the matrix and reported as SURVIVED.",
+  "reports_on_the_bench_machine": ["/data/yue2/logs/rc5_q3o_moe_mut_generation_gpu.json", "/data/yue2/logs/rc5_q3o_moe_mut_metrics_gpu.json", "/data/yue2/logs/rc5_q3o_moe_mut_metrics_cpu.json", "/data/yue2/logs/rc5_q3o_moe_mut_generation_cpu.json"]
+ },
+ "status": "blocks validated against the HF loop on synthetic layers of the real shape; the full judge with these blocks has NOT yet been run on a real candidate (next step after review)"
+}
