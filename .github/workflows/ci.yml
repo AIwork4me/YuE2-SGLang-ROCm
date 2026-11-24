@@ -72,7 +72,8 @@ jobs:
       - name: Install test deps
         run: python -m pip install pytest
       - name: Environment disclosure (CPU-only, verified)
-        run: python -c "import torch, json; assert not torch.cuda.is_available(); print(json.dumps({'torch': torch.__version__, 'gpu': False}))"
+        run: |
+          python -c "import torch, json; assert not torch.cuda.is_available(); print(json.dumps({'torch': torch.__version__, 'gpu': False}))"
       - name: Q3O MoE CPU numerics (stable top-k, boundary tie, expert identity, routing weights, weight normalisation, CPU-resident block, BF16 rounding points, HF reference comparison, determinism)
         run: python -m pytest tests/test_rc5_q3o_moe.py -v -ra --strict-markers
       - name: Mutation controls (CPU-applicable; GPU-block mutations survive honestly on a CPU runner)
