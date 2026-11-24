@@ -1,0 +1,556 @@
+{
+ "receipt_type": "rc5_mutation_controls",
+ "executed_at_utc": "2026-11-24T04:41:58Z",
+ "summary": {
+  "D1": "KILLED",
+  "D2": "KILLED",
+  "D3": "KILLED",
+  "D4": "KILLED",
+  "D5": "KILLED",
+  "D6": "KILLED",
+  "I1": "KILLED",
+  "I10": "KILLED",
+  "I2": "KILLED",
+  "I3": "KILLED",
+  "I4": "KILLED",
+  "I5": "KILLED",
+  "I6": "KILLED",
+  "I7": "KILLED",
+  "I8": "KILLED",
+  "I9": "KILLED",
+  "L1": "KILLED",
+  "L10": "KILLED",
+  "L11": "KILLED",
+  "L12": "KILLED",
+  "L2": "KILLED",
+  "L3": "KILLED",
+  "L4": "KILLED",
+  "L5": "KILLED",
+  "L6": "KILLED",
+  "L7": "KILLED",
+  "L8": "KILLED",
+  "L9": "KILLED",
+  "P1": "KILLED",
+  "P2": "KILLED",
+  "P3": "KILLED",
+  "R0": "KILLED",
+  "R0b": "KILLED",
+  "R1": "KILLED",
+  "R2": "KILLED",
+  "R3": "KILLED",
+  "R4": "KILLED",
+  "R5": "KILLED"
+ },
+ "killed": 38,
+ "survived": [],
+ "not_run": [],
+ "results": [
+  {
+   "id": "D1",
+   "desc": "resume regenerates verified candidates",
+   "file": "scripts/rc5_generate.py",
+   "tests": [
+    "tests/test_rc5_generate_driver.py::test_resume_never_regenerates_verified_candidates"
+   ],
+   "result": "KILLED",
+   "pytest_rc": 1,
+   "pytest_tail": "1 failed in 115.34s (0:01:55)",
+   "reason": null,
+   "seconds": 116.6
+  },
+  {
+   "id": "D2",
+   "desc": "official budget lowered (ode_steps 32 -> 16)",
+   "file": "scripts/rc5_generate.py",
+   "tests": [
+    "tests/test_rc5_generate_driver.py::test_generate_publish_journal_checkpoint_and_official_acceptance"
+   ],
+   "result": "KILLED",
+   "pytest_rc": 1,
+   "pytest_tail": "1 failed in 61.48s (0:01:01)",
+   "reason": null,
+   "seconds": 62.9
+  },
+  {
+   "id": "D3",
+   "desc": "damaged bundle not detected on resume",
+   "file": "scripts/rc5_generate.py",
+   "tests": [
+    "tests/test_rc5_generate_driver.py::test_damaged_bundle_is_quarantined_and_regenerated"
+   ],
+   "result": "KILLED",
+   "pytest_rc": 1,
+   "pytest_tail": "1 failed in 78.73s (0:01:18)",
+   "reason": null,
+   "seconds": 80.0
+  },
+  {
+   "id": "D4",
+   "desc": "identity drift on resume accepted",
+   "file": "scripts/rc5_generate.py",
+   "tests": [
+    "tests/test_rc5_generate_driver.py::test_identity_drift_is_refused"
+   ],
+   "result": "KILLED",
+   "pytest_rc": 1,
+   "pytest_tail": "1 failed in 77.77s (0:01:17)",
+   "reason": null,
+   "seconds": 78.9
+  },
+  {
+   "id": "D5",
+   "desc": "quarantine deletes evidence instead of moving it",
+   "file": "scripts/rc5_generate.py",
+   "tests": [
+    "tests/test_rc5_generate_driver.py::test_damaged_bundle_is_quarantined_and_regenerated"
+   ],
+   "result": "KILLED",
+   "pytest_rc": 1,
+   "pytest_tail": "1 failed in 95.80s (0:01:35)",
+   "reason": null,
+   "seconds": 97.1
+  },
+  {
+   "id": "D6",
+   "desc": "seed taken from a counter instead of the official manifest",
+   "file": "scripts/rc5_generate.py",
+   "tests": [
+    "tests/test_rc5_generate_driver.py::test_generate_publish_journal_checkpoint_and_official_acceptance"
+   ],
+   "result": "KILLED",
+   "pytest_rc": 1,
+   "pytest_tail": "1 failed in 60.32s (0:01:00)",
+   "reason": null,
+   "seconds": 61.6
+  },
+  {
+   "id": "I1",
+   "desc": "two display-class PCI functions accepted (first one taken)",
+   "file": "scripts/gpu_identity.py",
+   "tests": [
+    "tests/test_gpu_identity.py::test_two_display_class_functions_are_ambiguous"
+   ],
+   "result": "KILLED",
+   "pytest_rc": 1,
+   "pytest_tail": "1 failed in 0.07s",
+   "reason": null,
+   "seconds": 0.3
+  },
+  {
+   "id": "I10",
+   "desc": "hung probe child left running after the timeout",
+   "file": "scripts/gpu_identity.py",
+   "tests": [
+    "tests/test_gpu_identity.py::test_probe_hard_timeout_terminates_hung_child"
+   ],
+   "result": "KILLED",
+   "pytest_rc": 1,
+   "pytest_tail": "1 failed in 7.08s",
+   "reason": null,
+   "seconds": 7.3
+  },
+  {
+   "id": "I2",
+   "desc": "PCI class filter removed (audio function can be the 'GPU')",
+   "file": "scripts/gpu_identity.py",
+   "tests": [
+    "tests/test_gpu_identity.py::test_second_pci_function_audio_is_not_the_gpu"
+   ],
+   "result": "KILLED",
+   "pytest_rc": 1,
+   "pytest_tail": "1 failed in 0.07s",
+   "reason": null,
+   "seconds": 0.3
+  },
+  {
+   "id": "I3",
+   "desc": "render node not exposed to the container accepted",
+   "file": "scripts/gpu_identity.py",
+   "tests": [
+    "tests/test_gpu_identity.py::test_render_node_not_exposed_to_container"
+   ],
+   "result": "KILLED",
+   "pytest_rc": 1,
+   "pytest_tail": "1 failed in 0.07s",
+   "reason": null,
+   "seconds": 0.3
+  },
+  {
+   "id": "I4",
+   "desc": "framework/exposed device-count bijection not required",
+   "file": "scripts/gpu_identity.py",
+   "tests": [
+    "tests/test_gpu_identity.py::test_device_count_mismatch_is_ambiguous"
+   ],
+   "result": "KILLED",
+   "pytest_rc": 1,
+   "pytest_tail": "1 failed in 0.07s",
+   "reason": null,
+   "seconds": 0.3
+  },
+  {
+   "id": "I5",
+   "desc": "unique-id mismatch ignored",
+   "file": "scripts/gpu_identity.py",
+   "tests": [
+    "tests/test_gpu_identity.py::test_unique_id_mismatch_fails_closed"
+   ],
+   "result": "KILLED",
+   "pytest_rc": 1,
+   "pytest_tail": "1 failed in 0.07s",
+   "reason": null,
+   "seconds": 0.3
+  },
+  {
+   "id": "I6",
+   "desc": "KFD device-id mismatch ignored",
+   "file": "scripts/gpu_identity.py",
+   "tests": [
+    "tests/test_gpu_identity.py::test_kfd_device_id_mismatch_fails_closed"
+   ],
+   "result": "KILLED",
+   "pytest_rc": 1,
+   "pytest_tail": "1 failed in 0.07s",
+   "reason": null,
+   "seconds": 0.3
+  },
+  {
+   "id": "I7",
+   "desc": "bound BDF never compared with the expected BDF",
+   "file": "scripts/gpu_identity.py",
+   "tests": [
+    "tests/test_gpu_identity.py::test_wrong_bdf_mismatch",
+    "tests/test_gpu_identity.py::test_container_given_gpu5_of_8_binds_the_exposed_device"
+   ],
+   "result": "KILLED",
+   "pytest_rc": 1,
+   "pytest_tail": "2 failed in 0.08s",
+   "reason": null,
+   "seconds": 0.3
+  },
+  {
+   "id": "I8",
+   "desc": "unboundable identity reported as verified",
+   "file": "scripts/gpu_identity.py",
+   "tests": [
+    "tests/test_gpu_identity.py::test_framework_without_pci_ids_fails_closed",
+    "tests/test_gpu_identity.py::test_device_count_mismatch_is_ambiguous"
+   ],
+   "result": "KILLED",
+   "pytest_rc": 1,
+   "pytest_tail": "2 failed in 0.08s",
+   "reason": null,
+   "seconds": 0.3
+  },
+  {
+   "id": "I9",
+   "desc": "arch mismatch downgraded to a pass",
+   "file": "scripts/gpu_identity.py",
+   "tests": [
+    "tests/test_gpu_identity.py::test_arch_mismatch_fails_loud"
+   ],
+   "result": "KILLED",
+   "pytest_rc": 1,
+   "pytest_tail": "1 failed in 0.07s",
+   "reason": null,
+   "seconds": 0.3
+  },
+  {
+   "id": "L1",
+   "desc": "cleanup skipped on the success path but reported CLEAN",
+   "file": "scripts/gpu_lifecycle.py",
+   "tests": [
+    "tests/test_gpu_lifecycle_atomicity.py::test_second_job_cannot_take_the_lock_during_cleanup",
+    "tests/test_run_with_server.py::test_1_success_stops_server"
+   ],
+   "result": "KILLED",
+   "pytest_rc": 1,
+   "pytest_tail": "2 failed in 94.54s (0:01:34)",
+   "reason": null,
+   "seconds": 94.7
+  },
+  {
+   "id": "L10",
+   "desc": "spawn receipt accepts a reused PID (starttime not checked)",
+   "file": "scripts/server_identity.py",
+   "tests": [
+    "tests/test_server_identity_spawn.py::test_verify_spawned_refuses_pid_reuse",
+    "tests/test_server_identity_spawn.py::test_cli_stop_spawned_exit_codes"
+   ],
+   "result": "KILLED",
+   "pytest_rc": 1,
+   "pytest_tail": "2 failed in 4.99s",
+   "reason": null,
+   "seconds": 5.2
+  },
+  {
+   "id": "L11",
+   "desc": "session membership no longer required (signals by pid only)",
+   "file": "scripts/server_identity.py",
+   "tests": [
+    "tests/test_server_identity_spawn.py::test_verify_spawned_refuses_other_session"
+   ],
+   "result": "KILLED",
+   "pytest_rc": 1,
+   "pytest_tail": "1 failed in 0.05s",
+   "reason": null,
+   "seconds": 0.2
+  },
+  {
+   "id": "L12",
+   "desc": "tree snapshot ignores the starttime floor (PID reuse lookalikes)",
+   "file": "scripts/server_identity.py",
+   "tests": [
+    "tests/test_server_identity_spawn.py::test_session_processes_only_members"
+   ],
+   "result": "KILLED",
+   "pytest_rc": 1,
+   "pytest_tail": "1 failed in 0.05s",
+   "reason": null,
+   "seconds": 0.2
+  },
+  {
+   "id": "L2",
+   "desc": "identity capture not pinned to the spawned pid",
+   "file": "scripts/gpu_lifecycle.py",
+   "tests": [
+    "tests/test_gpu_lifecycle_atomicity.py::test_identity_mismatch_never_signals",
+    "tests/test_gpu_lifecycle_atomicity.py::test_identity_receipt_never_names_a_foreign_process"
+   ],
+   "result": "KILLED",
+   "pytest_rc": 1,
+   "pytest_tail": "1 failed, 1 passed in 15.35s",
+   "reason": null,
+   "seconds": 15.6
+  },
+  {
+   "id": "L3",
+   "desc": "identity receipt used without the spawn-chain check",
+   "file": "scripts/gpu_lifecycle.py",
+   "tests": [
+    "tests/test_gpu_lifecycle_atomicity.py::test_identity_mismatch_never_signals",
+    "tests/test_gpu_lifecycle_atomicity.py::test_replaced_receipt_mid_session_is_refused",
+    "tests/test_gpu_lifecycle_atomicity.py::test_stale_receipt_of_an_earlier_session_is_never_used"
+   ],
+   "result": "KILLED",
+   "pytest_rc": 1,
+   "pytest_tail": "1 failed, 2 passed in 29.17s",
+   "reason": null,
+   "seconds": 29.4
+  },
+  {
+   "id": "L4",
+   "desc": "BLOCKED marker no longer refuses the next job",
+   "file": "scripts/gpu_lock.py",
+   "tests": [
+    "tests/test_gpu_lifecycle_atomicity.py::test_stubborn_server_is_blocked_and_blocks_the_next_job"
+   ],
+   "result": "KILLED",
+   "pytest_rc": 1,
+   "pytest_tail": "1 failed in 36.25s",
+   "reason": null,
+   "seconds": 36.5
+  },
+  {
+   "id": "L5",
+   "desc": "BLOCKED cleared while the recorded processes are alive",
+   "file": "scripts/gpu_lock.py",
+   "tests": [
+    "tests/test_gpu_lifecycle_atomicity.py::test_stubborn_server_is_blocked_and_blocks_the_next_job"
+   ],
+   "result": "KILLED",
+   "pytest_rc": 1,
+   "pytest_tail": "1 failed in 29.97s",
+   "reason": null,
+   "seconds": 30.2
+  },
+  {
+   "id": "L6",
+   "desc": "gateway dies on SIGTERM (RC4.1 behaviour: lock free while the child drains)",
+   "file": "scripts/gpu_lock.py",
+   "tests": [
+    "tests/test_gpu_lifecycle_atomicity.py::test_gateway_holds_flock_while_child_drains"
+   ],
+   "result": "KILLED",
+   "pytest_rc": 1,
+   "pytest_tail": "1 failed in 1.11s",
+   "reason": null,
+   "seconds": 1.3
+  },
+  {
+   "id": "L7",
+   "desc": "GPU idle floor removed (occupied device accepted)",
+   "file": "scripts/gpu_lifecycle.py",
+   "tests": [
+    "tests/test_gpu_lifecycle_atomicity.py::test_gpu_idle_floor_refuses_an_occupied_device"
+   ],
+   "result": "KILLED",
+   "pytest_rc": 1,
+   "pytest_tail": "1 failed in 0.08s",
+   "reason": null,
+   "seconds": 0.3
+  },
+  {
+   "id": "L8",
+   "desc": "GPU release no longer verified against the baseline",
+   "file": "scripts/gpu_lifecycle.py",
+   "tests": [
+    "tests/test_gpu_lifecycle_atomicity.py::test_gpu_release_must_return_to_baseline"
+   ],
+   "result": "KILLED",
+   "pytest_rc": 1,
+   "pytest_tail": "1 failed in 2.08s",
+   "reason": null,
+   "seconds": 2.3
+  },
+  {
+   "id": "L9",
+   "desc": "tree termination claimed without checking session members",
+   "file": "scripts/gpu_lifecycle.py",
+   "tests": [
+    "tests/test_gpu_lifecycle_atomicity.py::test_stubborn_scheduler_member_blocks"
+   ],
+   "result": "KILLED",
+   "pytest_rc": 1,
+   "pytest_tail": "1 failed in 8.66s",
+   "reason": null,
+   "seconds": 8.9
+  },
+  {
+   "id": "P1",
+   "desc": "probe budget unbounded again (no wall-clock deadline)",
+   "file": "scripts/gpu_identity.py",
+   "tests": [
+    "tests/test_gpu_identity.py::test_probe_hard_timeout_terminates_hung_child"
+   ],
+   "result": "KILLED",
+   "pytest_rc": 1,
+   "pytest_tail": "1 failed in 47.50s",
+   "reason": null,
+   "seconds": 47.7
+  },
+  {
+   "id": "P2",
+   "desc": "probe timeout reported as a benign unverified identity",
+   "file": "scripts/gpu_identity.py",
+   "tests": [
+    "tests/test_gpu_identity.py::test_verify_maps_probe_timeout_to_progress_timeout"
+   ],
+   "result": "KILLED",
+   "pytest_rc": 1,
+   "pytest_tail": "1 failed in 0.07s",
+   "reason": null,
+   "seconds": 0.3
+  },
+  {
+   "id": "P3",
+   "desc": "real runtime probed in-process (not interruptible)",
+   "file": "scripts/gpu_identity.py",
+   "tests": [
+    "tests/test_gpu_identity.py::test_real_torch_never_uses_in_process_probe"
+   ],
+   "result": "KILLED",
+   "pytest_rc": 1,
+   "pytest_tail": "1 failed in 0.07s",
+   "reason": null,
+   "seconds": 0.3
+  },
+  {
+   "id": "R0",
+   "desc": "stopped (SIGSTOP) scheduler worker counted as live",
+   "file": "scripts/server_readiness.py",
+   "tests": [
+    "tests/test_server_readiness.py::test_stopped_scheduler_is_not_a_live_worker"
+   ],
+   "result": "KILLED",
+   "pytest_rc": 1,
+   "pytest_tail": "1 failed in 0.07s",
+   "reason": null,
+   "seconds": 0.3
+  },
+  {
+   "id": "R0b",
+   "desc": "explicit expected model path downgraded to a loose name match",
+   "file": "scripts/server_readiness.py",
+   "tests": [
+    "tests/test_server_readiness.py::test_explicit_model_path_is_binding_even_when_the_name_matches"
+   ],
+   "result": "KILLED",
+   "pytest_rc": 1,
+   "pytest_tail": "1 failed in 0.07s",
+   "reason": null,
+   "seconds": 0.3
+  },
+  {
+   "id": "R1",
+   "desc": "wrong model advertised still READY (RC4.1 behaviour)",
+   "file": "scripts/server_readiness.py",
+   "tests": [
+    "tests/test_server_readiness.py::test_wrong_model_advertised_is_not_ready"
+   ],
+   "result": "KILLED",
+   "pytest_rc": 1,
+   "pytest_tail": "1 failed in 0.07s",
+   "reason": null,
+   "seconds": 0.3
+  },
+  {
+   "id": "R2",
+   "desc": "foreign port owner still READY",
+   "file": "scripts/server_readiness.py",
+   "tests": [
+    "tests/test_server_readiness.py::test_foreign_port_owner_is_unknown",
+    "tests/test_server_readiness.py::test_url_port_mismatch_is_unknown"
+   ],
+   "result": "KILLED",
+   "pytest_rc": 1,
+   "pytest_tail": "2 failed in 0.08s",
+   "reason": null,
+   "seconds": 0.3
+  },
+  {
+   "id": "R3",
+   "desc": "missing progress file ignored",
+   "file": "scripts/server_readiness.py",
+   "tests": [
+    "tests/test_server_readiness.py::test_progress_file_missing_is_unknown"
+   ],
+   "result": "KILLED",
+   "pytest_rc": 1,
+   "pytest_tail": "1 failed in 0.07s",
+   "reason": null,
+   "seconds": 0.3
+  },
+  {
+   "id": "R4",
+   "desc": "canary trusts file size instead of decoding",
+   "file": "scripts/server_readiness.py",
+   "tests": [
+    "tests/test_server_readiness.py::test_canary_decodes_audio_for_real"
+   ],
+   "result": "KILLED",
+   "pytest_rc": 1,
+   "pytest_tail": "2 failed, 2 passed in 2.11s",
+   "reason": null,
+   "seconds": 2.3
+  },
+  {
+   "id": "R5",
+   "desc": "stale leftover canary file no longer removed first",
+   "file": "scripts/server_readiness.py",
+   "tests": [
+    "tests/test_server_readiness.py::test_canary_stale_leftover_file_is_not_success"
+   ],
+   "result": "KILLED",
+   "pytest_rc": 1,
+   "pytest_tail": "1 failed in 0.65s",
+   "reason": null,
+   "seconds": 0.8
+  }
+ ],
+ "tool": "scripts/mutation_controls_rc5.py (isolated copy, byte-exact restore)",
+ "gaps_found_and_closed": [
+  "L2/L3 survived the first round: two redundant guards shared one oracle -> dedicated tests added",
+  "D6 survived: the driver test did not check the seed actually sent -> official-seed assertion added"
+ ]
+}

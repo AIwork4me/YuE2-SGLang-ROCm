@@ -328,9 +328,16 @@ class TestArmBLauncherAndAcceptance:
         p = REPO / "scripts/campaign_ops/run_armB_campaign.sh"
         assert p.is_file()
         src = p.read_text()
-        for needle in ("flock -n 9", "driver_alive.py", "gpu_lock.py",
-                       "server_identity.py", "run_wsb.py", "stop_server"):
+        # RC5 M1.1: the verified server stop is owned by the single-owner
+        # lifecycle supervisor (scripts/gpu_lifecycle.py) that the launcher
+        # execs into; the launcher itself must no longer run a trap-driven
+        # stop after a background gateway released the lock (the RC4.1 race).
+        for needle in ("flock -n 9", "driver_alive.py", "gpu_lifecycle.py",
+                       "run_wsb.py", "verified stop"):
             assert needle in src, f"launcher must include {needle}"
+        assert "exec \"$PY_B\" \"$REPO/scripts/gpu_lifecycle.py\"" in src
+        assert "trap on_exit EXIT" not in src and "trap 'on_exit" not in src, \
+            "launcher must not stop the server from an EXIT trap after unlock"
 
     def test_armB_launcher_resumes_existing_run_id(self):
         src = (REPO / "scripts/campaign_ops/run_armB_campaign.sh").read_text()

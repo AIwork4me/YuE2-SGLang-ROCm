@@ -1,0 +1,55 @@
+control_id,area,tool_under_test,injected_condition,expected,observed,where,kind
+NC-01,lifecycle,run_with_server.sh @ RC4.1 6f1b7f7,wrapped command returns while the server needs 6 s to stop,defect: lock free while server alive,REPRODUCED 47 samples over 5.96 s (first at +0.03 s),01_LOCK_RACE_REPRO.json,negative control on the OLD code
+NC-02,lifecycle,run_with_server.sh @ RC5,same injection,lock held until the server is gone,0 race samples; rc 0,01_LOCK_RACE_REPRO.json,positive control
+NC-03,lifecycle,gpu_lifecycle.py,second job started while job A is parked inside cleanup (deterministic barrier),refused: lock unavailable,no lifecycle receipt written by job B; A still holds the lock,test_gpu_lifecycle_atomicity.py::test_second_job_cannot_take_the_lock_during_cleanup,real processes
+NC-04,lifecycle,gpu_lifecycle.py,SIGINT during the driver,exit 130 after cleanup,cleanup CLEAN; lock free,test_gpu_lifecycle_atomicity.py::test_signals_clean_before_unlock[2-130],real processes
+NC-05,lifecycle,gpu_lifecycle.py,SIGTERM during the driver,exit 143 after cleanup,cleanup CLEAN; lock free,test_gpu_lifecycle_atomicity.py::test_signals_clean_before_unlock[15-143],real processes
+NC-06,lifecycle,gpu_lifecycle.py,second signal arriving during cleanup,cleanup not disturbed,exit 143; CLEAN,test_gpu_lifecycle_atomicity.py::test_second_signal_during_cleanup_does_not_break_it,real processes
+NC-07,lifecycle,gpu_lifecycle.py,server never healthy; no identity receipt,owned process stopped through the spawn receipt,spawned pid gone; no orphan,test_gpu_lifecycle_atomicity.py::test_boot_failure_without_receipt_stops_the_owned_process,real processes
+NC-08,lifecycle,gpu_lifecycle.py,foreign process owns the port and answers /health,never signalled; identity step fails,foreign alive; rc 1,test_gpu_lifecycle_atomicity.py::test_identity_mismatch_never_signals,real processes
+NC-09,lifecycle,gpu_lifecycle.py,foreign listener + capture not pinned to the spawned pid (mutation L2),no receipt naming a foreign pid,mutant killed,test_gpu_lifecycle_atomicity.py::test_identity_receipt_never_names_a_foreign_process,mutation
+NC-10,lifecycle,gpu_lifecycle.py,valid receipt of an earlier session in the receipt dir,moved aside; never used,stale-*.json exists; foreign alive,test_gpu_lifecycle_atomicity.py::test_stale_receipt_of_an_earlier_session_is_never_used,real processes
+NC-11,lifecycle,gpu_lifecycle.py,receipt replaced mid-session by a valid receipt of another process (mutation L3 kills the guard),refused: RECEIPT_NOT_OURS; own server stopped via spawn receipt,foreign alive; stop_server basis spawn_receipt,test_gpu_lifecycle_atomicity.py::test_replaced_receipt_mid_session_is_refused,real processes + mutation
+NC-12,lifecycle,gpu_lock.py,server ignores SIGINT+SIGTERM,BLOCKED; next job refused; unblock needs --yes and dead processes,marker written; job B refused; unblock rc 3 while alive rc 0 after,test_gpu_lifecycle_atomicity.py::test_stubborn_server_is_blocked_and_blocks_the_next_job,real processes
+NC-13,lifecycle,gpu_lifecycle.py,scheduler member survives SIGTERM,BLOCKED with that pid,member listed in blocked_processes,test_gpu_lifecycle_atomicity.py::test_stubborn_scheduler_member_blocks,real processes
+NC-14,lifecycle,gpu_lock.py wait gateway,SIGTERM to the gateway while its child drains,lock stays held until the child exits,held at +1 s; gateway rc = child rc; released after,test_gpu_lifecycle_atomicity.py::test_gateway_holds_flock_while_child_drains,real processes
+NC-15,lifecycle,gpu_lifecycle.py,VRAM already in use before boot,refuse to start,BUSY (unit),test_gpu_lifecycle_atomicity.py::test_gpu_idle_floor_refuses_an_occupied_device,unit
+NC-16,lifecycle,gpu_lifecycle.py,VRAM not back at baseline after stop,lifecycle FAILED,NOT_RELEASED (unit),test_gpu_lifecycle_atomicity.py::test_gpu_release_must_return_to_baseline,unit
+NC-17,ownership,server_identity.py,spawn receipt pid alive but starttime differs (PID reuse),refuse rc 2; no signal,IdentError 2; no signal,test_server_identity_spawn.py,unit (mocked /proc)
+NC-18,ownership,server_identity.py,spawn receipt session differs from the process session,refuse rc 3,IdentError 3,test_server_identity_spawn.py,unit
+NC-19,ownership,server_identity.py stop-spawned,leader ignores signals; look-alike pid 900 outside the session,only pid 500/501/502 signalled; never 900; never SIGKILL,blocked rc 5; 900 untouched,test_server_identity_spawn.py,unit via CLI
+NC-20,probe,gpu_identity.py,probe child hangs,terminated at the wall-clock deadline; GPU_PROGRESS_TIMEOUT,ProbeTimeout at 2 s budget; child reaped,test_gpu_identity.py::test_probe_hard_timeout_terminates_hung_child,real child process
+NC-21,probe,gpu_identity.py,probe child fails,GPU_EXECUTION_FAILED,Raised; mapped rc 5,test_gpu_identity.py::test_probe_child_failure_is_execution_failed,real child process
+NC-22,probe,gpu_identity.py,timeout with uninterruptible child / VRAM not released,device_state BLOCKED,BLOCKED in receipt,test_gpu_identity.py::test_verify_timeout_with_unrecovered_device_is_blocked,unit
+NC-23,probe,gpu_identity.py,real runtime (non-injected torch),must use the isolated child probe,isolated path taken once,test_gpu_identity.py::test_real_torch_never_uses_in_process_probe,unit
+NC-24,identity,gpu_identity.py,arch gfx1151 when gfx1100 expected,GPU_DEVICE_MISMATCH rc 3,MISMATCH,test_gpu_identity.py::test_arch_mismatch_fails_loud,unit
+NC-25,identity,gpu_identity.py,CUDA-only torch build,MISMATCH,MISMATCH,test_gpu_identity.py::test_cuda_only_build_rejected,unit
+NC-26,identity,gpu_identity.py,no GPU and no CPU authorization,GPU_UNAVAILABLE rc 4; never a silent CPU fallback,UNAVAILABLE,test_gpu_identity.py::test_gpu_unavailable_without_cpu_auth,unit
+NC-27,identity,gpu_identity.py,explicit CPU test authorization,CPU_TEST_MODE_AUTHORIZED (never a GPU PASS),as expected,test_gpu_identity.py::test_cpu_authorized_is_test_mode_not_gpu_pass,unit
+NC-28,identity,gpu_identity.py,framework props without PCI ids,MISMATCH (cannot bind),MISMATCH,test_gpu_identity.py::test_framework_without_pci_ids_fails_closed,unit
+NC-29,identity,gpu_identity.py,container given GPU #5 of 8 identical cards,binds 0000:a3:00.0 (not the first card),bound_bdf 0000:a3:00.0; first card's address -> MISMATCH,test_gpu_identity.py::test_container_given_gpu5_of_8_binds_the_exposed_device,unit (multi-GPU simulation)
+NC-30,identity,gpu_identity.py,two identical GPUs both visible,each index binds its own slot,0000:03 / 0000:23,test_gpu_identity.py::test_multi_gpu_same_arch_disambiguated_by_bdf,unit (multi-GPU simulation)
+NC-31,identity,gpu_identity.py,framework sees 2 devices / container exposes 1,MISMATCH (ambiguous),MISMATCH,test_gpu_identity.py::test_device_count_mismatch_is_ambiguous,unit
+NC-32,identity,gpu_identity.py,PCI slot with GPU (class 03) + audio function (class 04),GPU function selected,0000:23:00.0,test_gpu_identity.py::test_second_pci_function_audio_is_not_the_gpu,unit (found on the real W7900)
+NC-33,identity,gpu_identity.py,two display-class functions,MISMATCH,MISMATCH,test_gpu_identity.py::test_two_display_class_functions_are_ambiguous,unit
+NC-34,identity,gpu_identity.py,render node not exposed to the container,MISMATCH,MISMATCH,test_gpu_identity.py::test_render_node_not_exposed_to_container,unit
+NC-35,identity,gpu_identity.py,unique-id mismatch / KFD device-id mismatch,MISMATCH,MISMATCH,test_gpu_identity.py,unit
+NC-36,identity,gpu_identity.py,expected BDF != bound BDF,MISMATCH,MISMATCH,test_gpu_identity.py::test_wrong_bdf_mismatch,unit
+NC-37,readiness,server_readiness.py,/health 200 and scheduler SIGKILLed,WORKER_DEAD rc 3,WORKER_DEAD,test_server_readiness.py::test_worker_dead_http_200_is_not_ready,unit
+NC-38,readiness,server_readiness.py,zombie scheduler,WORKER_DEAD,WORKER_DEAD,test_server_readiness.py::test_zombie_scheduler_counts_as_dead,unit
+NC-39,readiness,server_readiness.py,SIGSTOPped scheduler (state T) with /health 200,WORKER_DEAD (state T disclosed),WORKER_DEAD,test_server_readiness.py::test_stopped_scheduler_is_not_a_live_worker,unit
+NC-40,readiness,server_readiness.py,/health 200 + another model advertised,UNKNOWN rc 4,UNKNOWN,test_server_readiness.py::test_wrong_model_advertised_is_not_ready,unit
+NC-41,readiness,server_readiness.py,/health 200 answered by a process that is not the receipt server (foreign listen socket),UNKNOWN rc 4,UNKNOWN,test_server_readiness.py::test_foreign_port_owner_is_unknown,unit
+NC-42,readiness,server_readiness.py,URL port != receipt port,UNKNOWN,UNKNOWN,test_server_readiness.py::test_url_port_mismatch_is_unknown,unit
+NC-43,readiness,server_readiness.py,/health 200 but no LISTEN socket on the port,UNKNOWN,UNKNOWN,test_server_readiness.py::test_http_200_without_any_listener_is_unknown,unit
+NC-44,readiness,server_readiness.py,worker alive but the progress file is stale,BUSY + rc 6,rc 6,test_server_readiness.py::test_progress_file_deadline,unit
+NC-45,readiness,server_readiness.py,configured progress file missing,UNKNOWN rc 4,UNKNOWN,test_server_readiness.py::test_progress_file_missing_is_unknown,unit
+NC-46,readiness,server_readiness.py,canary audio is 4 KB of zeros (> 1024 bytes),FAIL (RC4.1 accepted it),rc 5,test_server_readiness.py::test_canary_decodes_audio_for_real[garbage],real HTTP stub
+NC-47,readiness,server_readiness.py,canary audio is digital silence,FAIL,rc 5,test_server_readiness.py::test_canary_decodes_audio_for_real[silence],real HTTP stub
+NC-48,readiness,server_readiness.py,canary audio is 16 kHz mono,FAIL,rc 5,test_server_readiness.py::test_canary_decodes_audio_for_real[mono16k],real HTTP stub
+NC-49,readiness,server_readiness.py,leftover canary file from an earlier run,removed before the request; never satisfies the check,removed,test_server_readiness.py::test_canary_stale_leftover_file_is_not_success,real HTTP stub
+NC-50,driver,rc5_generate.py,resume of a complete run,0 requests to the server,Stub.calls == [],test_rc5_generate_driver.py::test_resume_never_regenerates_verified_candidates,integration
+NC-51,driver,rc5_generate.py,published bundle truncated on disk,quarantined + regenerated (attempt 2); evidence kept,as expected,test_rc5_generate_driver.py::test_damaged_bundle_is_quarantined_and_regenerated,integration
+NC-52,driver,rc5_generate.py,run identity changed between launches,refuse rc 3,rc 3,test_rc5_generate_driver.py::test_identity_drift_is_refused,integration
+NC-53,driver,rc5_generate.py,server answers 500 for one candidate,retried in sweeps; never published; rc 1,as expected,test_rc5_generate_driver.py::test_transient_failures_are_retried_in_sweeps,integration
+NC-54,driver,rc5_generate.py,runtime disk below the 20 GiB floor,stop before the next request (found by accident: pytest tmpfs),disk_guard_stop,observed during test development,real

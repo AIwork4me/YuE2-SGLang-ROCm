@@ -25,6 +25,7 @@ REAL = {
     "scripts/server_identity.py": None,
     "scripts/server_readiness.py": None,
     "scripts/gpu_identity.py": None,
+    "scripts/gpu_lifecycle.py": None,
     "scripts/campaign_ops/run_with_server.sh": None,
 }
 
@@ -134,7 +135,11 @@ class FakeStack:
         venv_bin = self.ws / "environments/yue2-gfx1100/bin"
         venv_bin.mkdir(parents=True, exist_ok=True)
         py = venv_bin / "python"
-        py.write_text(f"#!/bin/sh\nexec {sys.executable} \"$@\"\n")
+        # Accelerators are hidden (non-existent device index): a torch-enabled
+        # host interpreter then takes the sanctioned CPU test path instead of
+        # probing the REAL GPU, so the supervisor's VRAM idle floor does not
+        # (correctly) refuse to start while another workload holds the device.
+        py.write_text(f"#!/bin/sh\nexec env HIP_VISIBLE_DEVICES=99 CUDA_VISIBLE_DEVICES= {sys.executable} \"$@\"\n")
         py.chmod(0o755)
         (self.ws / "models").mkdir(parents=True, exist_ok=True)
 
@@ -149,6 +154,9 @@ class FakeStack:
             "RWS_HEALTH_TIMEOUT_S": "60",
             "RWS_HEALTH_POLL_S": "1",
             "RWS_STOP_TIMEOUT_S": "30",
+            "RWS_DRAIN_S": "3",
+            "RWS_PORT_RELEASE_TIMEOUT_S": "3",
+            "RWS_GPU_RELEASE_TIMEOUT_S": "3",
             "STUB_PY": str(self.stub / "python"),
             "STUB_DIR": str(self.stub),
             # sanctioned CPU test-mode token (gpu_identity contract): the
