@@ -1,5 +1,11 @@
 # RC5 阶段性状态（供审阅，非最终报告）
 
+> **[SUPERSEDED — RC5.1]** 本快照冻结于 2026-11-24T13:47Z（当时进度 20/384，
+> 暂停状态）。它保留其时间线身份，**不反映当前进度**：RC5.1 已恢复并完成
+> 全量生成与五项评测。最新状态与最终结论见
+> [`rc5_1/FINAL_REPORT_ZH.md`](rc5_1/FINAL_REPORT_ZH.md) 与
+> [`rc5_1/08_RELEASE_GATE_LEDGER.json`](rc5_1/08_RELEASE_GATE_LEDGER.json)。
+
 快照时间：2026-11-24T13:47:00Z。**本文件是进行中的快照**，最终结论以 `FINAL_REPORT_ZH.md` 为准。
 尚未完成的项一律如实标注，不以计划或推测代替结果。
 
