@@ -55,6 +55,10 @@ ARGS=(--workspace "$WS" --run-dir "$RUN_DIR" --run-id "$RUN_ID"
       --server-receipt "$LOG_DIR/rws_server_identity/server-identity.json"
       --server-log "$LOG_DIR/server_yue2_gfx1100.log"
       --checkpoint-every "${RC5_CHECKPOINT_EVERY:-16}")
+# the generation RUNTIME (sglang tree, models, dataset, env) is frozen; the
+# driver script itself was fixed during RC5.1 (tail checkpoint, resume gate).
+# Accepting the audited driver revision is OPT-IN and journal-disclosed.
+[ "${RC5_ALLOW_DRIVER_UPDATE:-0}" = "1" ] && ARGS+=(--allow-driver-update)
 [ ${#IDX[@]} -gt 0 ] && ARGS+=(--indices "${IDX[@]}")
 [ -n "${RC5_BACKUP_DIR:-}" ] && ARGS+=(--backup-dir "$RC5_BACKUP_DIR"
                                         --backup-class "${RC5_BACKUP_CLASS:-UNSPECIFIED}")
