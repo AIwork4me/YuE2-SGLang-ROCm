@@ -1,0 +1,19 @@
+{
+ "schema": "yue2-rc5-per-causal-pilot/1",
+ "stage": "PILOT (12 unselected candidates) \u2014 preliminary, NOT the final PER verdict",
+ "audio": "official evaluator MP3 (192k) of the RC5 pilot candidates; identical bytes for E1 and E4",
+ "E1": {
+  "engine": "Qwen3-ASR-1.7B via qwen_asr transformers backend on ROCm (torch 2.10.0+rocm7.14.1, bf16, sdpa), official scoring path, 4 repeats, cap 4096",
+  "variant": "ASR batch_size=1",
+  "micro_per": 0.665438
+ },
+ "E4": {
+  "engine": "openai/whisper-large-v3-turbo (unrelated model family), CPU fp32, 30 s windows, language forced, scored with the official phoneme scorer",
+  "micro_reference_per": 0.405323,
+  "note": "diagnostic only; NOT a WildSongBench metric"
+ },
+ "empty_transcript_candidates": 4,
+ "empty_transcript_candidates_where_reference_asr_hears_lyrics": 4,
+ "reading": "Qwen3-ASR (ROCm transformers) returned nothing for 4 English candidates that an unrelated ASR transcribes at 0.09-0.33 reference PER: the audio is intelligible; the failure is on the ASR side. Root cause (backend logic vs ROCm numerics vs model behaviour) is NOT yet established \u2014 E2 (vLLM engine) and the precision/attention/batch arms are pending.",
+ "E2_E3_E7": "NOT_RUN: official ROCm vLLM wheel index blocked by egress proxy (E2 alternative build downloaded, untested); no CUDA host (E3/E7)"
+}

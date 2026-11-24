@@ -1,0 +1,70 @@
+{
+ "schema": "yue2-rc5-q3o-memory-budget/1",
+ "model": {
+  "repo_id": "Qwen/Qwen3-Omni-30B-A3B-Instruct",
+  "revision": "26291f793822fb6be9555850f06dfe95f2d7e695",
+  "source": "frozen evaluator configs/evaluation_assets.json (bundle 2026.09.09.2)",
+  "dtype": "bfloat16 (config dtype)",
+  "total_bytes": 70519637090,
+  "total_GiB": 65.677,
+  "total_parameters": 35259818545,
+  "note": "'30B-A3B' = total parameters / active parameters per token; it does NOT mean 3 GB or 30 GB of weights"
+ },
+ "components_GiB": {
+  "thinker_total": 59.08,
+  "thinker_moe_experts": 54.0,
+  "thinker_dense_attn_embed_lmhead": 2.871,
+  "thinker_audio_tower": 1.207,
+  "thinker_visual": 1.002,
+  "talker_total": 6.194,
+  "code2wav_total": 0.404,
+  "experts_per_layer": 2.25
+ },
+ "official_protocol_needs": {
+  "audio_judge": "thinker (text MoE + audio tower) only: system prompt + [audio, text] -> JSON judgement",
+  "not_needed_for_text_judgement": [
+   "talker (speech generation)",
+   "code2wav (vocoder)",
+   "thinker.visual (no image input)"
+  ],
+  "weight_judgements": "FROZEN per (prompt, candidate) in data/wsb_q3o_candidate_weights.jsonl - never re-run"
+ },
+ "official_runtime": {
+  "engine": "vLLM 0.14.0 (CUDA 12.8 build)",
+  "attention": "flash-attn 2.8.3 (asserted by vendor/wsb_q3o.py)",
+  "gpu_memory_utilization": 0.86,
+  "max_model_len": 32768,
+  "max_num_seqs": 1,
+  "decoding": "greedy (temperature 0.0, top_p 1.0, top_k -1), max_tokens 1024",
+  "documented_requirement": "'Use an 80 GB NVIDIA GPU for Q3O' (bundle README)"
+ },
+ "this_host": {
+  "gpu": "AMD Radeon Pro W7900D gfx1100",
+  "vram_total_GiB": 47.98,
+  "vram_usable_estimate_GiB": 44.62,
+  "host_cgroup_memory_GiB": 55.0,
+  "swap": 0
+ },
+ "why_it_does_not_fit_as_is": {
+  "thinker_only_bf16_GiB": 58.078,
+  "thinker_without_visual_vs_usable": "58.08 GiB > ~44.6 GiB usable: BF16 thinker alone exceeds the device",
+  "full_model": "65.68 GiB: exceeds VRAM by 17.7 GiB and the 55 GiB host cgroup by 10.68 GiB (no full-precision CPU copy is possible either)"
+ },
+ "feasible_plan_Q2": {
+  "idea": "BF16, thinker-only (no visual), module-granular mixed placement with stock accelerate hooks",
+  "gpu_resident": {
+   "dense (attention, embeddings, lm_head)": 2.871,
+   "audio_tower": 1.207,
+   "moe_experts_of_layers_on_gpu": "16 of 24 layers x 2.250 GiB = 36.00 GiB",
+   "kv_cache_and_activations_estimate": 3.0,
+   "total_estimate_GiB": 43.08
+  },
+  "cpu_resident": {
+   "moe_experts_of_layers_on_cpu": "8 of 24 layers x 2.250 GiB = 18.00 GiB (cgroup limit 55 GiB)"
+  },
+  "compute_consequence": "per token each layer activates 8 of 256 experts: CPU layers do small batch-1 expert MLPs on CPU (cheap FLOPs, ~600 MB weight reads/token across the 8 CPU layers)",
+  "precision": "BF16 weights and BF16 compute everywhere - no quantization",
+  "status": "PLANNED - measured values will replace estimates after the pilot"
+ },
+ "status": "BUDGET_COMPUTED_FROM_SAFETENSORS_HEADERS; routes Q0..Q5 to be executed in M7"
+}
