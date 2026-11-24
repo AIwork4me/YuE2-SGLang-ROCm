@@ -297,6 +297,12 @@ def test_cli_exit_codes(monkeypatch, capsys):
 
 
 def test_cli_exit_codes_with_fake_sysfs(tmp_path, monkeypatch, capsys):
+    """CLI plumbing with a fake sysfs. A fake torch injected into THIS process
+    cannot be seen by the isolated probe child (which imports the real
+    runtime): the probe is stubbed here so the test does not depend on — or
+    silently exercise — whatever GPU the host happens to have (the first
+    version passed on a GPU host only because the child probed the real
+    device, and failed on a torch-less CI runner)."""
     _root, sysr, dri = single(tmp_path)
     monkeypatch.setattr(gi, "_load_torch", lambda: fake_torch())
     rc = gi.main(["verify", "--expect-arch", "gfx1100", "--skip-probe",
@@ -305,10 +311,16 @@ def test_cli_exit_codes_with_fake_sysfs(tmp_path, monkeypatch, capsys):
     out = json.loads(capsys.readouterr().out)
     assert out["status"] == "GPU_EXECUTION_UNVERIFIED"
     assert out["device"]["pci_bdf"] == "0000:23:00.0"
+    calls = []
+    monkeypatch.setattr(gi, "probe_isolated",
+                        lambda *a, **k: calls.append((a, k)) or {"probe": "stub-child"})
     rc = gi.main(["verify", "--expect-arch", "gfx1100", "--sys-root", sysr,
                   "--dev-dri", dri])
     assert rc == 0
-    assert json.loads(capsys.readouterr().out)["status"] == "GPU_EXECUTION_VERIFIED"
+    out = json.loads(capsys.readouterr().out)
+    assert out["status"] == "GPU_EXECUTION_VERIFIED"
+    assert len(calls) == 1                      # the isolated path, exactly once
+    assert calls[0][1].get("card") == "card35"  # bound to the FAKE device's card
 
 
 def test_cli_gpu_unavailable_rc4(monkeypatch):
