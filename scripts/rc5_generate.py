@@ -299,6 +299,40 @@ def environment_hash(python: str) -> str | None:
 
 
 # --------------------------------------------------------------- driver
+# ------------------------------------------------------- resume decision
+# Pure decision function (unit-testable without torch/sglang): what may drift
+# on resume, what must match exactly, and what needs an explicit flag.
+PER_SESSION_KEYS = {"driver_repo_dirty", "created_at_utc",
+                    "server_identity_is_per_launch", "server_log",
+                    "driver_repo_head", "driver_sha256", "gpu"}
+GPU_FROZEN_KEYS = ("name", "arch", "pci_bdf", "uuid", "drm_card", "identity_status")
+
+
+def resume_decision(prev: dict, ident: dict, allow_driver_update: bool) -> dict:
+    """Compare a frozen run_config identity with the identity just measured.
+    Returns {drift, repo_head_moved, driver_changed, accept, reason} — drift
+    non-empty or an unaccepted driver change means FATAL, never a silent
+    rewrite of run_config.json."""
+    drift = {k: (prev.get(k), ident.get(k)) for k in ident
+             if k not in PER_SESSION_KEYS and prev.get(k) != ident.get(k)}
+    prev_gpu, new_gpu = prev.get("gpu") or {}, ident.get("gpu") or {}
+    for k in GPU_FROZEN_KEYS:
+        if prev_gpu.get(k) != new_gpu.get(k):
+            drift[f"gpu.{k}"] = (prev_gpu.get(k), new_gpu.get(k))
+    head_moved = prev.get("driver_repo_head") != ident.get("driver_repo_head")
+    driver_changed = prev.get("driver_sha256") != ident.get("driver_sha256")
+    if drift:
+        return {"drift": drift, "repo_head_moved": head_moved,
+                "driver_changed": driver_changed, "accept": False,
+                "reason": "frozen_generation_identity_drift"}
+    if driver_changed and not allow_driver_update:
+        return {"drift": {}, "repo_head_moved": head_moved,
+                "driver_changed": True, "accept": False,
+                "reason": "driver_script_changed_without_allow_driver_update"}
+    return {"drift": {}, "repo_head_moved": head_moved,
+            "driver_changed": driver_changed, "accept": True, "reason": "ok"}
+
+
 class Campaign:
     def __init__(self, a):
         self.a = a
@@ -389,7 +423,9 @@ class Campaign:
         ident["server_log"] = str(self.a.server_log) if self.a.server_log else None
         return ident
 
-    def setup(self) -> int:
+    def load_protocol(self) -> int:
+        """Frozen protocol pins shared by every mode (generate / resume /
+        checkpoint-only): dataset manifest, the 192 rows, the selection."""
         if self.manifest_sha != DATASET_MANIFEST_SHA:
             print(f"FATAL: dataset manifest sha {self.manifest_sha} != frozen pin")
             return 3
@@ -404,26 +440,10 @@ class Campaign:
             return 2
         for d in (self.run_dir, self.songs, self.wavs, self.staging, self.checkpoints):
             d.mkdir(parents=True, exist_ok=True)
-        ident = self.build_identity()
-        if self.server.get("import_path_consistent_with_driver") is False:
-            return 3   # never drive a server whose code differs from the audited tree
-        cfg = self.run_dir / "run_config.json"
-        if cfg.is_file():
-            prev = read_json(cfg)
-            # resume: every identity field must match except wall-clock metadata
-            skip = {"driver_repo_dirty", "created_at_utc", "server_identity_is_per_launch"}
-            drift = {k: (prev.get(k), ident.get(k)) for k in ident
-                     if k not in skip and prev.get(k) != ident.get(k)}
-            if drift:
-                print("FATAL: run_config.json identity drift on resume (never mix runs): "
-                      + ", ".join(sorted(drift)))
-                for k in sorted(drift):
-                    print(f"   {k}: {str(drift[k][0])[:80]} -> {str(drift[k][1])[:80]}")
-                return 3
-        else:
-            write_json_durable(cfg, ident)
-        self.ident = ident
-        # evaluation_inputs.jsonl: write-once, byte-exact on resume
+        return 0
+
+    def prepare_inputs(self) -> int:
+        """evaluation_inputs.jsonl: write-once, byte-exact on resume."""
         inputs = []
         for row in self.rows_selected:
             for j, seed in enumerate(row["candidate_ar_seeds"][:2]):
@@ -443,9 +463,110 @@ class Campaign:
                 f.flush()
                 os.fsync(f.fileno())
             fsync_dir(self.run_dir)
-        self.event("launch", driver_pid=os.getpid(), server=self.server,
-                   expected=len(inputs))
         return 0
+
+    def setup(self) -> int:
+        rc = self.load_protocol()
+        if rc:
+            return rc
+        ident = self.build_identity()
+        if self.server.get("import_path_consistent_with_driver") is False:
+            return 3   # never drive a server whose code differs from the audited tree
+        cfg = self.run_dir / "run_config.json"
+        if cfg.is_file():
+            prev = read_json(cfg)
+            # Resume gate. The FROZEN generation identity must match exactly:
+            # runtime (imported SGLang + torch), environment freeze, dataset,
+            # models, official config, candidate selection, GPU card identity
+            # and the official verifier. Three classes of fields are allowed
+            # to differ, and every difference is DISCLOSED in the journal:
+            #   * wall-clock metadata (created_at_utc, dirty flag);
+            #   * per-session paths (gpu/server receipts, server log): each
+            #     session owns a new lifecycle directory by design;
+            #   * the driver revision pointer (repo head, script hash). The
+            #     driver is orchestration, not the generation runtime: a head
+            #     move with an IDENTICAL driver hash (docs / CI commits) is
+            #     recorded and allowed; a driver hash change additionally
+            #     requires --allow-driver-update so it can never slip in
+            #     silently. run_config.json itself is never rewritten.
+            per_session = PER_SESSION_KEYS  # documented above resume_decision()
+            decision = resume_decision(prev, ident,
+                                       bool(getattr(self.a, "allow_driver_update", False)))
+            if not decision["accept"]:
+                print(f"FATAL: resume rejected ({decision['reason']}); "
+                      "run_config.json is never rewritten to hide this")
+                for k in sorted(decision["drift"]):
+                    print(f"   {k}: {str(decision['drift'][k][0])[:80]} -> "
+                          f"{str(decision['drift'][k][1])[:80]}")
+                if decision["reason"] == "driver_script_changed_without_allow_driver_update":
+                    print(f"   driver_sha256: {str(prev.get('driver_sha256'))[:16]} -> "
+                          f"{str(ident.get('driver_sha256'))[:16]} "
+                          "(review the diff, then pass --allow-driver-update)")
+                return 3
+            if decision["repo_head_moved"]:
+                self.event("repo_head_moved",
+                           previous_head=prev.get("driver_repo_head"),
+                           current_head=ident.get("driver_repo_head"),
+                           driver_sha256_unchanged=not decision["driver_changed"])
+            if decision["driver_changed"]:
+                self.event("driver_revision_accepted",
+                           previous_sha256=prev.get("driver_sha256"),
+                           current_sha256=ident.get("driver_sha256"),
+                           previous_repo_head=prev.get("driver_repo_head"),
+                           current_repo_head=ident.get("driver_repo_head"))
+        else:
+            write_json_durable(cfg, ident)
+        self.ident = ident
+        rc = self.prepare_inputs()
+        if rc:
+            return rc
+        self.event("launch", driver_pid=os.getpid(), server=self.server,
+                   expected=len(self.inputs))
+        return 0
+
+    def checkpoint_closure(self) -> int:
+        """Audit every existing candidate with the official verifier and
+        close the checkpoint tail: any complete candidate that is not in any
+        existing checkpoint archive gets an incremental checkpoint now
+        (plus the second-volume backup when --backup-dir is given). This
+        mode NEVER contacts the generation server and never rewrites
+        run_config.json; it is safe to run while the GPU is busy elsewhere
+        or while the campaign is paused."""
+        rc = self.load_protocol()
+        if rc:
+            return rc
+        cfg = self.run_dir / "run_config.json"
+        if not cfg.is_file():
+            print("FATAL: --checkpoint-only needs an existing frozen run "
+                  "(run_config.json missing)")
+            return 3
+        self.ident = read_json(cfg)          # frozen identity, never rewritten
+        rc = self.prepare_inputs()
+        if rc:
+            return rc
+        started = self.event("checkpoint_closure_started", driver_pid=os.getpid())
+        self.audit_existing()
+        checkpointed: set[str] = set()
+        for mf in sorted(self.checkpoints.glob("*.manifest.json")):
+            try:
+                m = read_json(mf)
+            except (OSError, ValueError):
+                continue
+            checkpointed |= set(m.get("candidates") or {})
+        todo = sorted(self.complete - checkpointed)
+        rec = self.checkpoint("incremental", todo) if todo else None
+        out = {"mode": "checkpoint_only",
+               "started_ts": started["ts"],
+               "complete_verified": len(self.complete),
+               "already_checkpointed": len(checkpointed & self.complete),
+               "closure_candidates": todo,
+               "checkpoint": ({k: rec[k] for k in ("kind", "complete_count", "archive",
+                                                   "bytes", "archive_sha256",
+                                                   "manifest_sha256")}
+                              if rec else None)}
+        self.event("checkpoint_closure_finished", **out)
+        print(json.dumps(out, indent=1))
+        return 0 if all(cid in self.complete for cid in self.failed) else 1
 
     # -------------------------------------------------------------- resume
     def replay_journal(self) -> dict:
@@ -830,7 +951,12 @@ class Campaign:
                 if len(new_ids) >= self.a.checkpoint_every:
                     self.checkpoint("incremental", new_ids)
                     new_ids = []
-            if new_ids and not STOP.is_set():
+            # Tail checkpoint: ALWAYS written when candidates are complete but
+            # not yet archived — including a SIGTERM/SIGINT pause. Local I/O
+            # only (tar + zstd of already-validated bundles), no GPU work, so
+            # a pause never again leaves the last few candidates unprotected
+            # (RC5.1 P0.1.2: candidates 17-20 were exactly this gap).
+            if new_ids:
                 self.checkpoint("incremental", new_ids)
                 new_ids = []
             if server_unusable or STOP.is_set() or not todo:
@@ -912,6 +1038,14 @@ def main() -> int:
     ap.add_argument("--server-receipt", type=Path, default=None)
     ap.add_argument("--server-log", type=Path, default=None,
                     help="the server's log file (exact stage timings, boot header)")
+    ap.add_argument("--checkpoint-only", action="store_true",
+                    help="audit every existing candidate with the official "
+                         "verifier and close the checkpoint tail; never "
+                         "contacts the server (safe while paused)")
+    ap.add_argument("--allow-driver-update", action="store_true",
+                    help="accept a changed generation-driver script on resume; "
+                         "the revision transition is recorded in the journal "
+                         "and run_config.json is never rewritten")
     a = ap.parse_args()
 
     def on_signal(signum, _frame):
@@ -921,7 +1055,10 @@ def main() -> int:
                   flush=True)
     signal.signal(signal.SIGINT, on_signal)
     signal.signal(signal.SIGTERM, on_signal)
-    return Campaign(a).run()
+    camp = Campaign(a)
+    if a.checkpoint_only:
+        return camp.checkpoint_closure()
+    return camp.run()
 
 
 if __name__ == "__main__":

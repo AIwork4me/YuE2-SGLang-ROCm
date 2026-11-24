@@ -18,9 +18,29 @@ from pathlib import Path
 import pytest
 
 REPO = Path(__file__).resolve().parents[1]
-spec = importlib.util.spec_from_file_location("rc5_q3o_moe", REPO / "scripts" / "rc5_q3o_moe.py")
-M = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(M)
+_M = None
+
+
+def _skip_without_torch():
+    """importorskip, robust both to a missing torch (CI: ModuleNotFoundError
+    -> skip) and to a torch installation that raises on import (broken
+    install: newer pytest propagates the ImportError -> skip explicitly)."""
+    try:
+        return pytest.importorskip("torch")
+    except ImportError:
+        pytest.skip("torch is not importable on this host")
+
+
+def _module(torch):
+    """Load scripts/rc5_q3o_moe.py lazily: it imports torch at module level and
+    CI has no torch, so the import must happen inside the tests (which skip
+    honestly without torch), never at collection time."""
+    global _M
+    if _M is None:
+        spec = importlib.util.spec_from_file_location("rc5_q3o_moe", REPO / "scripts" / "rc5_q3o_moe.py")
+        _M = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(_M)
+    return _M
 
 
 def _tiny_block(torch, E=8, k=3, H=64, I=32):
@@ -91,19 +111,19 @@ def _dev(torch):
 
 
 def test_topk_stable_breaks_ties_by_lowest_index():
-    torch = pytest.importorskip("torch")
+    torch = _skip_without_torch()
     dev = _dev(torch)
     probs = torch.tensor([[0.30, 0.30, 0.10, 0.30, 0.00, 0.20, 0.20, 0.05],
                           [0.25, 0.25, 0.25, 0.25, 0.00, 0.00, 0.00, 0.00]], device=dev)
-    values, selected = M._topk_stable(probs, 3)
+    values, selected = _module(torch)._topk_stable(probs, 3)
     assert selected.tolist() == [[0, 1, 3], [0, 1, 2]]            # lowest index first among equals
     assert torch.allclose(values, torch.tensor([[0.3, 0.3, 0.3], [0.25, 0.25, 0.25]], device=dev))
     for _ in range(50):                                            # same answer on every call
-        assert torch.equal(M._topk_stable(probs, 3)[1], selected)
+        assert torch.equal(_module(torch)._topk_stable(probs, 3)[1], selected)
 
 
 def test_route_matches_hf_formulas_on_tie_free_logits():
-    torch = pytest.importorskip("torch")
+    torch = _skip_without_torch()
     dev = _dev(torch)
     F = torch.nn.functional
     E, k, T = 16, 4, 256
@@ -119,7 +139,7 @@ def test_route_matches_hf_formulas_on_tie_free_logits():
     hf_w = F.softmax(logits, dim=1, dtype=torch.float)            # HF formulas, verbatim order
     hf_w, hf_sel = torch.topk(hf_w, k, dim=-1)
     hf_w = (hf_w / hf_w.sum(dim=-1, keepdim=True)).to(torch.bfloat16)
-    w, sel = M._route(E, k, True, logits)
+    w, sel = _module(torch)._route(E, k, True, logits)
     assert torch.equal(torch.sort(sel, dim=1).values, torch.sort(hf_sel, dim=1).values)   # same experts
     full, hf_full = torch.zeros(T, E, device=dev), torch.zeros(T, E, device=dev)
     full.scatter_(1, sel, w.float())                              # same weight for the same expert
@@ -128,13 +148,13 @@ def test_route_matches_hf_formulas_on_tie_free_logits():
 
 
 def test_route_normalises_weights():
-    torch = pytest.importorskip("torch")
+    torch = _skip_without_torch()
     E, k, T = 8, 3, 32
     torch.manual_seed(2)
     logits = (torch.randn(T, E) * 0.5).to(torch.bfloat16)
-    w, sel = M._route(E, k, True, logits)
+    w, sel = _module(torch)._route(E, k, True, logits)
     assert torch.allclose(w.float().sum(dim=-1), torch.ones(T), atol=2e-2)   # bf16 weights sum to ~1
-    w_raw, _ = M._route(E, k, False, logits)
+    w_raw, _ = _module(torch)._route(E, k, False, logits)
     assert w_raw.float().sum(dim=-1).max() < 0.9                               # unnormalised top-k mass < 1
 
 
@@ -173,14 +193,25 @@ def _crafted_boundary_tie(torch, ref, dev):
 
 
 def _oracle_output(torch, ref, x):
-    """Expected block output: HF expert modules + the pinned routing rule,
-    contributions rounded per expert and summed in fp32."""
+    """Independent mathematical reference for the block output. It does NOT
+    call the module under test (no _route / _topk_stable): probabilities are
+    the fp32 softmax of the bf16 router logits, the top-k set is descending
+    probability with ties broken to the LOWER expert index (a stable sort of
+    the NEGATED probability — a different mechanism than the module's
+    descending argsort+gather), weights are renormalised in fp32 and rounded
+    to bf16, contributions use the HF reference expert modules and are summed
+    in fp32 with one final rounding."""
     H = ref.gate.weight.shape[1]
     hs = x.reshape(-1, H)
-    logits = ref.gate(hs)
-    w, sel = M._route(ref.num_experts, ref.top_k, ref.norm_topk_prob, logits)
+    logits = ref.gate(hs)                                            # bf16, as routed
+    probs = torch.nn.functional.softmax(logits, dim=1, dtype=torch.float)
+    k = ref.top_k
+    sel = torch.argsort(-probs, dim=1, stable=True)[:, :k]           # ties -> lower index first
+    w = probs.gather(1, sel)
+    if ref.norm_topk_prob:
+        w = (w / w.sum(dim=-1, keepdim=True)).to(torch.bfloat16)
     total = torch.zeros_like(hs, dtype=torch.float32)
-    for kk in range(ref.top_k):
+    for kk in range(k):
         e = int(sel[0, kk])
         total += (ref.experts[e](hs) * w[0, kk]).float()
     return total.to(torch.bfloat16)
@@ -190,7 +221,7 @@ def _oracle_output(torch, ref, x):
 def test_block_rounds_router_logits_to_bf16_before_routing(block_name):
     """Pins the rounding of router logits to bf16 (the deviation that affected
     the two retained Q3O pilot runs) and the defined tie-break that follows."""
-    torch = pytest.importorskip("torch")
+    torch = _skip_without_torch()
     if block_name == "BatchedGpuMoeBlock" and not torch.cuda.is_available():
         pytest.skip("no accelerator on this host")
     dev = _dev(torch)
@@ -198,7 +229,7 @@ def test_block_rounds_router_logits_to_bf16_before_routing(block_name):
     x, a, b = _crafted_boundary_tie(torch, ref, dev)
     with torch.no_grad():
         expected = _oracle_output(torch, ref, x)
-        y, _ = getattr(M, block_name)(ref)(x)
+        y, _ = getattr(_module(torch), block_name)(ref)(x)
     assert a != b
     ulp = (_order_key(torch, y.reshape(expected.shape)) - _order_key(torch, expected)).abs()
     assert int(ulp.max()) <= 1, (a, b, int(ulp.max()))       # a full expert swap would be ~30000 ulp
@@ -211,7 +242,7 @@ def test_rounding_points_are_bit_exact_for_a_single_expert(block_name):
     the block must reproduce the HF loop bit for bit (up to rare last-bit
     differences of fp32 GEMM accumulation). This is what pins the bf16
     rounding points of gate, up, silu and down."""
-    torch = pytest.importorskip("torch")
+    torch = _skip_without_torch()
     if block_name == "BatchedGpuMoeBlock" and not torch.cuda.is_available():
         pytest.skip("no accelerator on this host")
     dev = _dev(torch)
@@ -220,7 +251,7 @@ def test_rounding_points_are_bit_exact_for_a_single_expert(block_name):
     assert _boundary_ties(torch, ref, x) == 0
     with torch.no_grad():
         y_ref, l_ref = ref(x)
-        y, logits = getattr(M, block_name)(ref)(x)
+        y, logits = getattr(_module(torch), block_name)(ref)(x)
     assert torch.equal(_order_key(torch, logits), _order_key(torch, l_ref))        # router logits: bit-exact
     assert torch.isfinite(y.float()).all() and y.dtype == torch.bfloat16
     ulp = (_order_key(torch, y.reshape(y_ref.shape)) - _order_key(torch, y_ref)).abs()
@@ -232,7 +263,7 @@ def test_rounding_points_are_bit_exact_for_a_single_expert(block_name):
 def test_block_matches_reference_loop(block_name):
     """top_k = 3 on a tie-free input. Remaining difference: contributions are
     summed in fp32 and rounded once where HF adds them in bf16 (<= 2 ulp)."""
-    torch = pytest.importorskip("torch")
+    torch = _skip_without_torch()
     if block_name == "BatchedGpuMoeBlock" and not torch.cuda.is_available():
         pytest.skip("no accelerator on this host")
     dev = _dev(torch)
@@ -241,12 +272,12 @@ def test_block_matches_reference_loop(block_name):
     assert _boundary_ties(torch, ref, x) == 0
     with torch.no_grad():
         y_ref, l_ref = ref(x)
-        y, logits = getattr(M, block_name)(ref)(x)
-        y1, _ = getattr(M, block_name)(ref)(x[:1, :1])                 # decode shape (one token)
+        y, logits = getattr(_module(torch), block_name)(ref)(x)
+        y1, _ = getattr(_module(torch), block_name)(ref)(x[:1, :1])                 # decode shape (one token)
     assert torch.equal(_order_key(torch, logits), _order_key(torch, l_ref))
     scale = y_ref.float().abs().max().item()
     assert (y.float() - y_ref.float()).abs().max().item() / scale < 0.02
     assert y1.shape == (1, 1, 64) and torch.isfinite(y1.float()).all()
     for _ in range(5):                                                 # deterministic across calls
-        y_again, _ = getattr(M, block_name)(ref)(x)
+        y_again, _ = getattr(_module(torch), block_name)(ref)(x)
         assert torch.equal(y_again, y)

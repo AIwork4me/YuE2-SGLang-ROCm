@@ -287,7 +287,8 @@ def test_identity_drift_is_refused(tmp_path, stub):
     cfg.write_text(json.dumps(d))
     Stub.calls = []
     r = _drive(run, "rc5test-d", stub)
-    assert r.returncode == 3 and "identity drift" in r.stdout
+    assert r.returncode == 3 and ("identity drift" in r.stdout
+                                   or "frozen_generation_identity_drift" in r.stdout)
     assert Stub.calls == []
 
 

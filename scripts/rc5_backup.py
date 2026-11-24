@@ -229,6 +229,24 @@ def restore(src: Path, to: Path) -> dict:
                 disk_ok += 1
             else:
                 disk_bad.append(f"{cid}/{rel}")
+    # checkpoint history: the restored run KEEPS its archives + manifests so a
+    # resumed campaign knows what is already archived (incremental checkpoints
+    # continue from the same history instead of re-archiving every old
+    # candidate) and a later restore can chain from the same base
+    (to / "checkpoints").mkdir(exist_ok=True)
+    copied_checkpoints = 0
+    for cp in cps:
+        for f in filter(None, (cp["archive"], cp["manifest"])):
+            d = to / "checkpoints" / f.name
+            if d.exists() and sha256_file(d) == sha256_file(f):
+                continue
+            tmp = d.with_name(d.name + ".part")
+            shutil.copyfile(f, tmp)
+            if sha256_file(tmp) != sha256_file(f):
+                tmp.unlink(missing_ok=True)
+                raise SystemExit(f"checkpoint copy hash mismatch: {f}")
+            os.replace(tmp, d)
+            copied_checkpoints += 1
     journal = load_journal(to)
     complete_in_journal = {e["id"] for e in journal if e["event"] == "result"
                            and e.get("status") == "complete"}
@@ -241,6 +259,7 @@ def restore(src: Path, to: Path) -> dict:
         "restored_at_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "source": str(src), "destination": str(to),
         "checkpoints_applied": per_cp,
+        "checkpoint_history_files_copied": copied_checkpoints,
         "candidates_restored": len(have),
         "candidate_ids": sorted(have),
         "files_verified_from_disk": disk_ok, "files_bad_on_disk": disk_bad,
@@ -260,7 +279,8 @@ def restore(src: Path, to: Path) -> dict:
         "missing_vs_inputs": sorted({f"wsb_{e['prompt_index']:03d}_r{e['candidate_index']}_s{e['seed']}"
                                      for e in inputs} - have),
         "ok": bool(have) and not disk_bad and not conflicts
-              and complete_in_journal == have and bool(cfg) and bool(inputs),
+              and complete_in_journal == have and bool(cfg) and bool(inputs)
+              and copied_checkpoints == 2 * sum(1 for c in cps if c["archive"]),
     }
     (to / "RESTORE_RECEIPT.json").write_text(json.dumps(receipt, indent=1) + "\n")
     return receipt

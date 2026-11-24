@@ -1,0 +1,43 @@
+{
+ "schema": "yue2-rc5_1-ci-test-results/1",
+ "generated_at_utc": "2026-11-24T14:31:59Z",
+ "environment": {
+  "host": "W7900D gfx1100 physical",
+  "system_python": "3.12.3 (torch 2.14.0+rocm10.1.0 present)",
+  "generation_venv": "/data/yue2/environments/yue2-gfx1100 (torch 2.12.0+rocm7.14.1, sglang importable)"
+ },
+ "reproduction": {
+  "head": "bb7731752931b0bf6078a0c1b3623d109958a2fb",
+  "method": "meta-path finder blocking torch import (simulated torch-free CI interpreter)",
+  "original": "ERROR collecting tests/test_rc5_q3o_moe.py / ModuleNotFoundError: No module named 'torch' (identical to failing runs 45406248566 / 45406234890)",
+  "fixed": "9 skipped with explicit reason (torch absent) / 9 passed (torch present)"
+ },
+ "local_pre_push": {
+  "git_diff_check": "PASS",
+  "compileall_scripts_supervisor": "PASS",
+  "bash_n_all_sh": "PASS",
+  "public_evidence_guard": "PASS",
+  "numeric_receipt_integrity": "PASS (1883/1883 leaves)",
+  "evidence_lyrics_detector": "PASS (537 files, tier1+tier2)",
+  "secret_scan": "PASS (no credentials in tracked files)",
+  "cpu_suite": "533 passed, 3 skipped (honest: sglang absent on system python / root-can-read / Arm B evidence absent)",
+  "moe_numerics_system_python": "9 passed (GPU block cases ran on gfx1100)",
+  "driver_tests_generation_venv": "5 passed (incl. identity-drift refusal with new message)"
+ },
+ "mutation_suites_reported_separately": {
+  "engineering_rc5": "38/38 KILLED (historical, unchanged)",
+  "q3o_moe_gpu": "15/16 KILLED on W7900 (this run)",
+  "g2_survivor_analysis": {
+   "max_abs_diff_over_global_scale": 0.00613497,
+   "suite_bound": 0.02,
+   "verdict": "real rounding-point deviation inside the disclosed summation freedom; retained, not deleted; no expectations altered"
+  }
+ },
+ "files": {
+  "scripts/rc5_generate.py": "549d722c95c2ffd610da945dc7bff45f219bd2550caad13a440689570f6cc7ae",
+  "scripts/rc5_backup.py": "00a37caa073030572662b5ab355346e558aea79580a5fc9e1a6e6c91fa0ae345",
+  "tests/test_rc5_q3o_moe.py": "37a82b6faedd687e7a9f4d4b8b157314de6663971f156095ff5cb65be7c80172",
+  "tests/test_rc5_resume_gate.py": "13d020ae99ad76d4409289a481f194b4061dc12be956ee255ffddb54eb1baf33",
+  ".github/workflows/ci.yml": "8b3440552d13aaa1fecb68012b8a37bc7c15dc529558fed9e556ed8bbb8ebf3e"
+ }
+}
