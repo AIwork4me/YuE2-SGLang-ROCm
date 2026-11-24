@@ -79,6 +79,12 @@ class Rc5HfQwenJudge:
         t0 = time.time()
         self.processor = Qwen3OmniMoeProcessor.from_pretrained(model_path)
         log(f"[q3o-judge] processor loaded in {time.time()-t0:.1f}s")
+        # The official judge wraps ``llm.generate`` so that every call appends
+        # {prompt, text, generated_tokens, finish_reason} to ``scorer.capture``;
+        # ``PaperQ3OScorer.score()`` resets that list per song and fails a song
+        # when any record has finish_reason == 'length'. The adapter must feed
+        # the scorer's list (not its own) or truncated judgements would pass.
+        self.scorer = None
         self.placement = self._load(model_path, gpu_layers, attn_implementation)
 
     # -- placement ---------------------------------------------------------
@@ -194,9 +200,12 @@ class Rc5HfQwenJudge:
         content_text, meta = self._generate_text(conversation, audio_path, int(self.config["max_tokens"]))
         total_seconds = time.perf_counter() - total_start
         judgement = self._parse_json_object(content_text)
-        self.capture = [{"prompt": self.processor.apply_chat_template(conversation, tokenize=False, add_generation_prompt=True),
-                         "text": content_text, "generated_tokens": meta["generated_tokens"],
-                         "finish_reason": meta["finish_reason"]}]
+        record = {"prompt": prompt, "text": content_text,
+                  "generated_tokens": meta["generated_tokens"],
+                  "finish_reason": meta["finish_reason"]}
+        self.capture = [record]
+        if self.scorer is not None:
+            self.scorer.capture.append(record)      # official record() semantics
         return {
             **item.to_dict(),
             "provider": "rc5_hf_transformers_rocm",
@@ -212,6 +221,24 @@ class Rc5HfQwenJudge:
             "judgement": judgement,
             "raw_response": {"text": content_text},
         }
+
+
+def _proc_resources() -> dict:
+    """Peak host memory of this process and VRAM of the device (disclosed
+    CPU offload)."""
+    out = {}
+    try:
+        for line in Path("/proc/self/status").read_text().splitlines():
+            if line.startswith(("VmHWM:", "VmRSS:")):
+                out["host_" + line.split(":")[0].lower() + "_bytes"] = int(line.split()[1]) * 1024
+    except OSError:
+        pass
+    try:
+        import torch
+        out["peak_vram_bytes"] = int(torch.cuda.max_memory_allocated())
+    except Exception:  # noqa: BLE001
+        pass
+    return out
 
 
 def _ofj_parse():
@@ -265,6 +292,8 @@ def build_official_scorer(evaluator_root: Path, judge, log=print):
     scorer.judge = judge
     scorer.audio_prompt = (scorer.root / "vendor/eval_control/prompts" / cfg["audio_prompt"]).read_text()
     scorer.capture = []
+    if judge is not None:
+        judge.scorer = scorer                   # feed the scorer's capture list
     return scorer, cfg
 
 
@@ -274,7 +303,8 @@ def main() -> int:
     ap.add_argument("--rows", type=Path, required=True,
                     help="audio_manifest.jsonl rows (official prepare_inputs output)")
     ap.add_argument("--out", type=Path, required=True)
-    ap.add_argument("--gpu-layers", type=int, default=16)
+    ap.add_argument("--gpu-layers", type=int, default=15,
+                    help="layers whose MoE experts stay on the GPU (2.25 GiB each); the rest go to CPU")
     ap.add_argument("--attn", default="sdpa")
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--ids", default="")
@@ -326,9 +356,10 @@ def main() -> int:
             res = scorer.score(row)          # official code path
         except Exception as exc:  # noqa: BLE001 - recorded, never hidden
             res = {"status": "failed", "error": f"{type(exc).__name__}: {exc}",
-                   "traceback": traceback.format_exc(), "raw_decode": scorer.capture}
+                   "traceback": traceback.format_exc(), "raw_decode": list(scorer.capture or [])}
         res["seconds"] = round(time.time() - t0, 2)
         res["judge_provider"] = "rc5_hf_transformers_rocm"
+        res["resources"] = _proc_resources()
         dest.parent.mkdir(parents=True, exist_ok=True)
         dest.write_text(json.dumps(res, indent=1, ensure_ascii=False) + "\n")
         results.append(res)
