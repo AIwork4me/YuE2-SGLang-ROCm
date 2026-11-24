@@ -113,7 +113,8 @@ def main() -> int:
             # outside the destination (Issue E hardening; Python>=3.12
             # 'data' filter would also strip ownership/mode metadata).
             base = out.parent.resolve()
-            for member in tf.getmembers():
+            members = tf.getmembers()
+            for member in members:
                 target = (base / member.name).resolve()
                 if not str(target).startswith(str(base) + os.sep):
                     raise RuntimeError(f"unsafe tar member rejected: {member.name}")
@@ -121,14 +122,23 @@ def main() -> int:
                     link = (base / member.name).parent / (member.linkname or "")
                     if not str(link.resolve()).startswith(str(base) + os.sep):
                         raise RuntimeError(f"unsafe tar link rejected: {member.name}")
+            # exact top-level directory of THIS tarball (codeload strip prefix
+            # varies); never guess by prefix.
+            tops = {m.name.split("/")[0] for m in members if m.name.strip("/")}
+            if len(tops) != 1:
+                raise RuntimeError(f"unexpected tarball layout: top dirs {tops!r}")
             tf.extractall(out.parent, filter="data")
-            inner = out.parent / f"sglang-{SGlang_PIN[:7]}-" # codeload strip prefix varies
-        # codeload top dir is sglang-<shortsha> — normalize to upstream/sglang
-        for child in out.parent.iterdir():
-            if child.is_dir() and child.name.startswith("sglang-") and child != out:
-                if out.exists():
-                    out.rmdir()
-                child.rename(out)
+            inner = out.parent / tops.pop()
+        tf_ok = inner.is_dir() and (inner / "python" / "pyproject.toml").is_file()
+        if not tf_ok:
+            raise RuntimeError(f"extracted tarball incomplete: {inner}")
+        # normalize ONLY the exact extracted dir to upstream/sglang.
+        # RC5-REPRO-1: the historical prefix match (any "sglang-*" dir) renamed
+        # an unrelated sibling checkout and then tried to rmdir it.
+        if out.exists():
+            raise RuntimeError(
+                f"refusing to replace existing {out}; remove or move it first")
+        inner.rename(out)
 
     # hash every pinned file + record all files
     failures = []
