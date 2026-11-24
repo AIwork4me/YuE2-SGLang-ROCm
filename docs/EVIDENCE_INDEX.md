@@ -75,3 +75,22 @@ and the 2026-10-17 documentation-audit reviews linked from the documentation PR.
 
 Live campaign receipts (absolute paths on the bench machine, mirrored at
 milestones): /data/yue2/logs/, /data/yue2-runs/.
+
+---
+
+## RC5 — latest upstream on the W7900D (2026-11-24, IN PROGRESS)
+
+Snapshot for review; the mission is not finished. Nothing below is a
+selected-192 benchmark result. Status: reports/w7900_rc5/INTERIM_STATUS_ZH.md.
+
+| Claim | Evidence (path on this branch) |
+|---|---|
+| Physical W7900D gfx1100 47.98 GiB, BDF 0000:03:00.0; identity chain framework → HIP → PCI → render node → KFD → UUID closed; fp32/bf16 matmul + SDPA compute probe | reports/w7900_rc5/00_ENVIRONMENT.json, 01_REAL_GPU_IDENTITY_NEGATIVES.json |
+| No authorised off-machine backup (owner: no backup host); same-host second-volume restore drill 12/12 candidates, 132 files hash-exact | reports/w7900_rc5/00_STORAGE_AND_BACKUP_PLAN.md, 00_RECOVERY_DRILL.json |
+| RC4.1 GPU-lock race reproduced (5.96 s window, 47 samples) and closed (0 samples) | reports/w7900_rc5/01_LOCK_RACE_REPRO.json |
+| P0/P1 findings of the RC4.1 review closed; 6/6 real-GPU readiness controls | reports/w7900_rc5/01_P0_P1_CLOSURE.json, 01_RC42_INDEPENDENT_REVIEW.md, 01_REAL_GPU_READINESS_CONTROLS.json |
+| 38 mutations killed; 3 test gaps found and closed | reports/w7900_rc5/01_MUTATION_RESULTS.json, 01_NEGATIVE_CONTROL_MATRIX.csv |
+| Upstream PR #42106 head c67d541a frozen; only 2 import-guard patches needed; effective tree + dependency hashes | reports/w7900_rc5/02_UPSTREAM_DELTA_REVIEW.md, 02_PATCH_RECONCILIATION.csv, 02_EFFECTIVE_RUNTIME_MANIFEST.json, 02_CAPABILITY_MATRIX.json |
+| 12 pre-registered pilot candidates byte-identical (audio.flac SHA256) to the frozen historical Arm B manifest | reports/w7900_rc5/03_PILOT_SELECTION.json, 03_PILOT_VS_HISTORICAL_MANIFEST.json |
+| Pilot (12 UNSELECTED candidates, shard mode): SongBench Global 6.5459; MuLan 0.3756; AllMusicCaps 0.3757; PER micro 0.6654 (ASR batch_size=1 variant) | reports/w7900_rc5/03_PILOT_ACCEPTANCE.json |
+| Q3O judge memory budget from safetensors headers (65.68 GiB BF16 total, 54.0 GiB MoE experts) | reports/w7900_rc5/07_Q3O_MEMORY_BUDGET.json |

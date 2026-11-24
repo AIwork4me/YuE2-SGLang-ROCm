@@ -119,3 +119,37 @@
   proven; no stack was capturable); the blind spot is closed by
   `scripts/gpu_identity.py` fail-loud receipts
   (reports/w7900_rc4_1/01_GPU_FALLBACK_RCA.md).
+
+## RC5 additions (2026-11-24, in progress)
+
+- **No off-machine backup**: the owner confirmed there is no backup host. The
+  RC5 checkpoints (incremental every 16 candidates + full at milestones, SHA256
+  manifests) are copied to a second volume on the SAME host and a restore drill
+  passes, but that does not survive loss of the host
+  (reports/w7900_rc5/00_STORAGE_AND_BACKUP_PLAN.md: `DISASTER_RECOVERY_BLOCKED`).
+- **Upstream artifact exporter writes 16-bit WAV**: `Yue2VAEDecodeStage` calls
+  `sf.write(path, audio, sr)` (soundfile default PCM_16) while the official
+  `yue2-infer` writes `audio.flac` PCM_24 from float. Every sample of the
+  SGLang-path audio therefore sits on the 1/32768 grid before the official MP3
+  encoding. Not patched in the main run (pure-upstream policy); documented for
+  the author (reports/w7900_rc5/02_UPSTREAM_DELTA_REVIEW.md, finding F3).
+- **HTTP timing fields are null**: at the frozen head `yue2_timing`,
+  `yue2_stage_seconds` and `yue2_nar_fast` are always `null`; exact stage
+  seconds are read from the server log by the RC5 driver.
+- **Two upstream dispatch tests are host-dependent** (assume a non-HIP host /
+  SM90): 19/21 pass on gfx1100.
+- **Official PER is expensive on this engine**: with the official ASR config
+  (batch 8, cap 4096) the qwen_asr transformers backend spends ~118 ms per
+  decode step and a batch waits for its longest sequence; the full 384-song
+  PER is estimated at 15–25 GPU-hours. The official ROCm vLLM wheel index
+  (`wheels.vllm.ai`) is blocked by this host's egress proxy, so the official
+  vLLM engine could not be tried locally.
+- **ASR-side empty transcripts on English songs (preliminary)**: on the 12
+  pilot candidates Qwen3-ASR (transformers on ROCm) returned an empty
+  transcription for 4 of 8 English candidates; an unrelated reference ASR
+  (Whisper) transcribes the same audio with a reference PER of 0.09–0.33. This
+  points at the evaluator side, not the audio. Root cause NOT yet established
+  (reports/w7900_rc5/INTERIM_STATUS_ZH.md).
+- **Q3O**: the Thinker alone is 58 GiB in BF16 (> the ~44.6 GiB usable), so the
+  official judge cannot be loaded as-is; a ROCm-adapted route (Thinker-only
+  BF16, mixed GPU/CPU placement) is prepared but not yet validated on hardware.

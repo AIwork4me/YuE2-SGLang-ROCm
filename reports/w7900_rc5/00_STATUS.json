@@ -1,0 +1,57 @@
+{
+ "schema": "yue2-rc5-status/1",
+ "updated_at_utc": "2026-11-24T07:47:56Z",
+ "M0": {
+  "hardware_identity": "PASS",
+  "gpu_compute": "PASS",
+  "restore_drill_same_host_second_volume": "PASS (12/12, 132 files)",
+  "off_machine_backup": "BLOCKED (owner confirmed: no backup machine)"
+ },
+ "M1": {
+  "lock_race_reproduced_on_rc41": true,
+  "lock_race_fixed": true,
+  "mutation": "38/38 KILLED",
+  "real_gpu_readiness_controls": "6/6 PASS",
+  "real_gpu_identity_negatives": "2/2 PASS"
+ },
+ "M2": {
+  "upstream_pr_head_frozen": "c67d541a40f8bf851e9fc1e925f5316638838cd6",
+  "bringup_native_gates": "PASS",
+  "pilot_vs_historical": "12/12 FLAC byte-identical"
+ },
+ "M3": {
+  "pilot_generation": "12/12",
+  "official_prepare_inputs": "PASS",
+  "metrics": {
+   "songbench": "PASS",
+   "mulan": "PASS",
+   "allmusiccaps": "PASS",
+   "per": "PASS (batch_size=1 pilot variant)"
+  },
+  "gate": "PASS"
+ },
+ "M4": {
+  "status": "IN_PROGRESS",
+  "run_id": "rc5_armB_latest_upstream_20261124T065451Z",
+  "started_utc": "2026-11-24T06:54:51Z"
+ },
+ "M5": {
+  "status": "NOT_STARTED (evaluator environments installed and hash-gated)"
+ },
+ "M6": {
+  "status": "IN_PROGRESS",
+  "finding": "English songs: empty transcripts (PER=1.0) and cap runaways; reproduced at batch_size=1"
+ },
+ "M7": {
+  "status": "NOT_STARTED",
+  "memory_budget": "computed",
+  "hf_judge": "written; protocol dry-run PASS",
+  "key_env": "installed; official key worker rc 0"
+ },
+ "M8": {
+  "status": "NOT_STARTED"
+ },
+ "M9": {
+  "status": "INTERIM_PUSH"
+ }
+}

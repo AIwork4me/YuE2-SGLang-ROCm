@@ -1,0 +1,5 @@
+# Unified diffs legitimately contain whitespace-only lines (blank context
+# lines are a single space), and they must stay byte-exact: the files they
+# produce are hash-pinned (evaluator release.json, RC5 effective-tree
+# manifest). Whitespace checks are therefore not applied to *.patch.
+patches/*.patch -whitespace

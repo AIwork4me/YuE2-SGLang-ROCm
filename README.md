@@ -20,6 +20,16 @@ approval is implied. See [RC4 reports](reports/w7900_rc4/),
 [RC4.1 reports](reports/w7900_rc4_1/) and the
 [evidence index](docs/EVIDENCE_INDEX.md).
 
+**Status (2026-11-24, RC5 — IN PROGRESS):** the author's latest SGLang PR
+head (`c67d541a`) is frozen and runs natively on the W7900D with only two
+import-guard patches; the RC4.1 GPU-lock race is reproduced and closed by a
+single-owner lifecycle supervisor (`scripts/gpu_lifecycle.py`); the 384-song
+campaign with the latest runtime is running. Its first 12 pre-registered
+pilot candidates are byte-identical to the frozen historical Arm B audio.
+Full scoring, the PER root-cause study and Q3O are not finished — see the
+honest snapshot [INTERIM_STATUS_ZH.md](reports/w7900_rc5/INTERIM_STATUS_ZH.md)
+and the [RC5 reports](reports/w7900_rc5/).
+
 Run the official YuE2 weights (m-a-p/YuE2-3B) on AMD Radeon GPUs through two
 verified paths on the same hardware:
 
