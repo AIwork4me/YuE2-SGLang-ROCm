@@ -1,0 +1,109 @@
+{
+ "schema": "yue2-rc5-effective-runtime-manifest/1",
+ "frozen_at_utc": "2026-11-24T07:01:10Z",
+ "upstream_pr": {
+  "number": 42106,
+  "repo": "sgl-project/sglang",
+  "base_ref": "main",
+  "changed_files": 37,
+  "commits": 5,
+  "draft": false,
+  "head_ref": "add_yue2",
+  "head_repo": "yiakwy-xpu-ml-framework-team/AMD-sglang-benchmark-fork",
+  "head_sha": "c67d541a40f8bf851e9fc1e925f5316638838cd6",
+  "merged": false,
+  "state": "open",
+  "updated_at": "2026-11-23T11:37:55Z",
+  "pr_title": "Add yue2"
+ },
+ "source_tree": {
+  "path": "/data/yue2/upstream",
+  "git_head": "c67d541a40f8bf851e9fc1e925f5316638838cd6",
+  "git_head_tree": "13008b21625a4d522c2aeb32f416c84edb9c2809",
+  "git_head_subject": "c67d541a40f8bf851e9fc1e925f5316638838cd6 verify on dgx spark GB10 (#3)",
+  "historical_baseline_commit": "ced0ef7d1bbbe703607b302ec86bb20a5c06bc8f",
+  "historical_baseline_tree": "dacde1b95a614fe2c6a8803c4b6eccedd205f946",
+  "head_is_verified_pr_head": true,
+  "tracked_modifications": [
+   "M python/sglang/srt/layers/quantization/quark/schemes/quark_w4a4_mxfp4.py",
+   " M python/sglang/srt/layers/quantization/quark/schemes/quark_w4a4_mxfp4_moe.py",
+   " M python/sglang/srt/layers/quantization/quark_int4fp8_moe.py",
+   " M python/sglang/srt/mem_cache/hisparse_memory_pool.py",
+   " M python/sglang/srt/mem_cache/memory_pool_host.py",
+   " M python/sglang/srt/mem_cache/pool_host/mha.py"
+  ],
+  "untracked_under_python": [],
+  "tracked_diff_sha256": "a6bb049c40365770438b42c6b8f6812d0ffea7fbcad2e09aa1cd491e0528e5dc",
+  "changed_files": {
+   "python/sglang/srt/layers/quantization/quark/schemes/quark_w4a4_mxfp4.py": {
+    "upstream_sha256": "a39b1c745c354782e91aaf54ec1673638aeaa7601acb19b35569a22653976570",
+    "effective_sha256": "32a6fc7fe87113969322716f8e0e8eec7b6cef49ebc3e02a728eff94ea302a01"
+   },
+   "python/sglang/srt/layers/quantization/quark/schemes/quark_w4a4_mxfp4_moe.py": {
+    "upstream_sha256": "32faa00aa4212b00e6150cc6f953cca87080d9655b15f4851282139cf465400f",
+    "effective_sha256": "791757bbcfa2c231f70b490d0b24f0d68a6c4b853e88e1c55820227877b05eee"
+   },
+   "python/sglang/srt/layers/quantization/quark_int4fp8_moe.py": {
+    "upstream_sha256": "ef8f7272226d42f0db4c155cd98c44c8ceadfa96918db734fbd4c43cfa4134d2",
+    "effective_sha256": "5cefb9752797a09f96e823f9c6a207204929ccb09bd2d1d54b44f02d5a057be2"
+   },
+   "python/sglang/srt/mem_cache/hisparse_memory_pool.py": {
+    "upstream_sha256": "62df8be2278cc83b94edd966304329221da03249295ed06baa7412e54afadd90",
+    "effective_sha256": "dc74ddd4e7bb4fff51748c5fe2f17dd2ea9c7ec8e582b1e3e0553753cce93b67"
+   },
+   "python/sglang/srt/mem_cache/memory_pool_host.py": {
+    "upstream_sha256": "e12edbaef4c753fb95cf0cb46f6893b6820bc9ca5d5afdf47e3f674e5373f782",
+    "effective_sha256": "098983e5d5cf48370dafb07b906f4bae79155a4eb934bbe571c54472f7afbc61"
+   },
+   "python/sglang/srt/mem_cache/pool_host/mha.py": {
+    "upstream_sha256": "3512caf140a661e6733c049a8083fd653e1d70a2f7ade6c284f63ea173d5a297",
+    "effective_sha256": "ff89acab07fd0f5cd9c8eb66d109ce84acbd2dd0b5d27c114e5c73667ab8ef1f"
+   }
+  }
+ },
+ "applied_patch": {
+  "path": "/data/yue2/upstream/yue2-sglang-rocm/patches/rc5-0001-0003-0008-rocm-import-guards.patch",
+  "sha256": "a6bb049c40365770438b42c6b8f6812d0ffea7fbcad2e09aa1cd491e0528e5dc",
+  "bytes": 9894
+ },
+ "effective_source_tree": {
+  "definition": "sha256 over sorted '<path>:<sha256>' of every git-tracked file under python/sglang in its EFFECTIVE (patched) state",
+  "file_count": 5325,
+  "sha256": "a1ca7b9f0df3b54673fe6a3300c06ca308034b235fae34c1489562fac8d6fd49"
+ },
+ "runtime": {
+  "python": "3.12.3",
+  "executable": "/data/yue2/environments/generation/bin/python",
+  "torch": "2.12.0+rocm7.14.1",
+  "torch_hip": "7.14.60850",
+  "torch_cuda": null,
+  "sglang_import_path": "/data/yue2/upstream/sglang-latest/python/sglang/__init__.py",
+  "yue2_runtime_dir": "/data/yue2/upstream/sglang-latest/python/sglang/srt/models/yue2",
+  "yue2_stage_dir": "/data/yue2/upstream/sglang-latest/python/sglang/multimodal_gen/runtime/pipelines_core/stages/model_specific_stages/yue2",
+  "yue2_runtime_sha256": "342b2f531b14a201b4aae1a6a14424bed7f03cd7f993c3a1c09657a6d6109051",
+  "yue2_stages_sha256": "5bbbf02c602ce055b6852bb566a517a317ee3d22e538a7d22c4fc2a3f233a8a0"
+ },
+ "dependency_lock": {
+  "pip_freeze_sha256": "3bea96f58209758fc31c27e4e79c11d48060259e9bf915e8e0417b358b140ed7",
+  "key_versions": {
+   "torch": "2.12.0+rocm7.14.1",
+   "torchvision": "0.27.0+rocm7.14.1",
+   "torchaudio": "2.11.0+rocm7.14.1",
+   "triton": "3.8.0+git4cff872c.rocm7.14.1",
+   "transformers": "5.17.0",
+   "tokenizers": "0.23.2",
+   "sglang": "0.0.0",
+   "numpy": "2.3.5",
+   "soundfile": "0.13.1",
+   "flash-attn": null,
+   "sgl-kernel": null,
+   "vllm": null,
+   "pytest": "9.2.0"
+  },
+  "cuda_only_packages_absent": {
+   "sgl-kernel": true,
+   "vllm": true,
+   "flash-attn": true
+  }
+ }
+}

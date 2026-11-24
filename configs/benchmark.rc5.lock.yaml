@@ -1,0 +1,87 @@
+# Profile B-RC5 — Latest-upstream benchmark reproduction lock (RC5)
+# Frozen 2026-11-24 for mission W7900-RC5 on the W7900D (gfx1100).
+# Companion of configs/benchmark.lock.yaml (the frozen historical lock, left
+# unchanged): same official dataset / model / VAE / evaluator protocol; the
+# ONLY change is the generation runtime = the author's latest PR head with
+# its native ROCm capability gates instead of operator force-flags.
+# Any change to this file invalidates comparability and requires a new
+# experimental arm + explicit disclosure.
+
+profile: benchmark-reproduction-rc5-latest-upstream
+frozen_at: "2026-11-24"
+hardware_required: "AMD Radeon PRO W7900 48GB (gfx1100)"
+
+dataset:                              # identical to benchmark.lock.yaml
+  repo: m-a-p/WildSongBench
+  revision: e361b85a8d7365d3079fa9647641a87ce3c8c5b5
+  reproduction_manifest_sha256: 859e5225d319912efb64d587d1d5eb6cf0abc9fb162cc3d5f02d1688cff2edc0
+  evaluator_bundle_sha256: bd550b36f1fc43cad3254a9897dd3a078e50c4eb9e8d4f295ac4b5e81d1fc4fd
+
+model:                                # identical to benchmark.lock.yaml
+  ar_model: m-a-p/YuE2-3B
+  ar_revision: 1a96eca688d6ae5d7f0feb88573fec89920fcd19
+  ar_model_sha256: 1d55c42c1a9875c34f5d736e15078449992b044e807ce2a138e6cf289a1e59e9
+  benchmark_vae: m-a-p/YuE2-Vae-legacy
+  benchmark_vae_revision: b54118f0fc462f08999d1ec07e88817f4ee3f770
+  benchmark_vae_sha256: b6d283628913bb41145ba99e2314eef613905ee95f690eb70e8212d5f4965044
+
+generation_protocol:                  # identical to benchmark.lock.yaml
+  official_code: code/generate.py (sha256 41e069ed0f9d7fde27b277de40fe69d31fd0f5eed7a481b0af00e6486a6229c1)
+  candidates_per_prompt: 2
+  seeds: "831001+i, 831019+i, read from the official reproduction_manifest.jsonl"
+  cot: full
+  cfg_scale: 1.0
+  ode_steps: 32
+  semantic_max_tokens: 9000
+  abc_max_tokens: 4096
+  vae_core_frames: 1024
+  vae_halo_frames: 16
+  batch_size: 1
+
+arm_b_latest_upstream_rc5:
+  campaign_name: ARM_B_LATEST_UPSTREAM_RC5
+  driver: scripts/rc5_generate.py
+  sglang_pr: sgl-project/sglang#42106 @ c67d541a40f8bf851e9fc1e925f5316638838cd6   # author PR head, API-verified, never the merge ref
+  upstream_delta_from_historical: "ced0ef7d -> 2a816358 (native ROCm capability gates) -> c67d541a (GB10 verification); 5 YuE2 files, dispatch only"
+  patches: ["rc5-0001-0003-0008-rocm-import-guards"]
+  patch_sha256: a6bb049c40365770438b42c6b8f6812d0ffea7fbcad2e09aa1cd491e0528e5dc
+  patch_reconciliation: "0001-0003 + 0008 STILL_REQUIRED (byte-identical to historical); 0004/0005 ALREADY_UPSTREAM"
+  effective_source_tree_sha256: a1ca7b9f0df3b54673fe6a3300c06ca308034b235fae34c1489562fac8d6fd49   # 5325 tracked python/sglang files
+  capability_overrides: none            # no SGLANG_YUE2_* force-flag; the author's gates select reference/ATen paths
+  observed_dispatch: "execution=cuda_graph, attention=flash (ATen varlen), sampler=reference"
+  equivalence_with_historical: "12/12 pre-registered pilot candidates byte-identical (audio.flac SHA256) to the frozen historical Arm B manifest"
+
+evaluator:                            # identical to benchmark.lock.yaml
+  bundle: wsb_metrics @ release 2026.09.09.2 (from the frozen dataset revision)
+  patches: ["0006 torch-family env exemption", "0007 qwen_asr transformers ASR backend under WSB_ROCM_TORCH_OVERRIDE=1",
+            "0009 PER-reuse hash gate", "0010 backend label allowlist"]
+  patched_eval_worker_sha256: 569404c758b883e1d2d99724ea563524e06b2c07f2ecf418b1fa857a8ca79d57
+  patched_wsb_eval_sha256: efb890421c755c6e19fb841426a612dfa954f9b58a29eef2b8ce8ed7ff790015
+  asr_weights: Qwen/Qwen3-ASR-1.7B @ 7278e1e70fe206f11671096ffdd38061171dd6e5
+  asr_config: {seed: 0, asr_repeats: 4, asr_batch_size: 8, max_new_tokens: 4096, temperature: 0.0, language: auto}
+  selection: "min PER across 4 ASR repeats per candidate; lower-PER candidate per prompt; capped outputs retained"
+  metrics_run: [per, songbench, mulan, allmusiccaps]
+  q3o:
+    judge: Qwen/Qwen3-Omni-30B-A3B-Instruct @ 26291f793822fb6be9555850f06dfe95f2d7e695   # from the frozen evaluation_assets.json
+    historical_status: "NOT TESTED (80 GB CUDA requirement)"
+    rc5_status: "in progress — ROCm-adapted route (Thinker-only BF16, mixed GPU/CPU placement); see reports/w7900_rc5/07_Q3O_MEMORY_BUDGET.json"
+
+python_environments:
+  arm_b_serving:
+    python: "3.12"
+    torch: "2.12.0+rocm7.14.1 (repo.amd.com whl-multi-arch, device-gfx1100)"
+    torchvision: "0.27.0+rocm7.14.1"
+    torchaudio: "2.11.0+rocm7.14.1"
+    transformers: "5.17.0"
+    pip_freeze_sha256: 3bea96f58209758fc31c27e4e79c11d48060259e9bf915e8e0417b358b140ed7
+  evaluator_metrics_venv:
+    python: "3.12.11 (uv-managed by the official installer)"
+    torch_family_substitution: {torch: "2.10.0+rocm7.14.1", torchaudio: "2.10.0+rocm7.14.1",
+                                torchvision: "0.25.0+rocm7.14.1", triton: "3.6.0+rocm7.14.1"}
+    substitution_gate: WSB_ROCM_TORCH_OVERRIDE=1
+
+deviations_from_official:
+  - {id: DEV-1, inherited: true,  what: "PER ASR engine = qwen_asr transformers backend (patch 0007), not vLLM 0.14.0 (CUDA-only pin; the official ROCm wheel index is unreachable from this host's egress proxy)"}
+  - {id: DEV-2, inherited: true,  what: "Evaluator metrics venv torch-family substituted under env gate (patch 0006)"}
+  - {id: DEV-3, new: true,       what: "Two import-guard patches (6 files) on the upstream tree; no model / sampling / VAE math touched", risk: "none on YuE2 numerics (byte-identical output vs historical)"}
+  - {id: DEV-4, new: true,       what: "Upstream artifact exporter writes PCM_16 WAV (official pipeline writes PCM_24 FLAC from float); not patched in the main run", risk: "16-bit quantisation before the official MP3 encoding; measured separately in the PER study (H7)"}

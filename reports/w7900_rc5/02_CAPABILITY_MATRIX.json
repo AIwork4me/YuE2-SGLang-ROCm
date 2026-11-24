@@ -1,0 +1,102 @@
+{
+ "schema": "yue2-rc5-capability-matrix/1",
+ "generated_at_utc": "2026-11-24T07:01:47Z",
+ "hardware": "AMD Radeon PRO W7900D 48GB (gfx1100), ROCm userspace 7.14.1 (venv), torch 2.12.0+rocm7.14.1",
+ "runtime": "SGLang PR #42106 @ c67d541a40f8bf851e9fc1e925f5316638838cd6 + patches/rc5-0001-0003-0008-rocm-import-guards.patch; NO SGLANG_YUE2_* override",
+ "status_legend": "PASS = executed on the real GPU; CODE_REVIEW_ONLY = read, not executed; NOT_RUN = not executed on this host",
+ "rows": [
+  {
+   "capability": "AR reference path",
+   "path": "GraphAR looped decode, reference sampler",
+   "status": "PASS",
+   "validation_method": "12/12 pilot candidates",
+   "evidence": {
+    "observed_execution": [
+     [
+      "cuda_graph",
+      "flash",
+      "reference"
+     ]
+    ]
+   }
+  },
+  {
+   "capability": "AR graph path (HIP graph capture)",
+   "path": "torch.cuda.CUDAGraph on ROCm",
+   "status": "PASS",
+   "validation_method": "plan.json execution=cuda_graph on every AR stage",
+   "evidence": {
+    "candidates": 12
+   }
+  },
+  {
+   "capability": "SDPA / attention",
+   "path": "ATen varlen FlashAttention (seqused_k) in AR; public SDPA in NAR",
+   "status": "PASS",
+   "validation_method": "attention=flash in 12/12 plan.json; probe FLASH vs MATH max|diff| 0.0078",
+   "evidence": {
+    "probe": "00_ENVIRONMENT / gpu_identity receipt"
+   }
+  },
+  {
+   "capability": "NAR reference path",
+   "path": "nar.synthesize (32 midpoint steps)",
+   "status": "PASS",
+   "validation_method": "12/12 candidates; NAR stage 26-97 s",
+   "evidence": {}
+  },
+  {
+   "capability": "VAE tiled fp32 decode",
+   "path": "decode_tiled core 1024 / halo 16",
+   "status": "PASS",
+   "validation_method": "12/12 FLAC 48 kHz stereo finite",
+   "evidence": {}
+  },
+  {
+   "capability": "deterministic seed",
+   "path": "same seed -> same output",
+   "status": "PASS",
+   "validation_method": "one candidate generated twice in separate server sessions: audio.flac / semantic / latent / prefix / abc_tokens / score.abc SHA256 identical; 12/12 byte-identical to the historical frozen manifest",
+   "evidence": {}
+  },
+  {
+   "capability": "HTTP artifact generation",
+   "path": "POST /v1/audio/generations",
+   "status": "PASS",
+   "validation_method": "12/12 + 2 canaries decoded",
+   "evidence": {}
+  },
+  {
+   "capability": "ROCm fallback dispatch",
+   "path": "author's native capability gates (2a816358)",
+   "status": "PASS",
+   "validation_method": "served without overrides; plan.json shows sampler=reference",
+   "evidence": {}
+  },
+  {
+   "capability": "CUDA fast-path preservation",
+   "path": "DeepSelect / shared FA3 / batched-AR on NVIDIA",
+   "status": "CODE_REVIEW_ONLY",
+   "validation_method": "author dispatch tests test/srt/models/test_yue2_platform_gates.py: 19 passed / 2 host-dependent failures on gfx1100; NO NVIDIA hardware available",
+   "evidence": {
+    "physical_cuda_regression": "NOT_RUN"
+   }
+  },
+  {
+   "capability": "DeepSelect / fused decode+NAR / batched AR",
+   "path": "sgl_kernel paths",
+   "status": "NOT_APPLICABLE",
+   "validation_method": "sgl_kernel is not installed on ROCm; gated off natively",
+   "evidence": {}
+  },
+  {
+   "capability": "GPU identity chain",
+   "path": "framework index -> HIP -> PCI -> render node -> KFD -> UUID",
+   "status": "PASS",
+   "validation_method": "closed on the real device; wrong BDF / wrong arch -> GPU_DEVICE_MISMATCH rc 3",
+   "evidence": {
+    "wrong_arch_status": "GPU_DEVICE_MISMATCH"
+   }
+  }
+ ]
+}
