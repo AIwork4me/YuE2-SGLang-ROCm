@@ -1,0 +1,81 @@
+{
+ "schema": "yue2-rc5_1-q3o-model-pilot/1",
+ "generated_at_utc": "2026-11-24T17:26:31Z",
+ "pre_registered_set": {
+  "ids": [
+   "wsb_022_r0_s831023",
+   "wsb_031_r0_s831032",
+   "wsb_031_r1_s831050",
+   "wsb_086_r0_s831087",
+   "wsb_101_r0_s831102",
+   "wsb_120_r0_s831121",
+   "wsb_120_r1_s831139",
+   "wsb_164_r0_s831165"
+  ],
+  "coverage": "zh x3 (022_r0 short-ish 262s, 031_r0 175s shortest + low PER 0.071, 031_r1 mid PER 0.126); en x5 (086_r0 332s longest + empty-transcript PER 1.0, 101_r0 cap-truncated 0.543, 120_r0 low PER 0.104, 120_r1 empty-transcript 1.0, 164_r0 truncated-generation + cap 0.704)",
+  "source": "RC5 pilot campaign prepare_inputs manifest (audio bytes identical to historical Arm B per 12/12 SHA256 pilot evidence)"
+ },
+ "results": {
+  "valid_scores": "8/8",
+  "parser_failures": 0,
+  "invalid_scores": 0,
+  "unexplained_oom": 0,
+  "scores": {
+   "wsb_022_r0_s831023": [
+    4.833333333333333,
+    "stop"
+   ],
+   "wsb_031_r0_s831032": [
+    3.5,
+    "stop"
+   ],
+   "wsb_031_r1_s831050": [
+    3.0,
+    "stop"
+   ],
+   "wsb_086_r0_s831087": [
+    2.4482758620689653,
+    "stop"
+   ],
+   "wsb_101_r0_s831102": [
+    5.0,
+    "stop"
+   ],
+   "wsb_120_r0_s831121": [
+    5.0,
+    "stop"
+   ],
+   "wsb_120_r1_s831139": [
+    0.16666666666666666,
+    "stop"
+   ],
+   "wsb_164_r0_s831165": [
+    3.1153846153846154,
+    "stop"
+   ]
+  },
+  "mean_seconds": 101.46,
+  "max_resources": {
+   "peak_vram_bytes": 45539216384,
+   "host_vmhwm_bytes": 54328143872
+  },
+  "host_cgroup_limit_bytes": 59055800320,
+  "host_headroom_gib": 4.4
+ },
+ "frozen_judge_config": {
+  "gpu_moe_layers": 34,
+  "cpu_moe_layers": 14,
+  "cpu_threads": 16,
+  "gpu_moe_mode": "stock HF bf16 experts + stable tie-break (in-place forward patch)",
+  "attn": "sdpa",
+  "dtype": "bfloat16 Thinker-only",
+  "eos": 151645,
+  "decoding": "greedy (temperature 0, top_p 1, top_k -1), max_tokens 1024",
+  "identity_sha256": "5b1a3fbe3b5d27a109f9cdc8bff223d24aca87695dca56d898c803219e2c1ec3"
+ },
+ "engineering_fixes_validated_on_real_model": [
+  "GPU MoE packing attempts OOMed (3 root-caused layers: contiguous transpose copies, list-of-cats transients, accelerate-hook reference cycles + allocator fragmentation +0.19 GiB/layer); final validated path keeps stock HF experts on GPU with an in-place stable-tie-break forward patch",
+  "torch-free numba/librosa warm-up (llvmlite rc=139 segfault after HIP stack load)",
+  "inference-mode-safe tie-stat accumulator"
+ ]
+}

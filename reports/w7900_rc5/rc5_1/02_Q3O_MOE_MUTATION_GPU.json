@@ -1,12 +1,12 @@
 {
  "schema": "yue2-rc5-q3o-moe-mutation/1",
- "generated_at_utc": "2026-11-24T14:05:51Z",
+ "generated_at_utc": "2026-11-24T17:23:35Z",
  "module": "scripts/rc5_q3o_moe.py",
- "module_sha256": "9b3f40d02370e80517eff98171bafa7179415694bdafb24b54817590b38820c2",
+ "module_sha256": "62c4298c743bc75371371eeb309eafb060884986e491c01f120ce7116b0ddcf1",
  "test_file": "tests/test_rc5_q3o_moe.py",
- "test_file_sha256": "37a82b6faedd687e7a9f4d4b8b157314de6663971f156095ff5cb65be7c80172",
+ "test_file_sha256": "a9f158ad65dbc4ac8e1b034f886913b8d87aa5923d3cccdbb5e483a0be647c72",
  "environment": {
-  "label": "w7900-gfx1100-torch2.14.0-rocm10.1.0",
+  "label": "w7900-final-q3o-module",
   "python": "/usr/bin/python3",
   "torch": "2.14.0+rocm10.1.0",
   "hip": "7.16.26385",
@@ -63,6 +63,7 @@
    "killed": true,
    "returncode": 1,
    "failing_tests": [
+    "tests.test_rc5_q3o_moe::test_stable_topk_gpu_patch_matches_hf_loop_and_pins_ties",
     "tests.test_rc5_q3o_moe::test_topk_stable_breaks_ties_by_lowest_index",
     "tests.test_rc5_q3o_moe::test_block_rounds_router_logits_to_bf16_before_routing[BatchedGpuMoeBlock]"
    ]

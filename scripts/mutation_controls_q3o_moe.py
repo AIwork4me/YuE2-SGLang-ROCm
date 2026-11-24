@@ -38,13 +38,12 @@ MUTATIONS = [
     ("R1_no_topk_normalisation", "top-k weights not normalised to sum 1",
      "if norm_topk_prob:", "if False:"),
     ("R2_bf16_softmax", "softmax computed in bf16 instead of fp32",
-     "dtype=torch.float)", "dtype=torch.bfloat16)"),
+     "routing_weights = F.softmax(router_logits, dim=1, dtype=torch.float)",
+     "routing_weights = F.softmax(router_logits, dim=1, dtype=torch.bfloat16)"),
     ("R3_stock_torch_topk", "plain torch.topk: tie-breaking not pinned (nondeterministic at "
      "boundary ties on torch 2.10.0+rocm7.14.1)",
-     "order = torch.argsort(routing_weights, dim=-1, descending=True, stable=True)\n"
-     "    selected = order[:, :k]\n"
-     "    return torch.gather(routing_weights, -1, selected), selected",
-     "return torch.topk(routing_weights, k, dim=-1)"),
+     "order = torch.argsort(routing_weights, dim=-1, descending=True, stable=True)",
+     "order = torch.topk(routing_weights, k, dim=-1).indices"),
     ("R4_unstable_argsort", "argsort without stable=True: tie order not pinned",
      "descending=True, stable=True)", "descending=True)"),
     ("G1_gate_up_swapped", "gate and up projections swapped (GPU block)",

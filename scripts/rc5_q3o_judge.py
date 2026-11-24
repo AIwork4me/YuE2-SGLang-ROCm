@@ -43,6 +43,9 @@ from pathlib import Path
 
 os.environ.setdefault("PYTHONDONTWRITEBYTECODE", "1")
 os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
+# expandable segments avoid fragmentation OOM when the 48 GB card repeatedly
+# frees ~1.2 GiB layer originals and allocates ~1.2 GiB packed stacks
+os.environ.setdefault("PYTORCH_ALLOC_CONF", "expandable_segments:True")
 
 
 def cpu_quota() -> int:
@@ -88,6 +91,28 @@ class Rc5HfQwenJudge:
 
     def __init__(self, evaluator_root: Path, config: dict, gpu_layers: int,
                  attn_implementation: str = "sdpa", log=print):
+        # librosa (and madmom) ship lazy_loader submodules whose numba
+        # stencil/guvectorize compilation SEGFAULTS (rc=139 inside llvmlite
+        # opt passes) once torch's HIP stack is loaded in this process.
+        # Force the whole compile chain NOW, torch-free: attribute access on
+        # a real librosa.load() executes librosa.core.audio (eager module
+        # level ufuncs) and every lazily-imported submodule it needs.
+        import io
+        t_warm = time.time()
+        import numpy as _np
+        import soundfile as _sf
+        _buf = io.BytesIO()
+        _sf.write(_buf, _np.zeros(1600, dtype="float32"), 16000, format="WAV")
+        _buf.seek(0)
+        import librosa
+        librosa.load(_buf, sr=16000)          # executes the lazy submodule chain
+        librosa.resample(_np.zeros(1600, dtype="float32"), orig_sr=16000, target_sr=24000)
+        try:                                   # official key worker dependency
+            import madmom  # noqa: F401  (on the evaluator's sys.path, not yet here)
+        except ImportError:
+            pass
+        log(f"[q3o-judge] librosa/madmom numba warmed in {time.time()-t_warm:.1f}s "
+            "(torch-free, before model load)")
         import torch
         from qwen_omni_utils import process_mm_info
         from transformers import Qwen3OmniMoeProcessor
@@ -190,6 +215,7 @@ class Rc5HfQwenJudge:
         import importlib.util as _iu
         _spec = _iu.spec_from_file_location("rc5_q3o_moe", _P(__file__).with_name("rc5_q3o_moe.py"))
         _mod = _iu.module_from_spec(_spec)
+        sys.modules["rc5_q3o_moe"] = _mod          # importable by the run loop (tie stats)
         _spec.loader.exec_module(_mod)
         threads = configure_cpu_threads()
         self.log(f"[q3o-judge] CPU intra-op threads set to {threads} (cgroup quota)")
@@ -223,18 +249,37 @@ class Rc5HfQwenJudge:
         gpu_idx, cpu_idx = [], []
         for idx in range(n_layers):
             block = layers[idx].mlp
+            if os.environ.get("RC5_Q3O_PACK_DEBUG") and idx % 4 == 0 and torch.cuda.is_available():
+                import gc as _gc
+                self.log(f"[pack-debug] layer {idx}: allocated="
+                         f"{torch.cuda.memory_allocated()/2**30:.2f}GiB reserved="
+                         f"{torch.cuda.memory_reserved()/2**30:.2f}GiB gc_tracked="
+                         f"{len(_gc.get_objects())}")
             if idx < gpu_layers:
-                layers[idx].mlp = _mod.BatchedGpuMoeBlock(block)
+                gpu_moe_mode = os.environ.get("RC5_Q3O_GPU_MOE", "stable-loop")
+                if gpu_moe_mode == "batched":
+                    layers[idx].mlp = _mod.BatchedGpuMoeBlock(block, free_source=True)
+                else:
+                    # validated 48 GB path: stock HF bf16 experts, forward
+                    # patched in place for the deterministic tie-break; no
+                    # packing (the batched block's buffers do not fit —
+                    # measured, see install_stable_topk_gpu_moe)
+                    _mod.install_stable_topk_gpu_moe(block)
                 gpu_idx.append(idx)
+                del block
                 if torch.cuda.is_available():
+                    import gc
+                    gc.collect()
                     torch.cuda.empty_cache()
             else:
                 layers[idx].mlp = _mod.CpuResidentMoeBlock(block, log=self.log)
                 cpu_idx.append(idx)
-            del block
+                del block
         self._moe_modules = [layers[i].mlp for i in range(n_layers)]
-        return {"mode": "batched-GPU MoE (< gpu_layers) + CPU-resident MoE (>= gpu_layers), "
-                       "scripts/rc5_q3o_moe.py; official rounding points kept",
+        return {"mode": (f"{'batched-GPU MoE' if os.environ.get('RC5_Q3O_GPU_MOE') == 'batched' else 'stock HF GPU MoE + stable tie-break'} "
+                         "(< gpu_layers) + CPU-resident MoE (>= gpu_layers), scripts/rc5_q3o_moe.py; "
+                         "official rounding points kept"),
+                "gpu_moe_mode": os.environ.get("RC5_Q3O_GPU_MOE", "stable-loop"),
                 "cpu_leaf_modules": len(cpu_leaves), "weights_restored_to_cpu": restored,
                 "gpu_moe_layers": gpu_idx, "cpu_moe_layers": cpu_idx, "layers_total": n_layers,
                 "weights_map_references_released": released, "cpu_threads": threads}
@@ -404,6 +449,10 @@ class Rc5HfQwenJudge:
         n_in = moved["input_ids"].shape[1]
         cont = out[0][n_in:] if out.dim() == 2 else out.sequences[0][n_in:]
         n_tok = int(cont.shape[0])
+        meta["generated_token_ids_sha256"] = hashlib.sha256(
+            json.dumps(cont.tolist()).encode()).hexdigest()
+        meta["input_ids_sha256"] = hashlib.sha256(
+            json.dumps(moved["input_ids"][0].tolist()).encode()).hexdigest()
         text = self.processor.batch_decode(cont[None], skip_special_tokens=True,
                                            clean_up_tokenization_spaces=False)[0]
         meta.update({"generated_tokens": n_tok, "generation_seconds": round(gen_s, 2),
@@ -434,7 +483,9 @@ class Rc5HfQwenJudge:
         judgement = self._parse_json_object(content_text)
         record = {"prompt": meta["prompt"], "text": content_text,
                   "generated_tokens": meta["generated_tokens"],
-                  "finish_reason": meta["finish_reason"]}
+                  "finish_reason": meta["finish_reason"],
+                  "generated_token_ids_sha256": meta.get("generated_token_ids_sha256"),
+                  "input_ids_sha256": meta.get("input_ids_sha256")}
         self.capture = [record]
         if self.scorer is not None:
             self.scorer.capture.append(record)      # official record() semantics
@@ -476,6 +527,93 @@ def _proc_resources() -> dict:
     except Exception:  # noqa: BLE001
         pass
     return out
+
+
+# ------------------------------------------------- resume identity (P0.3.2)
+def atomic_write_json(path: Path, obj) -> None:
+    """No-clobber-tolerant atomic publish: a crash can never leave a torn
+    receipt, and a serialisation failure never damages an existing file."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_name(f"{path.name}.tmp.{os.getpid()}")
+    tmp.write_text(json.dumps(obj, indent=1, ensure_ascii=False, default=str) + "\n")
+    os.replace(tmp, path)
+
+
+def receipt_reusable(prev: dict, identity_sha: str, audio_sha: str) -> tuple[bool, str]:
+    """A previous receipt may only be reused when the WHOLE judge identity
+    (code, model, prompts, decoding, placement, tie-break) AND the audio
+    bytes match the current run. Anything else is re-scored; the old file is
+    preserved under a superseded- name, never overwritten in place."""
+    if prev.get("status") not in ("complete", "not_applicable"):
+        return False, f"status_{prev.get('status')}"
+    if prev.get("identity_sha256") != identity_sha:
+        return False, "judge_identity_mismatch"
+    if prev.get("audio_sha256") != audio_sha:
+        return False, "audio_mismatch"
+    return True, "reusable"
+
+
+def identity_drift(prev: dict, cur: dict) -> dict:
+    """Frozen-key comparison of two run identities (every field must match:
+    there is no per-session field here because a judge process is stateless
+    apart from its configuration)."""
+    keys = set(prev) | set(cur)
+    return {k: (prev.get(k), cur.get(k)) for k in sorted(keys)
+            if k not in ("created_at_utc",) and prev.get(k) != cur.get(k)}
+
+
+def compute_run_identity(evaluator_root: Path, cfg: dict, gpu_layers: int, attn: str,
+                         cpu_threads: int, torch_ver: str, hip, transformers_ver,
+                         log=print) -> dict:
+    """Everything a Q3O receipt's meaning depends on. Model weights are
+    content-hashed (all safetensors shards + configs): a re-download, a
+    silent cache change or a revision move can never reuse old receipts."""
+    import glob
+    model_path = str(evaluator_root / json.loads(
+        (evaluator_root / "configs/evaluation_assets.json").read_text())["models"]["q3o"]["path"])
+    t0 = time.time()
+    shard_hashes = {}
+    for p in sorted(glob.glob(f"{model_path}/*.safetensors")):
+        shard_hashes[Path(p).name] = sha_file(Path(p))
+    config_hashes = {n: sha_file(Path(model_path) / n) for n in
+                     ("config.json", "generation_config.json", "chat_template.json",
+                      "preprocessor_config.json", "tokenizer_config.json", "vocab.json",
+                      "merges.txt")}
+    log(f"[q3o-judge] model content-hashed in {time.time()-t0:.0f}s "
+        f"({len(shard_hashes)} shards + {len(config_hashes)} config files)")
+    support = json.loads((evaluator_root / "configs/wsb_q3o_support.json").read_text())
+    prompts = {
+        "audio_prompt": sha_file(evaluator_root / "vendor/eval_control/prompts" / cfg["audio_prompt"]),
+        "weight_prompt": sha_file(evaluator_root / "vendor/eval_control/prompts" / cfg["weight_prompt"]),
+    }
+    ident = {
+        "schema": "yue2-rc5-q3o-identity/2",
+        "judge_source_sha256": sha_file(Path(__file__)),
+        "moe_source_sha256": sha_file(Path(__file__).with_name("rc5_q3o_moe.py")),
+        "evaluator_release_sha256": sha_file(evaluator_root / "release.json"),
+        "evaluator_runtime_sha256": support["runtime_sha256"],
+        "model_revision": json.loads((evaluator_root / "configs/evaluation_assets.json")
+                                     .read_text())["models"]["q3o"]["revision"],
+        "model_shard_sha256": shard_hashes,
+        "model_config_sha256": config_hashes,
+        "prompt_sha256": prompts,
+        "q3o_config_sha256": object_hash(cfg),
+        "decoding_config_sha256": object_hash({
+            "do_sample": False, "temperature": cfg["temperature"], "top_p": cfg["top_p"],
+            "top_k": cfg["top_k"], "max_tokens": cfg["max_tokens"],
+            "eos_token_id": Rc5HfQwenJudge.THINKER_EOS_TOKEN_ID, "seed": 1234}),
+        "precision": "bfloat16 (Thinker-only, no quantisation)",
+        "attention_backend": attn,
+        "torch_version": torch_ver, "hip": hip, "transformers_version": transformers_ver,
+        "placement_config": {"gpu_layers": gpu_layers, "cpu_threads": cpu_threads,
+                             "mode": "BatchedGpuMoeBlock(<gpu_layers) + CpuResidentMoeBlock(>=gpu_layers)"},
+        "tie_break_policy": "lowest_expert_index (stable argsort of fp32 softmax of bf16 router logits)",
+        "equivalence_claim": "NONE: ROCm-adapted judge; official engine is vLLM 0.14.0 + FlashAttention 2.8.3 on CUDA",
+        "created_at_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+    }
+    ident["identity_sha256"] = object_hash(
+        {k: v for k, v in ident.items() if k != "identity_sha256"})
+    return ident
 
 
 def _ofj_parse():
@@ -546,6 +684,9 @@ def main() -> int:
     ap.add_argument("--attn", default="sdpa")
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--ids", default="")
+    ap.add_argument("--repeat", type=int, default=1,
+                    help="score each row N times (repeatability measurement); every run is "
+                         "kept as receipts/<id>/q3o.run-K.json, the last also as q3o.json")
     ap.add_argument("--dry-run", action="store_true", help="protocol checks only, no model")
     a = ap.parse_args()
     os.environ["RC5_EVALUATOR_ROOT"] = str(a.evaluator_root)
@@ -568,12 +709,33 @@ def main() -> int:
         return 0
     judge = Rc5HfQwenJudge(a.evaluator_root, cfg, a.gpu_layers, a.attn, log=log)
     scorer, cfg = build_official_scorer(a.evaluator_root, judge=judge, log=log)
-    (a.out / "runtime_receipt.json").write_text(json.dumps({
-        "schema": "yue2-rc5-q3o-runtime/1", "judge": "Rc5HfQwenJudge (Thinker-only BF16, accelerate mixed placement)",
+    identity = compute_run_identity(
+        a.evaluator_root, cfg, a.gpu_layers, a.attn,
+        judge.placement["moe_placement"]["cpu_threads"],
+        judge.placement["torch"], judge.placement["hip"],
+        judge.placement["transformers"], log=log)
+    # different judge configuration => different run directory, always
+    ident_path = a.out / "identity.json"
+    if ident_path.is_file():
+        prev_ident = json.loads(ident_path.read_text())
+        drift = identity_drift(prev_ident, identity)
+        if drift:
+            log("FATAL: this output directory belongs to a DIFFERENT judge identity "
+                "(never mix configurations in one run):")
+            for k in sorted(drift):
+                log(f"   {k}: {str(drift[k][0])[:90]} -> {str(drift[k][1])[:90]}")
+            return 3
+        log("[q3o-judge] resume: output directory identity matches this judge exactly")
+    else:
+        atomic_write_json(ident_path, identity)
+        log(f"[q3o-judge] run identity {identity['identity_sha256'][:16]} written")
+    atomic_write_json(a.out / "runtime_receipt.json", {
+        "schema": "yue2-rc5-q3o-runtime/2", "judge": "Rc5HfQwenJudge (Thinker-only BF16, accelerate mixed placement)",
         "placement": judge.placement, "q3o_config": cfg,
+        "identity_sha256": identity["identity_sha256"],
         "official_engine": "vLLM 0.14.0 + flash-attn 2.8.3 on an 80 GB CUDA GPU (NOT used here)",
         "equivalence": "NOT established: same weights/prompts/decoding/precision, different engine and attention kernels",
-        "evaluator_bundle_sha256": sha_file(a.evaluator_root / "release.json")}, indent=1, default=str) + "\n")
+        "evaluator_bundle_sha256": sha_file(a.evaluator_root / "release.json")})
     rows = [json.loads(l) for l in a.rows.read_text().splitlines() if l.strip()]
     rows.sort(key=lambda r: (r["prompt_index"], r["candidate_index"]))
     if a.ids:
@@ -582,45 +744,101 @@ def main() -> int:
     if a.limit:
         rows = rows[:a.limit]
     results, failed = [], 0
+    audio_sha_cache: dict[str, str] = {}
+    reused, rescored, superseded = 0, 0, 0
     for n, row in enumerate(rows, 1):
-        dest = a.out / "receipts" / row["id"] / "q3o.json"
-        if dest.is_file():
-            prev = json.loads(dest.read_text())
-            if prev.get("status") in ("complete", "not_applicable"):
+        rid = row.get("id") or f"p{row.get('prompt_index')}_c{row.get('candidate_index')}"
+        dest = a.out / "receipts" / rid / "q3o.json"
+        audio_path = Path(row["audio_path"]) if row.get("audio_path") else None
+        if audio_path is None:
+            for key in ("path", "audio", "flac_path"):
+                if row.get(key):
+                    audio_path = Path(row[key])
+                    break
+        audio_sha = audio_sha_cache.get(str(audio_path))
+        if audio_sha is None and audio_path is not None and audio_path.is_file():
+            audio_sha = sha_file(audio_path)
+            audio_sha_cache[str(audio_path)] = audio_sha
+        declared = row.get("audio_sha256")
+        if declared and audio_sha and declared != audio_sha:
+            log(f"FATAL: {rid}: audio bytes changed since prepare_inputs "
+                f"(declared {str(declared)[:16]}, measured {audio_sha[:16]})")
+            return 3
+        if dest.is_file() and a.repeat == 1:
+            try:
+                prev = json.loads(dest.read_text())
+            except ValueError:
+                prev = {}
+            ok, why = receipt_reusable(prev, identity["identity_sha256"], audio_sha or "")
+            if ok:
                 results.append(prev)
+                reused += 1
+                log(f"{n}/{len(rows)} {rid}: reuse ({why}) "
+                    f"q3o={(prev.get('scores') or {}).get('q3o')}")
                 continue
-        t0 = time.time()
-        try:
-            res = scorer.score(row)          # official code path
-        except Exception as exc:  # noqa: BLE001 - recorded, never hidden
-            res = {"status": "failed", "error": f"{type(exc).__name__}: {exc}",
-                   "traceback": traceback.format_exc(), "raw_decode": list(scorer.capture or [])}
-        res["seconds"] = round(time.time() - t0, 2)
-        res["judge_provider"] = "rc5_hf_transformers_rocm"
-        res["resources"] = _proc_resources()
-        dest.parent.mkdir(parents=True, exist_ok=True)
-        dest.write_text(json.dumps(res, indent=1, ensure_ascii=False) + "\n")
-        results.append(res)
-        failed += res["status"] == "failed"
-        score = (res.get("scores") or {}).get("q3o")
-        log(f"{n}/{len(rows)} {row['id']}: {res['status']} q3o={score} "
-            f"tokens={((res.get('raw_decode') or [{}])[-1]).get('generated_tokens')} "
-            f"{res['seconds']}s {('ERR ' + res['error'][:100]) if res['status'] == 'failed' else ''}")
+            keep = dest.with_name(f"q3o.superseded-{time.strftime('%Y%m%dT%H%M%SZ')}-{why}.json")
+            os.replace(dest, keep)          # preserved, never overwritten
+            superseded += 1
+            log(f"{n}/{len(rows)} {rid}: previous receipt NOT reusable ({why}); "
+                f"preserved as {keep.name}; re-scoring")
+        runs = []
+        for rep in range(1, max(1, a.repeat) + 1):
+            import rc5_q3o_moe as _moe
+            _moe.reset_tie_stats()
+            t0 = time.time()
+            try:
+                res = scorer.score(row)      # official code path
+            except Exception as exc:  # noqa: BLE001 - recorded, never hidden
+                res = {"status": "failed", "error": f"{type(exc).__name__}: {exc}",
+                       "traceback": traceback.format_exc(), "raw_decode": list(scorer.capture or [])}
+            res["seconds"] = round(time.time() - t0, 2)
+            res["judge_provider"] = "rc5_hf_transformers_rocm"
+            res["resources"] = _proc_resources()
+            res["row_id"] = rid
+            res["audio_sha256"] = audio_sha
+            res["identity_sha256"] = identity["identity_sha256"]
+            res["judge_identity"] = {k: identity[k] for k in
+                                     ("judge_source_sha256", "moe_source_sha256", "model_revision",
+                                      "prompt_sha256", "decoding_config_sha256", "precision",
+                                      "attention_backend", "torch_version", "placement_config",
+                                      "tie_break_policy")}
+            res["routing_tie_stats"] = _moe.read_tie_stats()
+            if a.repeat > 1:
+                res["repeat_index"] = rep
+                atomic_write_json(dest.with_name(f"q3o.run-{rep:02d}.json"), res)
+                runs.append(res)
+            atomic_write_json(dest, res)
+            results.append(res)
+            rescored += 1
+            failed += res["status"] == "failed"
+            score = (res.get("scores") or {}).get("q3o")
+            log(f"{n}/{len(rows)} {rid}" + (f" run {rep}/{a.repeat}" if a.repeat > 1 else "") +
+                f": {res['status']} q3o={score} "
+                f"tokens={((res.get('raw_decode') or [{}])[-1]).get('generated_tokens')} "
+                f"{res['seconds']}s {('ERR ' + res['error'][:100]) if res['status'] == 'failed' else ''}")
+        if a.repeat > 1 and runs:
+            toks = {((r.get('raw_decode') or [{}])[-1]).get('generated_token_ids_sha256') for r in runs}
+            scores = {(r.get('scores') or {}).get('q3o') for r in runs}
+            log(f"[q3o-judge] {rid} repeatability over {len(runs)} runs: "
+                f"token_streams={'IDENTICAL' if len(toks) == 1 else 'DIVERGED'} "
+                f"scores={'IDENTICAL' if len(scores) == 1 else 'DIVERGED'} {sorted(scores)}")
     done = [r for r in results if r["status"] == "complete" and (r.get("scores") or {}).get("q3o") is not None]
     summary = {
-        "schema": "yue2-rc5-q3o-run-summary/1",
+        "schema": "yue2-rc5-q3o-run-summary/2",
         "protocol": "WSB-paper-Control-20260905-frozen-candidate-weights (frozen weights, traditional-key MIREX override, 0-5)",
         "judge_provider": "rc5_hf_transformers_rocm (ROCm-adapted; official vLLM/CUDA judge not used)",
+        "identity_sha256": identity["identity_sha256"],
         "rows": len(rows), "complete": sum(1 for r in results if r["status"] == "complete"),
         "not_applicable": sum(1 for r in results if r["status"] == "not_applicable"),
         "failed": failed,
         "scored": len(done),
+        "reused_receipts": reused, "rescored": rescored, "superseded_receipts": superseded,
         "q3o_mean_0_5": round(sum(r["scores"]["q3o"] for r in done) / len(done), 6) if done else None,
         "mean_seconds": round(sum(r.get("seconds", 0) for r in results) / max(1, len(results)), 2),
-        "ids": [r.get("id") for r in results],
+        "ids": [r.get("row_id") for r in results],
         "status": "COMPLETE" if done and not failed else ("COMPLETE_WITH_NOT_APPLICABLE" if not failed else "FAILED_ROWS"),
     }
-    (a.out / "summary.json").write_text(json.dumps(summary, indent=1) + "\n")
+    atomic_write_json(a.out / "summary.json", summary)
     log(json.dumps({k: summary[k] for k in ("rows", "complete", "not_applicable", "failed", "scored", "q3o_mean_0_5")}))
     return 0 if not failed else 1
 

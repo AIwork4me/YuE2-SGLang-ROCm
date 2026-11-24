@@ -1,0 +1,32 @@
+{
+ "schema": "yue2-rc5_1-q3o-real-router-analysis/1",
+ "generated_at_utc": "2026-11-24T17:06:55Z",
+ "source": "REAL Qwen3-Omni-30B-A3B Thinker inference on the W7900D during the repeatability runs of wsb_022_r0_s831023 (not synthetic tensors)",
+ "measurement": "boundary tie = k-th and (k+1)-th ranked fp32 softmax probability EXACTLY equal at a routed token-slot; the selected expert set is then decided by the tie-break rule alone",
+ "results": {
+  "cpu": {
+   "router_calls": 6188,
+   "routed_token_slots": 32550,
+   "boundary_ties": 5973,
+   "boundary_tie_rate": 0.1835023
+  },
+  "cuda:0": {
+   "router_calls": 15028,
+   "routed_token_slots": 79050,
+   "boundary_ties": 15969,
+   "boundary_tie_rate": 0.20201139
+  }
+ },
+ "findings": [
+  "18.35% of CPU-block and 20.20% of GPU-block routed token-slots sit on an exact top-k boundary tie: bf16 router logits quantise to few distinct values, making exact probability ties COMMON",
+  "the counts are bit-identical across all 5 runs (deterministic routing with the stable tie-break)",
+  "IMPLICATION: the stock torch.topk used by the stock HF loop is nondeterministic at these ties on torch 2.10.0+rocm7.14.1, i.e. roughly 1 in 5 routing decisions was previously run-to-run random - this is the quantified root cause of the RC5 pilot's placement-dependent score spread (5.0 / 4.83 / 4.83)",
+  "IMPLICATION for official equivalence: the official vLLM/CUDA fused-MoE kernel's tie rule is not known; with ~20% of slots tied, per-token expert CHOICE cannot be claimed equivalent to the official judge. Score-level equivalence remains unmeasured without a CUDA host (Q3O_OFFICIAL_EQUIVALENCE cannot be claimed)"
+ ],
+ "torch_versions_tested_for_topk_nondeterminism": [
+  "2.10.0+rocm7.14.1 (evaluator env, nondeterministic at ties - historical)",
+  "2.14.0+rocm10.1.0 (system env) - stable argsort used in all paths regardless; stock-topk behaviour not re-quantified here"
+ ],
+ "stable_argsort_effect": "selected expert set fixed deterministically (lowest index first); identical counts across processes A and B (fresh reload)",
+ "bf16_rounding_effect": "router logits rounded to bf16 BEFORE routing (pinned by tests; mutation C2/R2 killed); unrounded fp32 logits would change both tie frequency and selection"
+}

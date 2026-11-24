@@ -110,6 +110,41 @@ def _dev(torch):
     return torch.device("cuda", 0) if torch.cuda.is_available() else torch.device("cpu")
 
 
+def test_stable_topk_gpu_patch_matches_hf_loop_and_pins_ties():
+    """install_stable_topk_gpu_moe: the in-place patched stock HF block must
+    match the verbatim HF loop on tie-free inputs and must resolve crafted
+    boundary ties deterministically (the plain torch.topk it replaces did
+    not, on torch 2.10.0+rocm7.14.1)."""
+    torch = _skip_without_torch()
+    dev = _dev(torch)
+    ref = _tiny_block(torch, E=8, k=3, H=64, I=32).to(dev, torch.bfloat16)
+    patched = _tiny_block(torch, E=8, k=3, H=64, I=32).to(dev, torch.bfloat16)
+    patched.load_state_dict(ref.state_dict())                 # identical weights
+    info = _module(torch).install_stable_topk_gpu_moe(patched)
+    assert info["top_k"] == 3 and info["norm_topk_prob"] is True
+    x = _tie_free(torch, ref, (2, 37, 64))
+    assert _boundary_ties(torch, ref, x) == 0
+    with torch.no_grad():
+        y_ref, l_ref = ref(x)                                  # verbatim HF loop
+        y, l = patched(x)
+        y_again, _ = patched(x)
+    assert torch.equal(_order_key(torch, l), _order_key(torch, l_ref))       # same router logits
+    assert torch.equal(_order_key(torch, y), _order_key(torch, y_ref))       # bit-exact on ties-free
+    assert torch.equal(y, y_again)                                            # deterministic
+    # crafted boundary tie: same input through both, patched picks lowest index
+    ref1 = _tiny_block(torch, E=8, k=1, H=64, I=32).to(dev, torch.bfloat16)
+    pat1 = _tiny_block(torch, E=8, k=1, H=64, I=32).to(dev, torch.bfloat16)
+    pat1.load_state_dict(ref1.state_dict())
+    _module(torch).install_stable_topk_gpu_moe(pat1)
+    xt, a, b = _crafted_boundary_tie(torch, ref1, dev)
+    with torch.no_grad():
+        expected = _oracle_output(torch, ref1, xt)             # independent reference
+        y1, _ = pat1(xt)
+    assert a != b
+    ulp = (_order_key(torch, y1.reshape(expected.shape)) - _order_key(torch, expected)).abs()
+    assert int(ulp.max()) <= 1 and (ulp == 0).float().mean().item() >= 0.999
+
+
 def test_topk_stable_breaks_ties_by_lowest_index():
     torch = _skip_without_torch()
     dev = _dev(torch)

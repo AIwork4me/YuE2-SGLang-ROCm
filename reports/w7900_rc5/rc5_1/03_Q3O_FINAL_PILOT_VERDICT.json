@@ -1,0 +1,32 @@
+{
+ "schema": "yue2-rc5_1-q3o-repeatability/1",
+ "subject": "wsb_022_r0_s831023 (same pilot candidate as the RC5 Q3O pilot)",
+ "audio_sha256": "4345b88f09f60b89",
+ "runs": 5,
+ "processes": 2,
+ "full_model_reload_runs": 2,
+ "token_determinism": "PASS - identical generated token IDs hash across all 5 runs incl. 2 after full model exit/reload",
+ "score_repeatability": "PASS - q3o=4.833333333333333 in all 5 runs",
+ "finish_reason": "stop (all runs, 442 generated tokens)",
+ "input_identity": "identical input_ids hash (same audio, prompt, seed-free greedy)",
+ "fixes_that_made_this_possible": [
+  "stable top-k tie-break (stock torch.topk was nondeterministic at boundary ties on torch 2.10.0+rocm7.14.1)",
+  "torch-free numba warm-up (llvmlite opt passes segfaulted rc=139 after the HIP stack loaded)",
+  "inference-mode-safe tie-stat accumulator reset"
+ ],
+ "TOKEN_DETERMINISM_VERDICT": "PASS",
+ "SCORE_REPEATABILITY_VERDICT": "PASS",
+ "generated_at_utc": "2026-11-24T17:26:31Z",
+ "Q3O_MODEL_LEVEL_VERDICT": "PASS (8/8 valid on the real W7900D; stock-HF-GPU+stable-tie-break path loads and scores within budget)",
+ "Q3O_REPEATABILITY_VERDICT": "PASS (5 runs, 2 processes incl. full model reload: identical token streams and identical scores)",
+ "Q3O_RESOURCE_VERDICT": "PASS (peak VRAM 42.42 GiB torch-allocated / 43.14 GiB device; host VmHWM 50.72 GiB of 55 GiB cgroup = 4.28 GiB headroom; no OOM events)",
+ "Q3O_OFFICIAL_EQUIVALENCE_VERDICT": "NOT_ESTABLISHED (BLOCKED_EXTERNAL: no CUDA host; 18-20% of routed slots sit on exact boundary ties whose official vLLM tie rule is unknown; same weights/prompts/decoding/precision but different engine)",
+ "DECISION": "Q3O_ROCM_ADAPTED_PILOT_GO - freeze this judge (identity 5b1a3fbe3b5d27a1) for the full evaluation; no further operator optimisation (mission scope)",
+ "batched_gpu_moe_block_status": "RETAINED_IN_CODE_NOT_USED_AT_RUNTIME: does not fit 48 GB as implemented (measured); available behind RC5_Q3O_GPU_MOE=batched for larger-memory hosts; unit-tested",
+ "pilot8": {
+  "valid": "8/8",
+  "mean_seconds": 101.46,
+  "q3o_mean_0_5": 3.382958,
+  "score_range": "0.1667 (empty-transcript en) .. 5.0 (clean en/zh) - judge discriminates hard candidates"
+ }
+}

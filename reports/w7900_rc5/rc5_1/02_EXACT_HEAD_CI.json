@@ -1,0 +1,47 @@
+{
+ "schema": "yue2-rc5_1-exact-head-ci/1",
+ "generated_at_utc": "2026-11-24T16:42:14Z",
+ "head": "b3051815 (full sha to fill at final delivery)",
+ "runs": [
+  {
+   "id": 45415761784,
+   "event": "push",
+   "head": "b3051815",
+   "conclusion": "success",
+   "jobs": {
+    "cpu": "success",
+    "q3o-moe-cpu-numerics": "success"
+   }
+  },
+  {
+   "id": 45415783595,
+   "event": "pull_request",
+   "head": "b3051815",
+   "conclusion": "success",
+   "jobs": {
+    "cpu": "success",
+    "q3o-moe-cpu-numerics": "success"
+   }
+  }
+ ],
+ "previous_failing": [
+  {
+   "id": 45415198539,
+   "head": "619d6c9c",
+   "cause": "workflow YAML plain scalar broke on ': ' in the environment-disclosure step (0s syntax failure), fixed in b3051815"
+  },
+  {
+   "id": 45406248566,
+   "head": "bb77317",
+   "cause": "ModuleNotFoundError: torch at collection (root cause in 02_CI_ROOT_CAUSE.md)"
+  }
+ ],
+ "q3o_moe_cpu_numerics_job": {
+  "torch": "2.12.0 pinned CPU wheel (download.pytorch.org/whl/cpu)",
+  "environment_disclosure": "assert not torch.cuda.is_available() (step success proves CPU-only)",
+  "numerics_tests": "pytest tests/test_rc5_q3o_moe.py -v (step success; GPU-block cases skip honestly on the runner)",
+  "mutation_controls": "scripts/mutation_controls_q3o_moe.py executed (exit 0: baseline control passed; survivors recorded in the uploaded artifact)"
+ },
+ "note": "job-log download requires admin rights on this token; evidence is step-level conclusions + identical local reproduction (533 passed / 3 skipped CPU suite; 10 passed with GPU torch; mutation 15/16 GPU, G2 analysed)",
+ "EXACT_HEAD_CI": "PASS (b3051815 at time of writing; final head re-verified at delivery)"
+}
