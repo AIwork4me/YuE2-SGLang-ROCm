@@ -1,0 +1,102 @@
+{
+ "schema": "yue2-rc5_1-per-error-decomposition/1",
+ "generated_at_utc": "2026-11-26T10:02:18Z",
+ "method": "Levenshtein backtrace on the official token lists of the SELECTED repeat; verified S+D+I == official edits for every one of the 192 selected candidates (0 mismatches)",
+ "selected_192": {
+  "all": {
+   "S": 14552,
+   "D": 10589,
+   "I": 2422
+  },
+  "zh": {
+   "S": 9293,
+   "D": 2907,
+   "I": 652
+  },
+  "en": {
+   "S": 5259,
+   "D": 7682,
+   "I": 1770
+  },
+  "note": "deletions dominate: capped ASR output loses whole lyric lines (empty_transcript/cap candidates contribute large deletion counts)"
+ },
+ "failure_taxonomy_counts": {
+  "empty_all_repeats": 10,
+  "token_cap_candidates": 112,
+  "per_eq_1": 11
+ },
+ "high_per_tail_selected": [
+  {
+   "id": "wsb_086_r0_s831087",
+   "per": 1.0,
+   "empty": true,
+   "capped": false
+  },
+  {
+   "id": "wsb_101_r0_s831102",
+   "per": 0.9945,
+   "empty": false,
+   "capped": true
+  },
+  {
+   "id": "wsb_187_r0_s831188",
+   "per": 0.8274,
+   "empty": false,
+   "capped": true
+  },
+  {
+   "id": "wsb_164_r0_s831165",
+   "per": 0.7061,
+   "empty": false,
+   "capped": true
+  },
+  {
+   "id": "wsb_007_r0_s831008",
+   "per": 0.5694,
+   "empty": false,
+   "capped": false
+  },
+  {
+   "id": "wsb_023_r0_s831024",
+   "per": 0.5121,
+   "empty": false,
+   "capped": true
+  },
+  {
+   "id": "wsb_107_r1_s831126",
+   "per": 0.479,
+   "empty": false,
+   "capped": true
+  },
+  {
+   "id": "wsb_173_r1_s831192",
+   "per": 0.4702,
+   "empty": false,
+   "capped": false
+  },
+  {
+   "id": "wsb_133_r0_s831134",
+   "per": 0.4495,
+   "empty": false,
+   "capped": false
+  },
+  {
+   "id": "wsb_124_r0_s831125",
+   "per": 0.4489,
+   "empty": false,
+   "capped": true
+  },
+  {
+   "id": "wsb_071_r1_s831090",
+   "per": 0.4481,
+   "empty": false,
+   "capped": false
+  },
+  {
+   "id": "wsb_191_r0_s831192",
+   "per": 0.3837,
+   "empty": false,
+   "capped": true
+  }
+ ]
+}

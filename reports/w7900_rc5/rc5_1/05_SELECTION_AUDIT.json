@@ -1,0 +1,22 @@
+{
+ "schema": "yue2-rc5_1-selection-audit/1",
+ "generated_at_utc": "2026-11-26T09:59:41Z",
+ "raw_candidate_coverage": "384/384",
+ "selected_prompt_coverage": "192/192",
+ "official_vs_independent_identity": "192/192",
+ "selected_audio_hash_match": "192/192",
+ "selection_key": "(per, edits, abs(len(phonemes)-reference), candidate_index) - full official tuple, verbatim",
+ "mismatches": [],
+ "per": {
+  "selected_micro": 0.177699,
+  "selected_macro": 0.165407,
+  "unselected_micro": 0.308147,
+  "unselected_macro": 0.288405,
+  "capped_candidate_count": 112,
+  "empty_all_repeats_count": 10,
+  "per_eq_1_count": 11,
+  "note": "empty-vs-capped-vs-genuine high PER are distinguished, never conflated"
+ },
+ "problems": [],
+ "VERDICT": "PASS"
+}
