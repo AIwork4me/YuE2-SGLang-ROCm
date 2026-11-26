@@ -42,9 +42,17 @@ def main() -> int:
     results = [r for r in rows if r["event"] == "result"]
     launched = first("launch")
     first_candidate_launch = next((r for r in rows if r["event"] == "launched"), launched)
-    summary = first("summary")
-    checkpoint = first("checkpoint")
-    backup = first("backup_verified")
+    summary = next((r for r in rows if r["event"] == "summary"), None)
+    # the LAST summary is the run's final state (the first may be an
+    # intermediate pause, e.g. the RC5 SIGTERM snapshot at 20/384)
+    for r in rows:
+        if r["event"] == "summary":
+            summary = r
+    checkpoint = next((r for r in rows if r["event"] == "checkpoint"), None)
+    for r in rows:
+        if r["event"] == "checkpoint":
+            checkpoint = r          # newest checkpoint
+    backup = next((r for r in rows if r["event"] == "backup_verified"), None)
     candidates = []
     for r in sorted(results, key=lambda r: (r["prompt_index"], r["candidate_index"])):
         row = {k: r.get(k) for k in ROW_FIELDS}
