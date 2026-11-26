@@ -1,0 +1,17 @@
+{
+ "schema": "yue2-rc5_1-allmusiccaps-full/1",
+ "generated_at_utc": "2026-11-26T11:40:18Z",
+ "scope": "official selected-192",
+ "value": 0.405181,
+ "coverage": {
+  "scored": 192,
+  "failed": 0
+ },
+ "references": {
+  "paper": 0.4054,
+  "author_sgl": 0.40825,
+  "historical_w7900_armB": 0.405556,
+  "rc5_1": 0.405181,
+  "delta_vs_historical": -0.000375
+ }
+}

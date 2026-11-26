@@ -1,0 +1,56 @@
+{
+ "schema": "yue2-rc5_1-q3o-full/1",
+ "generated_at_utc": "2026-11-26T16:21:07Z",
+ "protocol": "WSB-paper-Control-20260905-frozen-candidate-weights (official PaperQ3OScorer.score() verbatim; frozen 1536-row candidate weights sha-checked; official prompts; official parser; official score aggregation)",
+ "judge": "Rc5HfQwenJudge: Qwen3-Omni-30B-A3B-Instruct Thinker-only BF16, HF transformers 4.57.6 on ROCm (vLLM 0.14.0 + FlashAttention 2.8.3 CUDA is the official engine, NOT used)",
+ "identity_sha256": "e8e2b7a2b8deb29ec987862b48198ccb077b9ac7b5521b5fd3ab6ad7262ea164",
+ "placement": {
+  "gpu_moe_layers": 34,
+  "cpu_moe_layers": 14,
+  "cpu_threads": 16,
+  "gpu_moe_mode": "stock HF bf16 experts + stable tie-break (in-place forward patch)"
+ },
+ "coverage": {
+  "expected": 192,
+  "evaluated": 192,
+  "valid_scored": 192,
+  "official_not_applicable": 0,
+  "failed": 0,
+  "invalid": 0,
+  "pending": 0,
+  "per_receipt": "audio_sha256 + identity_sha256 + judge_identity embedded in every receipt"
+ },
+ "score": {
+  "q3o_mean_0_5": 4.393986,
+  "q3o_mean_0_1": 0.878797,
+  "q3o_std_0_5": 0.8343,
+  "q3o_min_0_5": 1.25,
+  "q3o_max_0_5": 5.0,
+  "finish_reason_stop": 192
+ },
+ "references": {
+  "paper": 4.68,
+  "h800_reproduction_original_audio": 4.69,
+  "h800_fresh_generation": 4.71,
+  "source": "evaluator bundle README (verified section): 'Q3O gives 4.69 vs 4.68 on the original audio and 4.71 on fresh H800 generations; equality to two decimals remains unresolved'",
+  "rc5_1_w7900_rocm_adapted": 4.393986,
+  "delta_vs_paper": -0.286,
+  "comparability": "same weights/prompts/parser/aggregation; different engine (HF ROCm vs vLLM CUDA), attention kernels and ~20% tied-routing choices -> NOT official-equivalent"
+ },
+ "resources": {
+  "peak_vram_gib": 42.41,
+  "host_vmhwm_gib": 49.83,
+  "cgroup_limit_gib": 55,
+  "headroom_gib": 5.17
+ },
+ "performance": {
+  "mean_seconds": 87.11,
+  "total_wall_hours": 4.65
+ },
+ "verdicts": {
+  "Q3O_FULL_COVERAGE_VERDICT": "PASS (192/192 valid, 0 failed, 0 parser failures)",
+  "Q3O_REPEATABILITY_VERDICT": "PASS (5-run/2-process identical tokens+score, see 03_Q3O_REPEATABILITY.csv)",
+  "Q3O_OFFICIAL_EQUIVALENCE_VERDICT": "NOT_ESTABLISHED (no CUDA host; BLOCKED_EXTERNAL)",
+  "overall_status": "Q3O_FULL_ROCM_ADAPTED_PASS"
+ }
+}
