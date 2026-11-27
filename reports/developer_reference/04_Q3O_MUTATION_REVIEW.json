@@ -1,0 +1,29 @@
+{
+ "schema": "yue2-rc6-q3o-mutation-review/1",
+ "generated_at_utc": "2026-11-27T14:40:00Z",
+ "source": "reports/w7900_rc5/rc5_1/02_Q3O_MOE_MUTATION_GPU.json (15/16 killed) + RC6 code audit of scripts/rc5_q3o_moe.py @ HEAD",
+ "survivor": {
+  "id": "G2_routing_weight_not_bf16",
+  "mutation": "routing weights kept in fp32 instead of bf16 in the GPU block forward",
+  "affected_code_path": "BatchedGpuMoeBlock.forward (scripts/rc5_q3o_moe.py)",
+  "default_path_affected": false,
+  "classification": [
+    "EXPERIMENTAL_NOT_DEFAULT: BatchedGpuMoeBlock is selected ONLY via RC5_Q3O_GPU_MOE=batched; the validated/published path is 'stable-loop' (install_stable_topk_gpu_moe over stock HF experts). The batched mode additionally cannot LOAD on the 48 GiB card in the full-model configuration (OOM root-caused in RC5.1) — it is code-retained for the record, never part of any published score.",
+    "DISCLOSED_DEVIATION_CLASS: the arithmetic delta (fp32 weight multiply then round, vs bf16 weight application) sits in the same rounding-point deviation class that RC5.1 explicitly discloses for both blocks ('contribution summation dtype fp32 vs sequential bf16 ... deliberately NOT covered by a mutation control').",
+    "TEST_SENSITIVITY: the reference-loop comparison for the batched block does not pin the weight-application rounding point, so this specific mutation is not distinguishable there by construction."
+  ],
+  "default_path_status": "SAFE: install_stable_topk_gpu_moe keeps stock HF semantics — routing weights are cast to hidden dtype bf16 (rw.to(hs.dtype), scripts/rc5_q3o_moe.py) exactly as the stock HF loop; the patch's single change is the stable top-k, whose mutations (R3/R4) are KILLED.",
+  "decision": "NOT_FIXED, NO_TOLERANCE_TUNING",
+  "decision_rationale": "the mission forbids artificially adjusting scientific tolerances to reach 16/16 KILLED. Closing G2 honestly would require a bit-exact weight-dtype test for a non-default, non-loadable experimental path — it would add no protection to any published number. The survivor is instead disclosed here with its exact scope. If the batched path is ever promoted to default, a weight-rounding bit-exactness test becomes a hard requirement first.",
+  "scientific_effect_on_published_results": "NONE: the RC5.1 full-192 Q3O run used gpu_moe_mode='stable-loop' (summary.json 'gpu_moe_mode': 'stable-loop', default), so G2's mutated arithmetic never executed in any scored receipt."
+ },
+ "recomputation": "mutation harness not re-run in RC6 (GPU budget allocated to fresh validation work); the 15/16 result is frozen RC5.1 evidence, and the RC6 audit re-verified the module source sha 62c4298c... is unchanged",
+ "comparator_selftest": {
+  "tool": "scripts/rc6_q3o_comparator.py --selftest",
+  "run": "2026-11-27T14:28:44Z against /data/yue2-runs/rc5-q3o/rc5_1-full-192",
+  "self_comparison_zero": true,
+  "perturbation_detected": true,
+  "n_receipts": 192,
+  "verdict": "PASS"
+ }
+}

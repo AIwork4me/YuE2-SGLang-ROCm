@@ -163,3 +163,96 @@ names the exact symptom string where applicable.
 
 ### MIOpen `IsEnoughWorkspace ... GemmFwdRest` warnings during NAR
 - **Benign:** solver workspace probing noise; generation proceeds normally.
+
+---
+
+# RC6 additions (Developer Reproduction Reference, 2026-11-27)
+
+Structured per the developer-reference contract: Symptom → Diagnostic →
+Likely causes → Safe remedy → Retry/resume → Escalation.
+
+## 1. Missing `/dev/kfd` (or permission denied on it)
+- **Symptom:** `HSA permission`/`kfd` errors; rocminfo lists no GPU agent;
+  torch sees no HIP device.
+- **Diagnostic:** `ls -l /dev/kfd /dev/dri/renderD*`;
+  `python3 scripts/reference_cli.py doctor`.
+- **Causes:** no amdgpu driver for your kernel; user not in `video`/`render`
+  group; container without device passthrough.
+- **Remedy:** install a kernel with Navi31 amdgpu support; add your user to
+  the render group; pass `/dev/kfd` + `/dev/dri/*` into the container.
+- **Escalation:** none in-repo (host provisioning).
+
+## 2. Wrong gfx architecture (e.g. gfx1200 with gfx1100 wheel)
+- **Symptom:** `hipErrorInvalidImage` / `device kernel image is invalid`.
+- **Diagnostic:** `rocminfo | grep gfx` vs the installed wheel
+  (`pip show torch | grep -i rocm`).
+- **Remedy:** install the wheel with the correct device extra
+  (`torch[device-<arch>]`); if none exists for your arch →
+  UNSUPPORTED_CONFIGURATION (verify tool says so).
+
+## 3. Insufficient VRAM
+- **Symptom:** OOM during server load or Q3O judge.
+- **Diagnostic:** `rocm-smi --showmemuse`; journal
+  `candidate_vram_delta_bytes`; Q3O receipts' `peak_vram_bytes`.
+- **Remedy:** close other GPU processes (`reference status` shows the lock
+  holder); for Q3O confirm ≥ 42.4 GiB free torch budget.
+- **Retry:** the judge and campaign resume by identity — rerun the same
+  command; already-complete receipts are reused.
+
+## 4. GPU occupied by another job
+- **Symptom:** `gpu_lock.py wait` blocks; exit 3 after `--wait-s`.
+- **Diagnostic:** `python3 scripts/reference_cli.py status` (lock holder
+  pid/cmdline).
+- **Remedy:** wait, or `reference stop` (graceful SIGINT/SIGTERM to the
+  recorded pid). NEVER pkill.
+- **Stale lock** (pid dead): `gpu_lock.py unblock --yes`.
+
+## 5. Incorrect ROCm wheel / CUDA package snuck in
+- **Symptom:** `libnvrtc` errors; `torch.version.hip is None`.
+- **Diagnostic:** `pip freeze | grep -Ei 'nvidia|cuda|sgl-kernel|flashinfer'`
+  (must be empty).
+- **Remedy:** uninstall the CUDA packages; reinstall with
+  `--no-deps --no-build-isolation`.
+
+## 6. Model download interrupted / hash mismatch
+- **Symptom:** `download_pins.py` reports a SHA mismatch or partial file.
+- **Remedy:** rerun (idempotent, resume+chunked); set
+  `HF_ENDPOINT=https://hf-mirror.com` if huggingface.co is unreachable —
+  every file is hash-verified regardless of endpoint.
+
+## 7. SGLang import guard failure
+- **Symptom:** `ModuleNotFoundError: aiter` or `ImportError: ... sgl_kernel`.
+- **Remedy:** confirm the import-guard patch is applied
+  (`patches/rc5-0001-0003-0008-rocm-import-guards.patch`); confirm PyPI
+  `sgl-kernel` is NOT installed (absence is the supported state).
+
+## 8. Worker dead but HTTP healthy
+- **Symptom:** `/health` returns 200 but generations hang.
+- **Diagnostic:** `scripts/server_readiness.py check --receipt <identity>`.
+- **Remedy:** the lifecycle supervisor stops and restarts the server
+  (run_with_server); readiness is checked before every session.
+
+## 9. vLLM platform probe failure ("Device string must not be empty")
+- **Cause:** vLLM's ROCm probe imports amdsmi; the host shim raises after a
+  SUCCESSFUL init and the plugin falls through to UnspecifiedPlatform.
+- **Remedy:** already handled in `scripts/rc5_asr_vllm_native.py` (platform
+  registered directly, disclosed in the engine receipt).
+
+## 10. Q3O host memory pressure
+- **Symptom:** OOM-kill / cgroup pressure during the Q3O judge.
+- **Diagnostic:** Q3O summary's host VmHWM vs cgroup limit (49.83/55 GiB on
+  the reference rig).
+- **Remedy:** keep ≥ 5 GiB headroom; reduce competing host load; the judge
+  resumes by identity.
+
+## 11. Invalid evaluator receipt (RC6 fail-closed resume)
+- **Symptom:** `rc5_asr_vllm_native.py` exits 3/4 with REJECT_* decisions;
+  scorer raises `ScorerValidationError`.
+- **Diagnostic:** read `*.resume_audit.json` next to the transcripts file.
+- **Remedy:** fix the cause (audio/model/engine/config mismatch) and write
+  to a NEW output path; torn tails are auto-quarantined (bounded repair).
+
+## 12. Session died mid-run
+- **Remedy:** `python3 scripts/reference_cli.py resume --run-dir <run>` —
+  the journal is append-only; verified candidates are skipped; partial
+  artifacts are quarantined, never deleted.

@@ -1,0 +1,54 @@
+{
+ "schema": "yue2-rc6-compatibility-matrix/1",
+ "generated_at_utc": "2026-11-27T15:10:00Z",
+ "status_vocabulary": ["PHYSICAL_PASS", "PARTIAL_PHYSICAL_PASS", "EXPECTED_BUT_UNVERIFIED", "NOT_TESTED", "UNSUPPORTED"],
+ "gpu_matrix": [
+  {
+   "gpu": "AMD Radeon PRO W7900 / W7900D 48 GiB (gfx1100)",
+   "generation": "PHYSICAL_PASS (RC5.1 384/384, 0 failures, byte-reproducible 380/384)",
+   "per": "PHYSICAL_PASS (transformers frozen arm 384x4 receipts + vLLM 0.19.1 corrected arm 384 receipts, same audio)",
+   "songbench_mulan_amc": "PHYSICAL_PASS (192/192 selected each, official evaluator)",
+   "q3o": "PHYSICAL_PASS ROCm-adapted (192/192; official CUDA equivalence NOT_ESTABLISHED)",
+   "overall": "PHYSICAL_PASS",
+   "evidence": "reports/w7900_rc5/rc5_1/*, reports/developer_reference/*"
+  },
+  {
+   "gpu": "AMD Radeon 8060S 32 GiB (gfx1151, Ryzen AI MAX+ 395)",
+   "generation": "PARTIAL_PHYSICAL_PASS (historical ced0ef7d-era campaigns/pilots only; c67d541a stack NOT re-verified on this device)",
+   "per": "NOT_TESTED (on the c67d541a stack)",
+   "songbench_mulan_amc": "NOT_TESTED (on the c67d541a stack)",
+   "q3o": "NOT_TESTED",
+   "overall": "PARTIAL_PHYSICAL_PASS (historical only)",
+   "evidence": "reports/gfx1100 + historical evidence (RC2-era)"
+  },
+  {
+   "gpu": "AMD RX 7900 XTX 24 GiB (gfx1100)",
+   "generation": "EXPECTED_BUT_UNVERIFIED (same arch; 24 GiB is below the Q3O judge's measured 42.4 GiB peak but above the generation steady-state)",
+   "per": "EXPECTED_BUT_UNVERIFIED",
+   "songbench_mulan_amc": "EXPECTED_BUT_UNVERIFIED",
+   "q3o": "NOT_TESTED (below measured judge VRAM requirement)",
+   "overall": "EXPECTED_BUT_UNVERIFIED",
+   "evidence": "arch equivalence only — no physical run"
+  },
+  {
+   "gpu": "AMD RX 9070 XT (gfx1200 family)",
+   "generation": "EXPECTED_BUT_UNVERIFIED (no torch wheel/stack tested on this host)",
+   "per": "EXPECTED_BUT_UNVERIFIED",
+   "songbench_mulan_amc": "EXPECTED_BUT_UNVERIFIED",
+   "q3o": "NOT_TESTED",
+   "overall": "EXPECTED_BUT_UNVERIFIED",
+   "evidence": "none (arch family inference only)"
+  },
+  {
+   "gpu": "Other Radeon / CDNA accelerators (MI300 etc.)",
+   "generation": "NOT_TESTED",
+   "per": "NOT_TESTED",
+   "songbench_mulan_amc": "NOT_TESTED",
+   "q3o": "NOT_TESTED",
+   "overall": "NOT_TESTED",
+   "evidence": "none"
+  }
+ ],
+ "kernel_path_matrix_pointer": "docs/COMPATIBILITY_MATRIX.md (feature-level, both gfx1100/gfx1151)",
+ "policy": "same-arch does NOT imply verified: every PHYSICAL_PASS above was physically executed and receipted on that hardware; anything else is labelled honestly"
+}
