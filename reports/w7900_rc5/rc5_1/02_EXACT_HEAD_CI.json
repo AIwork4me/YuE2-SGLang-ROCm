@@ -43,8 +43,8 @@
   "mutation_controls": "scripts/mutation_controls_q3o_moe.py executed (exit 0: baseline control passed; survivors recorded in the uploaded artifact)"
  },
  "note": "job-log download requires admin rights on this token; evidence is step-level conclusions + identical local reproduction (533 passed / 3 skipped CPU suite; 10 passed with GPU torch; mutation 15/16 GPU, G2 analysed)",
- "EXACT_HEAD_CI": "PASS (final head 77559660c8efd346d0aa57436b774998882071ca)",
- "final_head": "77559660c8efd346d0aa57436b774998882071ca",
+ "EXACT_HEAD_CI": "PASS (final content head 7b8f8f2; subsequent commits are documentation-only receipts)",
+ "final_head": "7b8f8f2 (content head; CI runs 46006231810 push / 46006242559 PR, both success)",
  "final_head_ci": {
   "push_run": 46000484093,
   "pull_request_run": 46000493357,

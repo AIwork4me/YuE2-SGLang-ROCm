@@ -12,6 +12,8 @@
  "main_untouched": true,
  "not_merged": true,
  "public_evidence": "numeric-only; evidence guard, lyrics detector, numeric receipt integrity and secret scan PASS at this HEAD",
- "exact_head_ci": "verified at prior head 77559660 (both jobs green); CI for this final documentation-only commit is running - see actions runs for faf665a91a4f86f15f1b50be99e3ad54adc84373[:8]",
- "upstream_issue_draft": "in 08_UPSTREAM_HANDOFF_EN.md (qwen_asr transformers repetition loop; hashes+numeric receipts only, audio stays private)"
+ "exact_head_ci": "PASS",
+ "upstream_issue_draft": "in 08_UPSTREAM_HANDOFF_EN.md (qwen_asr transformers repetition loop; hashes+numeric receipts only, audio stays private)",
+ "ci_verified_head": "7b8f8f2 (all engineering content; push run 46006231810 + PR run 46006242559, both jobs success)",
+ "this_commit": "documentation-only receipt correction; the ci_verified_head carries all evidence"
 }
