@@ -2,7 +2,24 @@
 
 ## Generate music with the official YuE2 model on AMD GPUs — native PyTorch and SGLang
 
-**Status (2026-11-22, RC4.1):** both official WildSongBench campaigns on this
+**Status (2026-11-27, RC5.1 — FINAL, this branch):** the complete
+WildSongBench reproduction on the author's latest SGLang stack
+(`c67d541a`, PR sgl-project/sglang#42106) is **done end-to-end on the
+W7900D**: 384/384 candidates generated with zero failures (380/384
+byte-identical to the previous stack's run — the 4 differences are
+FLAC-encoder-build-only), full official five-metric evaluation
+(SongBench 6.736891 · PER 17.7699% frozen / **8.4488% vLLM-corrected arm vs
+paper 8.44%** · MuLan 0.509395 · AllMusicCaps 0.405181 · Q3O 4.393986/5
+ROCm-adapted 192/192), and the PER gap root-caused with a same-audio
+engine matrix: the transformers ASR substitution's repetition loop, escaped
+by vLLM, invariant to precision/attention/batch/device. Q3O runs stably on
+48 GB (34 GPU + 14 CPU MoE layers, deterministic tie-break, 5-run
+token-identical). Off-machine backup, official CUDA comparison and
+author/AMD approval remain open (see the gate ledger). All evidence:
+[RC5.1 reports](reports/w7900_rc5/rc5_1/) and
+[FINAL_REPORT_ZH.md](reports/w7900_rc5/rc5_1/FINAL_REPORT_ZH.md).
+
+**Status (2026-11-22, RC4.1, historical):** both official WildSongBench campaigns on this
 W7900D rig are complete and frozen — Arm A (native PyTorch) 384/384 FULL and
 Arm B (SGLang) 384/384 FULL with zero generation failures, official frozen
 four-metric scoring, and 384/384 candidate-identity reverification (RC3).
@@ -20,15 +37,16 @@ approval is implied. See [RC4 reports](reports/w7900_rc4/),
 [RC4.1 reports](reports/w7900_rc4_1/) and the
 [evidence index](docs/EVIDENCE_INDEX.md).
 
-**Status (2026-11-24, RC5 — IN PROGRESS):** the author's latest SGLang PR
+**Status (2026-11-24, RC5 — historical snapshot, SUPERSEDED by RC5.1):** the
+author's latest SGLang PR
 head (`c67d541a`) is frozen and runs natively on the W7900D with only two
 import-guard patches; the RC4.1 GPU-lock race is reproduced and closed by a
 single-owner lifecycle supervisor (`scripts/gpu_lifecycle.py`); the 384-song
-campaign with the latest runtime is running. Its first 12 pre-registered
-pilot candidates are byte-identical to the frozen historical Arm B audio.
-Full scoring, the PER root-cause study and Q3O are not finished — see the
-honest snapshot [INTERIM_STATUS_ZH.md](reports/w7900_rc5/INTERIM_STATUS_ZH.md)
-and the [RC5 reports](reports/w7900_rc5/).
+campaign with the latest runtime was started (its first 12 pre-registered
+pilot candidates were byte-identical to the frozen historical Arm B audio)
+and later **completed and fully evaluated by RC5.1** — see the superseded
+snapshot [INTERIM_STATUS_ZH.md](reports/w7900_rc5/INTERIM_STATUS_ZH.md)
+and the final [RC5.1 reports](reports/w7900_rc5/rc5_1/).
 
 Run the official YuE2 weights (m-a-p/YuE2-3B) on AMD Radeon GPUs through two
 verified paths on the same hardware:

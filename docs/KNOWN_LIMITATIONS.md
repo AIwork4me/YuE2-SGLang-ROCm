@@ -153,3 +153,38 @@
 - **Q3O**: the Thinker alone is 58 GiB in BF16 (> the ~44.6 GiB usable), so the
   official judge cannot be loaded as-is; a ROCm-adapted route (Thinker-only
   BF16, mixed GPU/CPU placement) is prepared but not yet validated on hardware.
+
+## RC5.1 additions (2026-11-27, final)
+
+1. **Q3O is ROCm-adapted, NOT official-equivalent**: the official judge is
+   vLLM 0.14.0 + FlashAttention 2.8.3 on an 80 GB CUDA GPU. Our judge keeps
+   the official scorer, prompts, parser, weights and greedy decoding, but
+   runs the Thinker through HF transformers on ROCm (34 GPU + 14 CPU-resident
+   MoE layers). **18.4–20.2% of routed token-slots sit on exact top-k
+   boundary ties** whose resolution in the official kernel is unknown, so
+   per-token routing parity cannot be claimed. Score 4.393986 vs paper 4.68.
+2. **PER engine substitution, now root-caused**: the frozen official W7900
+   PER (17.7699%) uses the qwen_asr transformers backend (vLLM 0.14 has no
+   ROCm build). That backend enters a repetition loop on 10/384 candidates
+   (2 more cap out) — invariant to precision/attention/batch/device; the
+   same weights+audio through vLLM 0.19.1 transcribe them. The corrected arm
+   scores 8.4488% selected micro PER (paper: 8.44%); it is reported as a
+   SEPARATE arm — the frozen scoreboard entry is unchanged, and the other
+   four metrics are bound to the original frozen selection.
+3. **Off-machine backup**: BLOCKED_EXTERNAL (owner confirmed no backup host);
+   same-host second-volume recovery is verified (384/384 drill) but is not
+   off-machine disaster recovery.
+4. **Four candidates differ from the historical run at the FLAC-container
+   level only** (same codec frames/duration/truncation; −2/+2/+15/0 bytes in
+   17–26 MB files): the rebuilt image's libFLAC build differs. Generation
+   determinism is unaffected.
+5. **Exact-HEAD CI evidence is step-level** (job-log download requires admin
+   rights); local reproduction of the same suites is recorded in
+   `reports/w7900_rc5/rc5_1/02_TEST_RESULTS.json`.
+6. **Kernel-level trigger of the ASR loop is characterised, not traced**:
+   the post-header knife-edge (identical top-5, EOS prob ~2e-5) is measured;
+   which arithmetic difference flips it is OPEN. E3 (official CUDA) is
+   BLOCKED_EXTERNAL with a prepared hand-off package.
+7. **BatchedGpuMoeBlock is retained but not used at runtime**: it does not
+   fit 48 GB as implemented (allocator fragmentation, root-caused); the
+   validated path patches the stock HF loop's top-k in place.

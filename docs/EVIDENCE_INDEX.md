@@ -98,3 +98,9 @@ selected-192 benchmark result. Status: reports/w7900_rc5/INTERIM_STATUS_ZH.md.
 | Q3O judged on the 48 GB W7900D for the first time: 1 retained run COMPLETE (q3o 4.83, 176 s/candidate, VRAM 43.1 GiB, host peak 50.1/55 GiB); two earlier single runs not retained (disclosed); receipt wording correction | reports/w7900_rc5/07_Q3O_48GB_PILOT.json |
 | Q3O MoE placement blocks equal to the verbatim HF loop (<= 2 bf16 ulp on tie-free inputs); 9 tests x 4 environments; 16 arithmetic mutation controls: 15/16 KILLED on GPU in both torch builds (survivor disclosed as near-equivalent) | reports/w7900_rc5/07_Q3O_MOE_EQUIVALENCE.json, tests/test_rc5_q3o_moe.py, scripts/mutation_controls_q3o_moe.py |
 | torch.topk breaks ties nondeterministically on the evaluator build (2.10.0+rocm7.14.1, W7900D): greedy MoE judges built on it are not reproducible run-to-run | reports/w7900_rc5/07_Q3O_MOE_EQUIVALENCE.json (finding_topk_nondeterminism) |
+
+## RC5.1 (2026-11-24..27, this branch, latest-upstream full reproduction)
+
+| run_id | backend | GPU | finished (UTC) | source | audio | metrics | evidence |
+|---|---|---|---|---|---|---|---|
+| `rc5_armB_latest_upstream_20261124T065451Z` | SGLang c67d541a (author PR #42106) + import-guard patches 0001/0003/0008, torch 2.12.0+rocm7.14.1 | W7900D gfx1100 | 2026-11-26 00:17 | RC5.1 campaign (resumed from 20/384 with journal-disclosed driver revision) | 384/384 (380 byte-identical to Arm B; 4 FLAC-container-only) | SongBench 6.736891 · PER 17.7699% (frozen) / **8.4488% vLLM-corrected arm** · MuLan 0.509395 · AMC 0.405181 · Q3O 4.393986/5 ROCm-adapted 192/192 | [`rc5_1/`](../reports/w7900_rc5/rc5_1/) — FINAL_REPORT_ZH.md, 08_RELEASE_GATE_LEDGER.json |

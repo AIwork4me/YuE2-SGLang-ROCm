@@ -70,3 +70,49 @@ rig; logs and machine-readable evidence live under `evidence/gfx1100/`.
 - Evaluator backend parity: PER runs the transformers ASR backend on ROCm
   (vLLM has no ROCm build). A parity study vs the reference backend is part of
   the evidence; where parity is not established, results say so explicitly.
+
+## RC5.1 (latest upstream, final results)
+
+Commands as executed on the W7900D (workspace `/data/yue2`):
+
+```bash
+# generation (384/384, resumable, crash-durable journal + checkpoints)
+RC5_ALLOW_DRIVER_UPDATE=1 RC5_BACKUP_DIR=/workspace/yue2-rc5-backup \
+RC5_BACKUP_CLASS=same_host_second_volume \
+bash scripts/campaign_ops/rc5_supervise.sh \
+  /data/yue2-runs/rc5-latest-upstream-20261124T065451Z/wsb_full \
+  rc5_armB_latest_upstream_20261124T065451Z
+
+# PER + SongBench + MuLan/AMC (official evaluator, GPU lock held internally)
+bash scripts/campaign_ops/rc5_score.sh <run_dir>/wsb_full per_full standard per
+bash scripts/campaign_ops/rc5_score.sh <run_dir>/wsb_full songbench_sel standard songbench <run_dir>/wsb_full/per_full/per_song.jsonl
+bash scripts/campaign_ops/rc5_score.sh <run_dir>/wsb_full additional_sel standard mulan,allmusiccaps <run_dir>/wsb_full/per_full/per_song.jsonl
+
+# Q3O (ROCm-adapted judge; official scorer/prompt/weights verbatim)
+python scripts/gpu_lock.py wait --who q3o-full --wait-s 3600 -- \
+  <vllm-rocm venv>/python scripts/rc5_q3o_judge.py \
+  --evaluator-root /data/yue2/benchmark/wsb_metrics \
+  --rows <run_dir>/wsb_full/songbench_sel/audio_manifest.jsonl \
+  --out /data/yue2-runs/rc5-q3o/rc5_1-full-192
+
+# PER causal matrix (same audio, one factor per arm)
+python scripts/rc5_per_lab.py --evaluator-root ... --manifest <16-id manifest> \
+  --out <dir> --arm baseline --arm fp32:dtype=float32 --arm eager:attn=eager \
+  --arm batch1:batch_size=1 --arm fp16:dtype=float16 --arm cpu32:dtype=float32,device=cpu,repeats=1
+python scripts/rc5_asr_vllm_native.py --asr-root <Qwen3-ASR snapshot> --manifest ... --repeats 4
+python scripts/rc5_asr_first_divergence.py --evaluator-root ... --ids <empty ids> --steps 12
+```
+
+Final scoreboard (selected-192, official protocol):
+
+| Metric | Paper | Author SGLang | Historical W7900 | RC5.1 W7900 |
+|---|---|---|---|---|
+| SongBench GA | 6.7316 | 6.7146 | 6.738264 | **6.736891** |
+| PER micro | 8.44% | 8.1471% | 17.762763% | **17.7699%** (frozen transformers arm) · **8.4488%** (vLLM-corrected arm, separate) |
+| MuLan | 0.5068 | 0.49960 | 0.509166 | **0.509395** |
+| AllMusicCaps | 0.4054 | 0.40825 | 0.405556 | **0.405181** |
+| Q3O (0–5) | 4.68 | — | — | **4.393986** (ROCm-adapted; no equivalence claim) |
+
+The corrected PER arm re-scores the SAME 384 audios through the vLLM decode
+path; its selection differs on 60 prompts and is published as a separate
+manifest — never mixed into the frozen scoreboard.

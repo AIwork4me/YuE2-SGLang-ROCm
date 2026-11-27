@@ -1,0 +1,180 @@
+{
+ "schema": "yue2-rc5_1-release-gate-ledger/1",
+ "generated_at_utc": "2026-11-27T13:01:20Z",
+ "head": "77559660c8efd346d0aa57436b774998882071ca",
+ "gates": [
+  {
+   "id": "G0",
+   "name": "Physical W7900 Environment",
+   "status": "PASS",
+   "evidence": "gfx1100 W7900D 47.98 GiB BDF 0000:03:00.0 uuid e9d0e20bb686e6c6; identity receipts in every session",
+   "actual_scope": "all RC5.1 sessions GPU_EXECUTION_VERIFIED",
+   "remaining_limitations": "none",
+   "owner_action_required": "none"
+  },
+  {
+   "id": "G1",
+   "name": "Exact-HEAD GitHub CI",
+   "status": "PASS",
+   "evidence": "head 77559660: push+PR runs 46000484093/46000493357, both jobs (cpu, q3o-moe-cpu-numerics) success",
+   "actual_scope": "2 jobs, 543+12 local suite pass",
+   "remaining_limitations": "job-log download needs admin token (step-level conclusions + local reproduction)",
+   "owner_action_required": "none"
+  },
+  {
+   "id": "G2",
+   "name": "Latest Upstream Provenance",
+   "status": "PASS",
+   "evidence": "SGLang c67d541a frozen (author PR 42106), runtime sha 342b2f53... unchanged all campaign; only import-guard patches 0001/0003/0008",
+   "actual_scope": "runtime manifest + journal receipts",
+   "remaining_limitations": "historical 0004/0005 absorbed upstream (not reapplied)",
+   "owner_action_required": "none"
+  },
+  {
+   "id": "G3",
+   "name": "No Silent Generation Degradation",
+   "status": "PASS",
+   "evidence": "official budgets constants; 380/384 byte-identical to historical Arm B; 4 diffs container-only (same frames/duration/truncation)",
+   "actual_scope": "04_HISTORICAL_HASH_COMPARISON.json",
+   "remaining_limitations": "libFLAC build drift on 4 candidates (root-caused, disclosed)",
+   "owner_action_required": "none"
+  },
+  {
+   "id": "G4",
+   "name": "Full Generation 384/384",
+   "status": "PASS",
+   "evidence": "384/384 complete, 0 failures, 0 retries, single resumed session rc=0",
+   "actual_scope": "04_FULL_GENERATION_AUDIT.json",
+   "remaining_limitations": "none",
+   "owner_action_required": "none"
+  },
+  {
+   "id": "G5",
+   "name": "Full Artifact Audit",
+   "status": "PASS",
+   "evidence": "official verify_result 384/384; per-file SHA256 manifests; restore-manifest-384",
+   "actual_scope": "checkpoint verify 26/26 OK",
+   "remaining_limitations": "none",
+   "owner_action_required": "none"
+  },
+  {
+   "id": "G6",
+   "name": "Official Four-Metric Coverage",
+   "status": "PASS",
+   "evidence": "PER 384x4=1536 receipts; SongBench/MuLan/AMC 192/192 selected (official protocol via --per-results reuse)",
+   "actual_scope": "05_*/06_* reports",
+   "remaining_limitations": "ASR engine substitution disclosed (transformers ROCm)",
+   "owner_action_required": "none"
+  },
+  {
+   "id": "G7",
+   "name": "Q3O Full Coverage",
+   "status": "PASS",
+   "evidence": "192/192 valid scored, 0 failed/NA/invalid/pending; identity-bound receipts",
+   "actual_scope": "06_Q3O_COVERAGE_AUDIT.json",
+   "remaining_limitations": "scope=selected-192 (official paper weights cover c0-c7; our protocol is best-of-2)",
+   "owner_action_required": "none"
+  },
+  {
+   "id": "G8",
+   "name": "Q3O Scientific Equivalence",
+   "status": "NOT_ESTABLISHED (BLOCKED_EXTERNAL)",
+   "evidence": "same weights/prompts/parser/aggregation; different engine (HF ROCm vs vLLM CUDA); 18-20% tied routing",
+   "actual_scope": "03_Q3O_REAL_ROUTER_ANALYSIS.json; 06_Q3O_FULL.json",
+   "remaining_limitations": "no CUDA host for official judge comparison; tie-break rule of official kernel unknown",
+   "owner_action_required": "CUDA host + author confirmation"
+  },
+  {
+   "id": "G9",
+   "name": "PER Causal Validation",
+   "status": "PASS (composite; dominant factor confirmed)",
+   "evidence": "same-audio matrix E1-E8 + first-divergence probe + corrected arm: 17.7699% -> 8.4488% vs paper 8.44%; root cause = transformers-substitution repetition loop",
+   "actual_scope": "07_* reports",
+   "remaining_limitations": "exact kernel arithmetic of the loop entry OPEN; E3 CUDA BLOCKED_EXTERNAL (handoff prepared)",
+   "owner_action_required": "optional CUDA run of the handoff"
+  },
+  {
+   "id": "G10",
+   "name": "Performance Evidence",
+   "status": "PASS",
+   "evidence": "P50 275.27s / mean 284.78s; AR 164.2 / NAR 42.2 / VAE 78.4 s; RTF 1.2866; Q3O 87.1 s/candidate; peak VRAM 42.4 GiB (Q3O) 29.7 GiB (gen)",
+   "actual_scope": "04_PERFORMANCE_*.json/csv",
+   "remaining_limitations": "single-GPU serial throughput",
+   "owner_action_required": "none"
+  },
+  {
+   "id": "G11",
+   "name": "Runtime Reliability",
+   "status": "PASS",
+   "evidence": "supervisor resume from 20/384 (journal-disclosed driver revision), 0 retries, tail-checkpoint fix validated; gpu_lock cleanup=CLEAN all sessions",
+   "actual_scope": "journal + supervisor.log",
+   "remaining_limitations": "none",
+   "owner_action_required": "none"
+  },
+  {
+   "id": "G12",
+   "name": "Frozen Evidence Integrity",
+   "status": "PASS",
+   "evidence": "run_config never rewritten; write-once evaluation_inputs; supersede-not-overwrite receipts; no metric mixing",
+   "actual_scope": "independent review section C",
+   "remaining_limitations": "none",
+   "owner_action_required": "none"
+  },
+  {
+   "id": "G13",
+   "name": "Disaster Recovery",
+   "status": "PASS (same-host)",
+   "evidence": "final restore drill 384/384, 4224 files, journal consistent, resume identity correct, 0 dup archives; 52 second-volume files hash-verified",
+   "actual_scope": "04_BACKUP_FINAL_RECEIPT.json; final drill",
+   "remaining_limitations": "OFF_MACHINE_BACKUP = BLOCKED_EXTERNAL (owner confirmed no backup host)",
+   "owner_action_required": "owner-provided off-machine destination"
+  },
+  {
+   "id": "G14",
+   "name": "Public Repository Hygiene",
+   "status": "PASS",
+   "evidence": "evidence guard, lyrics detector, numeric receipt integrity, secret scan all PASS at final HEAD",
+   "actual_scope": "guards in regression suite",
+   "remaining_limitations": "historical git objects not scanned by working-tree guard (disclosed)",
+   "owner_action_required": "none"
+  },
+  {
+   "id": "G15",
+   "name": "Independent Third-Party Reproduction",
+   "status": "NOT_RUN",
+   "evidence": "RC5.1 not yet reproduced by a third party",
+   "actual_scope": "reproduction commands in docs",
+   "remaining_limitations": "requires external party",
+   "owner_action_required": "public release + community"
+  },
+  {
+   "id": "G16",
+   "name": "Author Approval",
+   "status": "NOT_RUN",
+   "evidence": "author acceptance package prepared (08_UPSTREAM_HANDOFF_EN.md)",
+   "actual_scope": "PR #19",
+   "remaining_limitations": "requires author review",
+   "owner_action_required": "author"
+  },
+  {
+   "id": "G17",
+   "name": "AMD Publication Approval",
+   "status": "NOT_RUN",
+   "evidence": "publication approval not requested",
+   "actual_scope": "-",
+   "remaining_limitations": "outside engineering scope",
+   "owner_action_required": "owner/AMD"
+  }
+ ],
+ "verdicts": {
+  "ENGINEERING_VERDICT": "PASS",
+  "GENERATION_VERDICT": "PASS (384/384 FULL, byte-reproducible)",
+  "OFFICIAL_EVALUATION_VERDICT": "PASS for PER/SongBench/MuLan/AMC under the frozen disclosed substitution; corrected vLLM arm reported separately (8.4488% vs paper 8.44%)",
+  "Q3O_COVERAGE_VERDICT": "PASS (192/192)",
+  "Q3O_EQUIVALENCE_VERDICT": "NOT_ESTABLISHED (BLOCKED_EXTERNAL)",
+  "PER_CAUSAL_VERDICT": "CONFIRMED composite root cause (dominant factor engine-path; minor genuine model behaviour; kernel-level trigger OPEN)",
+  "DISASTER_RECOVERY_VERDICT": "PASS same-host; OFF_MACHINE BLOCKED_EXTERNAL",
+  "UPSTREAM_READINESS_VERDICT": "READY_FOR_AUTHOR_REVIEW (package prepared; not author-approved)",
+  "JOINT_PUBLICATION_VERDICT": "NOT_READY (G15/G16/G17 open; all engineering and scientific evidence delivered)"
+ }
+}

@@ -157,3 +157,25 @@ python scripts/rc5_backup.py verify --run-dir /data/yue2-runs/<run>/wsb_full
 | DeepSelect fast sampler / batched AR / fused decode+NAR (sgl_kernel) | not available on ROCm — auto-fallback to reference paths |
 
 Details and evidence: `reports/gfx1100/PHASE4_SOURCE_BUILD.md`.
+
+## RC5.1 verified paths (latest upstream c67d541a, 2026-11-27)
+
+The commands below are the exact, end-to-end verified sequence for the
+latest-upstream reproduction (384 candidates + five metrics). See
+`docs/BENCHMARK_REPRODUCTION.md` (RC5.1 section) for the full listing and
+`reports/w7900_rc5/rc5_1/` for the evidence of the run they reproduce.
+
+- Generation: `scripts/campaign_ops/rc5_supervise.sh <run_dir> <run_id>` —
+  crash-resilient, resumable, checkpoints every 16 candidates plus on pause;
+  second-volume backup via `RC5_BACKUP_DIR`.
+- Disaster recovery: `python scripts/rc5_backup.py drill --from
+  <backup checkpoints dir> --to <fresh dir>` (384/384 verified).
+- Q3O on 48 GB: `scripts/rc5_q3o_judge.py` (34 GPU + 14 CPU MoE layers;
+  needs the vllm-rocm venv; the judge content-hashes the model and binds
+  every receipt to a run identity).
+- If vLLM fails to start on ROCm with "Device string must not be empty":
+  that is the amdsmi platform-probe failure — `rc5_asr_vllm_native.py`
+  already contains the workaround (platform registered + in-process engine).
+- If a Q3O/ASR process segfaults (rc=139) in llvmlite during librosa import:
+  compile numba kernels BEFORE torch loads (the judge and per-lab do this
+  automatically now).
