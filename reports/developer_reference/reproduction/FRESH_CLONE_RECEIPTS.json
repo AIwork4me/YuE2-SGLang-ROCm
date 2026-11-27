@@ -1,0 +1,28 @@
+{
+ "schema": "yue2-rc6-fresh-clone-receipts/1",
+ "generated_at_utc": "2026-11-27T16:12:00Z",
+ "mode": "Mode 2 (fresh checkout + fresh venv + fresh workspace, same host)",
+ "fresh_checkout": {
+  "path": "/data/yue2-fresh-clone/repo",
+  "final_head": "32335e6 (pulled mid-exercise; interim head b625bca)"
+ },
+ "fresh_workspace": "/data/yue2-fresh-clone/workspace (own venvs/models/runs; no PYTHONPATH leaks; no copied venv)",
+ "asset_acquisition": "hash-verified cached copy (both model.safetensors sha256 MATCH the frozen pins); upstream from local git mirror with HEAD==c67d541a verified",
+ "runtime_identity": {
+  "yue2_runtime_sha256": "342b2f531b14a201b4aae1a6a14424bed7f03cd7f993c3a1c09657a6d6109051",
+  "yue2_stages_sha256": "5bbbf02c602ce055b6852bb566a517a317ee3d22e538a7d22c4fc2a3f233a8a0",
+  "torch": "2.12.0+rocm7.14.1",
+  "hip": "7.14.60850"
+ },
+ "first_song": {
+  "seed": 831001,
+  "audio_seconds": 152.479,
+  "inference_time_s": 369.7,
+  "verify_verdict": "VERIFIED_REFERENCE_RUN",
+  "flac_sha256": "c6dd279ae46658fe",
+  "cross_workspace_byte_identical_to_main_workspace": true
+ },
+ "gpu_negative_controls_pass": true,
+ "friction_count": 6,
+ "environment_diagnostic": "WARNINGS: none (network probes fail via site proxy - documented limitation, not a blocker)"
+}

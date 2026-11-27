@@ -37,9 +37,13 @@
    "desc": "20 offline scorer/resume failure modes",
    "result": "ALL DETECTED (20/20 PASS)",
    "evidence": "tests/test_rc6_asr_identity.py + 02_ASR_NEGATIVE_CONTROLS.json"
+  },
+  {
+   "id": "NC-ASR-RESUME-LIVE",
+   "desc": "hardened rc5_asr_vllm_native resume against a real transcripts file (2 candidates, GPU)",
+   "result": "PASS: run 1 scored wsb_076_r0 (2 repeats, identity-bound receipt); run 2 audited the file, found wsb_076_r0 REUSABLE (identity+audio+repeats exact match) and only ran the missing wsb_076_r1; resume audit JSON written; both receipts embed run_identity + transcript_receipt_sha256 (the RC5.1 candidate-id-only skipping is gone)",
+   "evidence": "/data/yue2-runs/rc6-gpu-acceptance/asr-resume (run1.out, run2.out, transcripts.jsonl, resume_audit.json)"
   }
  ],
- "pending_after_scoreboard": [
-  "NC-ASR-RESUME live: hardened rc5_asr_vllm_native resume against a real transcripts file (queued behind the corrected-scoreboard GPU run)"
- ]
+ "pending_after_scoreboard": []
 }

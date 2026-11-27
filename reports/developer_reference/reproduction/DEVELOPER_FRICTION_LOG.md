@@ -18,3 +18,4 @@ new developer would meet, with its fix.
 - doctor / GPU identity: first-try PASS
 - runtime manifest proof: exact reference match first try
 - evidence packaging (`package-evidence`): rc=0 first try
+| F-006 | the fresh clone (at the then-head b625bca) generated the first song but did NOT finalize the candidate bundle (no audio.flac/result.json) — the generate-finalize fix existed only in the uncommitted working tree | fresh-clone R06 | a clone reproduces COMMITTED state; the fix had not been committed yet | fix committed (32335e6); the fresh clone pulled and finalized the existing song; the friction is recorded as evidence that the golden path MUST be re-verified from a clean clone after changes | YES: after pull + finalize, verify = VERIFIED_REFERENCE_RUN |

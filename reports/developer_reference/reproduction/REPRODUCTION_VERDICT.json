@@ -1,0 +1,18 @@
+{
+ "schema": "yue2-rc6-reproduction-verdict/1",
+ "generated_at_utc": "2026-11-27T16:10:00Z",
+ "environment_modes": {
+  "mode_1_current_host_regression": "DONE (all RC6 work executed on the mission host with frozen-evidence protection)",
+  "mode_2_fresh_workspace_same_host": "DONE — FRESH_CLONE_REPORT.md (fresh checkout + fresh venv + fresh workspace + hash-verified assets; R01-R08, R13, R15, R17-R20 PASS; R09-R12 disclosed as NOT_RUN with reasons)",
+  "mode_3_independent_physical_host": "NOT_AVAILABLE (no second host; no claim made)",
+  "mode_4_independent_human_executor": "NOT_AVAILABLE (INDEPENDENT_REPRODUCTION_TASK.md prepared for hand-off; no third party has executed it)"
+ },
+ "verdicts": {
+  "RC5_3B_SAME_HOST_REPRODUCTION_VERDICT": "PASS (Mode 2: fresh clone + fresh venv reproduce the pinned runtime identity exactly — yue2_runtime_sha256 342b2f53… — and generate a byte-identical first song at the same seed)",
+  "RC5_3B_INDEPENDENT_REPRODUCTION_VERDICT": "NOT_RUN (INDEPENDENT_PILOT_PASS not earned either: no independent host/executor; task package ready for hand-off)",
+  "cross_workspace_byte_determinism": "PASS (same seed+lyrics+stack in a different workspace -> byte-identical FLAC c6dd279ae46658fe…)",
+  "developer_friction": "6 frictions, all root-caused and fixed in-repo (DEVELOPER_FRICTION_LOG.md); each fix re-verified"
+ },
+ "independent_runner_package": "INDEPENDENT_REPRODUCTION_TASK.md (hand-off ready: only public docs + authorized assets; documentation friction to be recorded by the runner)",
+ "no_false_third_party_claims": "enforced: no text in this repository claims third-party reproduction; PUBLIC_CLAIMS_MATRIX.md"
+}
