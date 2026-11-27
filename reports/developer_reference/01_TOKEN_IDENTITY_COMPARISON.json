@@ -1,0 +1,84 @@
+{
+ "schema": "yue2-rc6-token-identity-comparison/1",
+ "generated_at_utc": "2026-11-27T14:17:53Z",
+ "historical_intermediates_available": false,
+ "note": "historical generation intermediates (semantic/abc_tokens/latent) were lost with the deleted historical image; only the current campaign's artifacts exist. codec_frames/duration/seed equality is token-COUNT-level evidence, NOT token-sequence identity.",
+ "rows": [
+  {
+   "id": "wsb_077_r0_s831078",
+   "semantic.npy_sha256": "92866e4ebf92b9aa143153105726c63f0013fa43f17cc643880ee6faf1bfc8d1",
+   "abc_tokens.npy_sha256": "43ba37d36f99b5196d7d819b4c51e341144ca3b8091906fd7d51bf64b9d74c11",
+   "latent.npy_sha256": "65614708e683d9f659ce96252d0a73d32f316cf32c4215875a63f7c31e99a22e",
+   "prefix.npy_sha256": "e2ed87cd3fbcd9b752c68e882db3425a94e5f4d484496a30103de8d5fbe37e82",
+   "drill_token_artifacts_identical": true,
+   "codec_frames": 5171,
+   "config_sha256": "e79f4576a0d5453f6e52f562592e03d2fd5490500d74f496f3aff3db81800f29",
+   "request_keys": [
+    "abc",
+    "cfg_scale",
+    "cot",
+    "id",
+    "lyrics",
+    "seed",
+    "style"
+   ]
+  },
+  {
+   "id": "wsb_077_r1_s831096",
+   "semantic.npy_sha256": "21df4d7e44589f390c4bf0166ffea8acacf3f8920cc3a512af482d3b460bd183",
+   "abc_tokens.npy_sha256": "3d3da01eed08b41c492a79a981154c68c99a4908eaed7850f8b3811838af3d1e",
+   "latent.npy_sha256": "9733c1a6794ae48a968e7a5d6dc81d4c144c95646ecb4328c2d88e01aea1341f",
+   "prefix.npy_sha256": "f2760b6bbe479f8683c5060865bb0ec08be31010d8a9bae0e531bd5f0d518f84",
+   "drill_token_artifacts_identical": true,
+   "codec_frames": 6173,
+   "config_sha256": "e79f4576a0d5453f6e52f562592e03d2fd5490500d74f496f3aff3db81800f29",
+   "request_keys": [
+    "abc",
+    "cfg_scale",
+    "cot",
+    "id",
+    "lyrics",
+    "seed",
+    "style"
+   ]
+  },
+  {
+   "id": "wsb_166_r1_s831185",
+   "semantic.npy_sha256": "b5ef456b260b3f2f95f4818b200c878ad73fa802a7af2bb881b2e8b7c9b93312",
+   "abc_tokens.npy_sha256": "3f0fead5586b3fbe0af0da3b408bf1e486131da30e63bfee296840b7134480f9",
+   "latent.npy_sha256": "f772f5b72d343849d21635ce73f6cdb1e879e0e7c41c4f080ecf59d2b91f1166",
+   "prefix.npy_sha256": "71c657cd0a221d541c74b4a5ef7411f23423a8adfb509541ca2832fddc58fd4d",
+   "drill_token_artifacts_identical": true,
+   "codec_frames": 6415,
+   "config_sha256": "e79f4576a0d5453f6e52f562592e03d2fd5490500d74f496f3aff3db81800f29",
+   "request_keys": [
+    "abc",
+    "cfg_scale",
+    "cot",
+    "id",
+    "lyrics",
+    "seed",
+    "style"
+   ]
+  },
+  {
+   "id": "wsb_171_r1_s831190",
+   "semantic.npy_sha256": "865e973ba00976b63a77ace3186f1848a3d31d53471c129173ecd4f7a439ae06",
+   "abc_tokens.npy_sha256": "8f1d58a507c38090f89a5c5ef7a5c222aa8fa0a2a1ffe3c631cb828a5212a0bb",
+   "latent.npy_sha256": "d352bd3a0d28d3c8534cc453cbaf62dabc8ba5b9f833ef412d22a5a0359b8516",
+   "prefix.npy_sha256": "885903d59d9cfcbb29834965b9a9c4a2f12fb3268a46e5520b5e78e3a73e2e64",
+   "drill_token_artifacts_identical": true,
+   "codec_frames": 5149,
+   "config_sha256": "e79f4576a0d5453f6e52f562592e03d2fd5490500d74f496f3aff3db81800f29",
+   "request_keys": [
+    "abc",
+    "cfg_scale",
+    "cot",
+    "id",
+    "lyrics",
+    "seed",
+    "style"
+   ]
+  }
+ ]
+}

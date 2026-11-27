@@ -1,0 +1,153 @@
+{
+ "schema": "yue2-rc6-determinism-verdict/1",
+ "generated_at_utc": "2026-11-27T14:17:53Z",
+ "manifest_level": {
+  "compared": 384,
+  "file_byte_identical": 380,
+  "non_identical": 4,
+  "missing_historical_reference": 0,
+  "non_identical_ids": [
+   "wsb_077_r0_s831078",
+   "wsb_077_r1_s831096",
+   "wsb_166_r1_s831185",
+   "wsb_171_r1_s831190"
+  ]
+ },
+ "per_non_identical_candidate": {
+  "wsb_077_r0_s831078": {
+   "duration_identical": true,
+   "codec_frames_identical": true,
+   "seed_identical": true,
+   "flac_bytes_delta": -2,
+   "container_selfcheck": "decoded PCM MD5 == STREAMINFO MD5 (lossless integrity of the current file)",
+   "same_build_reencode_byte_identical": true,
+   "different_encoder_byte_identical": false,
+   "different_encoder_pcm_identical": true,
+   "pcm_identity_vs_historical": "PCM_IDENTITY_UNVERIFIABLE_HISTORICAL_ARTIFACT_ABSENT",
+   "content_identity": "CONTENT_IDENTITY_NOT_ESTABLISHED"
+  },
+  "wsb_077_r1_s831096": {
+   "duration_identical": true,
+   "codec_frames_identical": true,
+   "seed_identical": true,
+   "flac_bytes_delta": 2,
+   "container_selfcheck": "decoded PCM MD5 == STREAMINFO MD5 (lossless integrity of the current file)",
+   "same_build_reencode_byte_identical": true,
+   "different_encoder_byte_identical": false,
+   "different_encoder_pcm_identical": true,
+   "pcm_identity_vs_historical": "PCM_IDENTITY_UNVERIFIABLE_HISTORICAL_ARTIFACT_ABSENT",
+   "content_identity": "CONTENT_IDENTITY_NOT_ESTABLISHED"
+  },
+  "wsb_166_r1_s831185": {
+   "duration_identical": true,
+   "codec_frames_identical": true,
+   "seed_identical": true,
+   "flac_bytes_delta": 15,
+   "container_selfcheck": "decoded PCM MD5 == STREAMINFO MD5 (lossless integrity of the current file)",
+   "same_build_reencode_byte_identical": true,
+   "different_encoder_byte_identical": false,
+   "different_encoder_pcm_identical": true,
+   "pcm_identity_vs_historical": "PCM_IDENTITY_UNVERIFIABLE_HISTORICAL_ARTIFACT_ABSENT",
+   "content_identity": "CONTENT_IDENTITY_NOT_ESTABLISHED"
+  },
+  "wsb_171_r1_s831190": {
+   "duration_identical": true,
+   "codec_frames_identical": true,
+   "seed_identical": true,
+   "flac_bytes_delta": 0,
+   "container_selfcheck": "decoded PCM MD5 == STREAMINFO MD5 (lossless integrity of the current file)",
+   "same_build_reencode_byte_identical": true,
+   "different_encoder_byte_identical": false,
+   "different_encoder_pcm_identical": true,
+   "pcm_identity_vs_historical": "PCM_IDENTITY_UNVERIFIABLE_HISTORICAL_ARTIFACT_ABSENT",
+   "content_identity": "CONTENT_IDENTITY_NOT_ESTABLISHED"
+  }
+ },
+ "conclusions": [
+  "380/384 candidates remain FILE_BYTE_IDENTICAL against the frozen historical manifest (re-derived live in RC6, matching the RC5.1 claim).",
+  "Each of the 4 non-identical candidates has identical duration (1e-6 s), identical codec frame count (audio token count), identical official seed/style/lyrics inputs and identical truncation flag; only FLAC container bytes differ by -2/+2/+15/0 bytes.",
+  "All 4 current files pass lossless self-consistency (decoded PCM MD5 == STREAMINFO MD5) and same-build re-encode determinism; a different FLAC encoder (ffmpeg native) produces DIFFERENT bytes for the SAME PCM \u2014 direct evidence that FLAC byte output is encoder-build-sensitive, supporting (but not proving) the libFLAC build-drift root cause recorded in RC5.1.",
+  "The historical FLAC files do not exist on this host (deleted with the historical image); therefore the 4 candidates' PCM identity versus history is UNVERIFIABLE (PCM_IDENTITY_UNVERIFIABLE_HISTORICAL_ARTIFACT_ABSENT) and content identity remains NOT_ESTABLISHED. No historical data was regenerated or substituted."
+ ],
+ "gate_effect": "NOT an acceptance gate \u2014 this closes the scientific evidence record honestly; generation determinism claims stay at 380/384 byte-level + count-level parity on the remaining 4.",
+ "encoder_experiments": [
+  {
+   "id": "wsb_077_r0_s831078",
+   "same_build_reencode": {
+    "byte_identical": true,
+    "reencoded_pcm_md5": "ecfeef45b8e17af9cb97deaad708466c",
+    "pcm_identical": true
+   },
+   "ffmpeg_native_encoder": {
+    "byte_identical": false,
+    "reencoded_pcm_md5": "ecfeef45b8e17af9cb97deaad708466c"
+   },
+   "drill_copy_file_sha256": "f68d244335d94c430e02495d17effd2c657ac0d63ccebc712c0fbb9d974d400e"
+  },
+  {
+   "id": "wsb_077_r1_s831096",
+   "same_build_reencode": {
+    "byte_identical": true,
+    "reencoded_pcm_md5": "47155a5c25c9da14abc86343f3907590",
+    "pcm_identical": true
+   },
+   "ffmpeg_native_encoder": {
+    "byte_identical": false,
+    "reencoded_pcm_md5": "47155a5c25c9da14abc86343f3907590"
+   },
+   "drill_copy_file_sha256": "a17269a3c7d845ecaf79ce2b1c498ef676da31d59f50babef489ec0bf8024cab"
+  },
+  {
+   "id": "wsb_166_r1_s831185",
+   "same_build_reencode": {
+    "byte_identical": true,
+    "reencoded_pcm_md5": "fa4a528a2ea2b71659ff0149dd25282a",
+    "pcm_identical": true
+   },
+   "ffmpeg_native_encoder": {
+    "byte_identical": false,
+    "reencoded_pcm_md5": "fa4a528a2ea2b71659ff0149dd25282a"
+   },
+   "drill_copy_file_sha256": "188f23e1042484d0898ff9ac6737e4471d4590d7027ba4c6c06f85ba041d632c"
+  },
+  {
+   "id": "wsb_171_r1_s831190",
+   "same_build_reencode": {
+    "byte_identical": true,
+    "reencoded_pcm_md5": "5fba3eb8814b48fd1e42e95e98a1d65d",
+    "pcm_identical": true
+   },
+   "ffmpeg_native_encoder": {
+    "byte_identical": false,
+    "reencoded_pcm_md5": "5fba3eb8814b48fd1e42e95e98a1d65d"
+   },
+   "drill_copy_file_sha256": "77d0b83bfa7a80591738d862449da1ee1ab8d15a85b8cddaba55b12e05373762"
+  },
+  {
+   "id": "wsb_000_r0_s831001",
+   "same_build_reencode": {
+    "byte_identical": true,
+    "reencoded_pcm_md5": "79c04ad25eafd698dcfdc83c9ad86bd5",
+    "pcm_identical": true
+   },
+   "ffmpeg_native_encoder": {
+    "byte_identical": false,
+    "reencoded_pcm_md5": "79c04ad25eafd698dcfdc83c9ad86bd5"
+   },
+   "drill_copy_file_sha256": "79c4902b3296abad7e0a6eed51cd12bd74cb6f65465a793f04af3bfd04d9b039"
+  },
+  {
+   "id": "wsb_000_r1_s831019",
+   "same_build_reencode": {
+    "byte_identical": true,
+    "reencoded_pcm_md5": "26fc64bec77441503bb1779d29aefb77",
+    "pcm_identical": true
+   },
+   "ffmpeg_native_encoder": {
+    "byte_identical": false,
+    "reencoded_pcm_md5": "26fc64bec77441503bb1779d29aefb77"
+   },
+   "drill_copy_file_sha256": "8c8da5815f8020d65b7e5b6a4ddf948172062445aefe6238260ed565ec007392"
+  }
+ ]
+}
