@@ -17,19 +17,52 @@
   "pr19": {
    "state": "OPEN",
    "is_draft": true,
-   "title": "[RC5] Latest YuE2 SGLang on Radeon W7900: full WildSongBench reproduction, fail-closed runtime, PER RCA and Q3O evaluation",
    "head": "mission/w7900-rc5-latest-upstream-full-reproduction @ 57e81c2",
    "base": "mission/w7900-rc4-1-fail-loud-health-evidence",
    "mergeable": "MERGEABLE",
    "reviews": [],
-   "updated_at": "2026-11-27T13:49:58Z"
+   "updated_at": "2026-11-27T13:49:58Z",
+   "subject": "[RC5] Latest YuE2 SGLang on Radeon W7900: full WildSongBench reproduction, fail-closed runtime, PER RCA and Q3O evaluation"
   },
-  "open_prs": [19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8],
+  "open_prs": [
+   19,
+   18,
+   17,
+   16,
+   15,
+   14,
+   13,
+   12,
+   11,
+   10,
+   9,
+   8
+  ],
   "pr19_exact_head_ci": [
-   {"name": "cpu", "conclusion": "success", "url": "https://github.com/AIwork4me/YuE2-SGLang-ROCm/actions/runs/46010511499/job/140544510530", "event": "push"},
-   {"name": "q3o-moe-cpu-numerics", "conclusion": "success", "url": "https://github.com/AIwork4me/YuE2-SGLang-ROCm/actions/runs/46010511499/job/140544510850", "event": "push"},
-   {"name": "cpu", "conclusion": "success", "url": "https://github.com/AIwork4me/YuE2-SGLang-ROCm/actions/runs/46010502971/job/140544484037", "event": "pull_request"},
-   {"name": "q3o-moe-cpu-numerics", "conclusion": "success", "url": "https://github.com/AIwork4me/YuE2-SGLang-ROCm/actions/runs/46010502971/job/140544483833", "event": "pull_request"}
+   {
+    "name": "cpu",
+    "conclusion": "success",
+    "url": "https://github.com/AIwork4me/YuE2-SGLang-ROCm/actions/runs/46010511499/job/140544510530",
+    "event": "push"
+   },
+   {
+    "name": "q3o-moe-cpu-numerics",
+    "conclusion": "success",
+    "url": "https://github.com/AIwork4me/YuE2-SGLang-ROCm/actions/runs/46010511499/job/140544510850",
+    "event": "push"
+   },
+   {
+    "name": "cpu",
+    "conclusion": "success",
+    "url": "https://github.com/AIwork4me/YuE2-SGLang-ROCm/actions/runs/46010502971/job/140544484037",
+    "event": "pull_request"
+   },
+   {
+    "name": "q3o-moe-cpu-numerics",
+    "conclusion": "success",
+    "url": "https://github.com/AIwork4me/YuE2-SGLang-ROCm/actions/runs/46010502971/job/140544483833",
+    "event": "pull_request"
+   }
   ],
   "branch_protection": "base branch not protected (as of audit)"
  },
@@ -37,7 +70,9 @@
   "repo": "https://github.com/sgl-project/sglang/pull/42106",
   "frozen_head": "c67d541a40f8bf851e9fc1e925f5316638838cd6",
   "effective_generation_runtime_sha256": "342b2f531b14a201b4aae1a6a14424bed7f03cd7f993c3a1c09657a6d6109051",
-  "patches_applied": ["0001/0003/0008 (import guards, consolidated in patches/rc5-0001-0003-0008-rocm-import-guards.patch)"],
+  "patches_applied": [
+   "0001/0003/0008 (import guards, consolidated in patches/rc5-0001-0003-0008-rocm-import-guards.patch)"
+  ],
   "historical_0004_0005_status": "absorbed upstream, NOT reapplied (verified in RC5)"
  },
  "host": {

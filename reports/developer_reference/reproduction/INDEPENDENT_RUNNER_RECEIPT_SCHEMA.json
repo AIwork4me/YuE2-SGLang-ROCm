@@ -1,19 +1,169 @@
 {
  "$schema": "https://json-schema.org/draft/2020-12/schema",
- "title": "YuE2-on-ROCm independent runner receipt",
  "description": "schema for INDEPENDENT_REPRODUCTION_TASK.md runners; the original executor NEVER fills this on anyone's behalf",
  "type": "object",
- "required": ["schema", "runner", "host_class", "started_at_utc", "finished_at_utc", "matrix", "friction_log", "overall_verdict"],
+ "required": [
+  "schema",
+  "runner",
+  "host_class",
+  "started_at_utc",
+  "finished_at_utc",
+  "matrix",
+  "friction_log",
+  "overall_verdict"
+ ],
  "properties": {
-  "schema": {"const": "yue2-rc6-independent-runner-receipt/1"},
-  "runner": {"type": "object", "properties": {"identity": {"type": "string"}, "independence": {"enum": ["independent_human", "independent_agent", "same_operator"]}, "host": {"type": "string"}}},
-  "host_class": {"type": "string", "description": "e.g. gfx1100 W7900 / gfx1151 / other (UNSUPPORTED_CONFIGURATION if outside the verified matrix)"},
-  "repo_head": {"type": "string"},
-  "asset_sources": {"type": "array", "items": {"type": "object", "properties": {"asset": {"type": "string"}, "source": {"enum": ["fresh_download", "hash_verified_cache"]}}}},
-  "matrix": {"type": "array", "items": {"type": "object", "required": ["id", "expected", "actual", "result"], "properties": {"id": {"type": "string"}, "expected": {"type": "string"}, "actual": {"type": ["string", "null"]}, "exit_code": {"type": ["integer", "null"]}, "wall_time_s": {"type": ["number", "null"]}, "evidence_path": {"type": ["string", "null"]}, "result": {"enum": ["PASS", "FAIL", "NOT_RUN"]}, "failure_reason": {"type": ["string", "null"]}, "fix": {"type": ["string", "null"]}}}},
-  "friction_log": {"type": "array", "items": {"type": "object", "properties": {"symptom": {"type": "string"}, "doc_reference": {"type": ["string", "null"]}, "retries": {"type": "integer"}, "manual_intervention": {"type": "boolean"}, "resolution": {"type": "string"}}}},
-  "time_to_first_verified_song_s": {"type": ["number", "null"]},
-  "overall_verdict": {"enum": ["INDEPENDENT_PILOT_PASS", "INDEPENDENT_FULL_PASS", "PARTIAL", "FAILED", "ABORTED"]},
-  "notes": {"type": "string"}
+  "schema": {
+   "const": "yue2-rc6-independent-runner-receipt/1"
+  },
+  "runner": {
+   "type": "object",
+   "properties": {
+    "identity": {
+     "type": "string"
+    },
+    "independence": {
+     "enum": [
+      "independent_human",
+      "independent_agent",
+      "same_operator"
+     ]
+    },
+    "host": {
+     "type": "string"
+    }
+   }
+  },
+  "host_class": {
+   "type": "string",
+   "description": "e.g. gfx1100 W7900 / gfx1151 / other (UNSUPPORTED_CONFIGURATION if outside the verified matrix)"
+  },
+  "repo_head": {
+   "type": "string"
+  },
+  "asset_sources": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "properties": {
+     "asset": {
+      "type": "string"
+     },
+     "source": {
+      "enum": [
+       "fresh_download",
+       "hash_verified_cache"
+      ]
+     }
+    }
+   }
+  },
+  "matrix": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "required": [
+     "id",
+     "expected",
+     "actual",
+     "result"
+    ],
+    "properties": {
+     "id": {
+      "type": "string"
+     },
+     "expected": {
+      "type": "string"
+     },
+     "actual": {
+      "type": [
+       "string",
+       "null"
+      ]
+     },
+     "exit_code": {
+      "type": [
+       "integer",
+       "null"
+      ]
+     },
+     "wall_time_s": {
+      "type": [
+       "number",
+       "null"
+      ]
+     },
+     "evidence_path": {
+      "type": [
+       "string",
+       "null"
+      ]
+     },
+     "result": {
+      "enum": [
+       "PASS",
+       "FAIL",
+       "NOT_RUN"
+      ]
+     },
+     "failure_reason": {
+      "type": [
+       "string",
+       "null"
+      ]
+     },
+     "fix": {
+      "type": [
+       "string",
+       "null"
+      ]
+     }
+    }
+   }
+  },
+  "friction_log": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "properties": {
+     "symptom": {
+      "type": "string"
+     },
+     "doc_reference": {
+      "type": [
+       "string",
+       "null"
+      ]
+     },
+     "retries": {
+      "type": "integer"
+     },
+     "manual_intervention": {
+      "type": "boolean"
+     },
+     "resolution": {
+      "type": "string"
+     }
+    }
+   }
+  },
+  "time_to_first_verified_song_s": {
+   "type": [
+    "number",
+    "null"
+   ]
+  },
+  "overall_verdict": {
+   "enum": [
+    "INDEPENDENT_PILOT_PASS",
+    "INDEPENDENT_FULL_PASS",
+    "PARTIAL",
+    "FAILED",
+    "ABORTED"
+   ]
+  },
+  "notes": {
+   "type": "string"
+  }
  }
 }

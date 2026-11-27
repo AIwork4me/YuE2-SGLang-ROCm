@@ -2,7 +2,6 @@
  "schema": "yue2-rc6-first-song-acceptance/1",
  "generated_at_utc": "2026-11-27T15:11:14Z",
  "tier": "FIRST_SONG",
- "lyrics": "examples/first_song/lyrics_en.txt (ORIGINAL content created for this repository - publishable)",
  "style": "examples/first_song/style.txt (original)",
  "seed": 831001,
  "command": "python3 scripts/reference_cli.py generate --lyrics examples/first_song/lyrics_en.txt --style examples/first_song/style.txt --seed 831001 --out-dir <fresh dir>",
@@ -59,5 +58,6 @@
  },
  "verification_tool_verdict": "VERIFIED_REFERENCE_RUN",
  "verdict": "FULL_SONG_PASS",
- "smoke_vs_full": "SMOKE_AUDIO_PASS would be a short-clip sanity check; this receipt is FULL_SONG_PASS (complete piece, full identity chain, clean lifecycle)"
+ "smoke_vs_full": "SMOKE_AUDIO_PASS would be a short-clip sanity check; this receipt is FULL_SONG_PASS (complete piece, full identity chain, clean lifecycle)",
+ "lyrics_source": "examples/first_song/lyrics_en.txt (ORIGINAL content created for this repository - publishable)"
 }

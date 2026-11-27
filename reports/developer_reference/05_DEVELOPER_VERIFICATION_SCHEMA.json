@@ -1,32 +1,184 @@
 {
  "$schema": "https://json-schema.org/draft/2020-12/schema",
- "title": "YuE2-on-ROCm developer verification receipt",
  "type": "object",
- "required": ["schema", "generated_at_utc", "run_dir", "mode", "checks", "problems", "verdict"],
+ "required": [
+  "schema",
+  "generated_at_utc",
+  "run_dir",
+  "mode",
+  "checks",
+  "problems",
+  "verdict"
+ ],
  "properties": {
-  "schema": {"const": "yue2-rc6-developer-verification/1"},
-  "generated_at_utc": {"type": "string"},
-  "run_dir": {"type": "string"},
-  "mode": {"enum": ["single_song", "campaign"]},
+  "schema": {
+   "const": "yue2-rc6-developer-verification/1"
+  },
+  "generated_at_utc": {
+   "type": "string"
+  },
+  "run_dir": {
+   "type": "string"
+  },
+  "mode": {
+   "enum": [
+    "single_song",
+    "campaign"
+   ]
+  },
   "checks": {
    "type": "object",
    "properties": {
-    "audio_wav": {"type": "object", "description": "path, samplerate(=48000), channels(=2), frames, seconds, finite, rms, non_silent, is_48k_stereo, file_sha256"},
-    "audio_flac": {"type": "object"},
-    "model_identity": {"type": "object", "properties": {"mot_sha256": {"type": "string"}, "vae_sha256": {"type": "string"}, "matches_pinned": {"type": "boolean"}}},
-    "generation_config": {"type": "object", "properties": {"matches_reference": {"type": "boolean"}, "diffs": {"type": "object"}}},
-    "candidate_coverage": {"type": "object", "properties": {"journal_results": {"type": "integer"}, "complete": {"type": "integer"}, "unique_ids": {"type": "integer"}, "duplicates": {"type": "integer"}, "expect_384": {"type": "boolean"}}},
-    "runtime_identity": {"type": "object", "properties": {"sglang_commit": {"type": "string"}, "yue2_runtime_sha256": {"type": "string"}, "matches_pinned": {"type": "boolean"}}},
-    "gpu_identity": {"type": "object", "properties": {"arch": {"type": "string"}, "name": {"type": "string"}, "bdf": {"type": "string"}, "uuid": {"type": "string"}, "stack_status": {"type": "string"}}},
-    "performance_receipt": {"type": "object", "properties": {"n": {"type": "integer"}, "p50_wall_s": {"type": "number"}, "mean_wall_s": {"type": "number"}, "reference_p50_wall_s": {"type": "number"}, "measurement_scope": {"type": "string"}}},
-    "audio_sample_audit": {"type": "object", "properties": {"sampled": {"type": "integer"}, "passed": {"type": "integer"}}}
+    "audio_wav": {
+     "type": "object",
+     "description": "path, samplerate(=48000), channels(=2), frames, seconds, finite, rms, non_silent, is_48k_stereo, file_sha256"
+    },
+    "audio_flac": {
+     "type": "object"
+    },
+    "model_identity": {
+     "type": "object",
+     "properties": {
+      "mot_sha256": {
+       "type": "string"
+      },
+      "vae_sha256": {
+       "type": "string"
+      },
+      "matches_pinned": {
+       "type": "boolean"
+      }
+     }
+    },
+    "generation_config": {
+     "type": "object",
+     "properties": {
+      "matches_reference": {
+       "type": "boolean"
+      },
+      "diffs": {
+       "type": "object"
+      }
+     }
+    },
+    "candidate_coverage": {
+     "type": "object",
+     "properties": {
+      "journal_results": {
+       "type": "integer"
+      },
+      "complete": {
+       "type": "integer"
+      },
+      "unique_ids": {
+       "type": "integer"
+      },
+      "duplicates": {
+       "type": "integer"
+      },
+      "expect_384": {
+       "type": "boolean"
+      }
+     }
+    },
+    "runtime_identity": {
+     "type": "object",
+     "properties": {
+      "sglang_commit": {
+       "type": "string"
+      },
+      "yue2_runtime_sha256": {
+       "type": "string"
+      },
+      "matches_pinned": {
+       "type": "boolean"
+      }
+     }
+    },
+    "gpu_identity": {
+     "type": "object",
+     "properties": {
+      "arch": {
+       "type": "string"
+      },
+      "name": {
+       "type": "string"
+      },
+      "bdf": {
+       "type": "string"
+      },
+      "uuid": {
+       "type": "string"
+      },
+      "stack_status": {
+       "type": "string"
+      }
+     }
+    },
+    "performance_receipt": {
+     "type": "object",
+     "properties": {
+      "n": {
+       "type": "integer"
+      },
+      "p50_wall_s": {
+       "type": "number"
+      },
+      "mean_wall_s": {
+       "type": "number"
+      },
+      "reference_p50_wall_s": {
+       "type": "number"
+      },
+      "measurement_scope": {
+       "type": "string"
+      }
+     }
+    },
+    "audio_sample_audit": {
+     "type": "object",
+     "properties": {
+      "sampled": {
+       "type": "integer"
+      },
+      "passed": {
+       "type": "integer"
+      }
+     }
+    }
    }
   },
-  "problems": {"type": "array", "items": {"type": "string"}},
-  "verdict": {"enum": ["VERIFIED_REFERENCE_RUN", "VERIFIED_WITH_DISCLOSED_DIFFERENCES", "VALID_PILOT_ONLY", "UNSUPPORTED_CONFIGURATION", "INCOMPLETE", "FAILED"]},
-  "known_limitations_attached": {"type": "array", "items": {"type": "string"}},
-  "verdict_vocabulary": {"type": "array", "items": {"type": "string"}},
-  "reference_comparison": {"type": "object"}
+  "problems": {
+   "type": "array",
+   "items": {
+    "type": "string"
+   }
+  },
+  "verdict": {
+   "enum": [
+    "VERIFIED_REFERENCE_RUN",
+    "VERIFIED_WITH_DISCLOSED_DIFFERENCES",
+    "VALID_PILOT_ONLY",
+    "UNSUPPORTED_CONFIGURATION",
+    "INCOMPLETE",
+    "FAILED"
+   ]
+  },
+  "known_limitations_attached": {
+   "type": "array",
+   "items": {
+    "type": "string"
+   }
+  },
+  "verdict_vocabulary": {
+   "type": "array",
+   "items": {
+    "type": "string"
+   }
+  },
+  "reference_comparison": {
+   "type": "object"
+  }
  },
  "additionalProperties": false,
  "_semantics": {
