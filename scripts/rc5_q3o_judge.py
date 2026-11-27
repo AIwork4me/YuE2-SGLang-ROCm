@@ -611,8 +611,14 @@ def compute_run_identity(evaluator_root: Path, cfg: dict, gpu_layers: int, attn:
         "equivalence_claim": "NONE: ROCm-adapted judge; official engine is vLLM 0.14.0 + FlashAttention 2.8.3 on CUDA",
         "created_at_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
     }
+    # RC6.1 M4 fix: created_at_utc is EXECUTION PROVENANCE, not scientific
+    # content — a timestamp in the hash made every same-configuration run a
+    # "different judge identity", correctly refusing reuse but for a
+    # non-scientific reason. The canonical hash covers content only; the
+    # timestamp stays in the receipt as provenance.
     ident["identity_sha256"] = object_hash(
-        {k: v for k, v in ident.items() if k != "identity_sha256"})
+        {k: v for k, v in ident.items()
+         if k not in ("identity_sha256", "created_at_utc")})
     return ident
 
 

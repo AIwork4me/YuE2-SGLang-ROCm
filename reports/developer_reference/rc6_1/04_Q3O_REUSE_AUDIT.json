@@ -1,0 +1,678 @@
+{
+ "schema": "yue2-rc6_1-q3o-reuse-audit/1",
+ "generated_at_utc": "2026-11-27T22:43:23Z",
+ "original_run": "/data/yue2-runs/rc5-q3o/rc5_1-full-192",
+ "original_identity_sha256": "e8e2b7a2b8deb29ec987862b48198ccb077b9ac7b5521b5fd3ab6ad7262ea164",
+ "evaluator_weights_pin_reverified": true,
+ "per_candidate_independence_proof": {
+  "source": "PaperQ3OScorer.score(row) in vendor/wsb_q3o.py (hash-pinned in the evaluator release)",
+  "mechanism": "candidate-specific frozen weights by (prompt_index, candidate_index); binds seed/clip_id/target bytes/audio sha; no cross-candidate state; aggregation is a separate mean over receipts",
+  "conclusion": "changing the selection set cannot change any single candidate's scoring semantics"
+ },
+ "eligibility": {
+  "REUSABLE": 132
+ },
+ "rows": [
+  {
+   "id": "wsb_000_r0_s831001",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_004_r0_s831005",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_005_r0_s831006",
+   "classification": "REUSABLE",
+   "q3o_score": 4.827586206896552
+  },
+  {
+   "id": "wsb_006_r1_s831025",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_007_r0_s831008",
+   "classification": "REUSABLE",
+   "q3o_score": 4.689655172413793
+  },
+  {
+   "id": "wsb_008_r1_s831027",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_009_r0_s831010",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_010_r1_s831029",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_013_r1_s831032",
+   "classification": "REUSABLE",
+   "q3o_score": 3.6206896551724137
+  },
+  {
+   "id": "wsb_014_r1_s831033",
+   "classification": "REUSABLE",
+   "q3o_score": 2.6
+  },
+  {
+   "id": "wsb_017_r0_s831018",
+   "classification": "REUSABLE",
+   "q3o_score": 4.833333333333333
+  },
+  {
+   "id": "wsb_019_r1_s831038",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_023_r0_s831024",
+   "classification": "REUSABLE",
+   "q3o_score": 1.3333333333333333
+  },
+  {
+   "id": "wsb_024_r0_s831025",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_025_r1_s831044",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_026_r0_s831027",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_027_r1_s831046",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_028_r0_s831029",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_031_r0_s831032",
+   "classification": "REUSABLE",
+   "q3o_score": 3.5
+  },
+  {
+   "id": "wsb_033_r1_s831052",
+   "classification": "REUSABLE",
+   "q3o_score": 4.25
+  },
+  {
+   "id": "wsb_034_r1_s831053",
+   "classification": "REUSABLE",
+   "q3o_score": 2.5
+  },
+  {
+   "id": "wsb_036_r0_s831037",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_037_r1_s831056",
+   "classification": "REUSABLE",
+   "q3o_score": 4.0
+  },
+  {
+   "id": "wsb_038_r0_s831039",
+   "classification": "REUSABLE",
+   "q3o_score": 4.5
+  },
+  {
+   "id": "wsb_039_r1_s831058",
+   "classification": "REUSABLE",
+   "q3o_score": 4.5
+  },
+  {
+   "id": "wsb_040_r0_s831041",
+   "classification": "REUSABLE",
+   "q3o_score": 4.0
+  },
+  {
+   "id": "wsb_041_r1_s831060",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_043_r0_s831044",
+   "classification": "REUSABLE",
+   "q3o_score": 4.285714285714286
+  },
+  {
+   "id": "wsb_044_r1_s831063",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_045_r0_s831046",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_046_r1_s831065",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_047_r1_s831066",
+   "classification": "REUSABLE",
+   "q3o_score": 4.666666666666667
+  },
+  {
+   "id": "wsb_051_r0_s831052",
+   "classification": "REUSABLE",
+   "q3o_score": 4.791666666666667
+  },
+  {
+   "id": "wsb_052_r1_s831071",
+   "classification": "REUSABLE",
+   "q3o_score": 3.25
+  },
+  {
+   "id": "wsb_055_r0_s831056",
+   "classification": "REUSABLE",
+   "q3o_score": 4.482758620689655
+  },
+  {
+   "id": "wsb_056_r0_s831057",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_057_r0_s831058",
+   "classification": "REUSABLE",
+   "q3o_score": 3.103448275862069
+  },
+  {
+   "id": "wsb_060_r0_s831061",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_061_r0_s831062",
+   "classification": "REUSABLE",
+   "q3o_score": 2.0
+  },
+  {
+   "id": "wsb_062_r0_s831063",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_065_r0_s831066",
+   "classification": "REUSABLE",
+   "q3o_score": 3.5
+  },
+  {
+   "id": "wsb_066_r0_s831067",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_067_r0_s831068",
+   "classification": "REUSABLE",
+   "q3o_score": 4.090909090909091
+  },
+  {
+   "id": "wsb_068_r0_s831069",
+   "classification": "REUSABLE",
+   "q3o_score": 4.285714285714286
+  },
+  {
+   "id": "wsb_069_r0_s831070",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_070_r0_s831071",
+   "classification": "REUSABLE",
+   "q3o_score": 3.6666666666666665
+  },
+  {
+   "id": "wsb_071_r1_s831090",
+   "classification": "REUSABLE",
+   "q3o_score": 4.666666666666667
+  },
+  {
+   "id": "wsb_073_r1_s831092",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_075_r1_s831094",
+   "classification": "REUSABLE",
+   "q3o_score": 3.25
+  },
+  {
+   "id": "wsb_076_r0_s831077",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_078_r1_s831097",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_079_r1_s831098",
+   "classification": "REUSABLE",
+   "q3o_score": 4.055555555555555
+  },
+  {
+   "id": "wsb_080_r1_s831099",
+   "classification": "REUSABLE",
+   "q3o_score": 4.130434782608695
+  },
+  {
+   "id": "wsb_082_r1_s831101",
+   "classification": "REUSABLE",
+   "q3o_score": 4.0
+  },
+  {
+   "id": "wsb_084_r0_s831085",
+   "classification": "REUSABLE",
+   "q3o_score": 2.4814814814814814
+  },
+  {
+   "id": "wsb_085_r0_s831086",
+   "classification": "REUSABLE",
+   "q3o_score": 3.5
+  },
+  {
+   "id": "wsb_087_r0_s831088",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_088_r1_s831107",
+   "classification": "REUSABLE",
+   "q3o_score": 3.264705882352941
+  },
+  {
+   "id": "wsb_091_r0_s831092",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_092_r0_s831093",
+   "classification": "REUSABLE",
+   "q3o_score": 4.333333333333333
+  },
+  {
+   "id": "wsb_094_r1_s831113",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_095_r0_s831096",
+   "classification": "REUSABLE",
+   "q3o_score": 4.666666666666667
+  },
+  {
+   "id": "wsb_097_r0_s831098",
+   "classification": "REUSABLE",
+   "q3o_score": 4.2631578947368425
+  },
+  {
+   "id": "wsb_098_r0_s831099",
+   "classification": "REUSABLE",
+   "q3o_score": 4.833333333333333
+  },
+  {
+   "id": "wsb_099_r0_s831100",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_100_r1_s831119",
+   "classification": "REUSABLE",
+   "q3o_score": 4.333333333333333
+  },
+  {
+   "id": "wsb_103_r1_s831122",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_104_r0_s831105",
+   "classification": "REUSABLE",
+   "q3o_score": 3.9444444444444446
+  },
+  {
+   "id": "wsb_105_r1_s831124",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_106_r0_s831107",
+   "classification": "REUSABLE",
+   "q3o_score": 4.0344827586206895
+  },
+  {
+   "id": "wsb_108_r0_s831109",
+   "classification": "REUSABLE",
+   "q3o_score": 3.5
+  },
+  {
+   "id": "wsb_109_r1_s831128",
+   "classification": "REUSABLE",
+   "q3o_score": 4.0
+  },
+  {
+   "id": "wsb_110_r0_s831111",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_111_r1_s831130",
+   "classification": "REUSABLE",
+   "q3o_score": 4.321428571428571
+  },
+  {
+   "id": "wsb_112_r0_s831113",
+   "classification": "REUSABLE",
+   "q3o_score": 2.8333333333333335
+  },
+  {
+   "id": "wsb_113_r0_s831114",
+   "classification": "REUSABLE",
+   "q3o_score": 2.8333333333333335
+  },
+  {
+   "id": "wsb_115_r0_s831116",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_116_r0_s831117",
+   "classification": "REUSABLE",
+   "q3o_score": 4.5
+  },
+  {
+   "id": "wsb_118_r0_s831119",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_120_r0_s831121",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_122_r1_s831141",
+   "classification": "REUSABLE",
+   "q3o_score": 3.8275862068965516
+  },
+  {
+   "id": "wsb_123_r1_s831142",
+   "classification": "REUSABLE",
+   "q3o_score": 4.7894736842105265
+  },
+  {
+   "id": "wsb_124_r0_s831125",
+   "classification": "REUSABLE",
+   "q3o_score": 4.863636363636363
+  },
+  {
+   "id": "wsb_125_r0_s831126",
+   "classification": "REUSABLE",
+   "q3o_score": 2.8
+  },
+  {
+   "id": "wsb_128_r1_s831147",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_129_r0_s831130",
+   "classification": "REUSABLE",
+   "q3o_score": 2.6
+  },
+  {
+   "id": "wsb_130_r0_s831131",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_131_r0_s831132",
+   "classification": "REUSABLE",
+   "q3o_score": 4.632352941176471
+  },
+  {
+   "id": "wsb_132_r1_s831151",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_133_r0_s831134",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_134_r1_s831153",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_135_r1_s831154",
+   "classification": "REUSABLE",
+   "q3o_score": 2.6666666666666665
+  },
+  {
+   "id": "wsb_136_r1_s831155",
+   "classification": "REUSABLE",
+   "q3o_score": 4.791666666666667
+  },
+  {
+   "id": "wsb_137_r0_s831138",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_138_r0_s831139",
+   "classification": "REUSABLE",
+   "q3o_score": 4.0
+  },
+  {
+   "id": "wsb_139_r0_s831140",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_140_r1_s831159",
+   "classification": "REUSABLE",
+   "q3o_score": 4.75
+  },
+  {
+   "id": "wsb_141_r0_s831142",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_142_r1_s831161",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_145_r1_s831164",
+   "classification": "REUSABLE",
+   "q3o_score": 4.041666666666667
+  },
+  {
+   "id": "wsb_146_r0_s831147",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_147_r1_s831166",
+   "classification": "REUSABLE",
+   "q3o_score": 4.485294117647059
+  },
+  {
+   "id": "wsb_149_r0_s831150",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_150_r0_s831151",
+   "classification": "REUSABLE",
+   "q3o_score": 2.619047619047619
+  },
+  {
+   "id": "wsb_152_r1_s831171",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_156_r1_s831175",
+   "classification": "REUSABLE",
+   "q3o_score": 2.6315789473684212
+  },
+  {
+   "id": "wsb_157_r0_s831158",
+   "classification": "REUSABLE",
+   "q3o_score": 4.678571428571429
+  },
+  {
+   "id": "wsb_158_r0_s831159",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_160_r1_s831179",
+   "classification": "REUSABLE",
+   "q3o_score": 3.125
+  },
+  {
+   "id": "wsb_161_r1_s831180",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_162_r0_s831163",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_163_r1_s831182",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_167_r1_s831186",
+   "classification": "REUSABLE",
+   "q3o_score": 4.285714285714286
+  },
+  {
+   "id": "wsb_168_r0_s831169",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_169_r1_s831188",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_171_r1_s831190",
+   "classification": "REUSABLE",
+   "q3o_score": 4.5
+  },
+  {
+   "id": "wsb_172_r0_s831173",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_173_r1_s831192",
+   "classification": "REUSABLE",
+   "q3o_score": 4.285714285714286
+  },
+  {
+   "id": "wsb_175_r1_s831194",
+   "classification": "REUSABLE",
+   "q3o_score": 4.7368421052631575
+  },
+  {
+   "id": "wsb_176_r0_s831177",
+   "classification": "REUSABLE",
+   "q3o_score": 4.264705882352941
+  },
+  {
+   "id": "wsb_177_r0_s831178",
+   "classification": "REUSABLE",
+   "q3o_score": 4.482758620689655
+  },
+  {
+   "id": "wsb_179_r0_s831180",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_180_r1_s831199",
+   "classification": "REUSABLE",
+   "q3o_score": 4.379310344827586
+  },
+  {
+   "id": "wsb_181_r0_s831182",
+   "classification": "REUSABLE",
+   "q3o_score": 3.75
+  },
+  {
+   "id": "wsb_182_r1_s831201",
+   "classification": "REUSABLE",
+   "q3o_score": 4.666666666666667
+  },
+  {
+   "id": "wsb_185_r0_s831186",
+   "classification": "REUSABLE",
+   "q3o_score": 4.833333333333333
+  },
+  {
+   "id": "wsb_186_r0_s831187",
+   "classification": "REUSABLE",
+   "q3o_score": 4.75
+  },
+  {
+   "id": "wsb_187_r0_s831188",
+   "classification": "REUSABLE",
+   "q3o_score": 4.137931034482759
+  },
+  {
+   "id": "wsb_188_r0_s831189",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_189_r0_s831190",
+   "classification": "REUSABLE",
+   "q3o_score": 5.0
+  },
+  {
+   "id": "wsb_190_r0_s831191",
+   "classification": "REUSABLE",
+   "q3o_score": 3.92
+  },
+  {
+   "id": "wsb_191_r0_s831192",
+   "classification": "REUSABLE",
+   "q3o_score": 3.6
+  }
+ ],
+ "reuse_policy": "REUSABLE receipts are copied into the new run dir; the judge's own fail-closed resume re-verifies identity_sha256 + audio_sha256 per receipt at runtime"
+}

@@ -1,0 +1,42 @@
+{
+ "schema": "yue2-rc6_1-git-history-audit/1",
+ "generated_at_utc": "2026-11-27T22:56:16Z",
+ "scope": "all reachable git objects (rev-list --objects --all, 2596 objects, 213 commits) — working-tree scans do NOT substitute for this",
+ "method": "per-blob content scan: credential/token patterns (ghp_, sk-, AWS AKIA, private key PEM headers), large binary audio/model artifacts, and 8 frozen WSB lyric probe lines matched against every blob's bytes",
+ "findings": [
+  {
+   "risk": "restricted WSB benchmark lyric text reachable in git HISTORY (pre-redaction objects)",
+   "objects": [
+    {
+     "oid": "5019601b16656871b7e029a81762a638e5a40f7b",
+     "path": "evidence/evaluator_audit/per_runA_2candidates.jsonl",
+     "introduced": "3c97abb"
+    },
+    {
+     "oid": "77510e647f4b1560c2f85bb6b7cf1f35f476cb15",
+     "path": "evidence/evaluator_audit/per_runB_10candidates.jsonl",
+     "introduced": "3c97abb"
+    },
+    {
+     "oid": "5ea422cfd2e56ae5225b1f9cd2ddb499e5b7556c",
+     "path": "evidence/per_song.jsonl",
+     "introduced": "1f23c8e"
+    }
+   ],
+   "worktree_state": "the CURRENT versions of these files are numeric-only (redacted by owner-authorized C1: 4dc29f0 / 5f1e892); only the pre-redaction blobs in history still carry text",
+   "exposure": "the repo and this history are already public on GitHub — the pre-redaction objects predate this mission and are cloneable",
+   "remediation": "history rewrite (git filter-repo / BFG) + force-push — BLOCKED_OWNER_AUTHORIZATION (no force-push without the owner); until decided, the C1 fail-closed guards prevent re-introduction (public_evidence_guard PASS, lyrics detector PASS after RC6.1 receipt key hygiene)",
+   "status": "OPEN_OWNER_DECISION"
+  }
+ ],
+ "clean": [
+  "credentials/API tokens/private keys: none in any blob",
+  "model weights / audio binaries: none in history (0 large-binary paths)",
+  "personal data: none identified by the pattern scan"
+ ],
+ "working_tree_guards": {
+  "public_evidence_guard": "PASS",
+  "evidence_lyrics_detector": "PASS (tier1+tier2, 691 tracked files)"
+ },
+ "note": "do not reproduce the restricted text in any public report — object ids and paths only (this audit complies)"
+}

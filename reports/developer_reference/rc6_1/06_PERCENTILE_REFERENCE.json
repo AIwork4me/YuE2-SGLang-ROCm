@@ -1,0 +1,85 @@
+{
+ "schema": "yue2-rc6_1-percentile-reference/1",
+ "generated_at_utc": "2026-11-27T22:52:06Z",
+ "source": "reports/w7900_rc5/rc5_1/04_PERFORMANCE_RAW.csv (frozen 384 rows)",
+ "estimator": "NumPy linear interpolation (np.percentile default, method='linear') \u2014 DECLARED as the single reference estimator; sample count n=384",
+ "units": "seconds (s); ratios dimensionless",
+ "metrics": {
+  "wall_s": {
+   "n": 384,
+   "mean": 284.7766,
+   "P50": 275.27,
+   "P90": 392.54,
+   "P95": 433.21,
+   "P99": 487.18,
+   "max": 583.57
+  },
+  "audio_seconds": {
+   "n": 384,
+   "mean": 220.7554,
+   "P50": 217.18,
+   "P90": 290.93,
+   "P95": 306.61,
+   "P99": 338.82,
+   "max": 357.2
+  },
+  "ar_seconds": {
+   "n": 384,
+   "mean": 164.2327,
+   "P50": 157.81,
+   "P90": 226.82,
+   "P95": 254.79,
+   "P99": 292.77,
+   "max": 336.61
+  },
+  "nar_seconds": {
+   "n": 384,
+   "mean": 42.1498,
+   "P50": 37.19,
+   "P90": 70.81,
+   "P95": 85.71,
+   "P99": 101.23,
+   "max": 119.06
+  },
+  "vae_seconds": {
+   "n": 384,
+   "mean": 78.3714,
+   "P50": 72.5,
+   "P90": 116.93,
+   "P95": 123.51,
+   "P99": 135.64,
+   "max": 281.88
+  },
+  "rtf": {
+   "n": 384,
+   "mean": 1.2866,
+   "P50": 1.28,
+   "P90": 1.49,
+   "P95": 1.54,
+   "P99": 1.7,
+   "max": 2.27
+  },
+  "realtime_speed_multiplier": {
+   "n": 384,
+   "mean": 0.7894,
+   "P50": 0.78,
+   "P90": 0.92,
+   "P95": 0.95,
+   "P99": 1.0,
+   "max": 1.07
+  }
+ },
+ "ratio_conventions": {
+  "macro_rtf_mean": 1.2866,
+  "macro_realtime_multiplier_mean": 0.7894,
+  "ratio_of_means_wall_over_audio": 1.29,
+  "ratio_of_means_audio_over_wall": 0.7752,
+  "note": "mean(wall/audio) over candidates and mean(audio/wall) over candidates are MACRO means of per-candidate ratios; they are NOT reciprocals of each other (only the two ratio-of-means entries are exact reciprocals). Both conventions are reported; never average across conventions."
+ },
+ "rc6_discrepancy_rca": "RC6's 06_PERFORMANCE_REFERENCE.md reported P95 434.33 / P99 496.62 from an ad-hoc, undocumented quantile formula (not any standard numpy method: linear 433.21/487.18, higher 434.05/495.46). RC6.1 replaces all figures with the declared linear-interpolation values above.",
+ "throughput": {
+  "candidates_per_hour_occupied": 12.64,
+  "campaign_wall_hours": 30.9,
+  "audio_hours_total": 23.55
+ }
+}
