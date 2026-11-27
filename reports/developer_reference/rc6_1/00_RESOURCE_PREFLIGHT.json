@@ -1,0 +1,69 @@
+{
+ "schema": "yue2-rc6_1-resource-preflight/1",
+ "generated_at_utc": "2026-11-27T21:31:26Z",
+ "gpu": {
+  "kfd_present": true,
+  "render_nodes_visible": [
+   "renderD128"
+  ],
+  "card_nodes_visible": [
+   "card1"
+  ],
+  "host_amdgpu_bdfs": [
+   "0000:03:00.0",
+   "0000:23:00.0",
+   "0000:43:00.0",
+   "0000:63:00.0",
+   "0000:83:00.0",
+   "0000:a3:00.0",
+   "0000:c3:00.0",
+   "0000:e3:00.0"
+  ],
+  "exposed_bdf": "0000:03:00.0",
+  "exposed_unique_id": "e9d0e20bb686e6c6",
+  "multi_gpu_host_note": "host has 8 amdgpu functions; this container exposes 1 render-capable card node(s) — the lock domain covers THIS visible device only; sibling GPUs are not addressable from here",
+  "unambiguous": true
+ },
+ "cgroup": {
+  "memory_max_bytes": "59055800320",
+  "memory_current_bytes": "59028062208",
+  "memory_high_bytes": "max",
+  "cpu_max": "1600000 100000",
+  "pids_max": "618610",
+  "memory_limit_gib": 55.0,
+  "memory_current_gib": 54.974,
+  "cpu_effective_cores": 16.0
+ },
+ "host": {
+  "nproc_visible": 128,
+  "free_total_bytes": 540696526848,
+  "df": "Filesystem      Size  Used Avail Use% Mounted on\noverlay         3.5T  2.0T  1.4T  61% /\n/dev/loop1       98G   18G   76G  19% /workspace"
+ },
+ "gpu_vram_sysfs": {
+  "card": "card1 (the single exposed render node)",
+  "total_bytes": "1",
+  "used_bytes": "28028928"
+ },
+ "gpu_lock_now": {
+  "lock": "/data/yue2/gpu.lock",
+  "held": false,
+  "holder": {
+   "who": "rc41-lifecycle-20261127T160038Z",
+   "pid": 342689,
+   "cmdline": "/data/yue2/environments/yue2-gfx1100/bin/python /data/yue2/upstream/yue2-sglang-rocm/scripts/gpu_lifecycle.py --who rc41-lifecycle-20261127T160038Z --workspace /data/yue2 --venv /data/yue2/environments/yue2-gfx1100 --host 127.0.0.1 --port 31000 --log-dir /data/yue2/logs --serve-script scripts/serve_yue2_rc5.sh --model /data/yue2/models/YuE2-3B --vae /data/yue2/models/YuE2-Vae-legacy --expect-arch gfx1100 --health-timeout-s 1800 --health-poll-s 5 --readiness-check 1 --wait-s 7200 --poll-s 2 --receipt-dir /data/yue2/logs/rws_server_identity --identity-dir /data/yue2/logs/rws_gpu_identity --boot-log /data/yue2/logs/rws_server_boot.log --server-log /data/yue2/logs/server_yue2_gfx1100.log --drain-s 600 --port-release-timeout-s 60 --gpu-release-timeout-s 180 -- /data/yue2/environments/generation/bin/python scripts/run_wsb.py --runs /data/yue2-runs/rc6-gpu-acceptance/pilot-1x2 --indices 0 --run-id rc6-pilot-1x2",
+   "acquired_at_utc": "2026-11-27T16:00:38Z",
+   "host": "j-jbtesfeshrbfybindu5ecokevp",
+   "released_at_utc": "2026-11-27T16:12:29Z"
+  },
+  "holder_live": false,
+  "blocked": false,
+  "blocked_live_pids": [],
+  "blocked_marker": null
+ },
+ "processes_heavy": "checked at execution time (see 00_MISSION_LEDGER and run receipts)",
+ "concurrency_policy": "single-owner GPU lock; all RC6.1 GPU work acquires the shared physical lock domain (M3.5)",
+ "backup": {
+  "second_volume": "/workspace/yue2-rc5-backup (18.55 GB checkpoints, frozen-tree verified)",
+  "off_machine": "OFF_MACHINE_BACKUP_BLOCKED_EXTERNAL (no owner-authorized external store)"
+ }
+}
