@@ -1,0 +1,24 @@
+{
+ "schema": "yue2-rc6_1-verifier-verdict/1",
+ "generated_at_utc": "2026-11-27T22:17:13Z",
+ "verdict": "PASS",
+ "scope": "scripts/rc6_verify_results.py fail-closed rewrite (V01-V10 + 12 additional negative paths)",
+ "red_evidence": {
+  "rc6_baseline_commit": "eeb2115fb5411c12ff7de415c1cb8a61702b7700",
+  "tests_before_fix": "15 failed / 1 passed (tests/test_rc61_verifier.py)",
+  "controls_reproducing_rc6_defects_live": 17
+ },
+ "green_evidence": {
+  "tests_after_fix": "25 passed / 0 failed",
+  "negative_controls": "22/22 detected (see 01_VERIFIER_NEGATIVE_CONTROLS.json)",
+  "real_data_regression": {
+   "fresh_clone_first_song": "VERIFIED_FIRST_SONG",
+   "rc5_1_campaign_with_eval_receipts": "VERIFIED_REFERENCE_RUN (official WSB auditor FULL; five metrics verified)"
+  }
+ },
+ "residual_limitations": [
+  "fully self-consistent single-song forgery detectable only via reference hashes / re-execution (contract section 4)",
+  "--quick is sampled integrity only",
+  "official auditor unavailability caps scientific_reference (disclosed, not silently passed)"
+ ]
+}
