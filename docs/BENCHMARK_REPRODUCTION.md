@@ -114,5 +114,10 @@ Final scoreboard (selected-192, official protocol):
 | Q3O (0–5) | 4.68 | — | — | **4.393986** (ROCm-adapted; no equivalence claim) |
 
 The corrected PER arm re-scores the SAME 384 audios through the vLLM decode
-path; its selection differs on 60 prompts and is published as a separate
-manifest — never mixed into the frozen scoreboard.
+path; its selection differs on **60 changed prompts** (= 120 candidate-id
+symmetric difference: 60 removed + 60 added — see
+`reports/developer_reference/03_SELECTION_RECONCILIATION.json` for the four
+explicit fields) and is published as a separate manifest — never mixed into
+the frozen scoreboard. The corrected-selection five-metric scoreboard
+(Scoreboard B) is published separately in
+`reports/developer_reference/03_CORRECTED_SCOREBOARD.csv`.

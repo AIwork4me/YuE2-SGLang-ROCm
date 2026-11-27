@@ -1,0 +1,27 @@
+{
+ "schema": "yue2-rc6-author-acceptance-matrix/1",
+ "generated_at_utc": "2026-11-27T15:30:00Z",
+ "policy": "AI analysis NEVER counts as author acceptance; every row records the real reviewer identity/scope/timestamp when a review happens; empty reviewer fields mean not reviewed",
+ "status_vocabulary": ["READY_FOR_REVIEW", "SUBMITTED", "ACCEPTED", "CHANGES_REQUESTED", "PENDING_EXTERNAL_VALIDATION", "NOT_SUBMITTED"],
+ "rows": [
+  {"id": "A01", "item": "Official model identity (YuE2-3B/Vae/WildSongBench pins)", "status": "READY_FOR_REVIEW", "evidence": "run_config.json model/vae/dataset revisions+sha; bundle weight hashes; docs/QUICKSTART pins", "reviewer": null, "review_scope": null, "exact_sha": "57e81c2 (RC5.1) + RC6 head", "review_timestamp": null, "comment": null},
+  {"id": "A02", "item": "Generation protocol fidelity (cot=full, ode 32, official seeds, no filtering)", "status": "READY_FOR_REVIEW", "evidence": "evidence/protocol_lock.json; evaluation_inputs.jsonl frozen; journal per-candidate", "reviewer": null, "review_scope": null, "exact_sha": null, "review_timestamp": null, "comment": null},
+  {"id": "A03", "item": "384-candidate coverage (0 failures, 5 truncated-but-valid kept)", "status": "READY_FOR_REVIEW", "evidence": "04_FULL_GENERATION_AUDIT.json (official verify_result 384/384)", "reviewer": null, "review_scope": null, "exact_sha": null, "review_timestamp": null, "comment": null},
+  {"id": "A04", "item": "Candidate selection semantics (official ordering key; both arms' selections published)", "status": "READY_FOR_REVIEW", "evidence": "05_SELECTED_MANIFEST.json + 07_CORRECTED_SELECTION_MANIFEST.json + 03_SELECTION_RECONCILIATION.json (60 prompts / 120 symmetric diff, explicit fields)", "reviewer": null, "review_scope": null, "exact_sha": null, "review_timestamp": null, "comment": null},
+  {"id": "A05", "item": "SongBench comparison (6.736891 vs paper 6.7316, official evaluator verbatim)", "status": "READY_FOR_REVIEW", "evidence": "06_SONGBENCH_FULL.json", "reviewer": null, "review_scope": null, "exact_sha": null, "review_timestamp": null, "comment": null},
+  {"id": "A06", "item": "PER frozen-evaluator interpretation (17.7699% under disclosed transformers arm)", "status": "READY_FOR_REVIEW", "evidence": "05_PER_FULL_METRICS.json + 07_ASR_SOURCE_LEVEL_RCA.md + RC6 02_EVALUATOR_PROVENANCE_VERDICT.json", "reviewer": null, "review_scope": null, "exact_sha": null, "review_timestamp": null, "comment": null},
+  {"id": "A07", "item": "PER corrected vLLM-arm interpretation (8.4488% vs paper 8.44%, separate arm)", "status": "READY_FOR_REVIEW", "evidence": "07_PER_FINAL_VERDICT.json + RC6 03_PER_PAIRED_ATTRIBUTION.json (2x2 cells + bootstrap CIs)", "reviewer": null, "review_scope": null, "exact_sha": null, "review_timestamp": null, "comment": null},
+  {"id": "A08", "item": "MuLan / AllMusicCaps (0.509395 / 0.405181, official evaluator verbatim)", "status": "READY_FOR_REVIEW", "evidence": "06_MULAN_FULL.json + 06_ALLMUSICCAPS_FULL.json", "reviewer": null, "review_scope": null, "exact_sha": null, "review_timestamp": null, "comment": null},
+  {"id": "A09", "item": "Q3O ROCm-adapted protocol disclosure (placement, tie-break, rounding points)", "status": "READY_FOR_REVIEW", "evidence": "04_Q3O_CONTRACT.md + 04_Q3O_NUMERICAL_BOUNDARY.md + 06_Q3O_FULL.json", "reviewer": null, "review_scope": null, "exact_sha": null, "review_timestamp": null, "comment": null},
+  {"id": "A10", "item": "Official CUDA comparator execution (same-audio PER + Q3O)", "status": "PENDING_EXTERNAL_VALIDATION", "evidence": "CUDA_PER_RUNBOOK.md + CUDA_Q3O_RUNBOOK.md + rc5_cuda_handoff package (384 audio hashes) + rc6_q3o_comparator.py (self-tested)", "reviewer": null, "review_scope": null, "exact_sha": null, "review_timestamp": null, "comment": "needs a CUDA host + pre-registered criteria; BLOCKED_EXTERNAL on our side"},
+  {"id": "A11", "item": "Minimal ROCm patches (import guards 0001/0003/0008 only)", "status": "READY_FOR_REVIEW", "evidence": "patches/rc5-0001-0003-0008-rocm-import-guards.patch + 02_PATCH_RECONCILIATION.csv (0004/0005 absorbed upstream)", "reviewer": null, "review_scope": null, "exact_sha": null, "review_timestamp": null, "comment": null},
+  {"id": "A12", "item": "Public reproduction guidance accuracy (statements about our runs, no author-approval claims)", "status": "READY_FOR_REVIEW", "evidence": "README.md + docs/QUICKSTART_W7900.md + PUBLIC_CLAIMS_MATRIX.md", "reviewer": null, "review_scope": null, "exact_sha": null, "review_timestamp": null, "comment": null}
+ ],
+ "overall": "AUTHOR_REVIEW_PACKAGE_READY",
+ "submission_record": {
+  "submitted_at_utc": null,
+  "submitted_by": null,
+  "channel": null,
+  "note": "no external submission has occurred; the package lives in this repository (owner AIwork4me). Submitting to upstream repos/channels requires explicit owner authorization."
+ }
+}

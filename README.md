@@ -113,10 +113,13 @@ Historical RC2-era figures remain in [docs/RESULTS.md](docs/RESULTS.md).
 - YuE2 weights are **CC BY-NC 4.0** (individual-creator monetization grant
   exists; companies need a license). No weights or benchmark lyrics are
   redistributed here.
-- SGLang YuE2 support is **unmerged upstream**; Q3O is **NOT TESTED**
-  (needs an 80 GB GPU); PER numbers are labeled with the evaluator backend.
+- SGLang YuE2 support is **unmerged upstream** (PR #42106 snapshot, pinned
+  commit `c67d541a`); PER numbers are labelled with the evaluator arm
+  (frozen transformers arm 17.77% / corrected vLLM arm 8.4488% vs paper
+  8.44%); Q3O on 48 GB runs via the **ROCm-adapted judge** (192/192,
+  official equivalence NOT_ESTABLISHED).
 - Details: `docs/KNOWN_LIMITATIONS.md`, `docs/COMPATIBILITY_MATRIX.md`,
-  `reports/publication/RELEASE_GATE_LEDGER.json`.
+  `reports/developer_reference/` (RC6 developer reproduction reference).
 
 ---
 ## Contents

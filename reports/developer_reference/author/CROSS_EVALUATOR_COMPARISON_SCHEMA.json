@@ -1,0 +1,51 @@
+{
+ "schema": "yue2-rc6-cross-evaluator-comparison-schema/1",
+ "description": "machine-readable contract for the same-audio cross-evaluator comparisons (PER and Q3O), shared by the CUDA runbooks and the RC6 comparators",
+ "audio_identity": {
+  "join_key": "generation_id / candidate id",
+  "hard_requirement": "per-file SHA256 equality of the exact evaluation audio (MP3 for PER, MP3 for Q3O); same-song-different-encode is a REJECT",
+  "source_manifests": {
+   "per": "per_full/audio_manifest.jsonl (384 rows, audio_sha256 per row)",
+   "q3o": "songbench_sel/audio_manifest.jsonl (192 selected rows)"
+  }
+ },
+ "per_comparison_fields": [
+  "coverage (both sides + joined)",
+  "per-candidate PER, edits, reference_phonemes, selected_asr_repeat",
+  "S/D/I decomposition",
+  "empty-transcript count, token-cap count",
+  "selection changes (four explicit fields: changed_prompt_count, removed_candidate_count, added_candidate_count, selection_symmetric_difference_count)",
+  "micro PER (sum(edits)/sum(reference_phonemes)), macro PER, zh/en strata",
+  "paired bootstrap 95% CI (prompt-level resampling, 10k draws, seed 1234)",
+  "failure taxonomy",
+  "residual discrepancies (listed, never tuned away)"
+ ],
+ "q3o_comparison_fields": [
+  "coverage (join + one-sided lists)",
+  "judge identity (both sides: model revision, file hashes, prompts, parser, scorer)",
+  "means (both sides) + mean/median paired delta",
+  "agreement ladder (exact / within 0.5 / within 1.0 / >1.0)",
+  "per-stratum means (language, duration terciles)",
+  "paired bootstrap 95% CI on mean delta",
+  "per-candidate paired rows (overall + every dimension + weights)",
+  "failure taxonomy",
+  "tie-break disclosure (~18-20% routed slots at exact ties; official rule unpublished)"
+ ],
+ "equivalence_criteria_rules": {
+  "preregistration": "criteria MUST be fixed by the protocol owner/author BEFORE the CUDA run; file format: {'criteria': [{'kind': ..., thresholds...}]}",
+  "per_kinds": ["per_micro_delta_within", "empty_delta_within", "selection_symmetric_difference_within"],
+  "q3o_kinds": ["mean_delta_within", "agreement_at_least", "ci_excludes_abs"],
+  "comparator_never_decides": "the comparator applies the file verbatim; without a file the verdict is PENDING_CRITERIA",
+  "post_hoc_forbidden": "criteria chosen after seeing results are invalid by construction"
+ },
+ "verdicts": {
+  "per": ["EQUIVALENT_UNDER_PREREGISTERED_CRITERIA", "NOT_EQUIVALENT_UNDER_PREREGISTERED_CRITERIA", "PENDING_CRITERIA", "NOT_RUN (BLOCKED_EXTERNAL)"],
+  "q3o": ["EQUIVALENT_UNDER_PREREGISTERED_CRITERIA", "NOT_EQUIVALENT_UNDER_PREREGISTERED_CRITERIA", "PENDING_CRITERIA", "NOT_RUN (BLOCKED_EXTERNAL)"],
+  "pilot_rule": "a diagnostic-subset result NEVER scales to full-set equivalence; both reported separately"
+ },
+ "tools": {
+  "per": "scripts/rc5_cuda_handoff.py (pack / restore-check / compare) + scripts/rc6_asr_identity.py audit",
+  "q3o": "scripts/rc6_q3o_comparator.py (self-tested; --criteria applies the pre-registered file)",
+  "attribution_update": "scripts/rc6_per_paired_attribution.py (adds the official column after a real CUDA run)"
+ }
+}
