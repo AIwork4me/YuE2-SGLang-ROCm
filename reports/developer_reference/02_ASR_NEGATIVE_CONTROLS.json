@@ -1,0 +1,99 @@
+{
+ "schema": "yue2-rc6-asr-negative-controls/1",
+ "generated_at_utc": "2026-11-27T14:26:33Z",
+ "suite": "tests/test_rc6_asr_identity.py (synthetic fixtures, offline)",
+ "purpose": "prove the RC6 A2 hardening actually DETECTS the failure modes it claims to catch",
+ "controls": [
+  {
+   "id": "test_exact_identity_match_reuse",
+   "outcome": "passed"
+  },
+  {
+   "id": "test_audio_mismatch_rejected",
+   "outcome": "passed"
+  },
+  {
+   "id": "test_model_mismatch_rejected",
+   "outcome": "passed"
+  },
+  {
+   "id": "test_engine_mismatch_rejected",
+   "outcome": "passed"
+  },
+  {
+   "id": "test_config_mismatch_rejected",
+   "outcome": "passed"
+  },
+  {
+   "id": "test_missing_repeats_incomplete",
+   "outcome": "passed"
+  },
+  {
+   "id": "test_duplicate_candidate_fails",
+   "outcome": "passed"
+  },
+  {
+   "id": "test_invalid_json_tail_quarantine",
+   "outcome": "passed"
+  },
+  {
+   "id": "test_manifest_missing_row_fails",
+   "outcome": "passed"
+  },
+  {
+   "id": "test_legacy_receipt_engine_version_still_checked",
+   "outcome": "passed"
+  },
+  {
+   "id": "test_receipt_sha_binds_content",
+   "outcome": "passed"
+  },
+  {
+   "id": "test_scorer_rejects_duplicate",
+   "outcome": "passed"
+  },
+  {
+   "id": "test_scorer_rejects_wrong_repeat_count",
+   "outcome": "passed"
+  },
+  {
+   "id": "test_scorer_rejects_inconsistent_repeat_counts",
+   "outcome": "passed"
+  },
+  {
+   "id": "test_scorer_rejects_audio_mismatch",
+   "outcome": "passed"
+  },
+  {
+   "id": "test_scorer_rejects_missing_candidates_no_silent_skip",
+   "outcome": "passed"
+  },
+  {
+   "id": "test_scorer_rejects_cross_engine_mixing",
+   "outcome": "passed"
+  },
+  {
+   "id": "test_scorer_rejects_unknown_id",
+   "outcome": "passed"
+  },
+  {
+   "id": "test_scorer_accepts_valid_partial_with_flag",
+   "outcome": "passed"
+  },
+  {
+   "id": "test_scorer_sdi_math",
+   "outcome": "passed"
+  }
+ ],
+ "summary": {
+  "total": 20,
+  "passed": 20,
+  "pytest_rc": 0
+ },
+ "green_regression": {
+  "what": "hardened rc5_score_transcripts.py re-scored a 2-candidate slice of the frozen E2 transcripts (official metrics venv, offline inputs)",
+  "result": "GREEN: edits/reference_phonemes/per/selected_asr_repeat byte-equal to the frozen E2 rows.jsonl for both candidates (wsb_000_r0 18/634, wsb_000_r1 47/634)",
+  "evidence": "session scratch /tmp/opencode/rc6_a2; scorer math untouched (phoneme_result official path + same sdi backtrace)"
+ },
+ "mutation_controls": "test_receipt_sha_binds_content (content mutation changes the receipt hash) plus the full REJECT taxonomy above"
+}
