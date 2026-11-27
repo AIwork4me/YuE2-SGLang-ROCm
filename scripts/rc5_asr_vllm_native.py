@@ -134,31 +134,27 @@ def main() -> int:
         pass
     sampling = SamplingParams(temperature=0.0, top_p=1.0, top_k=-1, max_tokens=a.max_new_tokens)
     a.out.parent.mkdir(parents=True, exist_ok=True)
-    # RC6 A2.2: FAIL-CLOSED resume — never skip on candidate_id alone.
+    # RC6.1 M2.4: durable fail-closed resume via prepare_resume():
+    #   * receipt hashes recomputed (tamper -> REFUSED)
+    #   * full identity binding (partial-field acceptance closed)
+    #   * torn tail -> atomic quarantine; incomplete rows -> atomic supersede
+    #     (re-run without leaving duplicate complete ids)
+    #   * anything rejected / duplicated / mid-file corrupt -> REFUSED
     done = set()
     if a.out.is_file():
-        audit = asr_id.audit_receipts(a.out, rows, run_identity, expected_repeats=a.repeats)
+        res = asr_id.prepare_resume(a.out, rows, run_identity, expected_repeats=a.repeats)
         audit_out = a.out.with_suffix(a.out.suffix + ".resume_audit.json")
-        audit_out.write_text(json.dumps(audit, indent=1, sort_keys=True) + "\n")
-        if audit["invalid_tail_lines"]:
-            q = asr_id.quarantine_tail(a.out, audit["valid_line_indices"])
-            print(f"[resume] invalid JSONL tail: original moved to {q} "
-                  f"({len(audit['invalid_tail_lines'])} bad lines dropped), re-auditing")
-            audit = asr_id.audit_receipts(a.out, rows, run_identity, expected_repeats=a.repeats)
-            audit_out.write_text(json.dumps(audit, indent=1, sort_keys=True) + "\n")
-        if audit["duplicate_candidate_ids"]:
-            print(json.dumps({"resume": "REFUSED", "reason": asr_id.R_DUPLICATE,
-                              "duplicates": audit["duplicate_candidate_ids"]}))
-            return 3
-        if audit["rejected"]:
-            print(json.dumps({"resume": "REFUSED", "reason": "rejected receipts present",
-                              "rejected": audit["rejected"],
+        audit_out.write_text(json.dumps(res["audit"], indent=1, sort_keys=True) + "\n")
+        if res["action"] == "REFUSED":
+            print(json.dumps({"resume": "REFUSED", "reason": res["reason"],
+                              "hard_errors": res["audit"]["fail_closed_hard_errors"],
+                              "rejected": res["audit"]["rejected"],
                               "hint": "start a NEW --out path (supersede, never overwrite)"}))
             return 4
-        if audit["missing_from_file"]:
-            print(f"[resume] {len(audit['missing_from_file'])} candidate(s) missing "
-                  f"(will run); {len(audit['incomplete'])} incomplete (will re-run)")
-        done = set(audit["reusable"])
+        if res.get("superseded_file"):
+            print(f"[resume] incomplete receipts superseded to {res['superseded_file']} "
+                  "(will re-run; no duplicate complete ids)")
+        done = set(res["reusable"])
     with a.out.open("a") as fout:
         for start in range(0, len(rows), a.batch_songs):
             batch = [r for r in rows[start:start + a.batch_songs] if r["id"] not in done]
@@ -167,7 +163,7 @@ def main() -> int:
             t1 = time.time()
             wavs = normalize_audios([r["audio_path"] for r in batch])
             inputs, owner = [], []
-            for r, wav in zip(batch, wavs):
+            for r, wav in asr_id.pair_strict(batch, wavs):
                 for _ in range(a.repeats):
                     for cwav, _off in split_audio_into_chunks(wav=wav, sr=SAMPLE_RATE,
                                                               max_chunk_sec=MAX_ASR_INPUT_SECONDS):
@@ -178,7 +174,7 @@ def main() -> int:
                         owner.append(r["id"])
             outputs = llm.generate(inputs, sampling_params=sampling, use_tqdm=False)
             per_song: dict[str, list] = {}
-            for oid, o in zip(owner, outputs):
+            for oid, o in asr_id.pair_strict(owner, outputs):
                 per_song.setdefault(oid, []).append(
                     {"text_raw": o.outputs[0].text, "generated_tokens": len(o.outputs[0].token_ids),
                      "finish_reason": o.outputs[0].finish_reason})
@@ -202,6 +198,7 @@ def main() -> int:
                 receipt["transcript_receipt_sha256"] = asr_id.receipt_sha256(receipt)
                 fout.write(json.dumps(receipt, ensure_ascii=False) + "\n")
                 fout.flush()
+                os.fsync(fout.fileno())  # durable journal: survive crash mid-campaign
                 empties = sum(1 for x in reps if not x["text"].strip())
                 caps = sum(1 for x in reps if any(c["finish_reason"] == "length" for c in x["raw_chunks"]))
                 print(f"[vllm-asr] {r['id']} {r['lang']}: empty_repeats={empties}/{a.repeats} cap_repeats={caps} "

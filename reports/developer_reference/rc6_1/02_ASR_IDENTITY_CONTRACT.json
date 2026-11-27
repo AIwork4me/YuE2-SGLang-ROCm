@@ -1,0 +1,52 @@
+{
+ "schema": "yue2-rc6_1-asr-identity-contract/1",
+ "generated_at_utc": "2026-11-27T22:24:18Z",
+ "asr_execution_identity": {
+  "fields": [
+   "model files (per-file sha256)",
+   "processor/tokenizer files",
+   "engine implementation + class",
+   "engine version (vllm/qwen_asr)",
+   "torch version",
+   "HIP/ROCm version",
+   "gpu device",
+   "preprocessing source (utils sha256)",
+   "audio chunking parameters (sample_rate, max_chunk_sec)",
+   "prompt template (sha256)",
+   "decoding (temperature/top_p/top_k/max_tokens/seed/repeats/batch)",
+   "dtype",
+   "driver source sha256",
+   "input manifest sha256"
+  ],
+  "binding": "run_identity_sha256 over the full canonical serialization; strict equality on resume — no partial-field acceptance",
+  "scientific_vs_execution": "absolute paths / machine facts live in execution_provenance and are EXCLUDED from the scientific content hash (machine moves preserve scientific semantics)"
+ },
+ "scoring_identity": {
+  "fields": [
+   "historical_per.py sha256",
+   "eval_worker.py sha256",
+   "manifest path + sha256",
+   "nltk_data (bundle manifest)"
+  ],
+  "policy": "a changed scorer => new scoring identity; appending rows of a different scoring identity to an existing output is refused"
+ },
+ "physical_execution_receipt": "gpu lifecycle receipt (gpu_execution VERIFIED, BDF, session pid/starttime) held by the caller (GPU lock owner); the ASR engine receipt embeds run_identity",
+ "receipt_integrity": {
+  "per_receipt": "transcript_receipt_sha256 = sha256(canonical receipt minus the hash field); RECOMPUTED on every audit (tamper => FAIL)",
+  "exactly_expected_repeats": "both fewer and extra are rejected",
+  "manifest_binding": "id must exist; declared audio hash must match; duplicate manifest ids fail closed",
+  "jsonl_corruption": "torn TAIL repairable via atomic quarantine; MID-FILE corruption fails closed (never silently dropped)"
+ },
+ "resume_semantics": {
+  "entry_point": "rc6_asr_identity.prepare_resume()",
+  "reusable": "full identity + audio + receipt-hash + exact repeat count + status ok",
+  "incomplete": "atomically superseded to .superseded-<ts> and re-run (never a duplicate complete id in the final view)",
+  "refused": "rejected receipts / duplicates / mid-file corruption / tampered hashes (operator starts a NEW out path; nothing silently deleted)",
+  "legacy_receipts": "HISTORICAL_RECEIPT_VALID_IDENTITY_PARTIAL — analysis-valid, never strict-reusable; historical 8.4488% arm keeps analysis validity under this label"
+ },
+ "diagnostic_modes": {
+  "--allow-partial": "permits incomplete manifest coverage AND absent audio files; summary records partial=true and audio_file_verification — never enters an official scoreboard",
+  "--drop-first-repeat": "diagnostic scoring of repeats 1..n-1 only"
+ },
+ "scorer_audio_binding": "verify_audio_files(): actual file hashes recomputed when files exist (declared-hash-only comparison closed); absent files fail closed without --allow-partial"
+}

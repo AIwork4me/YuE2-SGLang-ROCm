@@ -132,6 +132,7 @@ def test_legacy_receipt_engine_version_still_checked(tmp_path):
     r = receipt("c0")
     r.pop("run_identity")
     r["engine"] = {"vllm": "0.14.0"}
+    r["transcript_receipt_sha256"] = asr_id.receipt_sha256(r)  # honest legacy hash
     p = write(tmp_path, [r])
     a = asr_id.audit_receipts(p, MANIFEST, make_identity())
     assert a["decisions"]["c0"] == asr_id.R_ENGINE_MISMATCH

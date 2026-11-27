@@ -158,8 +158,14 @@ def main() -> int:
         json.dumps(scoring_identity, sort_keys=True).encode())
 
     t_rows = [json.loads(l) for l in a.transcripts.read_text().splitlines() if l.strip()]
-    ref = {r["id"]: r for r in (json.loads(l) for l in a.manifest.read_text().splitlines() if l.strip())}
+    manifest_rows = [json.loads(l) for l in a.manifest.read_text().splitlines() if l.strip()]
+    manifest_ids = [r["id"] for r in manifest_rows]
+    dupes = sorted({i for i in manifest_ids if manifest_ids.count(i) > 1})
+    if dupes:
+        raise ScorerValidationError(f"duplicate ids in the audio manifest: {dupes}")
+    ref = {r["id"]: r for r in manifest_rows}
     validate_transcripts(t_rows, ref, a.expected_repeats, a.allow_partial)
+    audio_problems = validate_audio_binding(manifest_rows, a.allow_partial)
 
     # supersede-not-overwrite: refuse to append a different scoring identity
     if a.out.is_file():
@@ -215,6 +221,12 @@ def main() -> int:
             "sdi_totals": {k: sum(r["sdi"][k] for r in ok) for k in ("substitutions", "deletions", "insertions")},
             "scoring_identity": scoring_identity,
             "partial": bool(a.allow_partial),
+            "audio_file_verification": {
+                "problems": audio_problems,
+                "verified": not audio_problems,
+                "policy": "actual file hashes recomputed when files exist; "
+                          "absent files disclosed (fail-closed without --allow-partial)",
+            },
             "generated_at_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
     print(json.dumps(summ, indent=1))
     return 0

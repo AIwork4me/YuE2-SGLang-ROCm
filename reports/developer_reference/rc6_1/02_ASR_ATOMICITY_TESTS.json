@@ -1,0 +1,198 @@
+{
+ "schema": "yue2-rc6_1-asr-atomicity-tests/1",
+ "generated_at_utc": "2026-11-27T22:23:22Z",
+ "red_evidence": {
+  "tests_before_fix": "13 failed / 2 passed (first run against RC6 code, recorded in session log)",
+  "note": "RED run executed before the rc6_asr_identity.py hardening; fixtures unchanged afterwards"
+ },
+ "green_evidence": {
+  "rc6_1_tests": {
+   "file": "tests/test_rc61_asr_identity.py",
+   "results": [
+    {
+     "test": "test_D1_identity_change_outside_compared_fields_is_rejected",
+     "status": "PASSED"
+    },
+    {
+     "test": "test_D2_receipt_hash_not_recomputed_tamper_detected",
+     "status": "PASSED"
+    },
+    {
+     "test": "test_D3_missing_decoding_fields_fail_closed",
+     "status": "PASSED"
+    },
+    {
+     "test": "test_D4_legacy_partial_identity_not_strict_reusable",
+     "status": "PASSED"
+    },
+    {
+     "test": "test_D5_extra_repeats_rejected",
+     "status": "PASSED"
+    },
+    {
+     "test": "test_D6_midfile_corruption_is_not_a_repairable_tail",
+     "status": "PASSED"
+    },
+    {
+     "test": "test_D6b_true_tail_corruption_is_quarantinable",
+     "status": "PASSED"
+    },
+    {
+     "test": "test_D7_manifest_duplicate_ids_detected",
+     "status": "PASSED"
+    },
+    {
+     "test": "test_D8_quarantine_preserves_original_and_is_atomic",
+     "status": "PASSED"
+    },
+    {
+     "test": "test_D9_incomplete_receipts_are_superseded_not_duplicated",
+     "status": "PASSED"
+    },
+    {
+     "test": "test_D10_strict_pairing_no_silent_truncation",
+     "status": "PASSED"
+    },
+    {
+     "test": "test_D11_scorer_detects_manifest_audio_hash_mismatch",
+     "status": "PASSED"
+    },
+    {
+     "test": "test_D11b_scorer_audio_verification_ok",
+     "status": "PASSED"
+    },
+    {
+     "test": "test_D12_canonical_identity_includes_processor_prompt_chunking",
+     "status": "PASSED"
+    },
+    {
+     "test": "test_D12b_missing_critical_identity_fields_refused",
+     "status": "PASSED"
+    },
+    {
+     "test": "test_exact_identity_match_reuse",
+     "status": "PASSED"
+    },
+    {
+     "test": "test_audio_mismatch_rejected",
+     "status": "PASSED"
+    },
+    {
+     "test": "test_model_mismatch_rejected",
+     "status": "PASSED"
+    },
+    {
+     "test": "test_engine_mismatch_rejected",
+     "status": "PASSED"
+    },
+    {
+     "test": "test_config_mismatch_rejected",
+     "status": "PASSED"
+    },
+    {
+     "test": "test_missing_repeats_incomplete",
+     "status": "PASSED"
+    },
+    {
+     "test": "test_duplicate_candidate_fails",
+     "status": "PASSED"
+    },
+    {
+     "test": "test_invalid_json_tail_quarantine",
+     "status": "PASSED"
+    },
+    {
+     "test": "test_manifest_missing_row_fails",
+     "status": "PASSED"
+    },
+    {
+     "test": "test_legacy_receipt_engine_version_still_checked",
+     "status": "PASSED"
+    },
+    {
+     "test": "test_receipt_sha_binds_content",
+     "status": "PASSED"
+    },
+    {
+     "test": "test_scorer_rejects_duplicate",
+     "status": "PASSED"
+    },
+    {
+     "test": "test_scorer_rejects_wrong_repeat_count",
+     "status": "PASSED"
+    },
+    {
+     "test": "test_scorer_rejects_inconsistent_repeat_counts",
+     "status": "PASSED"
+    },
+    {
+     "test": "test_scorer_rejects_audio_mismatch",
+     "status": "PASSED"
+    },
+    {
+     "test": "test_scorer_rejects_missing_candidates_no_silent_skip",
+     "status": "PASSED"
+    },
+    {
+     "test": "test_scorer_rejects_cross_engine_mixing",
+     "status": "PASSED"
+    },
+    {
+     "test": "test_scorer_rejects_unknown_id",
+     "status": "PASSED"
+    },
+    {
+     "test": "test_scorer_accepts_valid_partial_with_flag",
+     "status": "PASSED"
+    },
+    {
+     "test": "test_scorer_sdi_math",
+     "status": "PASSED"
+    }
+   ],
+   "summary": "35 passed"
+  },
+  "rc6_regression_suite": {
+   "file": "tests/test_rc6_asr_identity.py",
+   "summary": "20 passed (one legacy fixture hash made honest — content now hashed after the legacy-shape mutation)"
+  }
+ },
+ "physical_resume_regression": {
+  "complete_receipts": 3,
+  "duplicate_complete_ids": 0,
+  "quarantine_files": [
+   "/tmp/rc61_asr_resume_llt6wr1g/transcripts.jsonl.quarantine-20261127T222303Z"
+  ],
+  "superseded_files": [],
+  "final_audit_all_reusable": true,
+  "stale_identity_refused": true,
+  "tampered_receipt_refused": true,
+  "no_data_loss": true,
+  "steps": [
+   {
+    "step": "start+kill-after-2",
+    "rc": -9
+   },
+   {
+    "step": "resume+torn-tail",
+    "rc": -9
+   },
+   {
+    "step": "resume-final",
+    "rc": 0
+   }
+  ]
+ },
+ "historical_receipt_treatment": {
+  "schema": "yue2-rc6_1-historical-asr-audit/1",
+  "generated_at_utc": "2026-11-27T22:23:03Z",
+  "transcripts": "/data/yue2-runs/rc5-per-experiments/rc5_1_e2_full/transcripts.jsonl",
+  "rows": 384,
+  "decision_counts": {
+   "HISTORICAL_RECEIPT_VALID_IDENTITY_PARTIAL": 384
+  },
+  "read_only": true,
+  "treatment": "HISTORICAL_RECEIPT_VALID_IDENTITY_PARTIAL — the frozen 8.4488% PER arm keeps ANALYSIS validity (structure + audio binding + repeat counts verified read-only); strict resume is NOT granted (historical receipts carry no run_identity / receipt hashes). Reuse for new reference runs requires re-executing ASR on the frozen 384 audio, not regeneration.",
+  "resume_allowed": true
+ }
+}
