@@ -1,0 +1,543 @@
+{
+ "schema": "yue2-rc5-environment/1",
+ "os": {
+  "hostname": "j-jbtesfeshrbfybindu5ecokevp",
+  "os_pretty": "Ubuntu 24.04.5 LTS",
+  "os_version_id": "24.04",
+  "kernel": "6.8.0-79-generic",
+  "architecture": "x86_64",
+  "glibc": "ldd (Ubuntu GLIBC 2.39-0ubuntu8.9) 2.39",
+  "uptime": "up 21 weeks, 22 hours, 14 minutes",
+  "captured_at_utc": "2026-11-24T07:00:26Z"
+ },
+ "cpu": {
+  "model": "AMD EPYC 9334 32-Core Processor",
+  "logical_cpus_visible": 128,
+  "cgroup_cpu_max": "1600000 100000",
+  "cgroup_cpuset": "0-127"
+ },
+ "memory": {
+  "host_mem_total_gib": 503.56,
+  "cgroup_memory_max_bytes": "59055800320",
+  "cgroup_memory_max_gib": 55.0,
+  "cgroup_memory_current_bytes": "54446211072",
+  "cgroup_memory_swap_max_bytes": "0",
+  "cgroup_pids_max": "618610",
+  "note": "the cgroup limit (not the host total) bounds CPU offload"
+ },
+ "gpu": {
+  "amd_smi": [
+   "GPU: 0",
+   "BDF: 0000:03:00.0",
+   "UUID: e900744b-0000-1000-80d0-e20bb686e6c6",
+   "KFD_ID: 6853",
+   "NODE_ID: 2",
+   "PARTITION_ID: 0"
+  ],
+  "torch": {
+   "version": "2.12.0+rocm7.14.1",
+   "hip": "7.14.60850",
+   "cuda_build": null,
+   "device_count": 1,
+   "import_path": "/data/yue2/environments/generation/lib/python3.12/site-packages/torch/__init__.py"
+  },
+  "devices": [
+   {
+    "index": 0,
+    "name": "AMD Radeon Pro W7900D",
+    "gcn_arch_name": "gfx1100",
+    "pci_bus_id": 3,
+    "pci_domain_id": 0,
+    "pci_device_id": 0,
+    "pci_bdf": "0000:03:00.0",
+    "uuid": "65396430-6532-3062-6236-383665366336",
+    "total_memory_bytes": 51522830336,
+    "total_memory_gib": 47.98,
+    "total_memory_decimal_gb": 51.52,
+    "multi_processor_count": 48,
+    "drm_card": "card1",
+    "vram_used_bytes_at_snapshot": 10907787264,
+    "gtt_total_bytes": 270348263424,
+    "max_engine_clock_mhz": 1760,
+    "memory_clock_rate_mhz": 1124,
+    "vbios_version": "113-D7070910-100"
+   }
+  ],
+  "kernel": {
+   "amdgpu_module_version": "6.16.13",
+   "dev_kfd_present": true,
+   "dev_dri_render_nodes": [
+    "renderD128"
+   ],
+   "dev_dri_cards": [
+    "card1"
+   ]
+  },
+  "kfd_gpu_nodes": {
+   "2": {
+    "device_id": "29771",
+    "simd_count": "192",
+    "drm_render_minor": "128",
+    "max_engine_clk_fcompute": "1760",
+    "local_mem_size": "0",
+    "gfx_target_version": "110000"
+   },
+   "3": "UNREADABLE (outside this container)",
+   "4": "UNREADABLE (outside this container)",
+   "5": "UNREADABLE (outside this container)",
+   "6": "UNREADABLE (outside this container)",
+   "7": "UNREADABLE (outside this container)",
+   "8": "UNREADABLE (outside this container)",
+   "9": "UNREADABLE (outside this container)"
+  },
+  "rocminfo_agents": [
+   "AMD EPYC 9334 32-Core Processor    ",
+   "AMD EPYC 9334 32-Core Processor    ",
+   "AMD Radeon Pro W7900D              "
+  ],
+  "rocminfo_isa": [
+   "gfx11-generic",
+   "gfx1100"
+  ],
+  "rock_module_version": "6.16.13"
+ },
+ "python": {
+  "executable": "/data/yue2/environments/generation/bin/python",
+  "version": "3.12.3"
+ },
+ "tools": {
+  "gcc": "gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+  "gpp": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+  "cmake": "cmake version 3.28.3",
+  "ninja": "1.13.2.git.kitware.jobserver-pipe-1",
+  "git": "git version 2.43.0",
+  "gh": "gh version 2.105.0",
+  "uv": "FileNotFoundError: [Errno 2] No such file or directory: 'uv'",
+  "ffmpeg": "ffmpeg version 6.1.1-3ubuntu5",
+  "tmux": "tmux 3.4",
+  "docker": "FileNotFoundError: [Errno 2] No such file or directory: 'docker'"
+ },
+ "storage": {
+  "mounts": [
+   {
+    "source": "overlay",
+    "fstype": "overlay",
+    "options": "rw,relatime,upperdir=/nvme1/containerd/data/io.containerd.snapshotter.v1.overlayfs/snapshots/29684/fs,workdir=/nvme1/containerd/data/io.containerd.snapshotter.v1.overlayfs/snapshots/29684/work,uuid=on,nouserxattr",
+    "mountpoint": "/",
+    "upperdir": "/nvme1/containerd/data/io.containerd.snapshotter.v1.overlayfs/snapshots/29684/fs"
+   }
+  ],
+  "filesystems": [
+   {
+    "path": "/",
+    "total_bytes": 3779301580800,
+    "used_bytes": 1782870544384,
+    "free_bytes": 1804376530944,
+    "free_gib": 1680.46,
+    "device": "overlay overlay"
+   },
+   {
+    "path": "/workspace",
+    "total_bytes": 105089261568,
+    "used_bytes": 962404352,
+    "free_bytes": 98741370880,
+    "free_gib": 91.96,
+    "device": "/dev/loop1 ext4"
+   },
+   {
+    "path": "/data",
+    "total_bytes": 3779301580800,
+    "used_bytes": 1782870544384,
+    "free_bytes": 1804376530944,
+    "free_gib": 1680.46,
+    "device": "overlay overlay"
+   },
+   {
+    "path": "/tmp",
+    "total_bytes": 4294967296,
+    "used_bytes": 2151440384,
+    "free_bytes": 2143526912,
+    "free_gib": 2.0,
+    "device": "tmpfs  tmpfs"
+   }
+  ],
+  "inodes_root": {
+   "total": 234422272,
+   "free": 223992525
+  },
+  "block_devices": {
+   "dm-0": {
+    "rotational": "0",
+    "size_sectors": "931299328",
+    "model": ""
+   },
+   "loop0": {
+    "rotational": "0",
+    "size_sectors": "4294967296",
+    "model": ""
+   },
+   "loop1": {
+    "rotational": "0",
+    "size_sectors": "209715200",
+    "model": ""
+   },
+   "loop10": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop11": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop12": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop13": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop14": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop15": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop16": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop17": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop18": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop19": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop2": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop20": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop21": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop22": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop23": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop24": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop25": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop26": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop27": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop28": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop29": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop3": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop30": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop31": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop32": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop33": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop34": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop35": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop36": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop37": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop38": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop39": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop4": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop40": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop41": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop42": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop43": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop44": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop45": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop46": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop47": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop48": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop49": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop5": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop50": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop51": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop52": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop53": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop54": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop55": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop56": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop6": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop7": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop8": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "loop9": {
+    "rotational": "0",
+    "size_sectors": "0",
+    "model": ""
+   },
+   "nvme0n1": {
+    "rotational": "0",
+    "size_sectors": "7501476528",
+    "model": "HIPPSTOR HPD3104T0T103T8000"
+   },
+   "nvme1n1": {
+    "rotational": "0",
+    "size_sectors": "7501476528",
+    "model": "HIPPSTOR HPD3104T0T103T8000"
+   },
+   "sda": {
+    "rotational": "0",
+    "size_sectors": "937703088",
+    "model": "SSSTC ER3-CD480A"
+   }
+  },
+  "persistence_assessment": {
+   "/": "container writable layer (containerd overlayfs snapshot) — tied to the container/image lifecycle",
+   "/workspace": "loop-mounted ext4 volume provided by the platform (workspace quota); survival across image deletion is NOT guaranteed by any documented contract — verify by drill, do not assume"
+  }
+ },
+ "backup_capability": {
+  "detected": {
+   "rclone_conf": false,
+   "aws_credentials": false,
+   "aws_config_env": false,
+   "gcloud_config_dir": false,
+   "azure_profile": false,
+   "ssh_private_key_config": false,
+   "gcp_default_creds_env": false,
+   "azure_env": false,
+   "hf_token_env_or_file": false,
+   "restic_env": false,
+   "borg_env": false,
+   "mounted_remote_fs": false
+  },
+  "verdict": "NO_OFF_MACHINE_BACKUP_DESTINATION_AUTHORIZED"
+ },
+ "network": {
+  "egress_proxy_configured": true,
+  "sources": {
+   "github_api": {
+    "url": "https://api.github.com/",
+    "status": 200,
+    "seconds": 0.24
+   },
+   "github_git": {
+    "url": "https://github.com/AIwork4me/YuE2-SGLang-ROCm/info/refs?service=git-upload-pack",
+    "status": 405,
+    "seconds": 0.51
+   },
+   "huggingface": {
+    "url": "https://huggingface.co/api/datasets/m-a-p/WildSongBench",
+    "status": null,
+    "error": "URLError",
+    "seconds": 20.02
+   },
+   "hf_mirror": {
+    "url": "https://hf-mirror.com/api/datasets/m-a-p/WildSongBench",
+    "status": 200,
+    "seconds": 1.95
+   },
+   "amd_wheel_index": {
+    "url": "https://repo.amd.com/rocm/whl-multi-arch/torch/",
+    "status": 200,
+    "seconds": 1.16
+   },
+   "pytorch_wheel_index": {
+    "url": "https://download.pytorch.org/whl/rocm7.14/torch/",
+    "status": 200,
+    "seconds": 0.94
+   },
+   "pypi": {
+    "url": "https://pypi.org/simple/pytest/",
+    "status": 200,
+    "seconds": 0.26
+   },
+   "pypi_tuna": {
+    "url": "https://pypi.tuna.tsinghua.edu.cn/simple/pytest/",
+    "status": 200,
+    "seconds": 2.65
+   }
+  }
+ }
+}

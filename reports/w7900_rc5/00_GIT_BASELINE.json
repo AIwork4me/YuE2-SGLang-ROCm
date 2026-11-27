@@ -1,0 +1,42 @@
+{
+ "schema": "yue2-rc5-git-baseline/1",
+ "verified_at_utc": "2026-11-24T07:01:47Z",
+ "project_repo": "https://github.com/AIwork4me/YuE2-SGLang-ROCm",
+ "mission_branch": "mission/w7900-rc5-latest-upstream-full-reproduction",
+ "created_from": {
+  "pr": 18,
+  "head_ref": "mission/w7900-rc4-1-fail-loud-health-evidence",
+  "head_sha": "6f1b7f7631a9b1d3775d35ed5780ba6fb6c942fe",
+  "state": "open",
+  "draft": true
+ },
+ "expected_pr18_head_per_mission": "6f1b7f7631a9b1d3775d35ed5780ba6fb6c942fe",
+ "pr18_head_matches_mission": true,
+ "stacked_prs_reviewed": {
+  "13": "fix/w7900-fresh-image-resume-hardening",
+  "15": "integration/joint-blog-rc",
+  "16": "mission/joint-blog-rc2",
+  "17": "mission/w7900-rc4-repro-reliability",
+  "18": "mission/w7900-rc4-1-fail-loud-health-evidence"
+ },
+ "upstream": {
+  "pr": 42106,
+  "url": "https://github.com/sgl-project/sglang/pull/42106",
+  "head_repo": "yiakwy-xpu-ml-framework-team/AMD-sglang-benchmark-fork",
+  "head_ref": "add_yue2",
+  "head_sha": "c67d541a40f8bf851e9fc1e925f5316638838cd6",
+  "state": "open",
+  "merged": false,
+  "updated_at": "2026-11-23T11:37:55Z",
+  "author_branch_head": "c67d541a40f8bf851e9fc1e925f5316638838cd6",
+  "author_branch_commit_date": "2026-11-23T05:44:22Z",
+  "frozen_for_rc5": "c67d541a40f8bf851e9fc1e925f5316638838cd6",
+  "merge_ref_used": false,
+  "verification": "gh api (pulls/42106, fork branch add_yue2) + git ls-remote; frozen for the whole campaign"
+ },
+ "historical_baseline": {
+  "pr18_head": "6f1b7f7631a9b1d3775d35ed5780ba6fb6c942fe",
+  "upstream_ced0ef7d": "ced0ef7d1bbbe703607b302ec86bb20a5c06bc8f"
+ },
+ "final_repo_head": "recorded in the PR and in 09_GITHUB_HANDOFF.md at delivery time (a commit cannot contain its own SHA)"
+}

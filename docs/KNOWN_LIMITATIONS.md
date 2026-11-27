@@ -119,3 +119,72 @@
   proven; no stack was capturable); the blind spot is closed by
   `scripts/gpu_identity.py` fail-loud receipts
   (reports/w7900_rc4_1/01_GPU_FALLBACK_RCA.md).
+
+## RC5 additions (2026-11-24, in progress)
+
+- **No off-machine backup**: the owner confirmed there is no backup host. The
+  RC5 checkpoints (incremental every 16 candidates + full at milestones, SHA256
+  manifests) are copied to a second volume on the SAME host and a restore drill
+  passes, but that does not survive loss of the host
+  (reports/w7900_rc5/00_STORAGE_AND_BACKUP_PLAN.md: `DISASTER_RECOVERY_BLOCKED`).
+- **Upstream artifact exporter writes 16-bit WAV**: `Yue2VAEDecodeStage` calls
+  `sf.write(path, audio, sr)` (soundfile default PCM_16) while the official
+  `yue2-infer` writes `audio.flac` PCM_24 from float. Every sample of the
+  SGLang-path audio therefore sits on the 1/32768 grid before the official MP3
+  encoding. Not patched in the main run (pure-upstream policy); documented for
+  the author (reports/w7900_rc5/02_UPSTREAM_DELTA_REVIEW.md, finding F3).
+- **HTTP timing fields are null**: at the frozen head `yue2_timing`,
+  `yue2_stage_seconds` and `yue2_nar_fast` are always `null`; exact stage
+  seconds are read from the server log by the RC5 driver.
+- **Two upstream dispatch tests are host-dependent** (assume a non-HIP host /
+  SM90): 19/21 pass on gfx1100.
+- **Official PER is expensive on this engine**: with the official ASR config
+  (batch 8, cap 4096) the qwen_asr transformers backend spends ~118 ms per
+  decode step and a batch waits for its longest sequence; the full 384-song
+  PER is estimated at 15–25 GPU-hours. The official ROCm vLLM wheel index
+  (`wheels.vllm.ai`) is blocked by this host's egress proxy, so the official
+  vLLM engine could not be tried locally.
+- **ASR-side empty transcripts on English songs (preliminary)**: on the 12
+  pilot candidates Qwen3-ASR (transformers on ROCm) returned an empty
+  transcription for 4 of 8 English candidates; an unrelated reference ASR
+  (Whisper) transcribes the same audio with a reference PER of 0.09–0.33. This
+  points at the evaluator side, not the audio. Root cause NOT yet established
+  (reports/w7900_rc5/INTERIM_STATUS_ZH.md).
+- **Q3O**: the Thinker alone is 58 GiB in BF16 (> the ~44.6 GiB usable), so the
+  official judge cannot be loaded as-is; a ROCm-adapted route (Thinker-only
+  BF16, mixed GPU/CPU placement) is prepared but not yet validated on hardware.
+
+## RC5.1 additions (2026-11-27, final)
+
+1. **Q3O is ROCm-adapted, NOT official-equivalent**: the official judge is
+   vLLM 0.14.0 + FlashAttention 2.8.3 on an 80 GB CUDA GPU. Our judge keeps
+   the official scorer, prompts, parser, weights and greedy decoding, but
+   runs the Thinker through HF transformers on ROCm (34 GPU + 14 CPU-resident
+   MoE layers). **18.4–20.2% of routed token-slots sit on exact top-k
+   boundary ties** whose resolution in the official kernel is unknown, so
+   per-token routing parity cannot be claimed. Score 4.393986 vs paper 4.68.
+2. **PER engine substitution, now root-caused**: the frozen official W7900
+   PER (17.7699%) uses the qwen_asr transformers backend (vLLM 0.14 has no
+   ROCm build). That backend enters a repetition loop on 10/384 candidates
+   (2 more cap out) — invariant to precision/attention/batch/device; the
+   same weights+audio through vLLM 0.19.1 transcribe them. The corrected arm
+   scores 8.4488% selected micro PER (paper: 8.44%); it is reported as a
+   SEPARATE arm — the frozen scoreboard entry is unchanged, and the other
+   four metrics are bound to the original frozen selection.
+3. **Off-machine backup**: BLOCKED_EXTERNAL (owner confirmed no backup host);
+   same-host second-volume recovery is verified (384/384 drill) but is not
+   off-machine disaster recovery.
+4. **Four candidates differ from the historical run at the FLAC-container
+   level only** (same codec frames/duration/truncation; −2/+2/+15/0 bytes in
+   17–26 MB files): the rebuilt image's libFLAC build differs. Generation
+   determinism is unaffected.
+5. **Exact-HEAD CI evidence is step-level** (job-log download requires admin
+   rights); local reproduction of the same suites is recorded in
+   `reports/w7900_rc5/rc5_1/02_TEST_RESULTS.json`.
+6. **Kernel-level trigger of the ASR loop is characterised, not traced**:
+   the post-header knife-edge (identical top-5, EOS prob ~2e-5) is measured;
+   which arithmetic difference flips it is OPEN. E3 (official CUDA) is
+   BLOCKED_EXTERNAL with a prepared hand-off package.
+7. **BatchedGpuMoeBlock is retained but not used at runtime**: it does not
+   fit 48 GB as implemented (allocator fragmentation, root-caused); the
+   validated path patches the stock HF loop's top-k in place.

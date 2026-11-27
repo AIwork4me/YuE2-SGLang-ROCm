@@ -1,0 +1,74 @@
+{
+ "schema": "yue2-rc5-real-gpu-controls/1",
+ "gpu": "AMD Radeon PRO W7900D (gfx1100), real SGLang YuE2 server",
+ "server_pid": 436799,
+ "scheduler_pid": 437596,
+ "executed_at_utc": "2026-11-24T04:44:07Z",
+ "rows": [
+  {
+   "control": "RG-01 healthy server",
+   "expected": "READY rc 0",
+   "rc": 0,
+   "state": "READY",
+   "http_health": 200
+  },
+  {
+   "control": "RG-02 real generation canary",
+   "expected": "decodable 48 kHz stereo audio, rc 0",
+   "rc": 0,
+   "ok": true,
+   "audio": {
+    "decoder": "soundfile",
+    "samplerate": 48000,
+    "channels": 2,
+    "frames": 575936,
+    "finite": true,
+    "peak": 0.65625,
+    "rms": 0.0987294859491189,
+    "bytes": 2303788
+   },
+   "audio_seconds": 11.999,
+   "reason": null
+  },
+  {
+   "control": "RG-03 wrong expected model path",
+   "expected": "UNKNOWN rc 4",
+   "rc": 4,
+   "state": "UNKNOWN",
+   "http_health": 200
+  },
+  {
+   "control": "RG-04 scheduler SIGSTOP (state T), /health still served",
+   "expected": "WORKER_DEAD rc 3",
+   "rc": 3,
+   "state": "WORKER_DEAD",
+   "http_health": 200,
+   "scheduler_state": "T"
+  },
+  {
+   "control": "RG-05 scheduler SIGCONT",
+   "expected": "READY rc 0 again",
+   "rc": 0,
+   "state": "READY",
+   "http_health": 200,
+   "scheduler_state": "R"
+  },
+  {
+   "control": "RG-06 scheduler SIGKILL, /health still 200",
+   "expected": "WORKER_DEAD rc 3 (HTTP false health detected)",
+   "rc": 3,
+   "state": "WORKER_DEAD",
+   "http_health": 200,
+   "scheduler_state": "Z"
+  }
+ ],
+ "checks": {
+  "RG-01": true,
+  "RG-02": true,
+  "RG-03": true,
+  "RG-04": true,
+  "RG-05": true,
+  "RG-06": true
+ },
+ "passed": true
+}

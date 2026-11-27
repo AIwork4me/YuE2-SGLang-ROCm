@@ -1,0 +1,23 @@
+{
+ "schema": "yue2-rc5_1-full-provenance-audit/1",
+ "generated_at_utc": "2026-11-26T00:35:05Z",
+ "run_id": "rc5_armB_latest_upstream_20261124T065451Z",
+ "driver": {
+  "launch_head": "6f1b7f7631a9b1d3775d35ed5780ba6fb6c942fe",
+  "final_head_with_resume": "ef64b764 (driver revision accepted via --allow-driver-update, journal-disclosed; generation runtime unchanged)",
+  "driver_sha256_at_launch": "5c106fc7c3a265a598acf927cc33ed39a5a997aa4f6235bac7203fb57943e8b5"
+ },
+ "frozen_runtime": {
+  "sglang_commit": "c67d541a40f8bf851e9fc1e925f5316638838cd6",
+  "sglang_tracked_diff_sha256": "a6bb049c40365770438b42c6b8f6812d0ffea7fbcad2e09aa1cd491e0528e5dc",
+  "yue2_runtime_sha256": "342b2f531b14a201b4aae1a6a14424bed7f03cd7f993c3a1c09657a6d6109051",
+  "environment_freeze_sha256": "3bea96f58209758fc31c27e4e79c11d48060259e9bf915e8e0417b358b140ed7"
+ },
+ "per_candidate_provenance": "384/384 launched+result receipts with seed, style/lyrics/manifest-row/payload hashes, server identity, runtime sha, GPU identity",
+ "historical_hash_comparison": {
+  "byte_identical": 380,
+  "non_identical": 4,
+  "non_identical_root_cause": "All four non-identical candidates have IDENTICAL audio duration (to 1e-6 s), IDENTICAL codec frame count (= generated audio tokens), IDENTICAL truncation flag and the official seed..."
+ },
+ "checkpoints": "incremental every 16 + milestone full at 384 (restore-manifest-384.json); all copied and hash-verified on the second volume"
+}

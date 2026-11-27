@@ -1,0 +1,25 @@
+{
+ "schema": "yue2-rc5_1-checkpoint-closure/1",
+ "generated_at_utc": "2026-11-24T14:01:19Z",
+ "gap_found": {
+  "candidates": [
+   "wsb_008_r0_s831009",
+   "wsb_008_r1_s831027",
+   "wsb_009_r0_s831010",
+   "wsb_009_r1_s831028"
+  ],
+  "root_cause": "rc5_generate.py guarded the tail checkpoint with `not STOP.is_set()`: a SIGTERM pause (rc=143 after candidate 20) skipped the archive of candidates 17-20",
+  "fix": "RC5.1 driver fix: the tail checkpoint is now ALWAYS written when new complete candidates are unarchived; --checkpoint-only mode closes the gap retroactively without contacting the server"
+ },
+ "closure_receipt": {
+  "archive": "/data/yue2-runs/rc5-latest-upstream-20261124T065451Z/wsb_full/checkpoints/incremental-020-20261124T135801Z.tar.zst",
+  "bytes": 83604883,
+  "archive_sha256": "55f1eaf03f06af2cc687e0dd9fbacb8faca1ffbae171c522de163d84e4c2cccc",
+  "manifest_sha256": "57905de7ae319cfd91c203059e152e90a43d8f97506cbdb657505f6875f002d1",
+  "backup_second_volume": "/workspace/yue2-rc5-backup/checkpoints/rc5_armB_latest_upstream_20261124T065451Z/ (size+sha256 re-verified by backup_verified journal event)"
+ },
+ "verify": {
+  "all_checkpoints": "rc5_backup.py verify -> 2/2 OK (n=16 members=180, n=20 members=48)"
+ },
+ "CHECKPOINT_COVERAGE": "PASS 100%"
+}

@@ -1,0 +1,39 @@
+{
+ "schema": "yue2-rc5_1-songbench-full/1",
+ "generated_at_utc": "2026-11-26T11:40:18Z",
+ "scope": "official selected-192 (best-of-2 by PER, frozen manifest 05_SELECTED_MANIFEST.json)",
+ "coverage": {
+  "scored": 192,
+  "failed": 0,
+  "not_applicable": 0,
+  "all_dimensions_192": true
+ },
+ "dimension_means": {
+  "Melody": 6.670795,
+  "Arrangement": 6.955477,
+  "Musicality": 5.923846,
+  "Vocal": 7.136414,
+  "Instrumental": 7.035137,
+  "Mixing": 6.8544,
+  "Structure": 6.582167,
+  "Global Avg": 6.736891
+ },
+ "global_avg": 6.736891,
+ "references": {
+  "paper": 6.7316,
+  "author_sgl": 6.7146,
+  "historical_w7900_armB": 6.738264,
+  "rc5_1": 6.736891,
+  "delta_vs_historical": -0.001373
+ },
+ "musicality": {
+  "rc5_1": 5.923846,
+  "historical": 5.924525,
+  "author_sgl": 5.8896
+ },
+ "scoring_identity": {
+  "evaluator": "frozen patched tree wsb_eval.py (sha efb89042...)",
+  "gpu": "W7900D gfx1100",
+  "torch": "2.10.0+rocm7.14.1"
+ }
+}

@@ -1,0 +1,19 @@
+{
+ "schema": "yue2-rc5_1-github-final-state/1",
+ "generated_at_utc": "2026-11-27T13:07:50Z",
+ "pr": "https://github.com/AIwork4me/YuE2-SGLang-ROCm/pull/19",
+ "branch": "mission/w7900-rc5-latest-upstream-full-reproduction",
+ "final_head": "faf665a91a4f86f15f1b50be99e3ad54adc84373",
+ "initial_head": "bb7731752931b0bf6078a0c1b3623d109958a2fb",
+ "frozen_upstream_sglang": "c67d541a40f8bf851e9fc1e925f5316638838cd6",
+ "effective_runtime_sha256": "342b2f531b14a201b4aae1a6a14424bed7f03cd7f993c3a1c09657a6d6109051",
+ "pr_description": "updated to final completion state (13 required elements)",
+ "no_force_push": true,
+ "main_untouched": true,
+ "not_merged": true,
+ "public_evidence": "numeric-only; evidence guard, lyrics detector, numeric receipt integrity and secret scan PASS at this HEAD",
+ "exact_head_ci": "PASS",
+ "upstream_issue_draft": "in 08_UPSTREAM_HANDOFF_EN.md (qwen_asr transformers repetition loop; hashes+numeric receipts only, audio stays private)",
+ "ci_verified_head": "7b8f8f2 (all engineering content; push run 46006231810 + PR run 46006242559, both jobs success)",
+ "this_commit": "documentation-only receipt correction; the ci_verified_head carries all evidence"
+}

@@ -1,0 +1,37 @@
+{
+ "schema": "yue2-rc5_1-per-final-verdict/1",
+ "generated_at_utc": "2026-11-27T12:39:26Z",
+ "PER_ROOT_CAUSE": "PER_ROOT_CAUSE_COMPOSITE (dominant factor CONFIRMED)",
+ "dominant_root_cause": "the ROCm transformers ASR engine substitution enters a degenerate repetition-loop/stop attractor on hard candidates (10 empty + 112 cap-affected of 384) that the vLLM decode path escapes on identical audio bytes and identical weights; features are bit-identical and the failure is invariant to precision (bf16/fp16/fp32), attention (sdpa/eager), batch size and device (GPU/CPU)",
+ "minor_root_cause": "2/384 candidates (wsb_085_r1, wsb_120_r1) loop under BOTH engines - genuine model behaviour on that audio",
+ "open_items": [
+  "exact kernel arithmetic that flips the knife-edge logits after the language header (characterised: same top-5, EOS prob ~2e-5, step-8 near-ties)",
+  "official CUDA vLLM 0.14.0 comparison (E3) - BLOCKED_EXTERNAL, handoff prepared"
+ ],
+ "numbers": {
+  "original_frozen_selected_micro_per": 0.17769855,
+  "corrected_vllm_selection_micro_per": 0.084488,
+  "paper_reference": 0.0844,
+  "author_sgl": 0.081471,
+  "historical_w7900": 0.17762763,
+  "diagnostic_subset_e1": 0.579557,
+  "diagnostic_subset_e2": 0.23044,
+  "selection_change_count": 120,
+  "delta_vs_paper_pp": 0.009
+ },
+ "interpretation": "with the vLLM engine family (the official evaluator's family) the W7900 reproduces the paper PER within 0.009 pp WITHOUT any tuning; the historical 9.3 pp gap is attributable to the disclosed transformers substitution, not to audio, weights, scoring or the generation runtime (380/384 byte-identical)",
+ "equivalence_caveats": [
+  "vLLM 0.19.1 is not the official 0.14.0 (no ROCm build of 0.14.0 exists; disclosed version difference)",
+  "E3 CUDA comparison not executed (no CUDA host) - the 8.4488 vs 8.44 agreement is strong evidence, not identity proof",
+  "the corrected-selection arm is reported SEPARATELY: the frozen original PER (17.7699%) and its selected-192 remain the RC5.1 official scoreboard entry; the other four metrics are bound to the ORIGINAL frozen selection and were NOT re-scored on the corrected selection (no metric mixing; P1.1.6 protocol)"
+ ],
+ "hypotheses": "see 07_PER_CAUSAL_HYPOTHESES.md and 07_ASR_SOURCE_LEVEL_RCA.md",
+ "evidence": [
+  "07_PER_EXPERIMENT_MATRIX.csv",
+  "07_ASR_FIRST_DIVERGENCE.json",
+  "07_PER_BEFORE_AFTER.csv",
+  "07_CORRECTED_SELECTION_MANIFEST.json",
+  "/data/yue2-runs/rc5-per-experiments/rc5_1_*"
+ ],
+ "upstream_issue_candidate": "qwen_asr transformers backend: greedy decode falls into a whitespace repetition loop ('language None<asr_text>' + skipped tokens) on knife-edge audio where vLLM transcribes normally; worth reporting upstream with the minimal repro (audio sha + both engines' outputs)"
+}

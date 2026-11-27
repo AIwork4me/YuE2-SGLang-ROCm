@@ -1,0 +1,15 @@
+{
+ "schema": "yue2-rc5_1-q3o-coverage-audit/1",
+ "expected": 192,
+ "evaluated": 192,
+ "valid_scored": 192,
+ "official_NA": 0,
+ "failed": 0,
+ "invalid": 0,
+ "pending": 0,
+ "status_counts": {
+  "complete": 192
+ },
+ "identity_binding": "every receipt carries audio_sha256 + identity_sha256 + judge_identity; resume validation active (0 reused, 192 rescored fresh)",
+ "selected_manifest_binding": "rows = songbench_sel/audio_manifest.jsonl = frozen selected-192 (05_SELECTED_MANIFEST.json)"
+}

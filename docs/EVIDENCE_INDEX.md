@@ -75,3 +75,32 @@ and the 2026-10-17 documentation-audit reviews linked from the documentation PR.
 
 Live campaign receipts (absolute paths on the bench machine, mirrored at
 milestones): /data/yue2/logs/, /data/yue2-runs/.
+
+---
+
+## RC5 — latest upstream on the W7900D (2026-11-24, IN PROGRESS)
+
+Snapshot for review; the mission is not finished. Nothing below is a
+selected-192 benchmark result. Status: reports/w7900_rc5/INTERIM_STATUS_ZH.md.
+
+| Claim | Evidence (path on this branch) |
+|---|---|
+| Physical W7900D gfx1100 47.98 GiB, BDF 0000:03:00.0; identity chain framework → HIP → PCI → render node → KFD → UUID closed; fp32/bf16 matmul + SDPA compute probe | reports/w7900_rc5/00_ENVIRONMENT.json, 01_REAL_GPU_IDENTITY_NEGATIVES.json |
+| No authorised off-machine backup (owner: no backup host); same-host second-volume restore drill 12/12 candidates, 132 files hash-exact | reports/w7900_rc5/00_STORAGE_AND_BACKUP_PLAN.md, 00_RECOVERY_DRILL.json |
+| RC4.1 GPU-lock race reproduced (5.96 s window, 47 samples) and closed (0 samples) | reports/w7900_rc5/01_LOCK_RACE_REPRO.json |
+| P0/P1 findings of the RC4.1 review closed; 6/6 real-GPU readiness controls | reports/w7900_rc5/01_P0_P1_CLOSURE.json, 01_RC42_INDEPENDENT_REVIEW.md, 01_REAL_GPU_READINESS_CONTROLS.json |
+| 38 mutations killed; 3 test gaps found and closed | reports/w7900_rc5/01_MUTATION_RESULTS.json, 01_NEGATIVE_CONTROL_MATRIX.csv |
+| Upstream PR #42106 head c67d541a frozen; only 2 import-guard patches needed; effective tree + dependency hashes | reports/w7900_rc5/02_UPSTREAM_DELTA_REVIEW.md, 02_PATCH_RECONCILIATION.csv, 02_EFFECTIVE_RUNTIME_MANIFEST.json, 02_CAPABILITY_MATRIX.json |
+| 12 pre-registered pilot candidates byte-identical (audio.flac SHA256) to the frozen historical Arm B manifest | reports/w7900_rc5/03_PILOT_SELECTION.json, 03_PILOT_VS_HISTORICAL_MANIFEST.json |
+| Pilot (12 UNSELECTED candidates, shard mode): SongBench Global 6.5459; MuLan 0.3756; AllMusicCaps 0.3757; PER micro 0.6654 (ASR batch_size=1 variant) | reports/w7900_rc5/03_PILOT_ACCEPTANCE.json |
+| Q3O judge memory budget from safetensors headers (65.68 GiB BF16 total, 54.0 GiB MoE experts); 24-layer draft corrected to 48 x 1.125 GiB; placement measured | reports/w7900_rc5/07_Q3O_MEMORY_BUDGET.json |
+| Campaign paused by operator at 20/384 (rc=143 CLEAN); checkpoint 16 verified to the second volume, 4 candidates not yet backed up; ~28 h projected for the rest | reports/w7900_rc5/04_CAMPAIGN_PAUSE_SNAPSHOT.json (scripts/rc5_campaign_snapshot.py) |
+| Q3O judged on the 48 GB W7900D for the first time: 1 retained run COMPLETE (q3o 4.83, 176 s/candidate, VRAM 43.1 GiB, host peak 50.1/55 GiB); two earlier single runs not retained (disclosed); receipt wording correction | reports/w7900_rc5/07_Q3O_48GB_PILOT.json |
+| Q3O MoE placement blocks equal to the verbatim HF loop (<= 2 bf16 ulp on tie-free inputs); 9 tests x 4 environments; 16 arithmetic mutation controls: 15/16 KILLED on GPU in both torch builds (survivor disclosed as near-equivalent) | reports/w7900_rc5/07_Q3O_MOE_EQUIVALENCE.json, tests/test_rc5_q3o_moe.py, scripts/mutation_controls_q3o_moe.py |
+| torch.topk breaks ties nondeterministically on the evaluator build (2.10.0+rocm7.14.1, W7900D): greedy MoE judges built on it are not reproducible run-to-run | reports/w7900_rc5/07_Q3O_MOE_EQUIVALENCE.json (finding_topk_nondeterminism) |
+
+## RC5.1 (2026-11-24..27, this branch, latest-upstream full reproduction)
+
+| run_id | backend | GPU | finished (UTC) | source | audio | metrics | evidence |
+|---|---|---|---|---|---|---|---|
+| `rc5_armB_latest_upstream_20261124T065451Z` | SGLang c67d541a (author PR #42106) + import-guard patches 0001/0003/0008, torch 2.12.0+rocm7.14.1 | W7900D gfx1100 | 2026-11-26 00:17 | RC5.1 campaign (resumed from 20/384 with journal-disclosed driver revision) | 384/384 (380 byte-identical to Arm B; 4 FLAC-container-only) | SongBench 6.736891 · PER 17.7699% (frozen) / **8.4488% vLLM-corrected arm** · MuLan 0.509395 · AMC 0.405181 · Q3O 4.393986/5 ROCm-adapted 192/192 | [`rc5_1/`](../reports/w7900_rc5/rc5_1/) — FINAL_REPORT_ZH.md, 08_RELEASE_GATE_LEDGER.json |

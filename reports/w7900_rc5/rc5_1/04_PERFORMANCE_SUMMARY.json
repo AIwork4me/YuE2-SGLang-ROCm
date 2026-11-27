@@ -1,0 +1,66 @@
+{
+ "schema": "yue2-rc5_1-performance-summary/1",
+ "generated_at_utc": "2026-11-26T00:34:45Z",
+ "source": "journal.jsonl per-candidate receipts (all 384 complete results, this launch + resumed session)",
+ "n_candidates": 384,
+ "wall_s": {
+  "mean": 284.78,
+  "p50": 275.27,
+  "p90": 392.54,
+  "p95": 433.21,
+  "p99": 487.18,
+  "min": 79.002,
+  "max": 583.573
+ },
+ "audio_seconds": {
+  "mean": 220.76,
+  "total": 84770.1
+ },
+ "throughput": {
+  "candidates_per_hour_occupied": 12.641,
+  "note": "per-server sequential throughput; the campaign also includes load/launch gaps between sessions"
+ },
+ "stage_latency_s": {
+  "ar": {
+   "n": 384,
+   "mean": 164.23
+  },
+  "nar": {
+   "n": 384,
+   "mean": 42.15
+  },
+  "vae": {
+   "n": 384,
+   "mean": 78.37
+  },
+  "nar_vae_residual_mean": 120.54
+ },
+ "rtf": {
+  "definition": "wall_seconds / audio_seconds",
+  "mean": 1.2866,
+  "p50": 1.2776,
+  "p95": 1.54
+ },
+ "realtime_multiplier": {
+  "definition": "audio_seconds / wall_seconds",
+  "mean": 0.7894
+ },
+ "truncated_but_valid": 5,
+ "retries": 0,
+ "attempts_total": 384,
+ "candidate_vram_delta_bytes_max": 19214274560,
+ "candidate_gtt_delta_bytes_max": 35020800,
+ "memory_from_summary": {
+  "peak_vram_bytes": 31865282560,
+  "peak_gtt_bytes": 35033088,
+  "gpu_busy_percent_mean": 93.41,
+  "cpu_busy_percent_mean": 2.75,
+  "sampling_device": "/sys/class/drm/card1/device"
+ },
+ "historical_comparison": {
+  "armB_p50_wall_s": 275.3,
+  "rc5_1_p50_wall_s": 275.27,
+  "note": "same frozen protocol and GPU class; RC5.1 includes the first-20 session from the same run_id (seamless resume)"
+ },
+ "units": "wall/latency seconds; VRAM/GTT bytes (GiB = 2**30); audio seconds"
+}

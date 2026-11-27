@@ -1,0 +1,94 @@
+{
+ "schema": "yue2-rc5-pilot-selection/1",
+ "registered_at_utc": "2026-11-24T01:30:36Z",
+ "preregistered": true,
+ "rule": "fixed before generation; see module docstring of scripts/rc5_select_pilot.py",
+ "languages_in_frozen_targets": [
+  "en",
+  "zh"
+ ],
+ "zh_prompts": 94,
+ "en_prompts": 98,
+ "inputs_sha256": {
+  "reproduction_manifest.jsonl": "859e5225d319912efb64d587d1d5eb6cf0abc9fb162cc3d5f02d1688cff2edc0",
+  "evaluation_targets.jsonl": "46cf68431f731a0ee302a4fb88255fc981be6d2714bf1ca030330416b01b863d",
+  "historical_per_prompt_scores.csv": "26967f66f80ede1e9a79435022c6933de8b0fcf15daf14d23a2861fc054caaaa"
+ },
+ "expected_candidates": 12,
+ "picks": [
+  {
+   "category": "P1-zh-short",
+   "prompt_index": 31,
+   "lang": "zh",
+   "selection_metric": {
+    "lyrics_chars": 324
+   },
+   "style_chars": 13,
+   "lyrics_chars": 324,
+   "historical_selected_per": 0.11255411255411256
+  },
+  {
+   "category": "P2-zh-long",
+   "prompt_index": 22,
+   "lang": "zh",
+   "selection_metric": {
+    "lyrics_chars": 2626
+   },
+   "style_chars": 3,
+   "lyrics_chars": 2626,
+   "historical_selected_per": 0.26293558606124606
+  },
+  {
+   "category": "P3-en-short",
+   "prompt_index": 120,
+   "lang": "en",
+   "selection_metric": {
+    "lyrics_chars": 756
+   },
+   "style_chars": 194,
+   "lyrics_chars": 756,
+   "historical_selected_per": 1.0
+  },
+  {
+   "category": "P4-en-long",
+   "prompt_index": 101,
+   "lang": "en",
+   "selection_metric": {
+    "lyrics_chars": 2997
+   },
+   "style_chars": 118,
+   "lyrics_chars": 2997,
+   "historical_selected_per": 0.9923769923769924
+  },
+  {
+   "category": "P5-boundary-largest-input",
+   "prompt_index": 164,
+   "lang": "en",
+   "selection_metric": {
+    "style_plus_lyrics_chars": 3717
+   },
+   "style_chars": 945,
+   "lyrics_chars": 2772,
+   "historical_selected_per": 0.3155940594059406
+  },
+  {
+   "category": "P6-historical-highest-PER",
+   "prompt_index": 86,
+   "lang": "en",
+   "selection_metric": {
+    "historical_selected_per": 1.0
+   },
+   "style_chars": 946,
+   "lyrics_chars": 1068,
+   "historical_selected_per": 1.0
+  }
+ ],
+ "indices": [
+  31,
+  22,
+  120,
+  101,
+  164,
+  86
+ ]
+}

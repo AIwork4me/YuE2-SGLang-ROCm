@@ -1,0 +1,68 @@
+{
+ "schema": "yue2-rc5-status/1",
+ "updated_at_utc": "2026-11-24T13:47:00Z",
+ "M0": {
+  "hardware_identity": "PASS",
+  "gpu_compute": "PASS",
+  "restore_drill_same_host_second_volume": "PASS (12/12, 132 files)",
+  "off_machine_backup": "BLOCKED (owner confirmed: no backup machine)"
+ },
+ "M1": {
+  "lock_race_reproduced_on_rc41": true,
+  "lock_race_fixed": true,
+  "mutation": "38/38 KILLED",
+  "real_gpu_readiness_controls": "6/6 PASS",
+  "real_gpu_identity_negatives": "2/2 PASS"
+ },
+ "M2": {
+  "upstream_pr_head_frozen": "c67d541a40f8bf851e9fc1e925f5316638838cd6",
+  "bringup_native_gates": "PASS",
+  "pilot_vs_historical": "12/12 FLAC byte-identical"
+ },
+ "M3": {
+  "pilot_generation": "12/12",
+  "official_prepare_inputs": "PASS",
+  "metrics": {
+   "songbench": "PASS",
+   "mulan": "PASS",
+   "allmusiccaps": "PASS",
+   "per": "PASS (batch_size=1 pilot variant)"
+  },
+  "gate": "PASS"
+ },
+ "M4": {
+  "status": "PAUSED_BY_OPERATOR (Q3O/PER experiments)",
+  "run_id": "rc5_armB_latest_upstream_20261124T065451Z",
+  "started_utc": "2026-11-24T06:54:51Z",
+  "complete": "20/384",
+  "session_exit": "rc=143 cleanup=CLEAN lock released",
+  "checkpoint": "incremental-016 verified to second volume",
+  "complete_not_in_backup": 4,
+  "projected_remaining_hours": 27.9,
+  "snapshot": "reports/w7900_rc5/04_CAMPAIGN_PAUSE_SNAPSHOT.json"
+ },
+ "M5": {
+  "status": "NOT_STARTED (evaluator environments installed and hash-gated)"
+ },
+ "M6": {
+  "status": "IN_PROGRESS",
+  "finding": "English songs: empty transcripts (PER=1.0) and cap runaways; reproduced at batch_size=1; Whisper reference transcribes the same candidates (ASR-side failure; backend vs ROCm numerics not separated)",
+  "evidence": "reports/w7900_rc5/06_PER_CAUSAL_PILOT.json, 06_PER_CAUSAL_MATRIX.csv"
+ },
+ "M7": {
+  "status": "IN_PROGRESS",
+  "memory_budget": "computed and corrected (48 layers x 1.125 GiB; measured placement in 07_Q3O_MEMORY_BUDGET.json)",
+  "judge": "runs on 48 GB: retained pilot 1/1 COMPLETE (q3o 4.83, 176 s/candidate); two earlier single runs NOT retained (disclosed)",
+  "moe_blocks": "scripts/rc5_q3o_moe.py; equivalence vs HF loop <= 2 bf16 ulp on tie-free inputs; mutation controls 15/16 KILLED on GPU (survivor = near-equivalent rounding-placement mutant, disclosed)",
+  "batched_gpu_block_run_on_real_candidate": "NOT_YET",
+  "judge_run_to_run_stability_after_fixes": "NOT_MEASURED",
+  "finding": "torch.topk tie-breaking nondeterministic on the evaluator build (2.10.0+rocm7.14.1); stable tie-break implemented",
+  "host_headroom_GiB": 4.87
+ },
+ "M8": {
+  "status": "NOT_STARTED"
+ },
+ "M9": {
+  "status": "INTERIM_PUSH"
+ }
+}

@@ -1,0 +1,30 @@
+{
+ "schema": "yue2-rc5_1-full-generation-audit/1",
+ "generated_at_utc": "2026-11-26T00:35:05Z",
+ "expected": 384,
+ "unique_candidate_identities": 384,
+ "valid_candidates": 384,
+ "missing": 0,
+ "duplicate": 0,
+ "invalid": 0,
+ "unresolved_failures": 0,
+ "truncated_but_valid": 5,
+ "official_verify_result": "384/384 PASS (checkpoint-closure audit 2026-11-26T00:33Z, official artifact_storage.verify_result)",
+ "strict_artifact_audit": "FULL (per-file SHA256 manifests in checkpoint archives; restore-manifest-384.json written at the milestone)",
+ "prepare_inputs": "384/384 rows written once, byte-exact on resume (evaluation_inputs.jsonl)",
+ "runtime_binding": {
+  "sglang_commit": "c67d541a40f8bf851e9fc1e925f5316638838cd6",
+  "yue2_runtime_sha256": "342b2f531b14a201b4aae1a6a14424bed7f03cd7f993c3a1c09657a6d6109051",
+  "torch": "2.12.0+rocm7.14.1",
+  "gpu": {
+   "name": "AMD Radeon Pro W7900D",
+   "pci_bdf": "0000:03:00.0",
+   "uuid": "e9d0e20bb686e6c6",
+   "arch": [
+    "gfx1100"
+   ]
+  }
+ },
+ "supervisor": "single session rc=0 after a clean resume from 20/384 (SIGTERM pause closed by RC5.1 tail-checkpoint fix)",
+ "VERDICT": "FULL"
+}

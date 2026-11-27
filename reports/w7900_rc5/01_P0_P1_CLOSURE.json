@@ -1,0 +1,129 @@
+{
+ "schema": "yue2-rc5-p0-p1-closure/1",
+ "reviewed_head": "6f1b7f7631a9b1d3775d35ed5780ba6fb6c942fe (PR #18 head)",
+ "method": "REPRODUCE -> ROOT CAUSE -> MINIMAL FIX -> POSITIVE CONTROL -> NEGATIVE CONTROL -> REGRESSION -> REAL GPU VALIDATION",
+ "findings": {
+  "M1.1_P0_gpu_lock_lifecycle_atomicity": {
+   "verdict": "CLOSED",
+   "reproduced": {
+    "tool": "scripts/campaign_ops/rc5_repro_lock_race.py",
+    "rc41_defect_reproduced": true,
+    "rc41_race_samples": 47,
+    "rc41_window_s": 5.96,
+    "rc5_defect_reproduced": false,
+    "rc5_race_samples": 0
+   },
+   "root_cause": "gpu_lock.py ran as a background gateway: the flock lived in the gateway, the server stop lived in the outer shell's EXIT trap; the gateway released the lock when the inner flow returned, before the trap ran. Also: a server that never became healthy was never stopped (no receipt -> stop_server returned 0; the old test masked this with its own kill_all), and no tree/port/GPU release verification existed.",
+   "fix": "scripts/gpu_lifecycle.py: one supervisor process owns the flock fd and performs identity -> idle -> launch (spawn receipt) -> health -> identity (pinned --pid) -> readiness -> command -> drain -> verified stop -> tree termination -> port release -> GPU release, then releases the lock. run_with_server.sh / run_armB_campaign.sh exec into it. gpu_lock.py: BLOCKED marker (refuses later acquisitions until `unblock --yes` with dead processes) and a signal-safe `wait` gateway (forwards the signal, keeps the flock while the child drains).",
+   "signals": "SIGINT/SIGTERM: forwarded to the driver's process group, bounded drain, cleanup, exit 128+sig; a second signal during cleanup is ignored",
+   "residual": "SIGKILL to the supervisor releases the flock early by kernel design; the next session is still refused by the VRAM idle floor while an orphan holds memory, and the spawn/identity receipts remain on disk for `server_identity.py stop`. SIGKILL of a session is covered by the resume audit, not by an in-process cleanup."
+  },
+  "M1.2_P1_gpu_probe_hard_timeout": {
+   "verdict": "CLOSED",
+   "reproduced": "RC4.1 probe_device() accepted budget_s but never enforced it: no TimeoutError could be raised, GPU_PROGRESS_TIMEOUT was unreachable (code review; grep shows no raise site)",
+   "fix": "probe_isolated(): the fp32/bf16 matmul + SDPA probe runs in a separate child under a real wall-clock deadline; on expiry the child (ours) is SIGTERMed then SIGKILLed, evidence (child end state, reaped, VRAM before/after) is written, device_state=BLOCKED when the device did not recover. A real runtime can no longer take the in-process path.",
+   "statuses": [
+    "GPU_EXECUTION_VERIFIED",
+    "GPU_EXECUTION_UNVERIFIED",
+    "GPU_UNAVAILABLE",
+    "GPU_DEVICE_MISMATCH",
+    "GPU_PROGRESS_TIMEOUT",
+    "GPU_EXECUTION_FAILED",
+    "CPU_TEST_MODE_AUTHORIZED"
+   ],
+   "cpu_test_mode": "CPU_TEST_MODE_AUTHORIZED requires YUE2_ALLOW_CPU=1-I-AM-A-TEST or --allow-cpu, is labeled 'never a GPU PASS' in the receipt, and exit code 0 from it is only ever produced for an explicitly authorized test run; the lifecycle supervisor records it as NOT_APPLICABLE_CPU_TEST_MODE for GPU release"
+  },
+  "M1.3_P1_readiness_semantics": {
+   "verdict": "CLOSED",
+   "reproduced": "models_advertised_ok was recorded but never used (HTTP 200 + wrong model -> READY); identity had require_port=None (HTTP 200 from a foreign process -> READY); a configured progress file that was missing was ignored; the canary accepted any file > 1024 bytes",
+   "fix": "models advertised gate the verdict (UNKNOWN); URL port must equal the receipt port and its LISTEN socket must be owned by the verified pid; missing progress file -> UNKNOWN, stale -> BUSY rc 6; SIGSTOPped worker -> WORKER_DEAD; canary decodes the audio (48 kHz, stereo, finite, >= 1 s, not silence, fresh)",
+   "states": [
+    "READY",
+    "BUSY",
+    "DEGRADED",
+    "WORKER_DEAD",
+    "STOPPED",
+    "UNKNOWN"
+   ]
+  },
+  "M1.4_P1_physical_gpu_identity_binding": {
+   "verdict": "CLOSED (single GPU on real hardware; physical multi-GPU NOT_RUN)",
+   "reproduced": "sysfs_bdf_for_device() fell back to the first /sys/class/drm/card* with the amdgpu driver: a guess on an 8-GPU host (this host exposes 8 cards in sysfs, 1 render node to the container)",
+   "fix": "bind_pci_identity(): framework index -> HIP PCI ids -> the single display-class PCI function -> its single drm render node, which must be exposed -> bijective device count -> KFD topology node (same render minor + PCI device id) -> unique id (sysfs == framework uuid); any ambiguity is GPU_DEVICE_MISMATCH. The old fallback function no longer exists",
+   "real_hardware": "chain closed on the W7900D: index 0 -> 0000:03:00.0 -> renderD128 -> 1 device <-> 1 render node -> KFD node 2 -> unique id e9d0e20bb686e6c6 == framework uuid",
+   "found_on_real_hardware": [
+    "the GPU occupies two PCI functions (03:00.0 class 03 + 03:00.1 class 04): a naive 'exactly one function' rule rejected the real card and was replaced by a class-03 filter",
+    "KFD nodes of GPUs outside the container raise PermissionError: skipped and disclosed (kfd_nodes_unreadable)"
+   ]
+  },
+  "M1.5_upstream_scheduler_recheck": {
+   "verdict": "OPEN_UPSTREAM (not a YuE2-PR defect; operational mitigation only)",
+   "idle_busy_loop": "still present in the multimodal scheduler event loop at c67d541a (code review); mitigation: session-scoped server (the lifecycle supervisor stops it after every session)",
+   "worker_death_no_respawn": "unchanged upstream; detected by readiness (WORKER_DEAD) and turned into a supervised relaunch",
+   "http_false_health": "detected: /health=200 with a dead/stopped worker is WORKER_DEAD rc 3",
+   "historical_AR_hang / HIP illegal memory access": "not reproduced in RC5 (12/12 pilot candidates, 0 retries); the single-GPU serialization policy (GPU lock) remains in force"
+  }
+ },
+ "regression": {
+  "existing_lifecycle_tests": "tests/test_run_with_server.py (5) + tests/test_armB_lifecycle.py (16) pass against the new supervisor",
+  "new_tests": {
+   "tests/test_gpu_lifecycle_atomicity.py": 20,
+   "tests/test_server_identity_spawn.py": 11,
+   "tests/test_gpu_identity.py": 35,
+   "tests/test_server_readiness.py": 28,
+   "tests/test_rc5_generate_driver.py": 5
+  }
+ },
+ "mutation_controls": {
+  "tool": "scripts/mutation_controls_rc5.py (isolated copy, byte-exact restore)",
+  "result_file": "reports/w7900_rc5/01_MUTATION_RESULTS.json",
+  "summary": {
+   "D1": "KILLED",
+   "D2": "KILLED",
+   "D3": "KILLED",
+   "D4": "KILLED",
+   "D5": "KILLED",
+   "D6": "KILLED",
+   "I1": "KILLED",
+   "I10": "KILLED",
+   "I2": "KILLED",
+   "I3": "KILLED",
+   "I4": "KILLED",
+   "I5": "KILLED",
+   "I6": "KILLED",
+   "I7": "KILLED",
+   "I8": "KILLED",
+   "I9": "KILLED",
+   "L1": "KILLED",
+   "L10": "KILLED",
+   "L11": "KILLED",
+   "L12": "KILLED",
+   "L2": "KILLED",
+   "L3": "KILLED",
+   "L4": "KILLED",
+   "L5": "KILLED",
+   "L6": "KILLED",
+   "L7": "KILLED",
+   "L8": "KILLED",
+   "L9": "KILLED",
+   "P1": "KILLED",
+   "P2": "KILLED",
+   "P3": "KILLED",
+   "R0": "KILLED",
+   "R1": "KILLED",
+   "R2": "KILLED",
+   "R3": "KILLED",
+   "R4": "KILLED",
+   "R5": "KILLED"
+  },
+  "killed": 37,
+  "survived": [],
+  "not_run": []
+ },
+ "real_gpu_validation": {
+  "pilot_sessions": "3 sessions on the W7900D, all cleanup_state CLEAN; VRAM back to the 28 MB baseline; port released",
+  "graceful_interrupt": "SIGTERM during a candidate: in-flight candidate completed, exit 143, CLEAN"
+ },
+ "safety_gate_for_full_generation": "PASS (all P0/P1 closed or bounded with evidence; see M1.5 for the open upstream scheduler item)",
+ "closed_at_utc": "2026-11-24T04:14:34Z"
+}

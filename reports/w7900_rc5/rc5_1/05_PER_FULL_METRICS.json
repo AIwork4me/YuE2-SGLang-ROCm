@@ -1,0 +1,173 @@
+{
+ "schema": "yue2-rc5_1-per-full-metrics/1",
+ "generated_at_utc": "2026-11-26T10:01:27Z",
+ "protocol": {
+  "asr": "Qwen/Qwen3-ASR-1.7B",
+  "engine": "qwen_asr transformers backend on ROCm (WSB_ROCM_TORCH_OVERRIDE=1, disclosed substitution; official is vLLM 0.14.0 CUDA)",
+  "repeats": 4,
+  "batch_size": 8,
+  "max_new_tokens": 4096,
+  "temperature": 0.0,
+  "seed": 0,
+  "language": "auto",
+  "scoring": "official PERScorer phoneme_result + historical_per.edit_distance, frozen evaluator tree (wsb_eval.py sha efb89042...)"
+ },
+ "coverage": {
+  "raw": "384/384",
+  "receipts": "1536 ASR repeat receipts (384 x 4)",
+  "failed": 0,
+  "not_applicable": 0
+ },
+ "selected_192": {
+  "all": {
+   "n_candidates": 192,
+   "edits": 27563,
+   "reference_phonemes": 155111,
+   "micro_per": 0.17769855,
+   "macro_per": 0.16540705
+  },
+  "zh": {
+   "n_candidates": 94,
+   "edits": 12852,
+   "reference_phonemes": 72639,
+   "micro_per": 0.17692975,
+   "macro_per": 0.1661861
+  },
+  "en": {
+   "n_candidates": 98,
+   "edits": 14711,
+   "reference_phonemes": 82472,
+   "micro_per": 0.17837569,
+   "macro_per": 0.16465979
+  }
+ },
+ "unselected_192_only": {
+  "all": {
+   "n_candidates": 192,
+   "edits": 47797,
+   "reference_phonemes": 155111,
+   "micro_per": 0.30814707,
+   "macro_per": 0.28840524
+  },
+  "zh": {
+   "n_candidates": 94,
+   "edits": 18387,
+   "reference_phonemes": 72639,
+   "micro_per": 0.25312848,
+   "macro_per": 0.23909291
+  },
+  "en": {
+   "n_candidates": 98,
+   "edits": 29410,
+   "reference_phonemes": 82472,
+   "micro_per": 0.35660588,
+   "macro_per": 0.33570482
+  }
+ },
+ "unselected_384_all_rows_evaluator_naming": {
+  "all": {
+   "n_candidates": 384,
+   "edits": 75360,
+   "reference_phonemes": 310222,
+   "micro_per": 0.24292281,
+   "macro_per": 0.22690614
+  },
+  "note": "the evaluator summary's 'unselected_candidates' block actually summarises ALL 384 rows; the unselected-192-only numbers above are the true complement"
+ },
+ "bootstrap_95ci_selected_micro": {
+  "method": "prompt-level resampling, 10000 draws, seed 1234",
+  "ci": [
+   0.152206,
+   0.205647
+  ]
+ },
+ "selected_per_distribution": {
+  "p90": 0.31045406546990495,
+  "p95": 0.44885799404170806,
+  "max": 1.0,
+  "top5": [
+   {
+    "id": "wsb_007_r0_s831008",
+    "per": 0.5694
+   },
+   {
+    "id": "wsb_164_r0_s831165",
+    "per": 0.7061
+   },
+   {
+    "id": "wsb_187_r0_s831188",
+    "per": 0.8274
+   },
+   {
+    "id": "wsb_101_r0_s831102",
+    "per": 0.9945
+   },
+   {
+    "id": "wsb_086_r0_s831087",
+    "per": 1.0
+   }
+  ]
+ },
+ "failure_taxonomy": {
+  "empty_transcript_all_repeats": {
+   "count": 10,
+   "ids": [
+    "wsb_085_r1_s831104",
+    "wsb_086_r0_s831087",
+    "wsb_086_r1_s831105",
+    "wsb_088_r0_s831089",
+    "wsb_117_r1_s831136",
+    "wsb_119_r1_s831138",
+    "wsb_120_r1_s831139",
+    "wsb_121_r0_s831122",
+    "wsb_164_r1_s831183",
+    "wsb_187_r1_s831206"
+   ],
+   "note": "confirmed-empty ASR output; NOT identical to PER=1 (some have partial output)"
+  },
+  "token_cap_reached": {
+   "count": 112,
+   "ids_sample": [
+    "wsb_020_r0_s831021",
+    "wsb_020_r1_s831039",
+    "wsb_021_r0_s831022",
+    "wsb_021_r1_s831040",
+    "wsb_022_r0_s831023",
+    "wsb_022_r1_s831041",
+    "wsb_023_r0_s831024",
+    "wsb_023_r1_s831042",
+    "wsb_024_r0_s831025",
+    "wsb_024_r1_s831043",
+    "wsb_025_r0_s831026",
+    "wsb_025_r1_s831044"
+   ],
+   "total_count": 112
+  },
+  "per_eq_1": {
+   "count": 11,
+   "ids": [
+    "wsb_085_r1_s831104",
+    "wsb_086_r0_s831087",
+    "wsb_086_r1_s831105",
+    "wsb_088_r0_s831089",
+    "wsb_105_r0_s831106",
+    "wsb_117_r1_s831136",
+    "wsb_119_r1_s831138",
+    "wsb_120_r1_s831139",
+    "wsb_121_r0_s831122",
+    "wsb_164_r1_s831183",
+    "wsb_187_r1_s831206"
+   ],
+   "note": "PER=1 with non-empty transcript = genuine full-deletion-style failure or cap; distinguished from confirmed-empty"
+  },
+  "overlap_note": "PER=1 candidates minus empty-set = capped/genuine; each category reported separately"
+ },
+ "references": {
+  "paper": 0.0844,
+  "author_sgl": 0.081471,
+  "historical_w7900_armB": 0.17762763,
+  "rc5_1": 0.17769855,
+  "delta_vs_historical_pp": 0.0071,
+  "note": "PER parity with the official CUDA evaluator remains the P1.1 causal question; this gap (~9.3pp vs paper) reproduces the historical W7900 observation"
+ }
+}

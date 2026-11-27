@@ -1,0 +1,17 @@
+{
+ "schema": "yue2-rc5_1-mulan-full/1",
+ "generated_at_utc": "2026-11-26T11:40:18Z",
+ "scope": "official selected-192",
+ "value": 0.509395,
+ "coverage": {
+  "scored": 192,
+  "failed": 0
+ },
+ "references": {
+  "paper": 0.5068,
+  "author_sgl": 0.4996,
+  "historical_w7900_armB": 0.509166,
+  "rc5_1": 0.509395,
+  "delta_vs_historical": 0.000229
+ }
+}

@@ -31,6 +31,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import sys
@@ -43,8 +44,25 @@ try:
     WS = resolve_workspace(__file__)
 except FileNotFoundError:
     WS = None  # unit-test import safety; strict re-resolution happens in main()
-if WS is not None:
-    sys.path.insert(0, str(WS / "upstream" / "sglang" / "python"))
+# RC5 M2.2: the historical line below was
+#     sys.path.insert(0, str(WS / "upstream" / "sglang" / "python"))
+# It put ONE hard-coded tree ("sglang", the RC4 checkout) in front of every
+# import, shadowing whatever SGLang the interpreter actually has installed —
+# with the RC5 runtime living in "sglang-latest" the runtime_sha256 below was
+# computed from the WRONG source tree (a provenance lie, found in review).
+# The runtime identity is now derived from the module that is REALLY imported.
+if WS is not None and __name__ == "__main__":
+    try:
+        import sglang  # noqa: F401
+    except ImportError:
+        # explicit opt-in only: never guess a tree by name
+        override = os.environ.get("YUE2_SGLANG_PYTHON_PATH")
+        if override and (Path(override) / "sglang" / "__init__.py").is_file():
+            sys.path.insert(0, override)
+        else:
+            with open(os.environ.get("YUE2_FINALIZE_LOG", "/tmp/finalize_invocations.log"), "a") as _lf:
+                _lf.write("sglang is not importable and YUE2_SGLANG_PYTHON_PATH is unset\n")
+            raise SystemExit(3)
 elif __name__ == "__main__":
     import traceback as _tb
     with open(os.environ.get("YUE2_FINALIZE_LOG", "/tmp/finalize_invocations.log"), "a") as _lf:
@@ -72,6 +90,31 @@ from sglang.srt.models.yue2.storage import (
     sha256_file,
     write_json,
 )
+
+
+def _git_output(tree_dir: Path, *argv: str) -> str | None:
+    """git output for the tree that CONTAINS the imported module, or None."""
+    import subprocess
+    try:
+        r = subprocess.run(["git", "-C", str(tree_dir), *argv],
+                           capture_output=True, text=True, timeout=30)
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    return r.stdout.strip() if r.returncode == 0 else None
+
+
+def _git_diff_sha(tree_dir: Path) -> str | None:
+    """sha256 of `git diff HEAD` (tracked modifications, i.e. the applied
+    minimal patches) — None when the tree is pristine or not a git tree."""
+    import subprocess
+    try:
+        r = subprocess.run(["git", "-C", str(tree_dir), "diff", "HEAD"],
+                           capture_output=True, timeout=30)
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    if r.returncode != 0:
+        return None
+    return hashlib.sha256(r.stdout).hexdigest() if r.stdout else None
 
 
 def load_audio(wav: Path):
@@ -121,9 +164,19 @@ def main() -> int:
     # torch-reference YuE2 pipeline (sampling/nar are ports of the official
     # torch backend; the evaluator accepts {torch, vllm}); provenance beyond
     # the label is preserved via runtime_sha256 and weights below.
-    yue2_dir = WS / "upstream" / "sglang" / "python" / "sglang" / "srt" / "models" / "yue2"
+    # RC5: taken from the IMPORTED module — never from a hard-coded path.
+    import sglang.srt.models.yue2 as _yue2_pkg
+    yue2_dir = Path(_yue2_pkg.__file__).resolve().parent
     runtime_sha = identity({p.name: sha256_file(p)
                             for p in sorted(yue2_dir.glob("*.py"))})
+    # the pipeline stage that drives the model is part of the runtime too
+    import sglang.multimodal_gen.runtime.pipelines_core.stages.model_specific_stages.yue2 as _stage_pkg
+    stage_dir = Path(_stage_pkg.__file__).resolve().parent
+    runtime_sources = {
+        "yue2": {p.name: sha256_file(p) for p in sorted(yue2_dir.glob("*.py"))},
+        "stages_yue2": {p.name: sha256_file(p) for p in sorted(stage_dir.glob("*.py"))},
+    }
+    runtime_sha_all = identity(runtime_sources)
     config = {
         "generation": generation, "overrides": {},
         "cot": request.get("cot", "full"), "cfg_scale": request.get("cfg_scale", 1.0),
@@ -134,6 +187,15 @@ def main() -> int:
         "vae_halo_frames": int(request.get("_vae_halo_frames", 0) or 16),
         "runtime_sha256": runtime_sha,
         "memory_budget_gib": None, "offload_ar": False,
+    }
+    # RC5 provenance (identity-relevant: config.json is part of the identity)
+    config["rc5_runtime"] = {
+        "stages_sha256": runtime_sha_all,
+        "sglang_import_path": str(Path(sglang.__file__).resolve()),
+        "runtime_dir": str(yue2_dir),
+        "upstream_commit": _git_output(yue2_dir, "rev-parse", "HEAD"),
+        "upstream_tree_dirty_diff_sha256": _git_diff_sha(yue2_dir),
+        "torch_version": __import__("torch").__version__,
     }
 
     weights = {"mot": model_identity(args.model_dir, verify=True),

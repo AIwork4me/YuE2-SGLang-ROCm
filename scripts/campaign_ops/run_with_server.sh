@@ -1,41 +1,47 @@
 #!/usr/bin/env bash
-# run_with_server.sh — repo-level server lifecycle wrapper (RC4.1 M3; closes
-# RC4 follow-up R1-L1 "pilot driver exits without stopping its server").
+# run_with_server.sh — repo-level server lifecycle wrapper (RC4.1 M3 → RC5 M1.1).
 #
-# Full lifecycle, ALL under one continuous gpu_lock hold:
-#   GPU_IDENTITY_VERIFY (fail-loud) → START SERVER → HEALTH → IDENTITY
-#   CAPTURE+VERIFY → READINESS (scheduler-worker aware) → EXECUTE COMMAND
-#   → VERIFIED STOP → CLEANUP CHECK (port free, process gone)
-# Failure paths run the same cleanup. No orphan server survives this script.
+# RC5 P0 FIX (GPU Lock Lifecycle Atomicity). The RC4.1 layout ran the lock in a
+# BACKGROUND gateway (gpu_lock.py) and stopped the server in the OUTER EXIT
+# trap: the gateway released the flock when the inner flow returned, and only
+# then did the outer shell run stop_server(). A second job could take the GPU
+# lock while the first server still held VRAM.
 #
-# Design notes (same live-defect classes already fixed in
-# run_armB_campaign.sh — kept consistent deliberately):
-#   * NO exec into gpu_lock.py: exec discards this shell's traps; the
-#     launcher OWNS the verified-stop cleanup.
-#   * The gateway (gpu_lock + flow) runs in the BACKGROUND so `wait` is
-#     interruptible; signals are forwarded AND followed by cleanup.
-#   * The server is stopped ONLY through the verified identity receipt —
-#     never by name/port match, never pkill.
+# The whole lifecycle now lives in ONE process — scripts/gpu_lifecycle.py —
+# which owns the flock fd for its entire life and performs the cleanup itself
+# BEFORE the lock is released:
+#
+#   ACQUIRE LOCK → GPU IDENTITY (fail-loud, physical binding) → GPU IDLE
+#   → LAUNCH OWNED SERVER (spawn receipt) → HEALTH → IDENTITY CAPTURE+VERIFY
+#   → READINESS (worker/model/port aware) → COMMAND → DRAIN → VERIFIED STOP
+#   → TREE TERMINATION → PORT RELEASE → GPU RELEASE → RELEASE LOCK
+#
+# This wrapper only parses the historical CLI/env contract and execs the
+# supervisor (same pid, so signals reach the one process that cleans up).
+# Failure paths run the same cleanup. A server that survives SIGINT+SIGTERM
+# is never SIGKILLed: the lifecycle ends BLOCKED and later GPU work is
+# refused until `gpu_lock.py unblock --yes`.
 #
 # Usage:
 #   bash scripts/campaign_ops/run_with_server.sh --log-dir D [--port 31000] \
 #        [--health-timeout-s 1800] [--readiness-check 1] -- <command...>
 #
-# Exit: command's rc on success-path; 1 on any lifecycle failure; 128+sig on
-# signals (after cleanup).
+# Exit: command's rc on a clean lifecycle; 1 on any lifecycle failure (never
+# hidden behind a zero rc); 128+sig on signals (after cleanup).
 set -uo pipefail
+
 WS="${YUE2_WORKSPACE:-/data/yue2}"
 REPO="${YUE2_REPO:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
 PORT="${RWS_PORT:-31000}"
 HOST="${RWS_HOST:-127.0.0.1}"
-URL="http://$HOST:$PORT"
 LOG_DIR="${RWS_LOG_DIR:-$WS/logs}"
 WHO="${RWS_LOCK_WHO:-rc41-lifecycle-$(date -u +%Y%m%dT%H%M%SZ)}"
 HEALTH_TIMEOUT_S="${RWS_HEALTH_TIMEOUT_S:-1800}"
 HEALTH_POLL_S="${RWS_HEALTH_POLL_S:-5}"
 GPU_LOCK_WAIT_S="${RWS_GPU_LOCK_WAIT_S:-7200}"
 EXPECT_ARCH="${YUE2_EXPECT_GPU_ARCH:-gfx1100}"
-PY_B="$WS/environments/yue2-gfx1100/bin/python"
+VENV="${YUE2_VENV:-$WS/environments/yue2-gfx1100}"
+PY_B="$VENV/bin/python"
 [ -x "$PY_B" ] || PY_B="$(command -v python3)"
 CMD=()
 READINESS_CHECK=1
@@ -55,155 +61,36 @@ if [ ${#CMD[@]} -eq 0 ]; then
   exit 2
 fi
 
-SERVER_LOG_FILE="$LOG_DIR/server_yue2_gfx1100.log"
-BOOT_LOG="$LOG_DIR/rws_server_boot.log"
-RECEIPT_DIR="$LOG_DIR/rws_server_identity"
-RECEIPT="$RECEIPT_DIR/server-identity.json"
-IDENTITY_DIR="$LOG_DIR/rws_gpu_identity"
-INNER_PID_FILE="$LOG_DIR/rws_inner.pid"
-mkdir -p "$LOG_DIR" "$RECEIPT_DIR" "$IDENTITY_DIR"
+SUP=(
+  --who "$WHO"
+  --workspace "$WS"
+  --venv "$VENV"
+  --host "$HOST"
+  --port "$PORT"
+  --log-dir "$LOG_DIR"
+  --serve-script "${YUE2_SERVE_SCRIPT:-$REPO/scripts/serve_yue2_gfx1100.sh}"
+  --model "${MODEL_PATH:-$WS/models/YuE2-3B}"
+  --vae "${VAE_PATH:-$WS/models/YuE2-Vae-legacy}"
+  --expect-arch "$EXPECT_ARCH"
+  --health-timeout-s "$HEALTH_TIMEOUT_S"
+  --health-poll-s "$HEALTH_POLL_S"
+  --readiness-check "$READINESS_CHECK"
+  --wait-s "$GPU_LOCK_WAIT_S"
+  --poll-s 2
+  --receipt-dir "$LOG_DIR/rws_server_identity"
+  --identity-dir "$LOG_DIR/rws_gpu_identity"
+  --boot-log "$LOG_DIR/rws_server_boot.log"
+  --server-log "$LOG_DIR/server_yue2_gfx1100.log"
+  --drain-s "${RWS_DRAIN_S:-600}"
+  --port-release-timeout-s "${RWS_PORT_RELEASE_TIMEOUT_S:-60}"
+  --gpu-release-timeout-s "${RWS_GPU_RELEASE_TIMEOUT_S:-180}")
+[ -n "${YUE2_GPU_LOCK:-}" ] && SUP+=(--lock "$YUE2_GPU_LOCK")
+[ -n "${YUE2_EXPECT_GPU_BDF:-}" ] && SUP+=(--expect-bdf "$YUE2_EXPECT_GPU_BDF")
+[ -n "${RWS_STOP_TIMEOUT_S:-}" ] && SUP+=(--stop-timeout-s "$RWS_STOP_TIMEOUT_S")
+[ -n "${RWS_CMD_DRAIN_S:-}" ] && SUP+=(--cmd-drain-s "$RWS_CMD_DRAIN_S")
+[ -n "${RWS_CANARY_DIR:-}" ] && SUP+=(--canary-dir "$RWS_CANARY_DIR")
+[ -n "${RWS_PROGRESS_FILE:-}" ] && SUP+=(--progress-file "$RWS_PROGRESS_FILE")
 
-GATEWAY_PID=""
-STOP_FAILED=0
-
-stop_server() {
-  if [ ! -f "$RECEIPT" ]; then
-    return 0
-  fi
-  echo "[rws] verified server stop (receipt: $RECEIPT)"
-  "$PY_B" "$REPO/scripts/server_identity.py" stop \
-    --receipt "$RECEIPT" --timeout "${RWS_STOP_TIMEOUT_S:-180}"
-  local rc=$?
-  # rc 0 = stopped now; rc 2 = verify-failed (already gone) — both fine.
-  # anything else (3 ambiguous / 4 refused / 5 blocked-alive / 6 busy) is a
-  # lifecycle failure: a server we cannot account for must not hide.
-  if [ "$rc" -ne 0 ] && [ "$rc" -ne 2 ]; then
-    echo "[rws] FAIL: verified stop returned rc=$rc" >&2
-    STOP_FAILED=1
-  fi
-}
-
-check_port_freed() {
-  "$PY_B" -c "
-import socket, sys
-s = socket.socket()
-try:
-    s.connect(('127.0.0.1', int(sys.argv[1])))
-except OSError:
-    sys.exit(0)  # connection refused: nothing listening, port free
-sys.exit(1)  # something answered on the port after a verified stop
-" "$PORT" || { echo "[rws] FAIL: port $PORT still occupied after stop" >&2
-                return 1; }
-}
-
-on_signal() {
-  local sig=$1 rc=$((128 + $1))
-  echo "[rws] signal $sig: forwarding to gateway + inner flow, then cleanup" >&2
-  [ -n "$GATEWAY_PID" ] && kill "-$sig" "$GATEWAY_PID" 2>/dev/null
-  # cascade into the inner flow (pid file) so the wrapped COMMAND receives
-  # the signal too — an orphaned command must not keep generating unaware
-  if [ -f "$INNER_PID_FILE" ]; then
-    local ipid
-    ipid=$(cat "$INNER_PID_FILE" 2>/dev/null || true)
-    [ -n "$ipid" ] && kill "-$sig" "$ipid" 2>/dev/null
-  fi
-  wait "$GATEWAY_PID" 2>/dev/null
-  GATEWAY_PID=""
-  stop_server
-  exit "$rc"
-}
-trap 'on_signal 2' INT
-trap 'on_signal 15' TERM
-on_exit() {
-  local grc="${GATEWAY_RC:-$?}"
-  stop_server
-  if [ "${STOP_FAILED:-0}" -eq 0 ] && [ "$grc" -eq 0 ]; then
-    check_port_freed || { STOP_FAILED=1; grc=1; }
-  fi
-  if [ "${STOP_FAILED:-0}" -ne 0 ] && [ "$grc" -eq 0 ]; then
-    echo "[rws] FATAL: flow finished but the lifecycle did not close cleanly" >&2
-    grc=1
-  fi
-  exit "$grc"
-}
-trap on_exit EXIT
-
-lifecycle_flow() {
-  FLOW_RC=0
-  echo $$ > "$INNER_PID_FILE"
-
-  echo "[rws] 1/7 GPU identity (fail-loud, expected arch=$EXPECT_ARCH)"
-  if ! "$PY_B" "$REPO/scripts/gpu_identity.py" verify \
-      --expect-arch "$EXPECT_ARCH" \
-      --receipt "$IDENTITY_DIR/pre_boot_gpu_identity.json"; then
-    echo "[rws] FAIL: GPU identity not verified — refusing to start server" >&2
-    return 1
-  fi
-
-  echo "[rws] 2/7 starting server (serve_yue2_gfx1100.sh)"
-  setsid nohup env YUE2_WORKSPACE="$WS" YUE2_VENV="$WS/environments/yue2-gfx1100" \
-    PORT="$PORT" HOST="$HOST" SERVER_LOG="$SERVER_LOG_FILE" \
-    bash "$REPO/scripts/serve_yue2_gfx1100.sh" \
-    > "$BOOT_LOG" 2>&1 < /dev/null &
-
-  echo "[rws] 3/7 polling $URL/health (bounded ${HEALTH_TIMEOUT_S}s)"
-  local t0=$(date +%s) ok=0
-  while [ $(( $(date +%s) - t0 )) -lt "$HEALTH_TIMEOUT_S" ]; do
-    if curl -sf --max-time 5 "$URL/health" >/dev/null 2>&1; then ok=1; break; fi
-    sleep "$HEALTH_POLL_S"
-  done
-  if [ "$ok" -ne 1 ]; then
-    echo "[rws] FAIL: no health in ${HEALTH_TIMEOUT_S}s (boot: $BOOT_LOG)" >&2
-    return 1
-  fi
-
-  echo "[rws] 4/7 identity capture + verify"
-  if ! "$PY_B" "$REPO/scripts/server_identity.py" capture \
-      --run-state "$RECEIPT_DIR" --model "$WS/models/YuE2-3B" \
-      --host "$HOST" --port "$PORT"; then
-    echo "[rws] FAIL: identity capture" >&2
-    return 1
-  fi
-  if ! "$PY_B" "$REPO/scripts/server_identity.py" verify --receipt "$RECEIPT"; then
-    echo "[rws] FAIL: identity verify" >&2
-    return 1
-  fi
-
-  if [ "$READINESS_CHECK" = "1" ]; then
-    echo "[rws] 5/7 readiness (scheduler-worker aware; HTTP 200 alone is NOT READY)"
-    if ! "$PY_B" "$REPO/scripts/server_readiness.py" check \
-        --receipt "$RECEIPT" --url "$URL"; then
-      echo "[rws] FAIL: server not GENERATION_READY" >&2
-      return 1
-    fi
-  else
-    echo "[rws] 5/7 readiness check skipped (--readiness-check 0)"
-  fi
-
-  echo "[rws] 6/7 executing:$CMD_STR"
-  eval "CMD=($CMD_STR)"
-  "${CMD[@]}" &
-  local cmd_pid=$!
-  trap 'kill -TERM "$cmd_pid" 2>/dev/null' TERM INT
-  local cmd_rc=0
-  wait "$cmd_pid" || cmd_rc=$?
-  trap - TERM INT
-  echo "[rws] command rc=$cmd_rc"
-  return "$cmd_rc"
-}
-
-# command safely re-quoted for the inner bash (%q applied exactly once, here)
-CMD_STR=""
-for c in "${CMD[@]}"; do CMD_STR+=" $(printf '%q' "$c")"; done
-export WS REPO PORT HOST URL LOG_DIR SERVER_LOG_FILE BOOT_LOG RECEIPT_DIR \
-  RECEIPT IDENTITY_DIR HEALTH_TIMEOUT_S EXPECT_ARCH CMD_STR READINESS_CHECK \
-  PY_B INNER_PID_FILE
-
-"$PY_B" "$REPO/scripts/gpu_lock.py" wait --who "$WHO" \
-  --wait-s "$GPU_LOCK_WAIT_S" -- \
-  bash -c "$(declare -f lifecycle_flow); lifecycle_flow" &
-GATEWAY_PID=$!
-wait "$GATEWAY_PID"
-GATEWAY_RC=$?
-GATEWAY_PID=""
-exit "$GATEWAY_RC"
+# exec: this shell BECOMES the supervisor — there is no second process that
+# could outlive the lock or clean up after it.
+exec "$PY_B" "$REPO/scripts/gpu_lifecycle.py" "${SUP[@]}" -- "${CMD[@]}"

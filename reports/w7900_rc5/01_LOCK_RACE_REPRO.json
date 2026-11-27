@@ -1,0 +1,41 @@
+{
+ "receipt_type": "rc5_lock_race_reproduction",
+ "executed_at_utc": "2026-11-24T02:33:28Z",
+ "method": "real launcher + stub server that needs stop_delay seconds to exit; (lock held, server alive) sampled every 100 ms after the wrapped command returned; defect = any sample with lock free AND server alive",
+ "results": [
+  {
+   "label": "RC4.1-6f1b7f7",
+   "repo": "/data/yue2/upstream/rc41-checkout",
+   "launcher_rc": 0,
+   "stop_delay_s": 6.0,
+   "samples": 64,
+   "samples_with_lock_free_and_server_alive": 47,
+   "first_race_sample": {
+    "t": 0.03,
+    "lock_held": false,
+    "server_alive": true
+   },
+   "last_race_sample": {
+    "t": 5.99,
+    "lock_held": false,
+    "server_alive": true
+   },
+   "race_window_s": 5.96,
+   "defect_reproduced": true,
+   "launcher_output_tail": "aware; HTTP 200 alone is NOT READY)\n{\"state\": \"READY\", \"scheduler_alive\": true, \"http_health\": 200, \"identity\": \"verified\", \"established_connections\": 0}\n[rws] 6/7 executing: /usr/bin/python3 -c import\\ time\\;\\ from\\ pathlib\\ import\\ Path\\;\\ time.sleep\\(2\\)\\;\\ Path\\(\\'/data/yue2/tmp/rc5_lock_race_repro/RC4.1-6f1b7f7/cmd-done\\'\\).write_text\\(\\'1\\'\\)\n[rws] command rc=0\n[rws] verified server stop (receipt: /data/yue2/tmp/rc5_lock_race_repro/RC4.1-6f1b7f7/logs/rws_server_identity/server-identity.json)\n{\"status\": \"stopped\", \"pid\": 207184, \"phase\": \"after SIGINT\", \"result\": \"zombie-reaped-pending\"}\n"
+  },
+  {
+   "label": "RC5-working-tree",
+   "repo": "/data/yue2/upstream/yue2-sglang-rocm",
+   "launcher_rc": 0,
+   "stop_delay_s": 6.0,
+   "samples": 71,
+   "samples_with_lock_free_and_server_alive": 0,
+   "first_race_sample": null,
+   "last_race_sample": null,
+   "race_window_s": 0.0,
+   "defect_reproduced": false,
+   "launcher_output_tail": " by rc41-lifecycle-20261124T023316Z (pid 207269)\n[lifecycle] gpu_identity: CPU_TEST_MODE_AUTHORIZED device=None bdf=None vram_gib=None\n[lifecycle] launch_server: pid=207272 session=207272 (spawn receipt /data/yue2/tmp/rc5_lock_race_repro/RC5-working-tree/logs/rws_server_identity/server-spawn.json)\n[lifecycle] health: HTTP 200 on http://127.0.0.1:42215\n[lifecycle] readiness: READY\n[lifecycle] command: executing: /usr/bin/python3 -c import time; from pathlib import Path; time.sleep(2); Path('/data/yue2/tmp/rc5_lock_race_repro/RC5-working-tree/cmd-done').write_text('1')\n[lifecycle] command: rc=0\n"
+  }
+ ]
+}

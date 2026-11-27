@@ -74,6 +74,20 @@ def read_state(root, pid):
     return data[data.rindex(")") + 1:].split()[0]
 
 
+def read_stat_fields(root, pid) -> dict:
+    """state/ppid/pgrp/session/starttime of a pid (fail-closed on garbage)."""
+    p = _proc(root, pid) / "stat"
+    if not p.is_file():
+        raise IdentError(4, f"pid {pid}: no stat (process gone)")
+    data = p.read_text()
+    rest = data[data.rindex(")") + 1:].split()
+    try:
+        return {"state": rest[0], "ppid": int(rest[1]), "pgrp": int(rest[2]),
+                "session": int(rest[3]), "starttime": rest[19]}
+    except (IndexError, ValueError) as e:
+        raise IdentError(3, f"pid {pid}: unparsable stat ({e})")
+
+
 def read_uid(root, pid):
     p = _proc(root, pid) / "status"
     if not p.is_file():
@@ -309,6 +323,162 @@ def load_receipt(path):
     return r
 
 
+def load_spawn_receipt(path):
+    """RC5 M1.1: a SPAWN receipt proves direct ownership of a process we
+    launched ourselves (pid + starttime + session id recorded by the parent
+    right after fork). It is the only basis for stopping a server that died
+    or hung BEFORE its identity receipt existed."""
+    p = Path(path)
+    if not p.is_file():
+        raise IdentError(4, f"spawn receipt missing: {p}")
+    try:
+        r = json.loads(p.read_text())
+    except Exception as e:
+        raise IdentError(4, f"spawn receipt unreadable: {e}")
+    missing = [k for k in ("pid", "starttime", "session", "uid")
+               if k not in r]
+    if missing:
+        raise IdentError(4, "spawn receipt missing required fields: "
+                            + ", ".join(missing))
+    return r
+
+
+def verify_spawned(proc_root, spawn: dict) -> dict:
+    """Verify a spawned process is STILL the one we launched: same pid, same
+    starttime, same uid, live (non-zombie) and session leader of the session
+    we created (start_new_session). Refuses on any mismatch (PID reuse)."""
+    pid = int(spawn["pid"])
+    if not _proc(proc_root, pid).is_dir():
+        raise IdentError(2, f"pid {pid}: /proc entry gone")
+    f = read_stat_fields(proc_root, pid)
+    if f["state"] == "Z":
+        raise IdentError(2, f"pid {pid}: zombie (state Z) - not a live server")
+    if f["starttime"] != str(spawn["starttime"]):
+        raise IdentError(2, f"pid {pid}: starttime {f['starttime']} != spawn "
+                            f"{spawn['starttime']} (PID reused?)")
+    uids = read_uid(proc_root, pid)
+    if int(uids[0]) != int(spawn["uid"]):
+        raise IdentError(2, f"pid {pid}: uid {uids[0]} != spawn uid "
+                            f"{spawn['uid']}")
+    if "session" in spawn and f["session"] != int(spawn["session"]):
+        raise IdentError(3, f"pid {pid}: session {f['session']} != spawn "
+                            f"session {spawn['session']} (not our process)")
+    if "argv_sha256" in spawn and spawn["argv_sha256"]:
+        ash = argv_sha256(read_cmdline(proc_root, pid))
+        if ash != spawn["argv_sha256"]:
+            raise IdentError(2, f"pid {pid}: argv sha256 {ash[:12]}... != "
+                                f"spawn {spawn['argv_sha256'][:12]}...")
+    return {"pid": pid, **f, "uid": uids[0]}
+
+
+def session_processes(proc_root, session: int, min_starttime: int | None = None,
+                      exclude: set[int] | frozenset = frozenset()) -> list[dict]:
+    """Every live process in OUR session. A session id created by our own
+    setsid child can only be inherited by that child's descendants, so
+    membership (plus starttime >= leader starttime, which excludes PID reuse)
+    is an ownership proof that survives reparenting to init."""
+    out = []
+    for pid in list_pids(proc_root):
+        if pid in exclude:
+            continue
+        try:
+            f = read_stat_fields(proc_root, pid)
+        except IdentError:
+            continue
+        if f["session"] != int(session):
+            continue
+        if min_starttime is not None and int(f["starttime"]) < int(min_starttime):
+            continue
+        if f["state"] == "Z":
+            out.append({"pid": pid, **f, "state": "Z", "live": False})
+            continue
+        try:
+            argv = read_cmdline(proc_root, pid)
+        except IdentError:
+            argv = []
+        out.append({"pid": pid, **f, "live": True,
+                    "argv_head": " ".join(argv)[:160]})
+    return out
+
+
+def live_owned(snapshot: list[dict], proc_root) -> list[dict]:
+    """Members of a session snapshot still alive as the SAME process."""
+    out = []
+    for e in snapshot:
+        try:
+            f = read_stat_fields(proc_root, e["pid"])
+        except IdentError:
+            continue
+        if f["state"] == "Z" or f["starttime"] != str(e["starttime"]):
+            continue
+        if f["session"] != int(e["session"]):
+            continue
+        out.append({**e, **f})
+    return out
+
+
+def stop_spawned(proc_root, spawn: dict, timeout: float, dry_run: bool = False,
+                 min_starttime: int | None = None) -> dict:
+    """Stop a server we spawned but could not identify (no identity receipt).
+
+    Signals ONLY: (a) the verified spawned leader and (b) processes proven to
+    be in its session. Never SIGKILL; a survivor is reported BLOCKED.
+    Returns {"status": "stopped"|"blocked"|"dry-run", ...}."""
+    facts = verify_spawned(proc_root, spawn)
+    pid = facts["pid"]
+    # session members can never have started before their leader; using the
+    # leader's starttime as the floor also excludes a PID-reuse lookalike
+    tree = session_processes(proc_root, facts["session"],
+                             min_starttime=int(facts["starttime"]),
+                             exclude={os.getpid()})
+    if dry_run:
+        return {"status": "dry-run", "pid": pid, "session": facts["session"],
+                "tree": tree}
+    for sig in (signal.SIGINT, signal.SIGTERM):
+        try:
+            verify_spawned(proc_root, spawn)
+        except IdentError:
+            break  # already gone
+        try:
+            send_signal(pid, sig)
+        except ProcessLookupError:
+            break
+        res = wait_gone(proc_root, pid, timeout)
+        if res != "alive":
+            break
+    remaining = []
+    for e in tree:
+        try:
+            f = read_stat_fields(proc_root, e["pid"])
+        except IdentError:
+            continue
+        if f["state"] != "Z" and f["starttime"] == e["starttime"] \
+                and f["session"] == e["session"]:
+            remaining.append({**e, **f})
+    if remaining:
+        # leftovers proven ours (same session, same starttime) — SIGTERM them
+        for e in remaining:
+            try:
+                send_signal(e["pid"], signal.SIGTERM)
+            except (ProcessLookupError, PermissionError):
+                pass
+        deadline = time.time() + timeout
+        while time.time() < deadline and live_owned(remaining, proc_root):
+            time.sleep(2.0)
+        remaining = live_owned(remaining, proc_root)
+    leader_alive = True
+    try:
+        f = verify_spawned(proc_root, spawn)
+        leader_alive = f["state"] != "Z"
+    except IdentError:
+        leader_alive = False
+    if leader_alive or remaining:
+        return {"status": "blocked", "pid": pid,
+                "leader_alive": leader_alive, "remaining": remaining}
+    return {"status": "stopped", "pid": pid, "session": facts["session"],
+            "tree_size": len(tree)}
+
+
 def cmd_verify(a):
     r = load_receipt(a.receipt)
     facts = verify_process(a.proc_root, r["pid"],
@@ -390,6 +560,19 @@ def cmd_stop(a):
                         f"rocm-smi; then decide.")
 
 
+def cmd_stop_spawned(a):
+    spawn = load_spawn_receipt(a.spawn_receipt)
+    r = stop_spawned(a.proc_root, spawn, timeout=a.timeout, dry_run=a.dry_run)
+    print(json.dumps(r, indent=1, default=str))
+    if r["status"] == "stopped":
+        return 0
+    if r["status"] == "dry-run":
+        return 0
+    eprint(f"[server_identity] BLOCKED: spawned server pid {r['pid']} or its "
+           f"session survived SIGINT and SIGTERM; refusing to SIGKILL.")
+    return 5
+
+
 def main():
     ap = argparse.ArgumentParser()
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -419,6 +602,15 @@ def main():
     s.add_argument("--dry-run", action="store_true")
     s.add_argument("--proc-root", default=PROC_ROOT_DEFAULT)
     s.set_defaults(fn=cmd_stop)
+
+    p = sub.add_parser("stop-spawned",
+                       help="stop a server WE spawned that never produced an "
+                            "identity receipt (spawn-receipt ownership proof)")
+    p.add_argument("--spawn-receipt", required=True)
+    p.add_argument("--timeout", type=float, default=120.0)
+    p.add_argument("--dry-run", action="store_true")
+    p.add_argument("--proc-root", default=PROC_ROOT_DEFAULT)
+    p.set_defaults(fn=cmd_stop_spawned)
 
     a = ap.parse_args()
     TEST_HOOKS_PROC_ROOTS.add(a.proc_root)

@@ -1,0 +1,197 @@
+{
+ "schema": "yue2-rc5-q3o-moe-mutation/1",
+ "generated_at_utc": "2026-11-24T17:23:35Z",
+ "module": "scripts/rc5_q3o_moe.py",
+ "module_sha256": "62c4298c743bc75371371eeb309eafb060884986e491c01f120ce7116b0ddcf1",
+ "test_file": "tests/test_rc5_q3o_moe.py",
+ "test_file_sha256": "a9f158ad65dbc4ac8e1b034f886913b8d87aa5923d3cccdbb5e483a0be647c72",
+ "environment": {
+  "label": "w7900-final-q3o-module",
+  "python": "/usr/bin/python3",
+  "torch": "2.14.0+rocm10.1.0",
+  "hip": "7.16.26385",
+  "gpu": true,
+  "device": "AMD Radeon Pro W7900D"
+ },
+ "baseline": {
+  "returncode": 0,
+  "failing_tests": []
+ },
+ "mutations": [
+  {
+   "id": "R1_no_topk_normalisation",
+   "description": "top-k weights not normalised to sum 1",
+   "killed": true,
+   "returncode": 1,
+   "failing_tests": [
+    "tests.test_rc5_q3o_moe::test_route_matches_hf_formulas_on_tie_free_logits",
+    "tests.test_rc5_q3o_moe::test_route_normalises_weights",
+    "tests.test_rc5_q3o_moe::test_block_rounds_router_logits_to_bf16_before_routing[CpuResidentMoeBlock]",
+    "tests.test_rc5_q3o_moe::test_block_rounds_router_logits_to_bf16_before_routing[BatchedGpuMoeBlock]",
+    "tests.test_rc5_q3o_moe::test_rounding_points_are_bit_exact_for_a_single_expert[CpuResidentMoeBlock]",
+    "tests.test_rc5_q3o_moe::test_rounding_points_are_bit_exact_for_a_single_expert[BatchedGpuMoeBlock]",
+    "tests.test_rc5_q3o_moe::test_block_matches_reference_loop[CpuResidentMoeBlock]",
+    "tests.test_rc5_q3o_moe::test_block_matches_reference_loop[BatchedGpuMoeBlock]"
+   ]
+  },
+  {
+   "id": "R2_bf16_softmax",
+   "description": "softmax computed in bf16 instead of fp32",
+   "killed": true,
+   "returncode": 1,
+   "failing_tests": [
+    "tests.test_rc5_q3o_moe::test_route_matches_hf_formulas_on_tie_free_logits",
+    "tests.test_rc5_q3o_moe::test_rounding_points_are_bit_exact_for_a_single_expert[CpuResidentMoeBlock]",
+    "tests.test_rc5_q3o_moe::test_rounding_points_are_bit_exact_for_a_single_expert[BatchedGpuMoeBlock]",
+    "tests.test_rc5_q3o_moe::test_block_matches_reference_loop[CpuResidentMoeBlock]",
+    "tests.test_rc5_q3o_moe::test_block_matches_reference_loop[BatchedGpuMoeBlock]"
+   ]
+  },
+  {
+   "id": "R3_stock_torch_topk",
+   "description": "plain torch.topk: tie-breaking not pinned (nondeterministic at boundary ties on torch 2.10.0+rocm7.14.1)",
+   "killed": true,
+   "returncode": 1,
+   "failing_tests": [
+    "tests.test_rc5_q3o_moe::test_topk_stable_breaks_ties_by_lowest_index",
+    "tests.test_rc5_q3o_moe::test_block_rounds_router_logits_to_bf16_before_routing[CpuResidentMoeBlock]"
+   ]
+  },
+  {
+   "id": "R4_unstable_argsort",
+   "description": "argsort without stable=True: tie order not pinned",
+   "killed": true,
+   "returncode": 1,
+   "failing_tests": [
+    "tests.test_rc5_q3o_moe::test_stable_topk_gpu_patch_matches_hf_loop_and_pins_ties",
+    "tests.test_rc5_q3o_moe::test_topk_stable_breaks_ties_by_lowest_index",
+    "tests.test_rc5_q3o_moe::test_block_rounds_router_logits_to_bf16_before_routing[BatchedGpuMoeBlock]"
+   ]
+  },
+  {
+   "id": "G1_gate_up_swapped",
+   "description": "gate and up projections swapped (GPU block)",
+   "killed": true,
+   "returncode": 1,
+   "failing_tests": [
+    "tests.test_rc5_q3o_moe::test_block_rounds_router_logits_to_bf16_before_routing[BatchedGpuMoeBlock]",
+    "tests.test_rc5_q3o_moe::test_rounding_points_are_bit_exact_for_a_single_expert[BatchedGpuMoeBlock]",
+    "tests.test_rc5_q3o_moe::test_block_matches_reference_loop[BatchedGpuMoeBlock]"
+   ]
+  },
+  {
+   "id": "G2_routing_weight_not_bf16",
+   "description": "routing weights kept in fp32 (GPU block)",
+   "killed": false,
+   "returncode": 0,
+   "failing_tests": []
+  },
+  {
+   "id": "G3_no_routing_weight",
+   "description": "routing weights dropped (GPU block)",
+   "killed": true,
+   "returncode": 1,
+   "failing_tests": [
+    "tests.test_rc5_q3o_moe::test_block_rounds_router_logits_to_bf16_before_routing[BatchedGpuMoeBlock]",
+    "tests.test_rc5_q3o_moe::test_rounding_points_are_bit_exact_for_a_single_expert[BatchedGpuMoeBlock]",
+    "tests.test_rc5_q3o_moe::test_block_matches_reference_loop[BatchedGpuMoeBlock]"
+   ]
+  },
+  {
+   "id": "G4_weights_assigned_to_wrong_experts",
+   "description": "weight matrix flipped along the top-k axis (GPU block)",
+   "killed": true,
+   "returncode": 1,
+   "failing_tests": [
+    "tests.test_rc5_q3o_moe::test_block_matches_reference_loop[BatchedGpuMoeBlock]"
+   ]
+  },
+  {
+   "id": "G5_unselected_experts_leak",
+   "description": "unselected experts get weight 1e-3 instead of 0 (GPU block)",
+   "killed": true,
+   "returncode": 1,
+   "failing_tests": [
+    "tests.test_rc5_q3o_moe::test_block_rounds_router_logits_to_bf16_before_routing[BatchedGpuMoeBlock]",
+    "tests.test_rc5_q3o_moe::test_rounding_points_are_bit_exact_for_a_single_expert[BatchedGpuMoeBlock]"
+   ]
+  },
+  {
+   "id": "C1_no_bf16_rounding",
+   "description": "all intermediate bf16 rounding removed (CPU block)",
+   "killed": true,
+   "returncode": 1,
+   "failing_tests": [
+    "tests.test_rc5_q3o_moe::test_block_rounds_router_logits_to_bf16_before_routing[CpuResidentMoeBlock]",
+    "tests.test_rc5_q3o_moe::test_rounding_points_are_bit_exact_for_a_single_expert[CpuResidentMoeBlock]"
+   ]
+  },
+  {
+   "id": "C2_router_logits_not_bf16",
+   "description": "router logits not rounded to bf16 (CPU block)",
+   "killed": true,
+   "returncode": 1,
+   "failing_tests": [
+    "tests.test_rc5_q3o_moe::test_block_rounds_router_logits_to_bf16_before_routing[CpuResidentMoeBlock]"
+   ]
+  },
+  {
+   "id": "C3_gate_up_swapped",
+   "description": "gate and up projections swapped (CPU block)",
+   "killed": true,
+   "returncode": 1,
+   "failing_tests": [
+    "tests.test_rc5_q3o_moe::test_block_rounds_router_logits_to_bf16_before_routing[CpuResidentMoeBlock]",
+    "tests.test_rc5_q3o_moe::test_rounding_points_are_bit_exact_for_a_single_expert[CpuResidentMoeBlock]",
+    "tests.test_rc5_q3o_moe::test_block_matches_reference_loop[CpuResidentMoeBlock]"
+   ]
+  },
+  {
+   "id": "C4_no_routing_weight",
+   "description": "routing weights dropped (CPU block)",
+   "killed": true,
+   "returncode": 1,
+   "failing_tests": [
+    "tests.test_rc5_q3o_moe::test_block_matches_reference_loop[CpuResidentMoeBlock]"
+   ]
+  },
+  {
+   "id": "C5_silu_dropped",
+   "description": "activation function removed (CPU block)",
+   "killed": true,
+   "returncode": 1,
+   "failing_tests": [
+    "tests.test_rc5_q3o_moe::test_block_rounds_router_logits_to_bf16_before_routing[CpuResidentMoeBlock]",
+    "tests.test_rc5_q3o_moe::test_rounding_points_are_bit_exact_for_a_single_expert[CpuResidentMoeBlock]",
+    "tests.test_rc5_q3o_moe::test_block_matches_reference_loop[CpuResidentMoeBlock]"
+   ]
+  },
+  {
+   "id": "C6_silu_output_not_rounded",
+   "description": "silu output not rounded to bf16 before the product (CPU block)",
+   "killed": true,
+   "returncode": 1,
+   "failing_tests": [
+    "tests.test_rc5_q3o_moe::test_block_rounds_router_logits_to_bf16_before_routing[CpuResidentMoeBlock]",
+    "tests.test_rc5_q3o_moe::test_rounding_points_are_bit_exact_for_a_single_expert[CpuResidentMoeBlock]"
+   ]
+  },
+  {
+   "id": "C7_wrong_weight_slot",
+   "description": "routing weight of the neighbouring top-k slot used (CPU block)",
+   "killed": true,
+   "returncode": 1,
+   "failing_tests": [
+    "tests.test_rc5_q3o_moe::test_block_matches_reference_loop[CpuResidentMoeBlock]"
+   ]
+  }
+ ],
+ "summary": {
+  "killed": 15,
+  "total": 16,
+  "survivors": [
+   "G2_routing_weight_not_bf16"
+  ]
+ },
+ "notes": "Source-text mutations, one per control, each pattern occurring exactly once. The contribution summation dtype (fp32 vs sequential bf16) is a disclosed deviation of both blocks and is deliberately NOT covered by a mutation control."
+}

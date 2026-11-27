@@ -1,0 +1,6 @@
+metric,paper,author_sgl,historical_w7900,rc5_1_w7900,delta_vs_historical,comparability,evidence
+"SongBench (Global Avg, 0-10)",6.7316,6.7146,6.738264,6.736891,-0.001373,"official evaluator verbatim, same selected-192 protocol; paper=original audio, author=their SGLang run on CUDA",06_SONGBENCH_FULL.json
+PER (selected-192 micro),8.44%,8.1471%,17.762763%,17.7699,0.0071,SAME official scoring code; ASR engine substitution (transformers ROCm vs vLLM CUDA) is the disclosed variable - the P1.1 causal question; paper/author use the official CUDA evaluator,05_PER_FULL_METRICS.json
+MuLan,0.5068,0.49960,0.509166,0.509395,0.000229,official evaluator verbatim on selected-192,06_MULAN_FULL.json
+AllMusicCaps,0.4054,0.40825,0.405556,0.405181,-0.000375,official evaluator verbatim on selected-192,06_ALLMUSICCAPS_FULL.json
+Q3O (0-5),4.68,n/a (author reference not published for Q3O),n/a (not previously completed on W7900),4.393986,n/a,"ROCm-ADAPTED judge: official scorer/prompt/parser/weights, HF-ROCm engine instead of vLLM-CUDA (no equivalence claim; ~20% tied routing + attention kernel differences)","06_Q3O_FULL.json; reference source: evaluator README '4.69 vs 4.68 original, 4.71 fresh H800'"

@@ -1,0 +1,10 @@
+cell,engine,status,per_on_diagnostic_subset,finding
+E1,ROCm transformers BF16 SDPA batch8 (official frozen path),PASSED,micro 0.5796 (16-id subset); full-384 official run: selected 17.7699%,5/5 subset empties reproduce; 10 empties in full 384
+E5,ROCm transformers FP32 SDPA,PASSED,0.5336,same 5 empties - NOT precision
+E6,ROCm transformers BF16 eager,PASSED,0.5796 identical to E1,bit-identical PER - NOT attention kernel
+E7,ROCm transformers FP16,PASSED,0.5299,same 5 empties - NOT precision variant
+E8,ROCm transformers BF16 batch1,PASSED,0.5312 (fewer caps),same 5 empties - NOT batch composition
+E4-Q,ROCm-host CPU FP32 (16 threads),PASSED,0.6141 (8-id subset),same 4/4 empties - NOT device numerics
+E2,"ROCm vLLM 0.19.1 native (in-process, greedy)",PASSED,0.2304 (16-id subset),3 of 4 historical empties TRANSCRIBE (PER 0.03-0.13); 120_r1/085_r1 still empty; caps uncapped
+E3,Official CUDA vLLM 0.14.0,BLOCKED_EXTERNAL,not run,no CUDA host; handoff package prepared
+E4-W,Whisper-large-v3-turbo CPU (independent family),PASSED (RC5 pilot),reference micro 0.4053 on 12-id,audio IS intelligible - independent counter-evidence

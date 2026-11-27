@@ -1,0 +1,100 @@
+{
+ "schema": "yue2-rc5-restore-receipt/1",
+ "restored_at_utc": "2026-11-24T03:39:56Z",
+ "source": "/workspace/yue2-rc5-backup/checkpoints/rc5_pilot_20261124T020357Z",
+ "destination": "/data/yue2-runs/rc5-restore-drill/pilot-20261124T033954Z",
+ "checkpoints_applied": [
+  {
+   "archive": "full-012-20261124T032436Z.tar.zst",
+   "kind": "full",
+   "files_accepted": 132
+  },
+  {
+   "archive": "incremental-004-20261124T022655Z.tar.zst",
+   "kind": "incremental",
+   "files_accepted": 44
+  },
+  {
+   "archive": "incremental-008-20261124T025450Z.tar.zst",
+   "kind": "incremental",
+   "files_accepted": 44
+  },
+  {
+   "archive": "incremental-012-20261124T032435Z.tar.zst",
+   "kind": "incremental",
+   "files_accepted": 44
+  }
+ ],
+ "candidates_restored": 12,
+ "candidate_ids": [
+  "wsb_022_r0_s831023",
+  "wsb_022_r1_s831041",
+  "wsb_031_r0_s831032",
+  "wsb_031_r1_s831050",
+  "wsb_086_r0_s831087",
+  "wsb_086_r1_s831105",
+  "wsb_101_r0_s831102",
+  "wsb_101_r1_s831120",
+  "wsb_120_r0_s831121",
+  "wsb_120_r1_s831139",
+  "wsb_164_r0_s831165",
+  "wsb_164_r1_s831183"
+ ],
+ "files_verified_from_disk": 132,
+ "files_bad_on_disk": [],
+ "rejected_mismatching_members": [],
+ "conflicting_members": [],
+ "journal_events": 31,
+ "journal_complete_ids": [
+  "wsb_022_r0_s831023",
+  "wsb_022_r1_s831041",
+  "wsb_031_r0_s831032",
+  "wsb_031_r1_s831050",
+  "wsb_086_r0_s831087",
+  "wsb_086_r1_s831105",
+  "wsb_101_r0_s831102",
+  "wsb_101_r1_s831120",
+  "wsb_120_r0_s831121",
+  "wsb_120_r1_s831139",
+  "wsb_164_r0_s831165",
+  "wsb_164_r1_s831183"
+ ],
+ "journal_vs_bundles_consistent": true,
+ "journal_sha256": "c137048a7882d44e7e6ee34a95c5c54e3c0a2c3f5f54e79fb3628a14a68ffaea",
+ "run_config": {
+  "run_id": "rc5_pilot_20261124T020357Z",
+  "arm": "ARM_B_LATEST_UPSTREAM_RC5",
+  "dataset_revision": "e361b85a8d7365d3079fa9647641a87ce3c8c5b5",
+  "dataset_manifest_sha256": "859e5225d319912efb64d587d1d5eb6cf0abc9fb162cc3d5f02d1688cff2edc0",
+  "model_revision": "m-a-p/YuE2-3B@1a96eca688d6ae5d7f0feb88573fec89920fcd19",
+  "model_sha256": "1d55c42c1a9875c34f5d736e15078449992b044e807ce2a138e6cf289a1e59e9",
+  "vae_revision": "m-a-p/YuE2-Vae-legacy@b54118f0fc462f08999d1ec07e88817f4ee3f770",
+  "vae_sha256": "b6d283628913bb41145ba99e2314eef613905ee95f690eb70e8212d5f4965044",
+  "config": {
+   "cot": "full",
+   "abc": null,
+   "ode_steps": 32,
+   "semantic_max_tokens": 9000,
+   "abc_max_tokens": 4096,
+   "vae_core_frames": 1024,
+   "vae_halo_frames": 16
+  }
+ },
+ "run_config_sha256": "443a1c41540aa6a4343193af97f9190363f6db3a64bd07fbaa175b5a46ca57dd",
+ "evaluation_inputs_rows": 12,
+ "evaluation_inputs_sha256": "bc2eec783ee56b9dc311159f3f415baa8f680cfb34bd56660f9561b5b20b40ba",
+ "expected_candidates_from_inputs": 12,
+ "missing_vs_inputs": [],
+ "ok": true,
+ "independent_crosscheck": {
+  "flac_equal_to_live_run": 12,
+  "flac_equal_to_historical_frozen_manifest": 12,
+  "n": 12
+ },
+ "source_class": "second volume on the same host (/workspace, platform workspace volume) \u2014 NOT an off-machine backup",
+ "off_machine_backup": "BLOCKED (no authorised destination; see 00_STORAGE_AND_BACKUP_PLAN.md)",
+ "commands": [
+  "python scripts/rc5_backup.py verify --run-dir /workspace/yue2-rc5-backup/checkpoints/rc5_pilot_20261124T020357Z",
+  "python scripts/rc5_backup.py drill --from /workspace/yue2-rc5-backup/checkpoints/rc5_pilot_20261124T020357Z --to <independent-dir>"
+ ]
+}

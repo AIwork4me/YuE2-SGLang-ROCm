@@ -45,6 +45,9 @@ REAL = {
     "scripts/campaign_ops/armB_acceptance.sh": None,
     "scripts/campaign_ops/armb_acceptance_request.py": None,
     "scripts/campaign_ops/driver_alive.py": None,
+    "scripts/gpu_identity.py": None,
+    "scripts/server_readiness.py": None,
+    "scripts/gpu_lifecycle.py": None,
 }
 
 FAKE_SERVER = r'''
@@ -67,6 +70,18 @@ EVENTS = Path(args.events)
 def log_ev(name, **kw):
     with EVENTS.open("a") as f:
         f.write(json.dumps({"event": name, **kw}) + "\n")
+
+# scheduler worker child: the lifecycle supervisor's readiness check requires
+# a live worker with this signature (RC5: readiness is part of every launch)
+if MODE.read_text() != "nosched":
+    pid = os.fork()
+    if pid == 0:
+        import ctypes
+        ctypes.CDLL("libc.so.6").prctl(1, signal.SIGKILL)  # die with parent
+        os.execv(sys.executable, [sys.executable, "-c",
+                 "import sys, time; sys.argv=['sgl_diffusion::scheduler']; "
+                 "time.sleep(86400)", "scheduler-worker"])
+    log_ev("scheduler_spawned", pid=pid)
 
 LYRICS_SECS = 6.0
 
@@ -195,8 +210,13 @@ class FakeStack:
         venv_bin.mkdir(parents=True, exist_ok=True)
         py = venv_bin / "python"
         # exec-wrapper, NOT a symlink: a symlinked venv python resolves
-        # sys.prefix from its own location and loses the venv's site-packages
-        py.write_text(f"#!/bin/sh\nexec {sys.executable} \"$@\"\n")
+        # sys.prefix from its own location and loses the venv's site-packages.
+        # Accelerators are hidden (non-existent device index): a torch-enabled
+        # host interpreter then takes the sanctioned CPU test path instead of
+        # probing the REAL GPU, so the supervisor's VRAM idle floor does not
+        # (correctly) refuse to start while another workload holds the device.
+        # site-packages stay visible (the acceptance flow decodes audio).
+        py.write_text(f"#!/bin/sh\nexec env HIP_VISIBLE_DEVICES=99 CUDA_VISIBLE_DEVICES= {sys.executable} \"$@\"\n")
         py.chmod(0o755)
         (self.ws / "models/YuE2-3B").mkdir(parents=True)
         (self.ws / "logs").mkdir(parents=True)
@@ -213,9 +233,15 @@ class FakeStack:
             "ARMB_HEALTH_TIMEOUT_S": "20",
             "ARMB_STOP_TIMEOUT_S": "3",
             "ARMB_GPU_LOCK_WAIT_S": "30",
+            "ARMB_DRAIN_S": "3",
+            "ARMB_PORT_RELEASE_TIMEOUT_S": "3",
+            "ARMB_GPU_RELEASE_TIMEOUT_S": "3",
             "STUB_PY": str(self.stub_py),
             "STUB_DIR": str(self.stub),
             "STUB_DRIVER_SLEEP": "1",
+            # sanctioned CPU test-mode token (gpu_identity contract): the stub
+            # stack has no GPU; TEST-ONLY, never a GPU PASS
+            "YUE2_ALLOW_CPU": "1-I-AM-A-TEST",
         }
         env.update({k: str(v) for k, v in over.items()})
         return env
@@ -262,17 +288,27 @@ class FakeStack:
         return False
 
     def kill_all(self):
+        """Test-harness cleanup of THIS stack's stub processes (by exact pid
+        from the stub event log; never by name). A stubborn stub ignores
+        SIGINT/SIGTERM, so the ladder ends in SIGKILL — the harness may do
+        what the lifecycle under test must never do."""
         for pid in self.server_pids():
             for sig in (signal.SIGINT, signal.SIGKILL):
                 try:
-                    os.kill(pid, signal.SIGINT)
+                    os.kill(pid, sig)
                 except OSError:
                     break
                 time.sleep(0.5)
                 try:
-                    os.kill(pid, 0)
+                    if not self._live(pid):
+                        break
                 except OSError:
                     break
+
+    @staticmethod
+    def _live(pid: int) -> bool:
+        stat = Path(f"/proc/{pid}/stat").read_text()
+        return stat.rpartition(")")[2].split()[0] != "Z"
 
 
 @pytest.fixture()

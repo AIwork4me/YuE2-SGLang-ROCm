@@ -1,0 +1,21 @@
+{
+ "schema": "yue2-rc5-real-gpu-identity-negatives/1",
+ "device": "AMD Radeon PRO W7900D gfx1100 @ 0000:03:00.0",
+ "controls": {
+  "neg_wrong_bdf": {
+   "status": "GPU_DEVICE_MISMATCH",
+   "reason": "device PCI BDF '0000:03:00.0' != expected '0000:23:00.0'",
+   "bound_bdf": null,
+   "device_arch": "gfx1100",
+   "ok": false
+  },
+  "neg_wrong_arch": {
+   "status": "GPU_DEVICE_MISMATCH",
+   "reason": "device arch 'gfx1100' does not include expected 'gfx1151'",
+   "bound_bdf": null,
+   "device_arch": "gfx1100",
+   "ok": false
+  }
+ },
+ "exit_code_expected": 3
+}

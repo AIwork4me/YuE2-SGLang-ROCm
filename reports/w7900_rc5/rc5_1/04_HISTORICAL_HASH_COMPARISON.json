@@ -1,0 +1,61 @@
+{
+ "schema": "yue2-rc5_1-historical-hash-comparison/1",
+ "generated_at_utc": "2026-11-26T00:33:53Z",
+ "comparison": "RC5 latest-upstream campaign vs historical Arm B frozen manifest",
+ "historical_source": "evidence/publication/armB_campaign/candidate_manifest.json",
+ "rc5_run_id": "rc5_armB_latest_upstream_20261124T065451Z",
+ "rc5_complete": 384,
+ "compared": 384,
+ "byte_identical": 380,
+ "non_identical": 4,
+ "missing_historical_reference": 0,
+ "non_identical_rows": [
+  {
+   "id": "wsb_077_r0_s831078",
+   "flac_sha256_identical": false,
+   "audio_seconds_identical": true,
+   "truncated_flag_identical": true,
+   "duration_delta_s": null,
+   "codec_frames": 5171,
+   "generation_identity": "6faeab81fd9bf3ed83563e5c6a863df5c8917778b6b007f0f5b3ae61c989af33",
+   "historical_identity": "5c6247153eb3f6325f0d922936b8a442e3510c672c4e0e2fcd2fd1ac898c611c",
+   "flac_bytes_delta_vs_historical": -2
+  },
+  {
+   "id": "wsb_077_r1_s831096",
+   "flac_sha256_identical": false,
+   "audio_seconds_identical": true,
+   "truncated_flag_identical": true,
+   "duration_delta_s": null,
+   "codec_frames": 6173,
+   "generation_identity": "2542b16abbdbe2d43916bae0b3d4e66b7a5191322ed190942df23265e361fb8b",
+   "historical_identity": "69fab94d15c1d1643e9a42f929134a0998942f51487ce57e11b9e6467c270eac",
+   "flac_bytes_delta_vs_historical": 2
+  },
+  {
+   "id": "wsb_166_r1_s831185",
+   "flac_sha256_identical": false,
+   "audio_seconds_identical": true,
+   "truncated_flag_identical": true,
+   "duration_delta_s": null,
+   "codec_frames": 6415,
+   "generation_identity": "f030e8fa9c122de637ebc69e3fb5e3d29371ae09fcdf750ff01b72dd055ef480",
+   "historical_identity": "682ea7f82c42050d989bc29127e882e17491329a74652174422645429a897a55",
+   "flac_bytes_delta_vs_historical": 15
+  },
+  {
+   "id": "wsb_171_r1_s831190",
+   "flac_sha256_identical": false,
+   "audio_seconds_identical": true,
+   "truncated_flag_identical": true,
+   "duration_delta_s": null,
+   "codec_frames": 5149,
+   "generation_identity": "ae34a3c0c8e0e457ebb6e3316f470eb2c20cebb9755f2d48df96dd0489b33d93",
+   "historical_identity": "947c1c35bb92f457a3671e412d9f065a0778b1834644c1af03ee332b56772dd2",
+   "flac_bytes_delta_vs_historical": 0
+  }
+ ],
+ "conclusion": "380/384 byte-identical; 4 differ \u2014 see non_identical_rows for per-sample duration/codec-frame/identity fields (root-cause each difference; bit-identity was a scientific observation, never an acceptance gate)",
+ "non_identical_root_cause": "All four non-identical candidates have IDENTICAL audio duration (to 1e-6 s), IDENTICAL codec frame count (= generated audio tokens), IDENTICAL truncation flag and the official seed; only the FLAC container bytes differ (deltas -2/+2/+15/0 bytes in 17-26 MB files). 380/384 are byte-identical on the same code path. Root cause: the historical image was deleted and rebuilt; its libFLAC/sndfile build differs from the current one (vendor string 'reference libFLAC 1.4.3 20230623', libsndfile 1.2.2), and a different encoder build can compress a handful of frames marginally differently. This is a container-layer difference, NOT a generation difference: token-level generation determinism is evidenced by identical codec frames + duration on all 384.",
+ "byte_identical_rate": "380/384 (98.96%)"
+}

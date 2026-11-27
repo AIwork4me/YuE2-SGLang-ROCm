@@ -1,0 +1,12 @@
+{
+ "schema": "yue2-rc5_1-q3o-resource-profile/1",
+ "peak_vram_gib": 42.41,
+ "host_vmhwm_gib": 49.83,
+ "host_cgroup_limit_gib": 55,
+ "headroom_gib": 5.17,
+ "oom_events": 0,
+ "mean_seconds_per_candidate": 87.11,
+ "cpu_threads": 16,
+ "gpu_moe_layers": 34,
+ "cpu_moe_layers": 14
+}

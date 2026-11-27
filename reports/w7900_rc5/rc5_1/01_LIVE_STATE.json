@@ -1,0 +1,81 @@
+{
+ "schema": "yue2-rc5_1-live-state/1",
+ "generated_at_utc": "2026-11-24T14:01:19Z",
+ "mission": "W7900-RC5.1 P0.1",
+ "repo": {
+  "head": "bb7731752931b0bf6078a0c1b3623d109958a2fb",
+  "branch": "mission/w7900-rc5-latest-upstream-full-reproduction",
+  "note": "uncommitted working-tree change to tests/test_rc5_q3o_moe.py (in-progress CI fix, P0.2)"
+ },
+ "run": {
+  "run_id": "rc5_armB_latest_upstream_20261124T065451Z",
+  "run_root": "/data/yue2-runs/rc5-latest-upstream-20261124T065451Z",
+  "run_dir": "/data/yue2-runs/rc5-latest-upstream-20261124T065451Z/wsb_full",
+  "expected": 384,
+  "journal_complete_results": 20,
+  "progress_json": {
+   "run_id": "rc5_armB_latest_upstream_20261124T065451Z",
+   "complete": 20,
+   "failed": 0,
+   "expected": 384,
+   "updated_at": "2026-11-24T13:58:01Z"
+  },
+  "supervisor_last_exit": {
+   "rc": 143,
+   "at": "2026-11-24T08:34:19Z",
+   "cleanup": "CLEAN",
+   "server_unusable": false
+  }
+ },
+ "frozen_generation_identity": {
+  "sglang_commit": "c67d541a40f8bf851e9fc1e925f5316638838cd6",
+  "yue2_runtime_sha256": "342b2f531b14a201b4aae1a6a14424bed7f03cd7f993c3a1c09657a6d6109051",
+  "torch": "2.12.0+rocm7.14.1",
+  "environment_freeze_sha256": "3bea96f58209758fc31c27e4e79c11d48060259e9bf915e8e0417b358b140ed7",
+  "dataset_revision": "e361b85a8d7365d3079fa9647641a87ce3c8c5b5",
+  "model_revision": "m-a-p/YuE2-3B@1a96eca688d6ae5d7f0feb88573fec89920fcd19",
+  "vae_revision": "m-a-p/YuE2-Vae-legacy@b54118f0fc462f08999d1ec07e88817f4ee3f770",
+  "gpu": {
+   "name": "AMD Radeon Pro W7900D",
+   "pci_bdf": "0000:03:00.0",
+   "uuid": "e9d0e20bb686e6c6",
+   "arch": [
+    "gfx1100"
+   ],
+   "identity_status": "GPU_EXECUTION_VERIFIED"
+  }
+ },
+ "live_audit": {
+  "official_verify_result_on_all_complete": "PASS 20/20 (journal resume_audit event 2026-11-24T13:58Z)",
+  "damaged": 0,
+  "candidate_bundle_sha256": "per-file manifest hashes inside incremental-020 checkpoint manifest",
+  "journal_sha256": "e40f1c209fcd3a87a2a1fc0bf0529227310ff2eaa9d7a6572ea05c63b259c6f8",
+  "checkpoint_closure": {
+   "complete_verified": 20,
+   "already_checkpointed": 16,
+   "closure_candidates": [
+    "wsb_008_r0_s831009",
+    "wsb_008_r1_s831027",
+    "wsb_009_r0_s831010",
+    "wsb_009_r1_s831028"
+   ]
+  }
+ },
+ "restore_drill": {
+  "source": "/workspace/yue2-rc5-backup/checkpoints/rc5_armB_latest_upstream_20261124T065451Z",
+  "destination": "/data/yue2-runs/rc5-restore-drill/rc5_1_campaign_20261124T135932Z",
+  "candidates_restored": 20,
+  "files_verified_from_disk": 220,
+  "journal_vs_bundles_consistent": true,
+  "resume_check_on_restored_copy": "PASS 20/20 verify, 0 regeneration triggers, 0 duplicate archives"
+ },
+ "processes": {
+  "generation_running": false,
+  "gpu_lock": "released (last holder rc5-moe-test, released 2026-11-24T13:46:39Z)",
+  "no_BLOCKED_marker": true
+ },
+ "CURRENT_CANDIDATES_AUDITED": "PASS",
+ "CHECKPOINT_COVERAGE": "100% (20/20 in incremental-016 + incremental-020, both re-verified on the second volume)",
+ "SAME_HOST_RESTORE_DRILL": "PASS",
+ "OFF_MACHINE_BACKUP": "BLOCKED_EXTERNAL"
+}

@@ -1,0 +1,508 @@
+{
+ "schema": "yue2-rc5-pilot-acceptance/1",
+ "run_id": "rc5_pilot_20261124T020357Z",
+ "run_dir": "/data/yue2-runs/rc5-pilot-20261124T020357Z/wsb_pilot",
+ "generation": {
+  "expected": 12,
+  "complete": 12,
+  "failed": {},
+  "retries": 0,
+  "truncated_but_complete": 2,
+  "strict_audit_verdict": "PILOT",
+  "audit_identity_reverified": 12,
+  "audit_problems": [],
+  "wall_s": 4794.5,
+  "latency_s": {
+   "n": 12,
+   "p50": 375.05,
+   "p90": 496.62,
+   "p95": 506.65,
+   "p99": 514.23,
+   "min": 196.94,
+   "max": 516.124,
+   "method": "linear interpolation over this launch's candidates"
+  },
+  "audio_seconds_mean": 271.38,
+  "stage_seconds_mean": {
+   "abc": 47.5,
+   "semantic": 216.22,
+   "nar": 66.25,
+   "vae": 83.85
+  },
+  "rtf_p50": 1.382,
+  "realtime_speed_multiplier_p50": 0.7236,
+  "memory": {
+   "peak_vram_bytes": 28989042688,
+   "peak_gtt_bytes": 49852416,
+   "gpu_busy_percent_mean": 94.8,
+   "cpu_busy_percent_mean": 2.79,
+   "sampling_device": "/sys/class/drm/card1/device"
+  }
+ },
+ "lifecycle": {
+  "cleanup_state": "CLEAN",
+  "cold_start_health_s": 40.03,
+  "verified_stop_s": 6.11,
+  "steps": {
+   "gpu_identity": "GPU_EXECUTION_VERIFIED",
+   "gpu_idle": "IDLE",
+   "launch_server": "LAUNCHED",
+   "health": "HEALTHY",
+   "server_identity": "VERIFIED",
+   "readiness": "READY",
+   "command": "DONE",
+   "drain": "IDLE",
+   "stop_server": "STOPPED",
+   "tree_termination": "TERMINATED",
+   "port_release": "RELEASED",
+   "gpu_release": "RELEASED"
+  }
+ },
+ "audio_checks": {
+  "all_48k_stereo_finite_nonempty": true,
+  "per_candidate": {
+   "wsb_022_r0_s831023": {
+    "samplerate": 48000,
+    "channels": 2,
+    "frames": 12585536,
+    "finite": true,
+    "peak": 0.958770751953125,
+    "rms": 0.1650678962469101
+   },
+   "wsb_022_r1_s831041": {
+    "samplerate": 48000,
+    "channels": 2,
+    "frames": 11992256,
+    "finite": true,
+    "peak": 1.0,
+    "rms": 0.18066440522670746
+   },
+   "wsb_031_r0_s831032": {
+    "samplerate": 48000,
+    "channels": 2,
+    "frames": 8398016,
+    "finite": true,
+    "peak": 0.88311767578125,
+    "rms": 0.15417693555355072
+   },
+   "wsb_031_r1_s831050": {
+    "samplerate": 48000,
+    "channels": 2,
+    "frames": 10185536,
+    "finite": true,
+    "peak": 1.0,
+    "rms": 0.17747840285301208
+   },
+   "wsb_086_r0_s831087": {
+    "samplerate": 48000,
+    "channels": 2,
+    "frames": 15939776,
+    "finite": true,
+    "peak": 0.91021728515625,
+    "rms": 0.13947837054729462
+   },
+   "wsb_086_r1_s831105": {
+    "samplerate": 48000,
+    "channels": 2,
+    "frames": 14447936,
+    "finite": true,
+    "peak": 1.0,
+    "rms": 0.16794350743293762
+   },
+   "wsb_101_r0_s831102": {
+    "samplerate": 48000,
+    "channels": 2,
+    "frames": 14764736,
+    "finite": true,
+    "peak": 1.0,
+    "rms": 0.1630549430847168
+   },
+   "wsb_101_r1_s831120": {
+    "samplerate": 48000,
+    "channels": 2,
+    "frames": 11621696,
+    "finite": true,
+    "peak": 0.946441650390625,
+    "rms": 0.16492050886154175
+   },
+   "wsb_120_r0_s831121": {
+    "samplerate": 48000,
+    "channels": 2,
+    "frames": 12537536,
+    "finite": true,
+    "peak": 0.999969482421875,
+    "rms": 0.15896692872047424
+   },
+   "wsb_120_r1_s831139": {
+    "samplerate": 48000,
+    "channels": 2,
+    "frames": 14063936,
+    "finite": true,
+    "peak": 1.0,
+    "rms": 0.14592866599559784
+   },
+   "wsb_164_r0_s831165": {
+    "samplerate": 48000,
+    "channels": 2,
+    "frames": 14630336,
+    "finite": true,
+    "peak": 1.0,
+    "rms": 0.25914716720581055
+   },
+   "wsb_164_r1_s831183": {
+    "samplerate": 48000,
+    "channels": 2,
+    "frames": 15146816,
+    "finite": true,
+    "peak": 1.0,
+    "rms": 0.20743225514888763
+   }
+  }
+ },
+ "official_prepare_inputs": {
+  "passed_rows": 12,
+  "distinct_generation_conditions": 1,
+  "mode": "shard"
+ },
+ "determinism": {
+  "same_seed_two_independent_generations_byte_identical": true,
+  "evidence": "wsb_022_r0_s831023 generated twice (sessions 01:51Z and 02:06Z): audio.flac / semantic / latent / prefix / abc_tokens / score.abc SHA256 identical"
+ },
+ "vs_historical_frozen_manifest": {
+  "n": 12,
+  "audio_seconds_identical": 12,
+  "truncated_flag_identical": 12,
+  "flac_sha256_identical": 12
+ },
+ "interrupt_and_resume": {
+  "graceful_sigterm_interrupt": "PASS (pilot v0 session: in-flight candidate completed, cleanup CLEAN, exit 143, VRAM back to 28 MB baseline)",
+  "resume_audit_after_restart": "PASS (tests/test_rc5_generate_driver.py: verified candidates never regenerated; damaged -> quarantine + regenerate; attempt counter journaled)",
+  "restore_from_backup": "PASS 12/12 (00_RECOVERY_DRILL.json)"
+ },
+ "pilot_selection_preregistered": [
+  31,
+  22,
+  120,
+  101,
+  164,
+  86
+ ],
+ "metrics": {
+  "scope_note": "12 UNSELECTED pilot candidates from 6 pre-registered prompts (4 long-lyrics, 2 historical-high-PER). NOT comparable to selected-192 reference numbers.",
+  "songbench": {
+   "status": "PASS",
+   "source": "official evaluator, shard mode",
+   "scored": 12,
+   "failed": 0,
+   "means": {
+    "Melody": 6.481553,
+    "Arrangement": 6.827351,
+    "Musicality": 5.689899,
+    "Vocal": 6.881114,
+    "Instrumental": 6.831436,
+    "Mixing": 6.653434,
+    "Structure": 6.456255,
+    "Global Avg": 6.545863
+   },
+   "per_candidate_global": {
+    "wsb_022_r0_s831023": 6.642784,
+    "wsb_022_r1_s831041": 6.903602,
+    "wsb_031_r0_s831032": 6.433231,
+    "wsb_031_r1_s831050": 6.600385,
+    "wsb_086_r0_s831087": 6.428739,
+    "wsb_086_r1_s831105": 6.809613,
+    "wsb_101_r0_s831102": 6.795963,
+    "wsb_101_r1_s831120": 7.024685,
+    "wsb_120_r0_s831121": 6.324496,
+    "wsb_120_r1_s831139": 6.796469,
+    "wsb_164_r0_s831165": 5.815547,
+    "wsb_164_r1_s831183": 5.974846
+   },
+   "environment_passed": true,
+   "rocm_torch_override": [
+    "torch",
+    "torchaudio",
+    "torchvision",
+    "triton"
+   ]
+  },
+  "mulan": {
+   "status": "PASS",
+   "source": "official evaluator, shard mode",
+   "expected": 12,
+   "scored": 12,
+   "failed": 0,
+   "mean": 0.375585,
+   "per_lang_mean": {
+    "lang/zh": 0.355252,
+    "lang/en": 0.385752
+   }
+  },
+  "allmusiccaps": {
+   "status": "PASS",
+   "source": "official evaluator, shard mode",
+   "expected": 12,
+   "scored": 12,
+   "failed": 0,
+   "mean": 0.375728,
+   "per_lang_mean": {
+    "lang/zh": 0.266184,
+    "lang/en": 0.430501
+   }
+  },
+  "per": {
+   "status": "PASS (pilot variant)",
+   "source": "official scoring path (PERScorer.score_batch + phoneme_result, 4 repeats, cap 4096) with ASR batch_size=1",
+   "deviation_from_official_config": "asr_batch_size 8 -> 1 (time-bounded pilot; the official batch-8 configuration runs on all 384 after the campaign)",
+   "engine": {
+    "backend": "qwen_asr transformers on ROCm (disclosed patch 0007)",
+    "attn_implementation": "sdpa",
+    "torch": "2.10.0+rocm7.14.1",
+    "hip": "7.14.60850",
+    "dtype": "bfloat16",
+    "score_seconds": 1897.3
+   },
+   "all": {
+    "n": 12,
+    "micro_per": 0.665438,
+    "edits": 7401,
+    "reference_phonemes": 11122,
+    "macro_per": 0.594871
+   },
+   "zh": {
+    "n": 4,
+    "micro_per": 0.231725,
+    "edits": 653,
+    "reference_phonemes": 2818,
+    "macro_per": 0.197606
+   },
+   "en": {
+    "n": 8,
+    "micro_per": 0.81262,
+    "edits": 6748,
+    "reference_phonemes": 8304,
+    "macro_per": 0.793503
+   },
+   "candidates_with_empty_transcript": 4,
+   "candidates_with_cap_truncation": 3,
+   "sdi_totals": {
+    "substitutions": 972,
+    "deletions": 6394,
+    "insertions": 35
+   },
+   "all_repeats_identical_within_every_candidate": true,
+   "per_candidate": [
+    {
+     "id": "wsb_022_r0_s831023",
+     "lang": "zh",
+     "per": 0.293559,
+     "first_pass_per": 0.293559,
+     "edits": 278,
+     "reference_phonemes": 947,
+     "hypothesis_phonemes": 830,
+     "substitutions": 161,
+     "deletions": 117,
+     "insertions": 0,
+     "empty_transcript_repeats": 0,
+     "repeat_count": 4,
+     "truncated_repeats": 0,
+     "all_repeats_identical": true,
+     "failure_mode": "none"
+    },
+    {
+     "id": "wsb_022_r1_s831041",
+     "lang": "zh",
+     "per": 0.299894,
+     "first_pass_per": 0.299894,
+     "edits": 284,
+     "reference_phonemes": 947,
+     "hypothesis_phonemes": 834,
+     "substitutions": 163,
+     "deletions": 117,
+     "insertions": 4,
+     "empty_transcript_repeats": 0,
+     "repeat_count": 4,
+     "truncated_repeats": 0,
+     "all_repeats_identical": true,
+     "failure_mode": "none"
+    },
+    {
+     "id": "wsb_031_r0_s831032",
+     "lang": "zh",
+     "per": 0.071429,
+     "first_pass_per": 0.071429,
+     "edits": 33,
+     "reference_phonemes": 462,
+     "hypothesis_phonemes": 458,
+     "substitutions": 29,
+     "deletions": 4,
+     "insertions": 0,
+     "empty_transcript_repeats": 0,
+     "repeat_count": 4,
+     "truncated_repeats": 0,
+     "all_repeats_identical": true,
+     "failure_mode": "none"
+    },
+    {
+     "id": "wsb_031_r1_s831050",
+     "lang": "zh",
+     "per": 0.125541,
+     "first_pass_per": 0.125541,
+     "edits": 58,
+     "reference_phonemes": 462,
+     "hypothesis_phonemes": 461,
+     "substitutions": 55,
+     "deletions": 2,
+     "insertions": 1,
+     "empty_transcript_repeats": 0,
+     "repeat_count": 4,
+     "truncated_repeats": 0,
+     "all_repeats_identical": true,
+     "failure_mode": "none"
+    },
+    {
+     "id": "wsb_086_r0_s831087",
+     "lang": "en",
+     "per": 1.0,
+     "first_pass_per": 1.0,
+     "edits": 631,
+     "reference_phonemes": 631,
+     "hypothesis_phonemes": 0,
+     "substitutions": 0,
+     "deletions": 631,
+     "insertions": 0,
+     "empty_transcript_repeats": 4,
+     "repeat_count": 4,
+     "truncated_repeats": 0,
+     "all_repeats_identical": true,
+     "failure_mode": "empty_transcript"
+    },
+    {
+     "id": "wsb_086_r1_s831105",
+     "lang": "en",
+     "per": 1.0,
+     "first_pass_per": 1.0,
+     "edits": 631,
+     "reference_phonemes": 631,
+     "hypothesis_phonemes": 0,
+     "substitutions": 0,
+     "deletions": 631,
+     "insertions": 0,
+     "empty_transcript_repeats": 4,
+     "repeat_count": 4,
+     "truncated_repeats": 0,
+     "all_repeats_identical": true,
+     "failure_mode": "empty_transcript"
+    },
+    {
+     "id": "wsb_101_r0_s831102",
+     "lang": "en",
+     "per": 0.543313,
+     "first_pass_per": 0.543313,
+     "edits": 784,
+     "reference_phonemes": 1443,
+     "hypothesis_phonemes": 882,
+     "substitutions": 189,
+     "deletions": 578,
+     "insertions": 17,
+     "empty_transcript_repeats": 0,
+     "repeat_count": 4,
+     "truncated_repeats": 4,
+     "all_repeats_identical": true,
+     "failure_mode": "cap_truncated"
+    },
+    {
+     "id": "wsb_101_r1_s831120",
+     "lang": "en",
+     "per": 0.997228,
+     "first_pass_per": 0.997228,
+     "edits": 1439,
+     "reference_phonemes": 1443,
+     "hypothesis_phonemes": 4,
+     "substitutions": 0,
+     "deletions": 1439,
+     "insertions": 0,
+     "empty_transcript_repeats": 0,
+     "repeat_count": 4,
+     "truncated_repeats": 4,
+     "all_repeats_identical": true,
+     "failure_mode": "cap_truncated"
+    },
+    {
+     "id": "wsb_120_r0_s831121",
+     "lang": "en",
+     "per": 0.103896,
+     "first_pass_per": 0.103896,
+     "edits": 48,
+     "reference_phonemes": 462,
+     "hypothesis_phonemes": 458,
+     "substitutions": 28,
+     "deletions": 12,
+     "insertions": 8,
+     "empty_transcript_repeats": 0,
+     "repeat_count": 4,
+     "truncated_repeats": 0,
+     "all_repeats_identical": true,
+     "failure_mode": "none"
+    },
+    {
+     "id": "wsb_120_r1_s831139",
+     "lang": "en",
+     "per": 1.0,
+     "first_pass_per": 1.0,
+     "edits": 462,
+     "reference_phonemes": 462,
+     "hypothesis_phonemes": 0,
+     "substitutions": 0,
+     "deletions": 462,
+     "insertions": 0,
+     "empty_transcript_repeats": 4,
+     "repeat_count": 4,
+     "truncated_repeats": 0,
+     "all_repeats_identical": true,
+     "failure_mode": "empty_transcript"
+    },
+    {
+     "id": "wsb_164_r0_s831165",
+     "lang": "en",
+     "per": 0.703589,
+     "first_pass_per": 0.703589,
+     "edits": 1137,
+     "reference_phonemes": 1616,
+     "hypothesis_phonemes": 836,
+     "substitutions": 347,
+     "deletions": 785,
+     "insertions": 5,
+     "empty_transcript_repeats": 0,
+     "repeat_count": 4,
+     "truncated_repeats": 4,
+     "all_repeats_identical": true,
+     "failure_mode": "cap_truncated"
+    },
+    {
+     "id": "wsb_164_r1_s831183",
+     "lang": "en",
+     "per": 1.0,
+     "first_pass_per": 1.0,
+     "edits": 1616,
+     "reference_phonemes": 1616,
+     "hypothesis_phonemes": 0,
+     "substitutions": 0,
+     "deletions": 1616,
+     "insertions": 0,
+     "empty_transcript_repeats": 4,
+     "repeat_count": 4,
+     "truncated_repeats": 0,
+     "all_repeats_identical": true,
+     "failure_mode": "empty_transcript"
+    }
+   ]
+  }
+ },
+ "acceptance": {
+  "generation": "PASS",
+  "artifacts_official": "PASS",
+  "metrics": "PASS (PER: batch_size=1 pilot variant; official batch-8 PER deferred to the full run)"
+ },
+ "m3_gate": "PASS -> full generation launched 2026-11-24T06:54:51Z (run_id rc5_armB_latest_upstream_20261124T065451Z)"
+}

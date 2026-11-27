@@ -104,6 +104,49 @@ PY
 
 See `docs/BENCHMARK_REPRODUCTION.md`.
 
+## 8. RC5 path — the author's LATEST upstream head with native capability gates
+
+Since upstream commit `2a816358d` the tree gates its CUDA-only fast paths on
+real capability, so no `SGLANG_YUE2_*` force-flag is needed. Two small
+import-guard patches are still required (they fix `aiter` / `sgl_kernel`
+imports that otherwise make `sglang serve` fall back to the LLM backend).
+
+```bash
+export YUE2_WORKSPACE=/data/yue2
+# 1. generation venv: torch 2.12.0+rocm7.14.1 (device-gfx1100) from the AMD index
+bash scripts/campaign_ops/rc5_build_generation_env.sh
+# 2. pinned downloads, every file SHA256-gated
+python3 scripts/download_pins.py --workspace "$YUE2_WORKSPACE"
+# 3. the frozen PR head (never the merge ref) + the two import-guard patches
+git clone --branch add_yue2 https://github.com/yiakwy-xpu-ml-framework-team/AMD-sglang-benchmark-fork.git "$YUE2_WORKSPACE/upstream/sglang-latest"
+git -C "$YUE2_WORKSPACE/upstream/sglang-latest" checkout c67d541a40f8bf851e9fc1e925f5316638838cd6
+git -C "$YUE2_WORKSPACE/upstream/sglang-latest" apply patches/rc5-0001-0003-0008-rocm-import-guards.patch
+bash scripts/campaign_ops/rc5_install_sglang.sh
+# 4. prove that the imported SGLang IS the audited tree
+source "$YUE2_WORKSPACE/environments/generation/bin/activate"
+python scripts/rc5_runtime_manifest.py --sglang-src "$YUE2_WORKSPACE/upstream/sglang-latest" \
+  --patch-file patches/rc5-0001-0003-0008-rocm-import-guards.patch \
+  --out "$YUE2_WORKSPACE/logs/effective_runtime_manifest.json"
+```
+
+Serve and generate under the single-owner lifecycle supervisor (GPU lock,
+identity, readiness, verified stop — all in one process):
+
+```bash
+bash scripts/campaign_ops/run_with_server.sh --log-dir /tmp/rws -- \
+  curl -sS -X POST http://127.0.0.1:31000/v1/audio/generations \
+    -H 'Content-Type: application/json' -d '{"style":"[Tags]\nsoft pop\n","lyrics":"[Lyrics]\nA short test phrase.\n","seed":831001,"output_path":"/tmp/yue","output_file_name":"song.wav"}'
+```
+
+`YUE2_SERVE_SCRIPT=scripts/serve_yue2_rc5.sh` selects the native-gate serve
+script (the RC5 campaign default); without it the historical force-flag
+matrix is used. Full campaign, checkpoints and resume:
+
+```bash
+bash scripts/campaign_ops/rc5_supervise.sh /data/yue2-runs/<run>/wsb_full <run_id>
+python scripts/rc5_backup.py verify --run-dir /data/yue2-runs/<run>/wsb_full
+```
+
 ## What runs and what doesn't (short version)
 
 | Path | Status on gfx1100 |
@@ -114,3 +157,25 @@ See `docs/BENCHMARK_REPRODUCTION.md`.
 | DeepSelect fast sampler / batched AR / fused decode+NAR (sgl_kernel) | not available on ROCm — auto-fallback to reference paths |
 
 Details and evidence: `reports/gfx1100/PHASE4_SOURCE_BUILD.md`.
+
+## RC5.1 verified paths (latest upstream c67d541a, 2026-11-27)
+
+The commands below are the exact, end-to-end verified sequence for the
+latest-upstream reproduction (384 candidates + five metrics). See
+`docs/BENCHMARK_REPRODUCTION.md` (RC5.1 section) for the full listing and
+`reports/w7900_rc5/rc5_1/` for the evidence of the run they reproduce.
+
+- Generation: `scripts/campaign_ops/rc5_supervise.sh <run_dir> <run_id>` —
+  crash-resilient, resumable, checkpoints every 16 candidates plus on pause;
+  second-volume backup via `RC5_BACKUP_DIR`.
+- Disaster recovery: `python scripts/rc5_backup.py drill --from
+  <backup checkpoints dir> --to <fresh dir>` (384/384 verified).
+- Q3O on 48 GB: `scripts/rc5_q3o_judge.py` (34 GPU + 14 CPU MoE layers;
+  needs the vllm-rocm venv; the judge content-hashes the model and binds
+  every receipt to a run identity).
+- If vLLM fails to start on ROCm with "Device string must not be empty":
+  that is the amdsmi platform-probe failure — `rc5_asr_vllm_native.py`
+  already contains the workaround (platform registered + in-process engine).
+- If a Q3O/ASR process segfaults (rc=139) in llvmlite during librosa import:
+  compile numba kernels BEFORE torch loads (the judge and per-lab do this
+  automatically now).
