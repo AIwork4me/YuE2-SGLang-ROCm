@@ -57,6 +57,19 @@ def main() -> int:
     a = ap.parse_args()
     import torch
     import vllm
+    # ROCm bring-up (E2): vLLM 0.19.1's ROCm platform probe imports the amdsmi
+    # python package; the shim on this host makes amdsmi_shut_down() raise
+    # AMDSMI_STATUS_NOT_INIT after a SUCCESSFUL init + handle query, so the
+    # plugin swallows its own success and vLLM falls through to
+    # UnspecifiedPlatform (device_type='' -> 'Device string must not be
+    # empty'). Registering the ROCm platform directly (the same class the
+    # probe would return) is disclosed in the environment receipt.
+    import vllm.platforms as _vp
+    from vllm.platforms import rocm as _rocm
+    if type(_vp.current_platform).__name__ == "UnspecifiedPlatform":
+        sys.path.insert(0, "/usr/local/lib/python3.12/dist-packages/"
+                           "_rocm_sdk_core/share/amd_smi")
+        _vp._current_platform = _rocm.RocmPlatform()
     from vllm import LLM, SamplingParams
     from qwen_asr.inference.utils import (normalize_audios, split_audio_into_chunks, parse_asr_output,
                                           SAMPLE_RATE, MAX_ASR_INPUT_SECONDS)

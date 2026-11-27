@@ -39,7 +39,7 @@ import time
 import traceback
 from pathlib import Path
 
-ARM_FACTORS = ("dtype", "attn", "batch_size", "max_new_tokens", "audio", "language", "repeats")
+ARM_FACTORS = ("dtype", "attn", "batch_size", "max_new_tokens", "audio", "language", "repeats", "device")
 BASELINE = {"dtype": "bfloat16", "attn": None, "batch_size": 8, "max_new_tokens": 4096,
             "audio": "mp3", "language": "auto", "repeats": None}
 LANG_MAP = {"zh": "Chinese", "en": "English"}
@@ -131,13 +131,28 @@ def build_scorer(root: Path, config: dict, factors: dict):
     s.config["max_new_tokens"] = cap
     if factors["repeats"]:
         s.config["asr_repeats"] = int(factors["repeats"])
-    kw = {"dtype": {"bfloat16": torch.bfloat16, "float32": torch.float32}[factors["dtype"]],
+    kw = {"dtype": {"bfloat16": torch.bfloat16, "float32": torch.float32,
+                    "float16": torch.float16}[factors["dtype"]],
           "max_inference_batch_size": int(factors["batch_size"]), "max_new_tokens": cap}
     if factors["attn"]:
         kw["attn_implementation"] = factors["attn"]
+    device = factors.get("device") or "cuda"
+    if device == "cpu":
+        # torch's default intra-op pool sizes to every VISIBLE cpu (128 here)
+        # while the cgroup quota is 16: the oversubscription thrashes and
+        # makes CPU matmuls ~10-100x slower (same pathology the Q3O judge
+        # fixes with its cpu_quota(); measured: 15h+ for one 16-song arm)
+        try:
+            quota, period = Path("/sys/fs/cgroup/cpu.max").read_text().split()
+            threads = max(1, int(int(quota) / int(period))) if quota != "max" else \
+                max(1, len(os.sched_getaffinity(0)))
+        except (OSError, ValueError):
+            threads = max(1, len(os.sched_getaffinity(0)))
+        torch.set_num_threads(threads)
+        print(f"[per-lab] CPU arm: torch threads set to {threads} (cgroup quota)", flush=True)
     t0 = time.time()
     s.model = Qwen3ASRModel.from_pretrained(str(model_path(root, "asr")), **kw)
-    s.model.model.to("cuda")
+    s.model.model.to(device)
     s.model.device = s.model.model.device
     s.load_s = round(time.time() - t0, 1)
     s.raw = []
