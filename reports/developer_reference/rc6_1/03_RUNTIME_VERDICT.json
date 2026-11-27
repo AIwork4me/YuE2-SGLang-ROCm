@@ -1,0 +1,17 @@
+{
+ "schema": "yue2-rc6_1-runtime-verdict/1",
+ "generated_at_utc": "2026-11-27T22:40:43Z",
+ "verdict": "PASS",
+ "scope": "pinned idempotent installation + physical GPU lock domain + stop safety",
+ "evidence": {
+  "tests": "11/11 install pinning + CLI contract tests",
+  "real_workspace_replay": "2/2 idempotent (frozen head verified, patch skipped, runtime sha 342b2f53... == pinned)",
+  "cross_workspace_contention": "9/9 PASS incl. real GPU compute under workspace B",
+  "stop_safety": "wrong-workspace stop REFUSED; safe stop releases the domain"
+ },
+ "residual_limitations": [
+  "full transitive dependency lock NOT_ESTABLISHED (pip freeze is a frozen receipt, not a hash-pinned lock; unpinned entries disclosed)",
+  "upstream network refresh failed this session (TLS/proxy) — frozen commit verified locally (content-addressed); no branch fallback was used",
+  "cross-container lock protection requires a commonly mounted shared root (disclosed protocol boundary)"
+ ]
+}

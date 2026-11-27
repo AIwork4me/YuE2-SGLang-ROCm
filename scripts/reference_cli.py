@@ -40,6 +40,7 @@ import time
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(REPO / "scripts"))
 DEFAULT_WS = Path(os.environ.get("YUE2_WORKSPACE", "/data/yue2"))
 EXIT_OK, EXIT_FAIL, EXIT_FATAL, EXIT_LOCK, EXIT_REJECT = 0, 1, 2, 3, 4
 
@@ -93,24 +94,99 @@ def cmd_doctor(a) -> int:
     return EXIT_OK
 
 
+def ensure_frozen_upstream(sgl: Path, patch: Path, frozen: str, remote: str,
+                           dry: bool = False,
+                           log=print, sh_runner=None) -> tuple[int, str]:
+    """M3.1/M3.3: transport-clone, then FETCH + verify the frozen commit,
+    CHECKOUT the exact SHA, VERIFY HEAD, and apply the patch only when
+    needed. Returns (exit_code, human_summary).
+
+    Rules (fail-closed):
+      * frozen SHA not obtainable -> FATAL (NO fallback to the branch head);
+      * unexpected local modifications -> REJECT (never reset --hard);
+      * already-applied patch -> skipped (idempotent);
+      * neither-applies-nor-reverses patch -> REJECT (partially applied).
+    """
+    import subprocess as sp
+
+    def run_silent(cmd):
+        q = sp.run([str(c) for c in cmd], capture_output=True, text=True)
+        return q.returncode, (q.stdout or "") + (q.stderr or "")
+
+    if not sgl.exists():
+        rc = (sh_runner or sh)(["git", "clone", "--branch", "add_yue2", "--quiet",
+                                remote, str(sgl)], dry)
+        if rc != 0:
+            return EXIT_FATAL, "initial clone failed"
+    if dry:
+        return EXIT_OK, "DRY-RUN: frozen checkout/patch verification skipped"
+    rc, _ = run_silent(["git", "-C", str(sgl), "fetch", "--quiet", remote])
+    rc2, have = run_silent(["git", "-C", str(sgl), "cat-file", "-t", frozen])
+    if rc2 != 0 or have.strip() != "commit":
+        return EXIT_FATAL, (f"frozen upstream commit {frozen} not obtainable "
+                            f"(fetch rc={rc}, cat-file rc={rc2}) — NO fallback "
+                            "to the moving branch")
+    if rc != 0:
+        # the frozen commit is present LOCALLY (content-addressed objects);
+        # the network refresh failed — proceed with the locally verifiable pin
+        log(f"[reference] upstream refresh fetch failed (network); the frozen "
+            f"commit {frozen[:12]} is present locally and pinned")
+    rc, head = run_silent(["git", "-C", str(sgl), "rev-parse", "HEAD"])
+    if head.strip() != frozen:
+        rc, dirt = run_silent(["git", "-C", str(sgl), "status", "--porcelain"])
+        if dirt.strip():
+            return EXIT_REJECT, ("upstream worktree has unexpected local "
+                                 "modifications; resolve manually (no reset --hard):\n"
+                                 + dirt[:600])
+        rc, _ = run_silent(["git", "-C", str(sgl), "checkout", "--quiet", frozen])
+        if rc != 0:
+            return EXIT_FATAL, f"checkout of frozen {frozen} failed"
+    rc, head = run_silent(["git", "-C", str(sgl), "rev-parse", "HEAD"])
+    if head.strip() != frozen:
+        return EXIT_FATAL, f"HEAD {head.strip()[:12]} != frozen {frozen[:12]}"
+    log(f"[reference] upstream verified at frozen head {frozen}")
+    rc_rev, _ = run_silent(["git", "-C", str(sgl), "apply", "--reverse", "--check",
+                            str(patch)])
+    rc_fwd, _ = run_silent(["git", "-C", str(sgl), "apply", "--check", str(patch)])
+    if rc_rev == 0:
+        return EXIT_OK, "patch already applied — skipped (idempotent re-install)"
+    if rc_fwd == 0:
+        rc, out = run_silent(["git", "-C", str(sgl), "apply", str(patch)])
+        if rc != 0:
+            return EXIT_FATAL, f"patch apply failed: {out[:300]}"
+        return EXIT_OK, "patch applied to the frozen tree"
+    return EXIT_REJECT, ("patch neither applies cleanly nor reverses cleanly "
+                         "(partially-applied or diverged tree); resolve manually")
+
+
 def cmd_install(a) -> int:
-    """Pinned environment: torch 2.12.0+rocm7.14.1 + sglang c67d541a + guards."""
+    """Pinned environment: torch 2.12.0+rocm7.14.1 + sglang c67d541a + guards.
+
+    RC6.1 M3.1/M3.3: the frozen upstream SHA is fetched + verified + checked
+    out exactly; the import-guard patch is applied only when needed
+    (idempotent re-install); a frozen SHA that cannot be obtained is a hard
+    FAILURE with no silent fallback to the moving branch head.
+    """
     W = ws(a)
     sgl = W / "upstream/sglang-latest"
     patch = REPO / "patches/rc5-0001-0003-0008-rocm-import-guards.patch"
     frozen = "c67d541a40f8bf851e9fc1e925f5316638838cd6"
+    remote = "https://github.com/yiakwy-xpu-ml-framework-team/AMD-sglang-benchmark-fork.git"
+
+    print("\n=== 3/5 upstream sglang c67d541a checkout (frozen PR #42106 head) ===")
+    rc, summary = ensure_frozen_upstream(sgl, patch, frozen, remote, a.dry_run, print)
+    if rc != EXIT_OK:
+        print(f"[reference] FATAL/REFUSED: {summary}")
+        return rc
+    print(f"[reference] {summary}")
     steps = [
         ("1/5 generation venv (AMD index, hash-checked wheels)",
          ["bash", str(REPO / "scripts/campaign_ops/rc5_build_generation_env.sh")]),
         ("2/5 pinned models + dataset (SHA256-gated)",
-         [py(), str(REPO / "scripts/download_pins.py"), "--workspace", str(W)]),
-        ("3/5 upstream sglang c67d541a checkout (frozen PR #42106 head)",
-         ["git", "clone", "--branch", "add_yue2", "--quiet",
-          "https://github.com/yiakwy-xpu-ml-framework-team/AMD-sglang-benchmark-fork.git",
-          str(sgl)] if not sgl.exists() else
-         ["git", "-C", str(sgl), "rev-parse", "HEAD"]),
-        ("4/5 apply the import-guard patches (repo-root absolute path)",
-         ["git", "-C", str(sgl), "apply", str(patch)]),
+         # M3.4: needs huggingface_hub — the GENERATION venv interpreter
+         # (built in step 1), never the bare system python
+         [str(W / "environments/generation/bin/python"),
+          str(REPO / "scripts/download_pins.py"), "--workspace", str(W)]),
         ("5/5 install sglang (no-deps, no-build-isolation) + prove the imported runtime",
          ["bash", str(REPO / "scripts/campaign_ops/rc5_install_sglang.sh")]),
         ("5b/5 runtime manifest (audited-tree proof)",
@@ -121,26 +197,25 @@ def cmd_install(a) -> int:
     ]
     for title, cmd in steps:
         print(f"\n=== {title} ===")
-        if "3/5" in title and sgl.exists():
-            head = subprocess.run([str(c) for c in cmd], capture_output=True, text=True).stdout.strip()
-            if head == frozen:
-                print(f"[reference] upstream already at frozen head {frozen}")
-                continue
-            # wrong revision: reset to the frozen commit
-            rc = sh(["git", "-C", str(sgl), "checkout", "--quiet", frozen], a.dry_run)
-            if rc != 0:
-                return EXIT_FATAL
         rc = sh(cmd, a.dry_run, env={"YUE2_WORKSPACE": str(W),
                                      "YUE2_SGLANG_SRC": str(sgl)})
         if rc != 0:
             print(f"[reference] install step FAILED (rc={rc}): {title}")
             return EXIT_FATAL
-    # the patch step on a re-run may report 'already applied' — acceptable
+    print("\n[reference] install complete (idempotent: re-running skips an "
+          "already-applied patch and re-verifies every pin)")
     return EXIT_OK
 
 
 def cmd_download(a) -> int:
-    return sh([py(), str(REPO / "scripts/download_pins.py"), "--workspace", str(ws(a))],
+    W = ws(a)
+    venv = W / "environments/generation/bin/python"
+    interp = str(venv) if venv.exists() else py()
+    if not venv.exists():
+        print("[reference] NOTE: generation venv not present yet — using the "
+              "system interpreter (needs huggingface_hub); `reference install` "
+              "builds the venv first")
+    return sh([interp, str(REPO / "scripts/download_pins.py"), "--workspace", str(W)],
               a.dry_run)
 
 
@@ -237,12 +312,24 @@ def cmd_compare(a) -> int:
 
 def cmd_status(a) -> int:
     W = ws(a)
+    import gpu_lock
+    lock_path = gpu_lock.resolve_default_lock()
+    try:
+        lock_state = json.loads(Path(lock_path).read_text()) if Path(lock_path).is_file() else None
+    except (OSError, ValueError):
+        lock_state = None
     print(json.dumps({
         "workspace": str(W),
         "repo_head": subprocess.run(["git", "-C", str(REPO), "rev-parse", "HEAD"],
                                     capture_output=True, text=True).stdout.strip(),
-        "gpu_lock": json.loads(W.joinpath("gpu.lock").read_text())
-        if W.joinpath("gpu.lock").is_file() else None,
+        "gpu_lock_domain": {
+            "lock": str(lock_path),
+            "domain_name": gpu_lock.lock_domain_name(gpu_lock.resolve_physical_gpu()),
+            "physical": gpu_lock.resolve_physical_gpu(),
+            "protocol": "shared physical domain (BDF-keyed) across workspaces "
+                        "when the lock root is commonly mounted",
+        },
+        "gpu_lock": lock_state,
         "environments": sorted(p.name for p in (W / "environments").glob("*"))
         if (W / "environments").is_dir() else [],
         "models": sorted(p.name for p in (W / "models").glob("*"))
@@ -263,7 +350,46 @@ def cmd_resume(a) -> int:
 
 
 def cmd_stop(a) -> int:
-    return sh([py(), str(REPO / "scripts/gpu_lock.py"), "stop", "--yes"], a.dry_run)
+    """M3.6 stop safety: the target is resolved in the SHARED physical lock
+    domain, displayed BEFORE any signal, and REFUSED when ambiguous or when
+    the live holder does not belong to the requested workspace/run.
+
+    No pkill -f, no unscoped kill: only the recorded holder pid is signalled
+    (graceful SIGINT/SIGTERM only), exactly as gpu_lock.graceful_stop does.
+    """
+    W = ws(a)
+    import gpu_lock
+    lock_path = gpu_lock.resolve_default_lock()
+    st = gpu_lock.status(lock_path)
+    holder = st.get("holder") or {}
+    print(json.dumps({
+        "requested_workspace": str(W),
+        "lock_domain": str(lock_path),
+        "domain_name": gpu_lock.lock_domain_name(gpu_lock.resolve_physical_gpu()),
+        "holder": {k: holder.get(k) for k in ("who", "pid", "cmdline", "host",
+                                              "acquired_at_utc")},
+        "holder_live": st.get("holder_live"),
+        "blocked": st.get("blocked"),
+    }, indent=1))
+    if not holder or not st.get("holder_live"):
+        print("[reference] no live holder in this lock domain — nothing to stop")
+        return EXIT_FAIL if holder else EXIT_OK
+    cmd = holder.get("cmdline") or ""
+    holder_ws = holder.get("workspace")
+    belongs = (holder_ws is not None and str(W) == holder_ws) or \
+              (holder_ws is None and str(W) in cmd)   # legacy receipt: cmdline only
+    if a.workspace and not belongs:
+        print(f"[reference] REFUSED: the live lock holder does not belong to "
+              f"workspace {W} (holder workspace={holder_ws!r}). Inspect "
+              f"the holder above; stopping another workspace's session "
+              f"requires operating on that workspace explicitly.")
+        return EXIT_REJECT
+    if a.run_id and a.run_id not in cmd:
+        print(f"[reference] REFUSED: the live holder does not match --run-id "
+              f"{a.run_id!r} (holder who={holder.get('who')!r})")
+        return EXIT_REJECT
+    return sh([py(), str(REPO / "scripts/gpu_lock.py"), "--lock", str(lock_path),
+               "stop", "--yes"], a.dry_run)
 
 
 def cmd_package(a) -> int:
@@ -336,6 +462,8 @@ def build_parser() -> argparse.ArgumentParser:
 
     st = sub.add_parser("stop", help="graceful stop of the GPU lock holder")
     add_common(st)
+    st.add_argument("--run-id", default=None,
+                    help="refuse to stop when the holder does not match this run id")
     st.set_defaults(fn=cmd_stop)
 
     pe = sub.add_parser("package-evidence", help="verify/package run evidence")

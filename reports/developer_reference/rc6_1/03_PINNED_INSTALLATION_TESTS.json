@@ -1,0 +1,41 @@
+{
+ "schema": "yue2-rc6_1-install-replay/1",
+ "generated_at_utc": "2026-11-27T22:39:58Z",
+ "workspace": "/data/yue2 (real workspace, real pinned stack)",
+ "replays": [
+  {
+   "replay": 1,
+   "rc": 0,
+   "seconds": 43.2,
+   "frozen_head_verified": true,
+   "patch_skipped_idempotent": true,
+   "no_reclone": true,
+   "venv_satisfied": true,
+   "runtime_manifest_written": true
+  },
+  {
+   "replay": 2,
+   "rc": 0,
+   "seconds": 42.1,
+   "frozen_head_verified": true,
+   "patch_skipped_idempotent": true,
+   "no_reclone": true,
+   "venv_satisfied": true,
+   "runtime_manifest_written": true
+  }
+ ],
+ "effective_runtime": {
+  "yue2_runtime_sha256": "342b2f531b14a201b4aae1a6a14424bed7f03cd7f993c3a1c09657a6d6109051",
+  "matches_pinned": true,
+  "git_head_matches_pr": false,
+  "torch": "2.12.0+rocm7.14.1"
+ },
+ "dependency_reproducibility": {
+  "exact_pins": "torch[device-gfx1100]==2.12.0+rocm7.14.1 + torchvision/torchaudio (AMD multi-arch index); sglang-rocm-deps.txt mirrors PR #42106 dependencies minus CUDA-only packages",
+  "wheel_content_hashes": "rc5_prefetch_wheels.py hash-verifies cached wheels at download time",
+  "full_transitive_lock": "NOT_ESTABLISHED — pip freeze is recorded as a frozen receipt (pip_freeze_sha256) and observed evidence, not a hash-pinned lock; unpinned entries in sglang-rocm-deps.txt (aiohttp, datasets, build, ...) resolve from the index",
+  "verified_gpu_arch": "device-gfx1100 extra + gpu_identity fail-loud chain",
+  "cuda_torch_guard": "AMD index install; sglang import guards; CI workspace tests"
+ },
+ "network_note": "upstream refresh fetch failed this session (TLS via proxy); the frozen commit is locally present (content-addressed) — pinned, disclosed, no branch fallback"
+}
