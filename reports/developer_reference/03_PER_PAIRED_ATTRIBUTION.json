@@ -1,0 +1,182 @@
+{
+ "schema": "yue2-rc6-per-paired-attribution/1",
+ "generated_at_utc": "2026-11-27T14:23:56Z",
+ "arms": {
+  "T": "transformers ROCm ASR (frozen RC5.1 per_full receipts)",
+  "V": "vLLM 0.19.1 ROCm native ASR (E2 corrected arm receipts)",
+  "same_audio": "both arms scored the same 384 campaign audios (receipt-level audio_sha256 cross-match 384/384, verified in the A2 provenance audit)"
+ },
+ "cells": {
+  "T(S_T)": {
+   "label": "transformers arm on frozen original selection",
+   "n_candidates": 192,
+   "micro_per": 0.17769855,
+   "macro_per": 0.16540705,
+   "edits": 27563,
+   "reference_phonemes": 155111,
+   "by_lang": {
+    "zh": {
+     "n_candidates": 94,
+     "edits": 12852,
+     "reference_phonemes": 72639,
+     "micro_per": 0.17692975
+    },
+    "en": {
+     "n_candidates": 98,
+     "edits": 14711,
+     "reference_phonemes": 82472,
+     "micro_per": 0.17837569
+    }
+   },
+   "sdi_totals": {
+    "substitutions": 14552,
+    "deletions": 10589,
+    "insertions": 2422
+   },
+   "empty_transcript_candidates": 1,
+   "token_cap_candidates": 56,
+   "per_max": 1.0,
+   "bootstrap_95ci_micro": [
+    0.152052,
+    0.206821
+   ]
+  },
+  "V(S_T)": {
+   "label": "vllm corrected arm on frozen original selection",
+   "n_candidates": 192,
+   "micro_per": 0.09585394,
+   "macro_per": 0.09227126,
+   "edits": 14868,
+   "reference_phonemes": 155111,
+   "by_lang": {
+    "zh": {
+     "n_candidates": 94,
+     "edits": 8037,
+     "reference_phonemes": 72639,
+     "micro_per": 0.11064304
+    },
+    "en": {
+     "n_candidates": 98,
+     "edits": 6831,
+     "reference_phonemes": 82472,
+     "micro_per": 0.08282811
+    }
+   },
+   "sdi_totals": {
+    "substitutions": 7001,
+    "deletions": 5280,
+    "insertions": 2587
+   },
+   "empty_transcript_candidates": 0,
+   "token_cap_candidates": 4,
+   "per_max": 0.5071090047393365,
+   "bootstrap_95ci_micro": [
+    0.080316,
+    0.112478
+   ]
+  },
+  "T(S_V)": {
+   "label": "transformers arm on vLLM-corrected selection",
+   "n_candidates": 192,
+   "micro_per": 0.20204241,
+   "macro_per": 0.1914619,
+   "edits": 31339,
+   "reference_phonemes": 155111,
+   "by_lang": {
+    "zh": {
+     "n_candidates": 94,
+     "edits": 14029,
+     "reference_phonemes": 72639,
+     "micro_per": 0.19313317
+    },
+    "en": {
+     "n_candidates": 98,
+     "edits": 17310,
+     "reference_phonemes": 82472,
+     "micro_per": 0.20988942
+    }
+   },
+   "sdi_totals": {
+    "substitutions": 14831,
+    "deletions": 14186,
+    "insertions": 2322
+   },
+   "empty_transcript_candidates": 5,
+   "token_cap_candidates": 56,
+   "per_max": 1.0,
+   "bootstrap_95ci_micro": [
+    0.171292,
+    0.235993
+   ]
+  },
+  "V(S_V)": {
+   "label": "vllm corrected arm on its own selection",
+   "n_candidates": 192,
+   "micro_per": 0.08448788,
+   "macro_per": 0.08213736,
+   "edits": 13105,
+   "reference_phonemes": 155111,
+   "by_lang": {
+    "zh": {
+     "n_candidates": 94,
+     "edits": 7421,
+     "reference_phonemes": 72639,
+     "micro_per": 0.10216275
+    },
+    "en": {
+     "n_candidates": 98,
+     "edits": 5684,
+     "reference_phonemes": 82472,
+     "micro_per": 0.06892036
+    }
+   },
+   "sdi_totals": {
+    "substitutions": 6459,
+    "deletions": 4438,
+    "insertions": 2208
+   },
+   "empty_transcript_candidates": 0,
+   "token_cap_candidates": 4,
+   "per_max": 0.5071090047393365,
+   "bootstrap_95ci_micro": [
+    0.070614,
+    0.099457
+   ]
+  }
+ },
+ "decomposition": {
+  "evaluator_path_effect_on_frozen_selection": {
+   "V(S_T) - T(S_T)": -0.08184461
+  },
+  "selection_effect_under_corrected_evaluator": {
+   "V(S_V) - V(S_T)": -0.01136606
+  },
+  "selection_effect_under_frozen_evaluator": {
+   "T(S_V) - T(S_T)": 0.02434386
+  },
+  "total_transition": {
+   "V(S_V) - T(S_T)": -0.09321067
+  },
+  "note": "all cells computed on the SAME 384 audio (audio_sha256 matched at receipt level; both arms evaluated every candidate)"
+ },
+ "references": {
+  "paper": 0.0844,
+  "author_sgl": 0.081471,
+  "historical_w7900_armB": 0.17762763
+ },
+ "frozen_value_crosscheck": {
+  "T(S_T)_expected": 0.17769855,
+  "T(S_T)_recomputed": 0.17769855,
+  "V(S_V)_expected": 0.084488,
+  "V(S_V)_recomputed": 0.08448788,
+  "match": true
+ },
+ "bootstrap": {
+  "method": "prompt-level resampling, 10000 draws, seed 1234, 95% CI on micro PER per cell"
+ },
+ "corrected_scoreboard": {
+  "status": "EXECUTED (RC6, 2026-11-27): SongBench 6.742109 / MuLan 0.504299 / AMC 0.403000 / PER 8.4488% on S_V (192/192, official evaluator verbatim, receipts + summary_selv.json in /data/yue2-runs/rc6-corrected-scoreboard/selv_metrics)",
+  "q3o_on_SV": "NOT_RUN (RC6 GPU budget prioritized fresh-clone + controls; judge reuse path documented)",
+  "mixing_rule": "Scoreboard B is published SEPARATELY from Scoreboard A (03_CORRECTED_SCOREBOARD.csv); no best-of-arms splicing"
+ }
+}

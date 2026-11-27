@@ -1,0 +1,63 @@
+{
+ "schema": "yue2-rc6-first-song-acceptance/1",
+ "generated_at_utc": "2026-11-27T15:11:14Z",
+ "tier": "FIRST_SONG",
+ "lyrics": "examples/first_song/lyrics_en.txt (ORIGINAL content created for this repository - publishable)",
+ "style": "examples/first_song/style.txt (original)",
+ "seed": 831001,
+ "command": "python3 scripts/reference_cli.py generate --lyrics examples/first_song/lyrics_en.txt --style examples/first_song/style.txt --seed 831001 --out-dir <fresh dir>",
+ "lifecycle": {
+  "gpu_identity": "GPU_EXECUTION_VERIFIED",
+  "gpu_idle": "IDLE",
+  "launch_server": "LAUNCHED",
+  "health": "HEALTHY",
+  "server_identity": "VERIFIED",
+  "readiness": "READY",
+  "command": "DONE",
+  "drain": "IDLE",
+  "stop_server": "STOPPED",
+  "tree_termination": "TERMINATED",
+  "port_release": "RELEASED",
+  "gpu_release": "RELEASED"
+ },
+ "lifecycle_cleanup": "CLEAN",
+ "gpu": {
+  "identity": "GPU_EXECUTION_VERIFIED (AMD Radeon Pro W7900D, bdf 0000:03.00.0, 47.98 GiB)",
+  "no_silent_fallback": "fail-loud contract (gpu_identity.py)"
+ },
+ "audio": {
+  "file": "song.wav + candidate_0/audio.flac",
+  "sample_rate": 48000,
+  "channels": 2,
+  "seconds": 152.47866666666667,
+  "non_silent": true,
+  "finite": true,
+  "rms": 0.1483,
+  "truncated": false,
+  "codec_frames": 3812,
+  "complete_piece": "score.abc contains intro/verse/chorus/outro sections (all lyric blocks rendered)",
+  "wav_sha256": "e745d050a27a621d7f9c50607c171b1964a1243a4100bdeac26749f191f3fd4a",
+  "flac_sha256": "c6dd279ae46658fe68bf5d38c60ed42aed8c46f611ecc64f74c277c8a0d098d3"
+ },
+ "identity": {
+  "model_matches_pinned": true,
+  "config_matches_reference": true,
+  "runtime_sha256": "342b2f531b14a201b4aae1a6a14424bed7f03cd7f993c3a1c09657a6d6109051",
+  "runtime_matches_pinned": true
+ },
+ "performance": {
+  "inference_time_s": 370.27,
+  "audio_seconds": 152.47866666666667,
+  "note": "includes first-request weight warmup (documented +50-120s on a cold session); campaign P50 275.27s is the steady-state reference"
+ },
+ "resource_release": {
+  "server_exit": 0,
+  "cmd_rc": 0,
+  "orphan_processes": 0,
+  "gpu_lock_released": true,
+  "port_released": true
+ },
+ "verification_tool_verdict": "VERIFIED_REFERENCE_RUN",
+ "verdict": "FULL_SONG_PASS",
+ "smoke_vs_full": "SMOKE_AUDIO_PASS would be a short-clip sanity check; this receipt is FULL_SONG_PASS (complete piece, full identity chain, clean lifecycle)"
+}

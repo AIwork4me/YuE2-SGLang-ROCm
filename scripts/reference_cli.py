@@ -96,25 +96,46 @@ def cmd_doctor(a) -> int:
 def cmd_install(a) -> int:
     """Pinned environment: torch 2.12.0+rocm7.14.1 + sglang c67d541a + guards."""
     W = ws(a)
+    sgl = W / "upstream/sglang-latest"
+    patch = REPO / "patches/rc5-0001-0003-0008-rocm-import-guards.patch"
+    frozen = "c67d541a40f8bf851e9fc1e925f5316638838cd6"
     steps = [
-        ("1/4 generation venv (AMD index, hash-checked wheels)",
+        ("1/5 generation venv (AMD index, hash-checked wheels)",
          ["bash", str(REPO / "scripts/campaign_ops/rc5_build_generation_env.sh")]),
-        ("2/4 pinned models + dataset (SHA256-gated)",
+        ("2/5 pinned models + dataset (SHA256-gated)",
          [py(), str(REPO / "scripts/download_pins.py"), "--workspace", str(W)]),
-        ("3/4 upstream sglang c67d541a + import-guard patches",
+        ("3/5 upstream sglang c67d541a checkout (frozen PR #42106 head)",
+         ["git", "clone", "--branch", "add_yue2", "--quiet",
+          "https://github.com/yiakwy-xpu-ml-framework-team/AMD-sglang-benchmark-fork.git",
+          str(sgl)] if not sgl.exists() else
+         ["git", "-C", str(sgl), "rev-parse", "HEAD"]),
+        ("4/5 apply the import-guard patches (repo-root absolute path)",
+         ["git", "-C", str(sgl), "apply", str(patch)]),
+        ("5/5 install sglang (no-deps, no-build-isolation) + prove the imported runtime",
          ["bash", str(REPO / "scripts/campaign_ops/rc5_install_sglang.sh")]),
-        ("4/4 prove the imported runtime IS the audited tree",
+        ("5b/5 runtime manifest (audited-tree proof)",
          [str(W / "environments/generation/bin/python"),
           str(REPO / "scripts/rc5_runtime_manifest.py"),
-          "--sglang-src", str(W / "upstream/sglang-latest"),
-          "--patch-file", str(REPO / "patches/rc5-0001-0003-0008-rocm-import-guards.patch"),
+          "--sglang-src", str(sgl), "--patch-file", str(patch),
           "--out", str(W / "logs/effective_runtime_manifest.json")]),
     ]
     for title, cmd in steps:
         print(f"\n=== {title} ===")
-        rc = sh(cmd, a.dry_run, env={"YUE2_WORKSPACE": str(W)})
+        if "3/5" in title and sgl.exists():
+            head = subprocess.run([str(c) for c in cmd], capture_output=True, text=True).stdout.strip()
+            if head == frozen:
+                print(f"[reference] upstream already at frozen head {frozen}")
+                continue
+            # wrong revision: reset to the frozen commit
+            rc = sh(["git", "-C", str(sgl), "checkout", "--quiet", frozen], a.dry_run)
+            if rc != 0:
+                return EXIT_FATAL
+        rc = sh(cmd, a.dry_run, env={"YUE2_WORKSPACE": str(W),
+                                     "YUE2_SGLANG_SRC": str(sgl)})
         if rc != 0:
-            return EXIT_FATAL if not a.dry_run else EXIT_OK
+            print(f"[reference] install step FAILED (rc={rc}): {title}")
+            return EXIT_FATAL
+    # the patch step on a re-run may report 'already applied' — acceptable
     return EXIT_OK
 
 
@@ -158,8 +179,20 @@ def cmd_generate(a) -> int:
     env = {"YUE2_WORKSPACE": str(W), "YUE2_SERVE_SCRIPT": "scripts/serve_yue2_rc5.sh"}
     rc = sh(cmd, a.dry_run, env=env)
     if rc == 0 and not a.dry_run:
-        print(f"[reference] verify with: python3 scripts/reference_cli.py verify "
-              f"--run-dir {out}")
+        # finalize the candidate bundle (lossless FLAC repack + model identity)
+        # CPU-only; needs the generation venv interpreter (sglang importable)
+        fin = [str(W / "environments/generation/bin/python"),
+               str(REPO / "scripts/finalize_candidate.py"),
+               str(out / "candidate_0"), str(out / "song.wav"),
+               str(W / "models/YuE2-3B"), str(W / "models/YuE2-Vae-legacy")]
+        print("[reference] finalizing candidate bundle (FLAC repack + identity)")
+        frc = sh(fin, a.dry_run, env={"YUE2_WORKSPACE": str(W)})
+        if frc != 0:
+            print(f"[reference] finalize rc={frc} — bundle identity incomplete")
+            rc = frc
+        else:
+            print(f"[reference] verify with: python3 scripts/reference_cli.py verify "
+                  f"--run-dir {out}")
     return rc
 
 

@@ -39,9 +39,13 @@ REFERENCE = {
     "mot_sha256": "1d55c42c1a9875c34f5d736e15078449992b044e807ce2a138e6cf289a1e59e9",
     "vae_sha256": "b6d283628913bb41145ba99e2314eef613905ee95f690eb70e8212d5f4965044",
     "expect_arch": "gfx1100",
-    "config": {"cot": "full", "ode_steps": 32, "semantic_max_tokens": 9000,
-               "abc_max_tokens": 4096, "vae_core_frames": 1024,
-               "vae_halo_frames": 16},
+    "config": {  # shape mirrors config.json's generation block + top-level keys
+        "cot": "full", "cfg_scale": 1.0, "vae_decode": "halo_crop",
+        "vae_core_frames": 1024, "vae_halo_frames": 16,
+        "generation.ode_steps": 32,
+        "generation.semantic.max_tokens": 9000,
+        "generation.abc.max_tokens": 4096,
+    },
     "perf_p50_wall_s": 275.27, "perf_mean_wall_s": 284.78,
     "rtf_mean": 1.2866, "realtime_multiplier_mean": 0.7894,
 }
@@ -91,22 +95,40 @@ def verify_single_song(d: Path) -> tuple[dict, list[str]]:
     result = artifacts / "result.json" if artifacts.is_dir() else None
     if result and result.is_file():
         r = json.loads(result.read_text())
+        w = r.get("weights", {})
+        mot_sha = (w.get("mot", {}).get("files", {})
+                   .get("model.safetensors", {}).get("sha256"))
+        vae_sha = (w.get("vae", {}).get("files", {})
+                   .get("model.safetensors", {}).get("sha256"))
         checks["model_identity"] = {
-            "mot_sha256": r.get("weights", {}).get("mot", {}).get("sha256"),
-            "vae_sha256": r.get("weights", {}).get("vae", {}).get("sha256"),
-            "matches_pinned": (r.get("weights", {}).get("mot", {}).get("sha256") ==
-                               REFERENCE["mot_sha256"] and
-                               r.get("weights", {}).get("vae", {}).get("sha256") ==
-                               REFERENCE["vae_sha256"])}
+            "mot_sha256": mot_sha, "vae_sha256": vae_sha,
+            "matches_pinned": (mot_sha == REFERENCE["mot_sha256"] and
+                               vae_sha == REFERENCE["vae_sha256"])}
         if not checks["model_identity"]["matches_pinned"]:
             problems.append("model identity does not match the pinned official weights")
         cfg = json.loads((artifacts / "config.json").read_text()) \
             if (artifacts / "config.json").is_file() else {}
-        diffs = {k: (cfg.get(k), v) for k, v in REFERENCE["config"].items()
-                 if cfg.get(k) != v}
-        checks["generation_config"] = {"matches_reference": not diffs, "diffs": diffs}
+        gen = cfg.get("generation", {}) or {}
+        flat = {
+            "cot": cfg.get("cot"), "cfg_scale": cfg.get("cfg_scale"),
+            "vae_decode": cfg.get("vae_decode"),
+            "vae_core_frames": cfg.get("vae_core_frames"),
+            "vae_halo_frames": cfg.get("vae_halo_frames"),
+            "generation.ode_steps": gen.get("ode_steps"),
+            "generation.semantic.max_tokens": (gen.get("semantic") or {}).get("max_tokens"),
+            "generation.abc.max_tokens": (gen.get("abc") or {}).get("max_tokens"),
+        }
+        diffs = {k: (flat.get(k), v) for k, v in REFERENCE["config"].items()
+                 if flat.get(k) != v}
+        runtime_sha = cfg.get("runtime_sha256")
+        checks["generation_config"] = {
+            "matches_reference": not diffs, "diffs": diffs,
+            "runtime_sha256": runtime_sha,
+            "runtime_matches_pinned": runtime_sha == REFERENCE["yue2_runtime_sha256"]}
         if diffs:
             problems.append(f"generation config differs from reference: {list(diffs)}")
+        if not checks["generation_config"]["runtime_matches_pinned"]:
+            problems.append("runtime_sha256 differs from the pinned reference runtime")
     else:
         problems.append("no candidate bundle (result.json) — cannot verify model identity")
     return checks, problems

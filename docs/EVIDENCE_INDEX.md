@@ -2,9 +2,19 @@
 
 All times UTC. "Pinned" links reference exact commits so evidence stays reproducible
 even if branches move. Verification snapshot: 2026-10-17 (historical) · RC3/RC4
-additions 2026-11-22.
+additions 2026-11-22 · **RC5.1/RC6 additions 2026-11-27 (current generation —
+read the RC6 developer reference first:
+[reports/developer_reference/](../reports/developer_reference/))**.
 
-## Current-generation runs (W7900D, RC2–RC4 lineage) — read this first
+## RC5.1 / RC6 current generation (read this first)
+
+| run_id / report | what it proves | entry point |
+|---|---|---|
+| `rc5_armB_latest_upstream_20261124T065451Z` | 384/384 generation on upstream `c67d541a` + import guards; 380/384 byte-identical vs the historical stack | [reports/w7900_rc5/rc5_1/](../reports/w7900_rc5/rc5_1/) |
+| RC5.1 five-metric scoreboard | SongBench 6.736891 · PER 17.7699% (frozen) / 8.4488% (corrected arm) · MuLan 0.509395 · AMC 0.405181 · Q3O 4.393986 (ROCm-adapted) | `06_FIVE_METRIC_SCOREBOARD.csv` |
+| RC6 developer reference | scientific closure (determinism, evaluator identity, 2×2 PER attribution, Q3O boundary), developer golden path, fresh-clone reproduction, author/AMD packages, release gates | [reports/developer_reference/README.md](../reports/developer_reference/README.md) |
+
+## Current-generation runs (W7900D, RC2–RC4 lineage — historical reference)
 
 | run_id | backend | GPU | finished (UTC) | source | pins | audio | audit | metrics (selected-192) | limitations | evidence |
 |---|---|---|---|---|---|---|---|---|---|---|
