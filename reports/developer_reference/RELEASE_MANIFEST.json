@@ -1,0 +1,40 @@
+{
+ "schema": "yue2-rc6-release-manifest/1",
+ "release": "YuE2 on ROCm Developer Reproduction Reference v1.0-rc1",
+ "prepared_at_utc": "2026-11-27T16:30:00Z",
+ "status": "RELEASE_CANDIDATE_PREPARED_NOT_PUBLISHED",
+ "bindings": {
+  "repository_content_sha": "filled at final HEAD (see RELEASE_VALIDATION.md; the final commit's git tree hash + CI runs)",
+  "upstream_sglang": "c67d541a40f8bf851e9fc1e925f5316638838cd6 (PR sgl-project/sglang#42106, unmerged snapshot)",
+  "effective_runtime_sha256": "342b2f531b14a201b4aae1a6a14424bed7f03cd7f993c3a1c09657a6d6109051",
+  "torch": "2.12.0+rocm7.14.1 (device-gfx1100 extra, AMD multi-arch index)",
+  "models": {
+   "mot": "m-a-p/YuE2-3B@1a96eca6 (model.safetensors sha 1d55c42c...)",
+   "vae": "m-a-p/YuE2-Vae-legacy@b54118f (model.safetensors sha b6d28362...)",
+   "dataset": "m-a-p/WildSongBench@e361b85a",
+   "asr_judge": "Qwen/Qwen3-ASR-1.7B snapshot 7278e1e7",
+   "q3o_judge": "Qwen/Qwen3-Omni-30B-A3B-Instruct@26291f79"
+  },
+  "patches": "patches/rc5-0001-0003-0008-rocm-import-guards.patch (0004/0005 absorbed upstream)",
+  "evaluator": "frozen wsb_metrics bundle (verify_release/verify_assets gates; code pins in protocol.json chains)",
+  "verified_gpu_matrix": {"gfx1100 W7900/W7900D 48GiB": "PHYSICAL_PASS"}
+ },
+ "scientific_evidence_manifest": {
+  "scoreboard_A_frozen": "reports/w7900_rc5/rc5_1/06_FIVE_METRIC_SCOREBOARD.csv",
+  "scoreboard_B_corrected": "reports/developer_reference/03_CORRECTED_SCOREBOARD.csv (192/192, 2026-11-27)",
+  "per_paired_attribution": "reports/developer_reference/03_PER_PAIRED_ATTRIBUTION.json",
+  "determinism": "reports/developer_reference/01_DETERMINISM_VERDICT.json",
+  "evaluator_provenance": "reports/developer_reference/02_EVALUATOR_PROVENANCE_VERDICT.json",
+  "q3o_boundary": "reports/developer_reference/04_Q3O_CONTRACT.md + 04_Q3O_NUMERICAL_BOUNDARY.md",
+  "performance": "reports/developer_reference/06_PERFORMANCE_REFERENCE.md",
+  "negative_controls": "reports/developer_reference/02_ASR_NEGATIVE_CONTROLS.json + GPU_NEGATIVE_CONTROLS.json",
+  "first_song": "reports/developer_reference/05_FIRST_SONG_ACCEPTANCE.json",
+  "fresh_clone": "reports/developer_reference/reproduction/ (Mode 2, R-matrix)",
+  "gate_ledger": "reports/developer_reference/FINAL_RELEASE_GATE_LEDGER.json"
+ },
+ "test_results_pointer": "RELEASE_VALIDATION.md (exact-HEAD CI + local suite results)",
+ "known_limitations_pointer": "docs/KNOWN_LIMITATIONS.md",
+ "author_acceptance_state": "AUTHOR_REVIEW_PACKAGE_READY (A01-A12; not submitted)",
+ "amd_acceptance_state": "AMD_ENGINEERING_ACCEPTANCE_PACKAGE_READY (AMD01-AMD10; not submitted)",
+ "publication_rule": "GitHub Release / tag / joint-publication claims require explicit owner authorization (+ author/AMD where those names are invoked)"
+}

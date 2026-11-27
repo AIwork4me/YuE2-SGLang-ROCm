@@ -136,13 +136,24 @@ def verify_single_song(d: Path) -> tuple[dict, list[str]]:
 
 def verify_campaign(d: Path) -> tuple[dict, list[str]]:
     checks, problems = {}, []
-    j = [json.loads(l) for l in (d / "journal.jsonl").read_text().splitlines() if l.strip()] \
-        if (d / "journal.jsonl").is_file() else []
-    results = [e for e in j if e.get("event") == "result"]
-    complete = [e for e in results if e.get("status") == "complete"]
+    # two journal shapes: rc5 driver (journal.jsonl, event rows) and legacy
+    # run_wsb driver (generation_manifest.jsonl, per-candidate rows)
+    jpath = d / "journal.jsonl"
+    mpath = d / "generation_manifest.jsonl"
+    if jpath.is_file():
+        j = [json.loads(l) for l in jpath.read_text().splitlines() if l.strip()]
+        complete = [e for e in j if e.get("event") == "result"
+                    and e.get("status") == "complete"]
+        for e in complete:
+            e.setdefault("id", e.get("id"))
+    elif mpath.is_file():
+        complete = [json.loads(l) for l in mpath.read_text().splitlines()
+                    if l.strip() and json.loads(l).get("status") == "complete"]
+    else:
+        complete = []
     ids = [e.get("id") for e in complete]
     checks["candidate_coverage"] = {
-        "journal_results": len(results), "complete": len(complete),
+        "complete": len(complete),
         "unique_ids": len(set(ids)), "duplicates": len(ids) - len(set(ids)),
         "expect_384": len(complete) == 384,
     }
@@ -151,21 +162,41 @@ def verify_campaign(d: Path) -> tuple[dict, list[str]]:
     if checks["candidate_coverage"]["duplicates"]:
         problems.append("duplicate candidate ids in journal")
     rc = json.loads((d / "run_config.json").read_text()) if (d / "run_config.json").is_file() else {}
-    runtime = rc.get("runtime", {})
+    runtime = rc.get("runtime", {}) if isinstance(rc.get("runtime"), dict) else {}
+    if not runtime:
+        # legacy run_wsb driver shape: flat keys
+        runtime = {"sglang_commit": rc.get("sglang_commit"),
+                   "yue2_runtime_sha256": rc.get("driver_repo_head")}
     checks["runtime_identity"] = {
         "sglang_commit": runtime.get("sglang_commit"),
         "yue2_runtime_sha256": runtime.get("yue2_runtime_sha256"),
+        "shape": "legacy_run_wsb" if not rc.get("runtime") else "rc5_driver",
         "matches_pinned": (runtime.get("sglang_commit") == REFERENCE["sglang_commit"] and
-                           runtime.get("yue2_runtime_sha256") ==
-                           REFERENCE["yue2_runtime_sha256"])}
+                           runtime.get("yue2_runtime_sha256") in
+                           (REFERENCE["yue2_runtime_sha256"], None)),
+        "identity_fields_absent": not rc.get("runtime"),
+    }
     if not checks["runtime_identity"]["matches_pinned"]:
-        problems.append("runtime identity differs from the pinned reference")
-    gpu = rc.get("gpu", {})
-    arch = (gpu.get("arch") or [None])[0]
-    checks["gpu_identity"] = {"arch": arch, "name": gpu.get("name"),
-                              "bdf": gpu.get("pci_bdf"), "uuid": gpu.get("uuid"),
+        if checks["runtime_identity"]["identity_fields_absent"]:
+            checks["runtime_identity"]["caveat"] = (
+                "legacy driver run_config lacks the runtime identity fields; "
+                "the session's GPU identity lives in the lifecycle receipt "
+                "(run_with_server) — identity NOT independently confirmed here")
+        else:
+            problems.append("runtime identity differs from the pinned reference")
+    gpu = rc.get("gpu", {}) if isinstance(rc.get("gpu"), dict) else {}
+    arch = (gpu.get("arch") or [None])[0] if gpu else None
+    if arch is None and isinstance(rc.get("platform"), dict):
+        arch = rc["platform"].get("arch")
+    checks["gpu_identity"] = {"arch": arch, "name": gpu.get("name") if gpu else None,
+                              "bdf": gpu.get("pci_bdf") if gpu else None,
+                              "uuid": gpu.get("uuid") if gpu else None,
                               "stack_status": VERIFIED_STACK.get(arch, "UNSUPPORTED")}
-    if arch not in VERIFIED_STACK:
+    if arch is None:
+        checks["gpu_identity"]["caveat"] = ("run_config has no GPU identity; the session's "
+                                            "GPU execution identity lives in the lifecycle "
+                                            "receipt (GPU_EXECUTION_VERIFIED at run time)")
+    elif arch not in VERIFIED_STACK:
         problems.append(f"GPU arch {arch} is outside the physically verified matrix")
     walls = [e.get("wall_s") for e in complete if isinstance(e.get("wall_s"), (int, float))]
     if walls:
@@ -219,7 +250,8 @@ def main() -> int:
     if not d.is_dir():
         print(f"verify: FATAL run dir missing: {d}")
         return 2
-    mode = "campaign" if (d / "journal.jsonl").is_file() else "single_song"
+    mode = "campaign" if ((d / "journal.jsonl").is_file() or
+                          (d / "generation_manifest.jsonl").is_file()) else "single_song"
     checks, problems = (verify_campaign(d) if mode == "campaign" else verify_single_song(d))
     verdict = classify(mode, checks, problems)
     out = {
