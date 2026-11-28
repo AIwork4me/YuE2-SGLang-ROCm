@@ -1,0 +1,51 @@
+{
+ "schema": "yue2-rc6_1-q3o-corrected-full/1",
+ "generated_at_utc": "2026-11-28T00:53:51Z",
+ "arm": "Scoreboard B — corrected vLLM PER selection S_V, Q3O judged on the same frozen audio with the frozen official weights/prompts/parser/aggregation (ROCm-adapted HF judge; official CUDA equivalence NOT_ESTABLISHED)",
+ "identity_sha256": "538939d41d1063435dca70128928078fbfdbfca3b09322640200a8e42eb17b89",
+ "judge": "Rc5HfQwenJudge (Thinker-only BF16, accelerate mixed placement)",
+ "placement": {
+  "attn_implementation": "sdpa",
+  "dtype": "torch.bfloat16",
+  "transformers": "4.57.6",
+  "torch": "2.10.0+rocm7.12.0",
+  "hip": "7.12.60610"
+ },
+ "coverage": {
+  "expected": 192,
+  "evaluated": 192,
+  "valid": 192,
+  "failed": 0,
+  "reused_receipts": 132,
+  "newly_evaluated": 60
+ },
+ "score": {
+  "q3o_mean_0_5": 4.342293,
+  "q3o_mean_0_1": 0.868459,
+  "q3o_std": 0.8606,
+  "q3o_min": 1.1923076923076923,
+  "q3o_max": 5.0,
+  "q3o_by_lang": {
+   "zh": 4.361045,
+   "en": 4.324308
+  }
+ },
+ "performance": {
+  "mean_seconds_all": 86.7,
+  "total_wall_newly_evaluated_est_s": 5295.0,
+  "model_load_seconds": 148.0,
+  "note": "incremental time covers ONLY the newly evaluated candidates; the reused 132 receipts carry their original seconds but were NOT re-executed this round"
+ },
+ "resources": {},
+ "references": {
+  "paper_q3o": 4.68,
+  "scoreboard_A_S_T_q3o": 4.393986,
+  "h800_reproduction_original_audio": 4.69,
+  "h800_fresh_generation": 4.71
+ },
+ "selection_effect": {
+  "q3o_S_V_minus_S_T": -0.051693,
+  "definition": "Q3O(S_V) - Q3O(S_T); the two selections share 132 candidates; 60 differ per the official PER selection"
+ },
+ "problems": []
+}

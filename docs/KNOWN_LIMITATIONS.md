@@ -9,13 +9,21 @@
 2. **HTTP telemetry gaps**: `peak_memory_mb` reports 0.0 and
    `yue2_stage_seconds` nulls on ROCm (probe backend absent). Memory truth:
    rocm-smi; stage truth: server log.
-3. **Q3O (RC6 status)**: RUNS on 48 GB with the ROCm-adapted judge —
-   192/192 valid (RC5.1), 34 GPU + 14 CPU MoE layers, deterministic
-   tie-break. OFFICIAL equivalence NOT_ESTABLISHED (different engine:
-   HF-ROCm vs vLLM-CUDA; ~18–20% of routed slots are exact boundary ties;
-   no CUDA host for the same-audio comparison). Earlier "Q3O NOT RUN / NOT
-   TESTED on 48 GB" statements are superseded. 24 GB cards: NOT_TESTED
-   (below the measured 42.4 GiB judge peak).
+3. **Q3O (RC6.1 status)**: RUNS on 48 GB with the ROCm-adapted judge —
+   BOTH selection arms now covered 192/192: Scoreboard A (frozen S_T,
+   RC5.1) and Scoreboard B (corrected S_V, RC6.1: 132 identity-verified
+   receipts reused + 60 newly evaluated; Q3O_B = see
+   reports/developer_reference/rc6_1/04_Q3O_CORRECTED_FULL_SUMMARY.json).
+   34 GPU + 14 CPU MoE layers, deterministic tie-break. OFFICIAL
+   equivalence NOT_ESTABLISHED (different engine: HF-ROCm vs vLLM-CUDA;
+   ~18–20% of routed slots are exact boundary ties; no CUDA host for the
+   same-audio comparison). Earlier "Q3O NOT RUN / NOT TESTED on 48 GB"
+   statements are superseded. 24 GB cards: NOT_TESTED (below the measured
+   42.4 GiB judge peak). Historical inaccuracy corrected (RC6.1): the RC6
+   performance reference's "torch-allocated ~47 GiB card saturation" was
+   the card's TOTAL CAPACITY (47.98 GiB) misdescribed as usage — the true
+   generation peak card-total is 29.7 GiB (see
+   reports/developer_reference/rc6_1/06_PERFORMANCE_RECONCILIATION.md).
 4. **Cross-GPU byte-identity not expected**: equal seeds on different GPU
    architectures produce different waveforms (GPU RNG/kernel math). The
    request/config/weights identity hash IS reproducible (verified

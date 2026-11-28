@@ -88,9 +88,21 @@ result with model identity hashes).
 
 ```bash
 python3 scripts/reference_cli.py verify --run-dir $YUE2_WORKSPACE/runs/my-first-song
-# verdict: VERIFIED_REFERENCE_RUN / VERIFIED_WITH_DISCLOSED_DIFFERENCES /
-#          VALID_PILOT_ONLY / UNSUPPORTED_CONFIGURATION / INCOMPLETE / FAILED
 ```
+
+Verdicts are SCOPE-LABELLED (RC6.1 — a lower layer never implies a higher
+one; see reports/developer_reference/rc6_1/01_VERIFICATION_CONTRACT.md):
+
+- `VERIFIED_FIRST_SONG` — one song with the full identity chain (audio
+  integrity + artifact-hash binding + WAV<->FLAC PCM identity + model +
+  runtime + GPU lifecycle receipt bound to THIS run)
+- `VERIFIED_BENCHMARK_PILOT` — official 5x2 pilot + five-metric pilot scoring
+- `VERIFIED_FULL_GENERATION` / `VERIFIED_FULL_BENCHMARK` / `VERIFIED_REFERENCE_RUN`
+  — campaign-scale tiers (the last additionally requires evaluation coverage
+  + the official WSB auditor)
+- `VALID_PILOT_ONLY`, `VERIFIED_WITH_DISCLOSED_DIFFERENCES`,
+  `SAMPLED_INTEGRITY_CHECK` (--quick), `UNSUPPORTED_CONFIGURATION`,
+  `INCOMPLETE`, `FAILED`
 
 Manual smoke checks:
 
@@ -107,14 +119,33 @@ $YUE2_WORKSPACE/environments/yue2-gfx1100/bin/python scripts/gpu_identity.py ver
 ## 4. Benchmark pilot (1 h) — then optionally full (24 h + evaluation)
 
 ```bash
-python3 scripts/reference_cli.py benchmark --mode pilot     # 5 prompts x 2
+python3 scripts/reference_cli.py benchmark --mode pilot     # 5 prompts x 2 (indices 0,1,2,79,81)
 python3 scripts/reference_cli.py benchmark --mode full      # 192 x 2 (RC5.1 protocol)
-python3 scripts/reference_cli.py compare --run-dir <run>    # scope-labelled comparison
+python3 scripts/reference_cli.py compare --run-dir <run>    # computes per-metric deltas
 ```
 
-Pilot scores are NEVER compared with the full scoreboard (the verify tool
-classifies them VALID_PILOT_ONLY). Scoring (PER/SongBench/MuLan/AMC/Q3O)
-follows `docs/BENCHMARK_REPRODUCTION.md`.
+`install` is idempotent (re-running re-verifies every pin and skips an
+already-applied patch); a frozen upstream SHA that cannot be obtained is a
+hard failure — there is NO fallback to the moving branch head.
+
+Pilot scores are NEVER compared with the full scoreboard as a quality
+claim (the verify tool awards `VERIFIED_BENCHMARK_PILOT` only for the
+official 5x2 shape with five-metric scoring). `reference compare` computes
+per-metric deltas against the reference scoreboard with explicit
+coverage/eligibility labels — score proximity alone never awards trust.
+Scoring (PER/SongBench/MuLan/AMC/Q3O) follows
+`docs/BENCHMARK_REPRODUCTION.md`.
+
+## GPU ownership across workspaces (RC6.1)
+
+All reference GPU worklocks ONE physical domain keyed by the GPU's PCI BDF
+(`gpu-0000:03:00.0.lock` under `/var/lock/yue2-gpu` by default; override with
+`YUE2_GPU_LOCK_ROOT` or `YUE2_GPU_LOCK`). Two workspaces on the same host
+cannot both start GPU work — the second gets LOCK_CONTENTION. `reference
+stop --workspace W [--run-id R]` shows the live holder first and REFUSES to
+stop a session that does not belong to W (no pkill -f, graceful signals
+only). Containers/users that do not share the lock root are outside this
+protocol (disclosed, not assumed).
 
 ## What runs and what doesn't (gfx1100, upstream `c67d541a` native gates)
 

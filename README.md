@@ -2,6 +2,24 @@
 
 ## Generate music with the official YuE2 model on AMD GPUs — native PyTorch and SGLang
 
+**Status (2026-11-28, RC6.1 — v1.0-rc2, this branch):** Developer Trust +
+Five-Metric Scientific Closure. Scoreboard B (corrected vLLM selection S_V)
+now has ALL FIVE metrics — Q3O(S_V) evaluated 192/192 with 132
+identity-verified receipt reuse + 60 newly scored (see
+[RC6.1 reports](reports/developer_reference/rc6_1/)). The developer
+verifier is fail-closed with scope-labelled verdicts
+(VERIFIED_FIRST_SONG / VERIFIED_BENCHMARK_PILOT / VERIFIED_FULL_GENERATION /
+VERIFIED_FULL_BENCHMARK / VERIFIED_REFERENCE_RUN — never an unscoped
+VERIFIED); ASR identity is strictly hash-bound with atomic supersede
+resume; installation is idempotent and pinned to the frozen upstream SHA
+with no branch fallback; all reference GPU work shares ONE physical
+BDF-keyed lock domain across workspaces; the RC6 VRAM contradiction is
+root-caused (capacity/usage conflation — generation peak 29.7 GiB
+card-total) and percentiles are recomputed with a declared estimator.
+Known-open: official CUDA same-audio comparisons, off-machine backup,
+author/AMD acceptance, independent-host reproduction (honestly labelled,
+never claimed).
+
 **Status (2026-11-27, RC5.1 — FINAL, this branch):** the complete
 WildSongBench reproduction on the author's latest SGLang stack
 (`c67d541a`, PR sgl-project/sglang#42106) is **done end-to-end on the

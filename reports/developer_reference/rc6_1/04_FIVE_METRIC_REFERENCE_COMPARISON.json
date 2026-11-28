@@ -1,0 +1,88 @@
+{
+ "schema": "yue2-rc6_1-five-metric-reference-comparison/1",
+ "generated_at_utc": "2026-11-28T00:55:33Z",
+ "paper_revision": "YuE2 paper values as published in the evaluator bundle README (verified section; H800 reproduction 4.69/4.71 references)",
+ "arms": {
+  "Scoreboard A": "frozen transformers selection S_T (RC5.1, unchanged)",
+  "Scoreboard B": "corrected vLLM selection S_V (RC6.1: Q3O completed 192/192 — 132 reused + 60 newly evaluated)",
+  "Scoreboard C": "official CUDA same-audio reference — NOT_RUN (BLOCKED_EXTERNAL: no CUDA host)"
+ },
+ "metrics": {
+  "songbench": {
+   "metric": "SongBench (Global Avg, 0-10)",
+   "direction": "higher better",
+   "paper_value": 6.7316,
+   "scoreboard_B_value": 6.742109,
+   "absolute_delta": 0.010509,
+   "relative_delta": 0.001561,
+   "delta_unit": "absolute",
+   "coverage": "192/192 both arms",
+   "evaluator_identity": "frozen official evaluator (both arms)",
+   "protocol_differences": "none within the ROCm reproduction; paper=original audio",
+   "comparison_scope": "W7900 ROCm reproduction vs paper reference; NOT a same-audio CUDA A/B test"
+  },
+  "per": {
+   "metric": "PER (selected-192 micro, %)",
+   "direction": "lower better",
+   "paper_value": 8.44,
+   "scoreboard_B_value": 8.448788,
+   "absolute_delta": 0.008788,
+   "relative_delta": 0.001041,
+   "delta_unit": "percentage points",
+   "coverage": "192/192 both arms",
+   "evaluator_identity": "Scoreboard B: E2 vLLM 0.19.1 ROCm + official scorer; paper: official CUDA evaluator",
+   "protocol_differences": "ASR engine substitution is THE disclosed variable (the 2x2 attribution: evaluator-path effect -8.18pp, selection -1.14pp)",
+   "comparison_scope": "W7900 ROCm reproduction vs paper reference; NOT a same-audio CUDA A/B test"
+  },
+  "mulan": {
+   "metric": "MuLan (audio-text alignment)",
+   "direction": "higher better",
+   "paper_value": 0.5068,
+   "scoreboard_B_value": 0.504299,
+   "absolute_delta": -0.002501,
+   "relative_delta": -0.004935,
+   "delta_unit": "absolute",
+   "coverage": "192/192 both arms",
+   "evaluator_identity": "frozen official evaluator",
+   "protocol_differences": "none within the ROCm reproduction",
+   "comparison_scope": "W7900 ROCm reproduction vs paper reference; NOT a same-audio CUDA A/B test"
+  },
+  "allmusiccaps": {
+   "metric": "AllMusicCaps (caption similarity)",
+   "direction": "higher better",
+   "paper_value": 0.4054,
+   "scoreboard_B_value": 0.403,
+   "absolute_delta": -0.0024,
+   "relative_delta": -0.00592,
+   "delta_unit": "absolute",
+   "coverage": "192/192 both arms",
+   "evaluator_identity": "frozen official evaluator",
+   "protocol_differences": "none within the ROCm reproduction",
+   "comparison_scope": "W7900 ROCm reproduction vs paper reference; NOT a same-audio CUDA A/B test"
+  },
+  "q3o": {
+   "metric": "Q3O (judge score, 0-5)",
+   "direction": "higher better",
+   "paper_value": 4.68,
+   "scoreboard_B_value": 4.342293,
+   "absolute_delta": -0.337707,
+   "relative_delta": -0.07216,
+   "delta_unit": "absolute",
+   "coverage": "192/192 both arms",
+   "evaluator_identity": "Qwen3-Omni-30B-A3B Thinker BF16, official weights/prompts/parser; HF-ROCm engine vs official vLLM-CUDA 0.14.0",
+   "protocol_differences": "engine + attention kernels + ~18-20% tied routing boundaries; official CUDA comparison NOT_ESTABLISHED (no CUDA host)",
+   "comparison_scope": "W7900 ROCm reproduction vs paper reference; NOT a same-audio CUDA A/B test"
+  }
+ },
+ "five_metric_verdict": {
+  "FIVE_METRIC_COVERAGE_COMPLETE": true,
+  "definition": "both selection arms carry all five metrics, each bound to its own selection with official frozen scorer code",
+  "scoreboard_B_complete": true,
+  "no_cross_arm_mixing": "Scoreboard B numbers all come from the S_V selection (192/192); Scoreboard A kept separate",
+  "q3o_selection_effect": -0.051693,
+  "q3o_residual_vs_paper": -0.337707,
+  "FIVE_METRIC_NUMERICAL_IDENTITY": false,
+  "OFFICIAL_NUMERICAL_EQUIVALENCE_PASS": false,
+  "note": "coverage completeness is the claim; numerical identity to the paper is NOT claimed (see difference RCA for the quantified decomposition)"
+ }
+}

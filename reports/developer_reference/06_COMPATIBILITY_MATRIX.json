@@ -1,16 +1,23 @@
 {
  "schema": "yue2-rc6-compatibility-matrix/1",
  "generated_at_utc": "2026-11-27T15:10:00Z",
- "status_vocabulary": ["PHYSICAL_PASS", "PARTIAL_PHYSICAL_PASS", "EXPECTED_BUT_UNVERIFIED", "NOT_TESTED", "UNSUPPORTED"],
+ "status_vocabulary": [
+  "PHYSICAL_PASS",
+  "PARTIAL_PHYSICAL_PASS",
+  "EXPECTED_BUT_UNVERIFIED",
+  "NOT_TESTED",
+  "UNSUPPORTED"
+ ],
  "gpu_matrix": [
   {
    "gpu": "AMD Radeon PRO W7900 / W7900D 48 GiB (gfx1100)",
    "generation": "PHYSICAL_PASS (RC5.1 384/384, 0 failures, byte-reproducible 380/384)",
    "per": "PHYSICAL_PASS (transformers frozen arm 384x4 receipts + vLLM 0.19.1 corrected arm 384 receipts, same audio)",
    "songbench_mulan_amc": "PHYSICAL_PASS (192/192 selected each, official evaluator)",
-   "q3o": "PHYSICAL_PASS ROCm-adapted (192/192; official CUDA equivalence NOT_ESTABLISHED)",
+   "q3o": "PHYSICAL_PASS ROCm-adapted (192/192 on BOTH selections: S_T frozen RC5.1 + S_V corrected RC6.1 [132 reused + 60 newly evaluated]; repeatability 2-process audited; official CUDA equivalence NOT_ESTABLISHED)",
    "overall": "PHYSICAL_PASS",
-   "evidence": "reports/w7900_rc5/rc5_1/*, reports/developer_reference/*"
+   "evidence": "reports/w7900_rc5/rc5_1/*, reports/developer_reference/*",
+   "rc6_1_additions": "fail-closed scope-labelled verifier; strict ASR identity + atomic supersede resume; idempotent pinned install; shared physical BDF-keyed GPU lock domain; fresh-clone five-metric pilot"
   },
   {
    "gpu": "AMD Radeon 8060S 32 GiB (gfx1151, Ryzen AI MAX+ 395)",
@@ -50,5 +57,6 @@
   }
  ],
  "kernel_path_matrix_pointer": "docs/COMPATIBILITY_MATRIX.md (feature-level, both gfx1100/gfx1151)",
- "policy": "same-arch does NOT imply verified: every PHYSICAL_PASS above was physically executed and receipted on that hardware; anything else is labelled honestly"
+ "policy": "same-arch does NOT imply verified: every PHYSICAL_PASS above was physically executed and receipted on that hardware; anything else is labelled honestly",
+ "generated_at_utc_note": "RC6.1 update appended to the RC6 matrix (original rows preserved)"
 }
