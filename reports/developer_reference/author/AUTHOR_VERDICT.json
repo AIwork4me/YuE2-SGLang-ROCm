@@ -1,0 +1,21 @@
+{
+ "schema": "yue2-rc6-author-verdict/1",
+ "generated_at_utc": "2026-11-27T15:35:00Z",
+ "author_review_package": "READY (reports/developer_reference/author/AUTHOR_REVIEW_PACKAGE_EN.md + acceptance matrix + CUDA runbooks + comparator + request draft)",
+ "author_review_submission": "NOT_SUBMITTED (owner authorization required; no un-authorized external contact)",
+ "author_accepted": false,
+ "author_accepted_scope": null,
+ "amd_accepted": false,
+ "amd_accepted_scope": null,
+ "notes": [
+  "AI analysis never counts as author/AMD acceptance",
+  "the RC5.1 handoff's 'author-verified commands' wording is corrected in the RC6 package to 'commands executed on our W7900 rig'",
+  "all 12 acceptance rows (A01-A12) are READY_FOR_REVIEW except A10 (PENDING_EXTERNAL_VALIDATION, CUDA host)",
+  "false-author-approval negative control: the public-evidence/claims guards treat any un-backed acceptance claim as a failure (see PUBLIC_CLAIMS_MATRIX.md and the regression suite)"
+ ],
+ "blocking": [
+  "no CUDA host (G12/G14 CUDA comparisons + Q3O official equivalence)",
+  "no author reply channel authorized yet (G25)",
+  "no AMD contact authorized yet (G26/G27)"
+ ]
+}

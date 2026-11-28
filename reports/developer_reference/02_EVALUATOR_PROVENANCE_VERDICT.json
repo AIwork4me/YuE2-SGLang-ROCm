@@ -1,0 +1,127 @@
+{
+ "schema": "yue2-rc6-evaluator-provenance-verdict/1",
+ "generated_at_utc": "2026-11-27T14:25:12Z",
+ "arms": [
+  {
+   "arm": "T (transformers ROCm, frozen RC5.1 per_full)",
+   "engine_receipt": {
+    "python": "3.12.11",
+    "packages_sha": "0b863d421042076f6b957a91fa08dc53df29e4e400d736e51e3d0a53860cd031",
+    "rocm_torch_override": [
+     "torch",
+     "torchaudio",
+     "torchvision",
+     "triton"
+    ],
+    "engine_recorded_at_run_time": "qwen_asr transformers backend (protocol.json + evaluator tree)"
+   },
+   "model_identity": {
+    "root": "/data/yue2/benchmark/wsb_metrics/evaluation_models/hub/models--Qwen--Qwen3-ASR-1.7B/snapshots/7278e1e70fe206f11671096ffdd38061171dd6e5",
+    "snapshot": "snapshots",
+    "files": {
+     "chat_template.json": "75a8cfca24f00de72d796fbfed6858fc9614ef3dabd8696684cc3bc03a9c58ff",
+     "config.json": "2e74a751548b8ad7d7526d29365ad8144c345d8b412b1152d25dc6698452712f",
+     "generation_config.json": "1da527824d81e07118facff437e03f2e24a23311e3bdeb2368973fe77e5f275c",
+     "merges.txt": "8831e4f1a044471340f7c0a83d7bd71306a5b867e95fd870f74d0c5308a904d5",
+     "model-00001-of-00002.safetensors": "a4cd1f1a04d90b757dc7f7dd26254e69a013b19e80efe590a83c6a3bde8608d6",
+     "model-00002-of-00002.safetensors": "6e0b9d9e09e2e0238e7ef3cc8a484ab387e91b90f1900bedf88bc92d7929ccfc",
+     "model.safetensors.index.json": "f994739fe38e5210b9e3e8ce6c6307315e2ceac3cb630e7b7414d69dce520f60",
+     "preprocessor_config.json": "45e120a4eda2c20c5d7f2ea9354e63536bf35e27aa573fb7cdf78017b378770d",
+     "tokenizer_config.json": "4942d005604266809309cabc9f4e9cb89ce855d59b14681fdc0e1cc62ea26c4c",
+     "vocab.json": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910"
+    },
+    "files_sha256": "1218f6b3829b2364ebe4c0426f743886eef09ed88b8448aec84967c5a865c6a3",
+    "provenance": "RECOMPUTED_NOW_CONSISTENT (run-time file hashes not recorded by the RC5.1 runner \u2014 disclosed; snapshot path recorded at run time and unchanged since)"
+   },
+   "coverage": {
+    "rows": 384,
+    "manifest": 384,
+    "audio_sha_match": 384,
+    "duplicates": 0,
+    "repeat_counts": [
+     4
+    ]
+   },
+   "receipts_dir": "/data/yue2-runs/rc5-latest-upstream-20261124T065451Z/wsb_full/per_full/receipts",
+   "engine_labels_in_rows": [
+    "{\"engine\": null}"
+   ],
+   "violations": [],
+   "verdict": "RECEIPTS_VALID_IDENTITY_PARTIAL"
+  },
+  {
+   "arm": "V (vLLM 0.19.1 ROCm native, E2 corrected arm)",
+   "engine_receipt": {
+    "engine": "vLLM native Qwen3ASRForConditionalGeneration on ROCm",
+    "vllm": "0.19.1",
+    "torch": "2.10.0+rocm7.12.0",
+    "hip": "7.12.60610",
+    "gpu": "AMD Radeon Graphics",
+    "dtype": "bfloat16",
+    "seed": 0,
+    "gpu_memory_utilization": 0.85,
+    "max_new_tokens": 4096,
+    "vllm_platform": "RocmPlatform"
+   },
+   "model_identity": {
+    "root": "/data/yue2/benchmark/wsb_metrics/evaluation_models/hub/models--Qwen--Qwen3-ASR-1.7B/snapshots/7278e1e70fe206f11671096ffdd38061171dd6e5",
+    "snapshot": "snapshots",
+    "files": {
+     "chat_template.json": "75a8cfca24f00de72d796fbfed6858fc9614ef3dabd8696684cc3bc03a9c58ff",
+     "config.json": "2e74a751548b8ad7d7526d29365ad8144c345d8b412b1152d25dc6698452712f",
+     "generation_config.json": "1da527824d81e07118facff437e03f2e24a23311e3bdeb2368973fe77e5f275c",
+     "merges.txt": "8831e4f1a044471340f7c0a83d7bd71306a5b867e95fd870f74d0c5308a904d5",
+     "model-00001-of-00002.safetensors": "a4cd1f1a04d90b757dc7f7dd26254e69a013b19e80efe590a83c6a3bde8608d6",
+     "model-00002-of-00002.safetensors": "6e0b9d9e09e2e0238e7ef3cc8a484ab387e91b90f1900bedf88bc92d7929ccfc",
+     "model.safetensors.index.json": "f994739fe38e5210b9e3e8ce6c6307315e2ceac3cb630e7b7414d69dce520f60",
+     "preprocessor_config.json": "45e120a4eda2c20c5d7f2ea9354e63536bf35e27aa573fb7cdf78017b378770d",
+     "tokenizer_config.json": "4942d005604266809309cabc9f4e9cb89ce855d59b14681fdc0e1cc62ea26c4c",
+     "vocab.json": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910"
+    },
+    "files_sha256": "1218f6b3829b2364ebe4c0426f743886eef09ed88b8448aec84967c5a865c6a3",
+    "provenance": "RECOMPUTED_NOW_CONSISTENT (asr_root recorded at run time in every receipt's engine env; file hashes recomputed now, disclosed)"
+   },
+   "coverage": {
+    "transcripts": 384,
+    "scored_rows": 384,
+    "manifest": 384,
+    "transcript_audio_sha_match": 384,
+    "scored_audio_sha_match": 384,
+    "duplicates_transcripts": 0,
+    "duplicates_rows": 0,
+    "repeat_counts": [
+     4
+    ],
+    "engine_env_distinct_values": 1
+   },
+   "driver": {
+    "runner": "scripts/rc5_asr_vllm_native.py",
+    "scorer": "scripts/rc5_score_transcripts.py",
+    "provenance": "driver sha not recorded at run time in receipts (RC6 A2 hardening adds it for future runs) \u2014 disclosed"
+   },
+   "violations": [],
+   "verdict": "RECEIPTS_VALID_IDENTITY_PARTIAL"
+  }
+ ],
+ "arm_separability": {
+  "engine_labels": [
+   "T (transformers ROCm, frozen RC5.1 per_full)",
+   "V (vLLM 0.19.1 ROCm native, E2 corrected arm)"
+  ],
+  "same_audio_set": true,
+  "cross_arm_mixing_detected": false,
+  "note": "each arm's receipts carry a distinct engine identity; scoring rows are kept in separate files (per_full/per_song.jsonl vs rc5_1_e2_full/rows.jsonl)"
+ },
+ "scorer_identity": {
+  "wsb_eval_sha256": "efb890421c755c6e19fb841426a612dfa954f9b58a29eef2b8ce8ed7ff790015",
+  "historical_per_sha256": "9ed579594d458c68fa3ce5fb85e43de594d9cee82ad7024333a880a05305096e",
+  "eval_worker_sha256": "569404c758b883e1d2d99724ea563524e06b2c07f2ecf418b1fa857a8ca79d57",
+  "provenance": "RECOMPUTED_NOW (matches the RC5.1 protocol.json code_files pins \u2014 the frozen evaluator tree is byte-stable)"
+ },
+ "honest_gaps": [
+  "run-time per-file ASR model hashes were NOT recorded by the RC5.1 runners; RC6 recomputes them from the unchanged snapshots and binds them for all future runs (scripts/rc6_asr_identity.py)",
+  "driver source hashes were NOT recorded in RC5.1 receipts; RC6 runners embed the full run identity in every receipt",
+  "the RC5.1 vLLM resume path skipped candidates by id only (scripts/rc5_asr_vllm_native.py pre-RC6); RC6 replaces this with the fail-closed audit \u2014 the historical E2 file is audited HERE and passed 384/384 audio match, 0 duplicates, constant engine env, uniform repeat counts"
+ ],
+ "overall_verdict": "EVALUATOR_PROVENANCE_ESTABLISHED_RUN_TIME_PLUS_RECOMPUTED (no re-run required; see honest_gaps for what was not recorded at run time)"
+}

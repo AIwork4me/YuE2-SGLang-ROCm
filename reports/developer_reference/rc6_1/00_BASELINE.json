@@ -1,0 +1,105 @@
+{
+ "schema": "yue2-rc6_1-baseline/1",
+ "generated_at_utc": "2026-11-27T21:31:26Z",
+ "mission": "RC6.1 — Developer Trust, Five-Metric Scientific Closure & Release Hardening (v1.0-rc2)",
+ "git": {
+  "local_repo": "/data/yue2/upstream/yue2-sglang-rocm",
+  "branch": "mission/rc6-developer-reproduction-reference",
+  "head": "eeb2115fb5411c12ff7de415c1cb8a61702b7700",
+  "head_subject": "rc6 ci fix: rename text-bearing key names in new receipts (guard contract kept intact)",
+  "worktree_dirty": true,
+  "dirty_entries": [
+   "?? reports/developer_reference/rc6_1/",
+   "?? scripts/rc61_baseline.py"
+  ],
+  "head_matches_known_pr_head": true,
+  "base": "57e81c2ccb664a4a5eedf9a9526d0709647ba9aa"
+ },
+ "github": {
+  "available": true,
+  "pr": {
+   "state": "OPEN",
+   "is_draft": true,
+   "head_sha": "eeb2115fb5411c12ff7de415c1cb8a61702b7700",
+   "mergeable": "MERGEABLE",
+   "url": "https://github.com/AIwork4me/YuE2-SGLang-ROCm/pull/20"
+  },
+  "exact_head_ci": [
+   {
+    "id": 46039324475,
+    "name": "ci",
+    "event": "pull_request",
+    "status": "completed",
+    "conclusion": "success"
+   },
+   {
+    "id": 46039316593,
+    "name": "ci",
+    "event": "push",
+    "status": "completed",
+    "conclusion": "success"
+   }
+  ],
+  "head_matches_known": true,
+  "ci_all_success": true,
+  "push_workflow_id_present": true,
+  "pull_request_workflow_id_present": true
+ },
+ "runtime": {
+  "generation_env": "ROCm 7.14.1 / torch 2.12.0+rocm7.14.1 (frozen sglang c67d541a40f8bf851e9fc1e925f5316638838cd6)",
+  "effective_generation_runtime_sha256": "342b2f531b14a201b4aae1a6a14424bed7f03cd7f993c3a1c09657a6d6109051",
+  "evaluator_envs_are_separate": true,
+  "q3o_judge_env_recorded": "torch 2.10.0+rocm7.12.0 / transformers 4.57.6 (see rc5-q3o runtime receipt)",
+  "note": "generation torch/ROCm is NOT the evaluator version; each evaluator env is re-verified in its own phase"
+ },
+ "scientific_baseline": {
+  "campaign": "384/384 complete (192 prompts x 2), 0 failures, 0 retries, 5 truncated-but-valid",
+  "historical_generation_pcm_identity": "380/384 FILE_BYTE_IDENTICAL; 4 CONTENT_IDENTITY_NOT_ESTABLISHED (historical FLAC absent)",
+  "paper_reference": {
+   "SongBench": 6.7316,
+   "PER": 8.44,
+   "MuLan": 0.5068,
+   "AllMusicCaps": 0.4054,
+   "Q3O": 4.68
+  },
+  "scoreboard_A_S_T": {
+   "SongBench": 6.736891,
+   "PER": 17.769855,
+   "MuLan": 0.509395,
+   "AllMusicCaps": 0.405181,
+   "Q3O": 4.393986,
+   "Q3O_coverage": "192/192"
+  },
+  "scoreboard_B_S_V": {
+   "SongBench": 6.742109,
+   "PER": 8.448788,
+   "MuLan": 0.504299,
+   "AllMusicCaps": 0.403,
+   "Q3O": "NOT_RUN (RC6.1 must complete this)"
+  },
+  "per_attribution": {
+   "T(S_T)": 17.769855,
+   "V(S_T)": 9.585394,
+   "T(S_V)": 20.204241,
+   "V(S_V)": 8.448788,
+   "evaluator_path_effect_pp": -8.184461,
+   "selection_effect_pp": -1.136606,
+   "decomposition_order_dependent": true
+  },
+  "selection_reconciliation": {
+   "changed_prompts": 60,
+   "unchanged": 132,
+   "removed": 60,
+   "added": 60,
+   "symmetric_difference": 120
+  }
+ },
+ "key_rc6_gaps_this_mission_closes": [
+  "V01-V10 verifier false-VERIFIED paths (M1)",
+  "ASR identity partial-field acceptance + resume atomicity (M2)",
+  "install pin drift + re-install not idempotent + workspace-local GPU lock + untargeted stop (M3)",
+  "Scoreboard B Q3O missing (M4)",
+  "fresh-workspace pilot / five-metric / cancel-resume not run (M5)",
+  "VRAM 29.7 vs 47 GiB contradiction + percentile inconsistency (M6)"
+ ]
+}

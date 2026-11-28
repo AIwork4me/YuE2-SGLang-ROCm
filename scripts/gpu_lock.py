@@ -40,8 +40,87 @@ import time
 from contextlib import contextmanager
 from pathlib import Path
 
+def resolve_physical_gpu() -> dict | None:
+    """RC6.1 M3.5: the PHYSICAL lock-domain identity of the exposed GPU.
+
+    The domain is keyed by PCI BDF (never by the logical HIP ordinal, which
+    can differ per process/container): exactly one amdgpu render node must be
+    visible; ambiguity returns None (the caller then falls back to the
+    legacy workspace lock and the receipt discloses the unshared domain).
+    """
+    import re
+    dri = Path("/dev/dri")
+    sysfs = Path("/sys/class/drm")
+    if not (dri.is_dir() and sysfs.is_dir()):
+        return None
+    render_nodes = sorted(p.name for p in dri.glob("renderD*"))
+    if len(render_nodes) != 1:
+        return None
+    visible = {}
+    for node in sorted(sysfs.iterdir(), key=lambda q: q.name):
+        if not node.name.startswith("card") or node.name.startswith("card-"):
+            continue
+        idx = node.name[4:]
+        if idx.isdigit() and (dri / node.name).exists():
+            ue = (node / "device" / "uevent").read_text() \
+                if (node / "device" / "uevent").is_file() else ""
+            m = re.search(r"PCI_SLOT_NAME=(\S+)", ue)
+            drv = (node / "device" / "driver").resolve().name \
+                if (node / "device" / "driver").is_symlink() else ""
+            if m and drv == "amdgpu":
+                uid = (node / "device" / "unique_id").read_text().strip() \
+                    if (node / "device" / "unique_id").is_file() else None
+                visible[m.group(1)] = uid
+    if len(visible) != 1:
+        return None
+    bdf, uuid = next(iter(visible.items()))
+    return {"bdf": bdf, "uuid": uuid, "render_node": render_nodes[0],
+            "host": os.uname().nodename}
+
+
+DEFAULT_SHARED_LOCK_ROOT = "/var/lock/yue2-gpu"
+
+
+def _shared_root() -> Path:
+    return Path(os.environ.get("YUE2_GPU_LOCK_ROOT", DEFAULT_SHARED_LOCK_ROOT))
+
+
+def lock_domain_name(gpu: dict | None) -> str:
+    """Stable lock-domain name for a physical GPU (BDF-keyed; uuid when the
+    kernel does not expose a BDF)."""
+    if not gpu:
+        return "domain-unresolved"
+    return f"gpu-{gpu.get('bdf') or gpu.get('uuid') or 'unknown'}"
+
+
+def _shared_root_usable(root: Path) -> bool:
+    try:
+        root.mkdir(parents=True, exist_ok=True)
+        probe = root / f".probe.{os.getpid()}"
+        probe.write_text("")
+        probe.unlink()
+        return True
+    except OSError:
+        return False
+
+
 def resolve_default_lock() -> Path:
     """Resolve the default lock path at CALL time — never import time.
+
+    RC6.1 M3.5: the default is the SHARED PHYSICAL lock domain
+    (``<YUE2_GPU_LOCK_ROOT or /var/lock/yue2-gpu>/gpu-<BDF>.lock``) so that
+    different workspaces on the same host cannot each claim the same physical
+    GPU through separate workspace-local lock files.
+
+    Resolution order (first wins):
+      1. ``YUE2_GPU_LOCK``            — explicit file override (unchanged)
+      2. ``YUE2_GPU_LOCK_ROOT``       — explicit shared root + physical domain
+      3. default shared root          — when writable and the GPU is resolvable
+      4. ``<YUE2_WORKSPACE>/gpu.lock``— legacy fallback (disclosed as an
+                                        UNSHARED domain; GPU-less CI, read-only
+                                        hosts). Containers/users that do not
+                                        share this directory are NOT protected
+                                        by the cross-workspace protocol.
 
     An import-time frozen default broke isolation twice in practice:
       * CI runners (non-root, no /data): gpu_ownership() did
@@ -52,9 +131,15 @@ def resolve_default_lock() -> Path:
         this module silently locked the wrong file.
     All internal code paths resolve lazily via this function.
     """
-    return Path(os.environ.get(
-        "YUE2_GPU_LOCK",
-        str(Path(os.environ.get("YUE2_WORKSPACE", "/data/yue2")) / "gpu.lock")))
+    explicit = os.environ.get("YUE2_GPU_LOCK")
+    if explicit:
+        return Path(explicit)
+    gpu = resolve_physical_gpu()
+    if gpu is not None:
+        root = _shared_root()
+        if _shared_root_usable(root):
+            return root / f"{lock_domain_name(gpu)}.lock"
+    return Path(os.environ.get("YUE2_WORKSPACE", "/data/yue2")) / "gpu.lock"
 
 
 # Backwards-compatible module constant: snapshot at import. New code must call
@@ -273,12 +358,22 @@ def gpu_ownership(who: str, wait_s: float = 0.0, poll_s: float = 10.0,
             time.sleep(poll_s)
             continue
         break
+    gpu = resolve_physical_gpu()
     receipt = {
         "who": who,
         "pid": os.getpid(),
         "cmdline": _pid_cmdline(os.getpid()),
+        "workspace": os.environ.get("YUE2_WORKSPACE"),
         "acquired_at_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "host": os.uname().nodename,
+        "lock_domain": {
+            "name": lock_domain_name(gpu),
+            "physical": gpu,          # BDF/uuid-keyed: logical HIP ordinals never name a domain
+            "shared": gpu is not None,
+            "legacy_workspace_fallback": gpu is None,
+            "note": "cross-workspace mutex holds ONLY where this shared root is "
+                    "commonly mounted; unshared roots are disclosed, not assumed",
+        },
     }
     os.ftruncate(fd, 0)
     os.lseek(fd, 0, os.SEEK_SET)

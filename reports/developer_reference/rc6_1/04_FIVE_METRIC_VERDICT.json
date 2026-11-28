@@ -1,0 +1,11 @@
+{
+ "FIVE_METRIC_COVERAGE_COMPLETE": true,
+ "definition": "both selection arms carry all five metrics, each bound to its own selection with official frozen scorer code",
+ "scoreboard_B_complete": true,
+ "no_cross_arm_mixing": "Scoreboard B numbers all come from the S_V selection (192/192); Scoreboard A kept separate",
+ "q3o_selection_effect": -0.051693,
+ "q3o_residual_vs_paper": -0.337707,
+ "FIVE_METRIC_NUMERICAL_IDENTITY": false,
+ "OFFICIAL_NUMERICAL_EQUIVALENCE_PASS": false,
+ "note": "coverage completeness is the claim; numerical identity to the paper is NOT claimed (see difference RCA for the quantified decomposition)"
+}

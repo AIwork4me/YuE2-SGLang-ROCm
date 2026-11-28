@@ -57,6 +57,12 @@ python -m pip install \
   "torchvision[device-gfx1100]==0.27.0+rocm7.14.1" \
   "torchaudio==2.11.0+rocm7.14.1"
 
+# RC6.1 M3.4/M5: download_pins (install step 2/5) needs huggingface_hub in the
+# generation venv BEFORE rc5_install_sglang.sh runs (step 5/5 installs it too —
+# idempotent). Without this, a FRESH workspace install fails at step 2 with
+# ModuleNotFoundError (live defect found during the RC6.1 fresh-clone replay).
+python -m pip install -q huggingface_hub
+
 echo "[4/5] Record provenance"
 python -m pip list --format=freeze > "$LOGDIR/rc5_generation_pip_freeze_step1.txt"
 

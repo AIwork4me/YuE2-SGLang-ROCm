@@ -1,0 +1,6 @@
+metric,direction,paper,author_sgl_reference,scoreboard_A_S_T,scoreboard_B_S_V,delta_B_vs_paper,delta_B_vs_A,coverage,evaluator_caveat
+"SongBench (Global Avg, 0-10)",higher better,6.7316,6.7146,6.736891,6.742109,0.010509,0.005218,192/192 (each arm; both bound to their OWN selection),official evaluator verbatim
+"PER (selected-192 micro, %)",lower better,8.44,8.1471,17.769855,8.448788,0.008788,-9.321067,192/192 (each arm; both bound to their OWN selection),B: vLLM 0.19.1 ROCm ASR (engine-substituted; A: transformers ROCm); paper/author: official CUDA vLLM 0.14.0
+MuLan (audio-text alignment),higher better,0.5068,0.4996,0.509395,0.504299,-0.002501,-0.005096,192/192 (each arm; both bound to their OWN selection),official evaluator verbatim
+AllMusicCaps (caption similarity),higher better,0.4054,0.40825,0.405181,0.403,-0.0024,-0.002181,192/192 (each arm; both bound to their OWN selection),official evaluator verbatim
+"Q3O (judge score, 0-5)",higher better,4.68,,4.393986,4.342293,-0.337707,-0.051693,192/192 (each arm; both bound to their OWN selection),ROCm-adapted HF judge (official weights/prompts/parser/aggregation); official engine is vLLM 0.14.0 CUDA — equivalence NOT_ESTABLISHED

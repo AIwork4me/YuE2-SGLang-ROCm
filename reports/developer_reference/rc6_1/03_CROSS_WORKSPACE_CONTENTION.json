@@ -1,0 +1,87 @@
+{
+ "schema": "yue2-rc6_1-cross-workspace-contention/1",
+ "generated_at_utc": "2026-11-27T22:30:54Z",
+ "lock_domain": {
+  "lock": "/var/lock/yue2-gpu/gpu-0000:03:00.0.lock",
+  "name": "gpu-0000:03:00.0",
+  "physical": {
+   "bdf": "0000:03:00.0",
+   "uuid": "e9d0e20bb686e6c6",
+   "render_node": "renderD128",
+   "host": "j-jbtesfeshrbfybindu5ecokevp"
+  }
+ },
+ "workspace_a": "/tmp/opencode/rc61_wsA",
+ "workspace_b": "/tmp/opencode/rc61_wsB",
+ "physical_gpu_compute": true,
+ "steps": [
+  {
+   "step": "A acquires the shared physical lock",
+   "pass": true,
+   "detail": {
+    "pid": 1012170,
+    "lock": "/var/lock/yue2-gpu/gpu-0000:03:00.0.lock",
+    "domain": "gpu-0000:03:00.0"
+   }
+  },
+  {
+   "step": "B is refused (LOCK_CONTENTION, no new GPU workload)",
+   "pass": true,
+   "detail": {
+    "out": "LOCK_CONTENTION"
+   }
+  },
+  {
+   "step": "reference stop --workspace B is REFUSED while A holds",
+   "pass": true,
+   "detail": {
+    "rc": 4
+   }
+  },
+  {
+   "step": "safe stop of A releases the domain",
+   "pass": true,
+   "detail": {
+    "rc": 0,
+    "holder_live": false
+   }
+  },
+  {
+   "step": "B acquires the domain after release and runs real GPU compute",
+   "pass": true,
+   "detail": {
+    "out": "B-GPU-COMPUTE-OK AMD Radeon Pro W7900D True",
+    "rc": 0
+   }
+  },
+  {
+   "step": "stale receipt is reclaimed (flock is authoritative)",
+   "pass": true,
+   "detail": {
+    "out": "STALE-RECLAIMED"
+   }
+  },
+  {
+   "step": "BLOCKED marker refuses acquisition in the domain",
+   "pass": true,
+   "detail": null
+  },
+  {
+   "step": "operator unblock clears the marker (evidence kept)",
+   "pass": true,
+   "detail": {
+    "out": "{\"cleared\": true, \"evidence_kept\": \"/var/lock/yue2-gpu/gpu-0000:03:00.0.lock.BLOCKED.cleared-20261127T223054Z\"}"
+   }
+  },
+  {
+   "step": "unwritable shared root falls back to the workspace lock (disclosed)",
+   "pass": true,
+   "detail": {
+    "out": "LEGACY",
+    "note": "cross-workspace protection does NOT hold in this mode"
+   }
+  }
+ ],
+ "verdict": "PASS",
+ "scope_note": "cross-workspace mutex holds where the shared lock root is commonly mounted; containers/users with distinct roots are outside this protocol (disclosed, not assumed)"
+}

@@ -1,0 +1,18 @@
+{
+ "schema": "yue2-rc6-separate-final-verdicts/1",
+ "generated_at_utc": "2026-11-27T17:10:00Z",
+ "verdicts": {
+  "RC5_2_SCIENTIFIC_CLOSURE_VERDICT": "PASS — determinism closed honestly (380/384 + PCM-unverifiable disclosure + encoder-sensitivity experiment); evaluator identity + fail-closed resume (20 offline + 1 live control, GREEN regression); PER 2x2 attribution with CIs; corrected Scoreboard B executed; Q3O boundary closed. Open: H10 (bounded plan), official CUDA comparisons (external).",
+  "RC5_2_DEVELOPER_GOLDEN_PATH_VERDICT": "PASS — reference CLI, canonical quickstart, verification tool (verdict vocabulary, no score-proximity shortcuts), first-song FULL_SONG_PASS, tiers with receipts, 6 frictions found+fixed+re-verified.",
+  "RC5_3A_AUTHOR_REVIEW_READINESS_VERDICT": "READY — package (exec summary, A01-A12, evidence links, corrected wording) + CUDA runbooks + comparator + request draft all prepared and self-tested.",
+  "RC5_3A_AUTHOR_ACCEPTANCE_VERDICT": "PENDING — NOT_SUBMITTED (owner authorization required); no author approval exists or is claimed anywhere.",
+  "RC5_3B_SAME_HOST_REPRODUCTION_VERDICT": "PASS (Mode 2) — fresh checkout + fresh venv + fresh workspace reproduce the exact runtime identity and a byte-identical same-seed song.",
+  "RC5_3B_INDEPENDENT_REPRODUCTION_VERDICT": "NOT_RUN — no independent host or human executor; task package + receipt schema ready for hand-off.",
+  "RC5_4_UPSTREAM_INTEGRATION_READINESS_VERDICT": "READY — PR topology audited live (stack linear, contained in #19; PR #8 divergence classified with owner decision); patch ownership per-issue; integration plan (keep the stack, merge-time guard gate).",
+  "RC5_4_AMD_ENGINEERING_ACCEPTANCE_VERDICT": "PACKAGE_READY_NOT_SUBMITTED — AMD01-AMD10 prepared; no AMD personnel involved.",
+  "DEVELOPER_REFERENCE_RC_VERDICT": "READY_FOR_REVIEW (v1.0-rc1 prepared; exact-HEAD CI receipt on the PR; not published)",
+  "OFFICIAL_SCIENTIFIC_EQUIVALENCE_VERDICT": "NOT_ESTABLISHED — no CUDA host for the official evaluators; corrected-arm agreement (8.4488 vs 8.44) is strong evidence, not identity; Q3O adapted judge not claimed equivalent.",
+  "JOINTLY_VALIDATED_REFERENCE_VERDICT": "NOT_YET_GRANTED — requires author review (A01-A12) and AMD acceptance records that do not exist today.",
+  "PUBLICATION_VERDICT": "NOT_AUTHORIZED — owner decision pending; no joint publication claims made."
+ }
+}

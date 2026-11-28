@@ -1,0 +1,49 @@
+{
+ "schema": "yue2-rc6-gpu-negative-controls/1",
+ "generated_at_utc": "2026-11-27T15:19:51Z",
+ "controls": [
+  {
+   "id": "NC-GPU-ARCH",
+   "desc": "wrong expected arch (gfx1150 on a gfx1100 rig)",
+   "result": "DETECTED: GPU_DEVICE_MISMATCH, verdict FAIL, exit code 3 (fail-loud, no silent CPU fallback)",
+   "evidence": "gpu_identity.py verify --expect-arch gfx1150 live run 2026-11-27T15:19:17Z"
+  },
+  {
+   "id": "NC-READINESS-DEAD",
+   "desc": "worker dead / server stopped while checking readiness",
+   "result": "DETECTED: state=STOPPED, scheduler_alive=false, identity=FAILED (pid gone), port UNVERIFIABLE - never treated as generation-ready",
+   "evidence": "server_readiness.py check after the first-song server exited cleanly (RC4.1 live-capture covers the HTTP-healthy variant)"
+  },
+  {
+   "id": "NC-STALE-LOCK",
+   "desc": "GPU lock held by a dead pid (no release marker)",
+   "result": "DETECTED + RECOVERED: gpu_lock.py wait detected the dead holder, took the lock, ran the command, released cleanly (rc=0)",
+   "evidence": "live control with pid 999999, lock takeover who=stale-control-waiter, released 2026-11-27T15:19:37Z"
+  },
+  {
+   "id": "NC-VERIFY-FIELDPATH",
+   "desc": "verification tool initially read wrong identity field paths",
+   "result": "DETECTED by the tool itself: verdict FAILED (model identity mismatch + config diffs) BEFORE the fix; after fixing the field paths the same run verifies VERIFIED_REFERENCE_RUN - the tool refuses to pass on unverifiable identity",
+   "evidence": "05_FIRST_SONG_ACCEPTANCE flow, fixed in the same session"
+  },
+  {
+   "id": "NC-Q3O-COMPARATOR",
+   "desc": "perturbed Q3O receipt (score +1.0)",
+   "result": "DETECTED: comparator selftest perturbation_detected=true (both on the frozen 192-receipt run and on the live smoke run)",
+   "evidence": "rc6_q3o_comparator.py --selftest, two runs"
+  },
+  {
+   "id": "NC-SCORER",
+   "desc": "20 offline scorer/resume failure modes",
+   "result": "ALL DETECTED (20/20 PASS)",
+   "evidence": "tests/test_rc6_asr_identity.py + 02_ASR_NEGATIVE_CONTROLS.json"
+  },
+  {
+   "id": "NC-ASR-RESUME-LIVE",
+   "desc": "hardened rc5_asr_vllm_native resume against a real transcripts file (2 candidates, GPU)",
+   "result": "PASS: run 1 scored wsb_076_r0 (2 repeats, identity-bound receipt); run 2 audited the file, found wsb_076_r0 REUSABLE (identity+audio+repeats exact match) and only ran the missing wsb_076_r1; resume audit JSON written; both receipts embed run_identity + transcript_receipt_sha256 (the RC5.1 candidate-id-only skipping is gone)",
+   "evidence": "/data/yue2-runs/rc6-gpu-acceptance/asr-resume (run1.out, run2.out, transcripts.jsonl, resume_audit.json)"
+  }
+ ],
+ "pending_after_scoreboard": []
+}

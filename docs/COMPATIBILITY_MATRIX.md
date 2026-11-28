@@ -31,8 +31,8 @@ Legend: **TESTED PASS** / **TESTED FAIL** / **FALLBACK** (by design) /
 | aiter | no build | no build | Instinct CDNA only; patches 0001-0003 |
 | sgl_kernel | no build | no build (PyPI = CUDA sm100) | fallbacks + patch 0008 |
 | flashinfer | CUDA-only flavors | CUDA-only flavors | not needed on YuE2 ROCm path |
-| vllm (evaluator PER) | no (0.14.0 CUDA-only) | no | patch 0007: transformers ASR backend |
-| flash_attn 2.8.3 (Q3O) | no | no | Q3O NOT RUN |
+| vllm (evaluator PER) | no (0.14.0 CUDA-only) | 0.19.1 ROCm works (E2 PER arm, disclosed engine substitution) | patch 0007: transformers ASR backend for the frozen arm; vLLM 0.14.0 has no ROCm build |
+| flash_attn 2.8.3 (Q3O) | no | no (HF SDPA used instead) | Q3O runs via the ROCm-adapted judge (see below) |
 
 ## Reproduction identity
 
@@ -64,3 +64,19 @@ Legend: **TESTED PASS** / **TESTED FAIL** / **FALLBACK** (by design) /
 | Arm B full 384-candidate campaign (fresh, this tree) | IN PROGRESS | evidence/publication/armB_campaign/progress.jsonl |
 | pip build isolation pulls CUDA torch for editable sglang | HAZARD (mitigated: --no-build-isolation) | RCA-3 |
 | plain (no device-extra) AMD torch wheels on gfx1100 | FAIL (hipErrorInvalidImage) — use [device-gfx1100] | TROUBLESHOOTING |
+
+## RC5.1 / RC6 status (current — W7900D gfx1100, upstream c67d541a)
+
+| GPU / platform | Generation | PER (both arms) | SongBench/MuLan/AMC | Q3O | Overall status |
+|---|---|---|---|---|---|
+| W7900 / W7900D 48 GiB (gfx1100) | PHYSICAL_PASS 384/384 | PHYSICAL_PASS (transformers frozen + vLLM corrected arms) | PHYSICAL_PASS 192/192 selected | PHYSICAL_PASS ROCm-adapted 192/192 (official equivalence NOT_ESTABLISHED) | **PHYSICAL_PASS** |
+| Radeon 8060S 32 GiB (gfx1151) | PARTIAL_PHYSICAL_PASS (historical pilot-era evidence, ced0ef7d stack) | NOT TESTED on the c67d541a stack | NOT TESTED | NOT RUN | PARTIAL_PHYSICAL_PASS (historical only) |
+| RX 7900 XTX (gfx1100, 24 GiB) | EXPECTED_BUT_UNVERIFIED (same arch; VRAM budget tighter for Q3O) | EXPECTED_BUT_UNVERIFIED | EXPECTED_BUT_UNVERIFIED | NOT_TESTED (48 GiB was required; 24 GiB below the measured 42.4 GiB judge peak) | EXPECTED_BUT_UNVERIFIED |
+| RX 9070 XT (gfx1200) | EXPECTED_BUT_UNVERIFIED (no torch wheel tested here) | EXPECTED_BUT_UNVERIFIED | EXPECTED_BUT_UNVERIFIED | NOT_TESTED | EXPECTED_BUT_UNVERIFIED |
+| Other Radeon / CDNA (MI300…) | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED | NOT_TESTED |
+
+Statuses per the RC6 vocabulary: PHYSICAL_PASS / PARTIAL_PHYSICAL_PASS /
+EXPECTED_BUT_UNVERIFIED / NOT_TESTED / UNSUPPORTED. Same-arch ≠ verified:
+the W7900 results do NOT automatically extend to other Radeon cards.
+Q3O peak VRAM on 48 GiB: 42.41 GiB torch-allocated (see
+`reports/developer_reference/06_PERFORMANCE_REFERENCE.md`).

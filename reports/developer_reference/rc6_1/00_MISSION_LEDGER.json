@@ -1,0 +1,127 @@
+{
+ "schema": "yue2-rc6_1-mission-ledger/1",
+ "mission": "RC6.1 — Developer Trust, Five-Metric Scientific Closure & Release Hardening",
+ "target_release": "v1.0-rc2",
+ "started_from_head": "eeb2115fb5411c12ff7de415c1cb8a61702b7700",
+ "base": "57e81c2ccb664a4a5eedf9a9526d0709647ba9aa (mission/w7900-rc5-latest-upstream-full-reproduction)",
+ "working_branch": "mission/rc6-developer-reproduction-reference (forward-only commits on PR #20)",
+ "non_goals": [
+  "no new 384-song campaign",
+  "no paper-value 4.68 as optimization target",
+  "no fabricated author/AMD/third-party acceptance",
+  "no CUDA numbers without a real CUDA host",
+  "no modification of frozen scientific evidence"
+ ],
+ "phases": {
+  "M0": {
+   "status": "DONE",
+   "outputs": [
+    "00_BASELINE.json",
+    "00_EVIDENCE_FREEZE.json",
+    "00_RESOURCE_PREFLIGHT.json",
+    "00_MISSION_LEDGER.json"
+   ],
+   "evidence": "RC6 freeze re-verified: 13859 files / 81.50 GB / 0 mismatches; GPU BDF 0000:03:00.0 / UUID e9d0e20bb686e6c6; cgroup 55 GiB / 16 CPU; PR #20 OPEN/DRAFT/MERGEABLE @ eeb2115 with 4/4 exact-HEAD CI success",
+   "phase_name": "Baseline freeze & live audit"
+  },
+  "M1": {
+   "status": "PENDING",
+   "outputs": [
+    "01_VERIFIER_RCA.md",
+    "01_VERIFICATION_CONTRACT.md",
+    "01_VERIFIER_NEGATIVE_CONTROLS.json",
+    "01_VERIFIER_VERDICT.json"
+   ],
+   "phase_name": "Developer verifier trust (V01-V10 fail-closed)"
+  },
+  "M2": {
+   "status": "PENDING",
+   "outputs": [
+    "02_ASR_RCA.md",
+    "02_ASR_IDENTITY_CONTRACT.json",
+    "02_ASR_ATOMICITY_TESTS.json",
+    "02_ASR_PHYSICAL_RESUME.json",
+    "02_ASR_VERDICT.json"
+   ],
+   "phase_name": "ASR evaluator identity & durable resume"
+  },
+  "M3": {
+   "status": "PENDING",
+   "outputs": [
+    "03_INSTALL_RCA.md",
+    "03_PINNED_INSTALLATION_TESTS.json",
+    "03_GPU_LOCK_DOMAIN.md",
+    "03_CROSS_WORKSPACE_CONTENTION.json",
+    "03_CLI_CONTRACT_TESTS.json",
+    "03_RUNTIME_VERDICT.json"
+   ],
+   "phase_name": "Pinned installation & physical GPU ownership"
+  },
+  "M4": {
+   "status": "PENDING",
+   "outputs": [
+    "04_Q3O_REUSE_AUDIT.json",
+    "04_Q3O_CORRECTED_SELECTION_MANIFEST.json",
+    "04_Q3O_CORRECTED_FULL_SUMMARY.json",
+    "04_Q3O_NUMERIC_RECEIPTS.jsonl",
+    "04_Q3O_REPEATABILITY.json",
+    "04_Q3O_DIFFERENCE_RCA.md",
+    "04_Q3O_OFFICIAL_COMPARISON.md",
+    "04_FIVE_METRIC_SCOREBOARDS.csv",
+    "04_FIVE_METRIC_REFERENCE_COMPARISON.json",
+    "04_FIVE_METRIC_VERDICT.json"
+   ],
+   "phase_name": "Q3O & full five-metric scientific closure (Scoreboard B Q3O)"
+  },
+  "M5": {
+   "status": "PENDING",
+   "outputs": [
+    "05_FRESH_CLONE_REPORT.md",
+    "05_INSTALL_REPLAY.json",
+    "05_FIRST_SONG_RECEIPT.json",
+    "05_PILOT_GENERATION_AUDIT.json",
+    "05_PILOT_FIVE_METRIC_SCOREBOARD.csv",
+    "05_PILOT_VERIFICATION.json",
+    "05_CANCEL_RESUME_RECEIPTS.json",
+    "05_DEVELOPER_FRICTION_LOG.md",
+    "05_INDEPENDENT_REPRODUCTION_TASK.md",
+    "05_REPRODUCTION_VERDICT.json"
+   ],
+   "phase_name": "End-to-end fresh-clone reproduction (pilot 10/10, five metrics, cancel/resume)"
+  },
+  "M6": {
+   "status": "PENDING",
+   "outputs": [
+    "06_PERFORMANCE_RECONCILIATION.md",
+    "06_GPU_MEMORY_TELEMETRY.json",
+    "06_PERCENTILE_REFERENCE.json",
+    "06_LICENSE_SECURITY_AUDIT.md",
+    "06_GIT_HISTORY_AUDIT.json",
+    "06_INTEGRATION_PLAN.md",
+    "06_AUTHOR_ACCEPTANCE_UPDATE.md",
+    "06_AMD_ACCEPTANCE_UPDATE.md"
+   ],
+   "phase_name": "Performance, documentation & release hardening"
+  },
+  "M7": {
+   "status": "PENDING",
+   "outputs": [
+    "07_ADVERSARIAL_MATRIX.json",
+    "07_INDEPENDENT_REVIEW.md",
+    "RC6_1_FINAL_GATE_LEDGER.json",
+    "FINAL_VERDICTS.json",
+    "RELEASE_MANIFEST.json",
+    "RELEASE_NOTES.md",
+    "FINAL_REPORT_ZH.md"
+   ],
+   "phase_name": "Adversarial review & GitHub delivery"
+  }
+ },
+ "gpu_lock_policy_rc6_1": "All RC6.1 GPU work runs under the physical lock domain (BDF 0000:03:00.0 / UUID e9d0e20bb686e6c6) established by M3.5 — shared across workspaces.",
+ "external_gates_expected_open": [
+  "official CUDA PER/Q3O same-audio comparison (no CUDA host)",
+  "off-machine backup (no owner-authorized external store)",
+  "independent physical host / independent human executor",
+  "author acceptance / AMD acceptance (submission requires owner authorization)"
+ ]
+}

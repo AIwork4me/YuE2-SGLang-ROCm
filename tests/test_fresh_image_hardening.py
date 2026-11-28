@@ -157,7 +157,17 @@ class TestRcaF4GpuLock:
         assert str(G.resolve_default_lock()) == str(tmp_path / "a" / "gpu.lock")
         monkeypatch.setenv("YUE2_GPU_LOCK", str(tmp_path / "b" / "gpu.lock"))
         assert str(G.resolve_default_lock()) == str(tmp_path / "b" / "gpu.lock")
+        # RC6.1 M3.5: without an explicit lock the default is the SHARED
+        # PHYSICAL domain (BDF-keyed) when a GPU is resolvable and the shared
+        # root is usable; call-time resolution still holds (a different root
+        # takes effect immediately)
         monkeypatch.delenv("YUE2_GPU_LOCK")
+        monkeypatch.setenv("YUE2_GPU_LOCK_ROOT", str(tmp_path / "shared1"))
+        l1 = str(G.resolve_default_lock())
+        monkeypatch.setenv("YUE2_GPU_LOCK_ROOT", str(tmp_path / "shared2"))
+        assert str(G.resolve_default_lock()) != l1
+        # legacy fallback: unwritable shared root -> workspace lock
+        monkeypatch.setenv("YUE2_GPU_LOCK_ROOT", "/proc/no-such-root")
         monkeypatch.setenv("YUE2_WORKSPACE", str(tmp_path / "ws1"))
         assert str(G.resolve_default_lock()) == str(tmp_path / "ws1" / "gpu.lock")
 

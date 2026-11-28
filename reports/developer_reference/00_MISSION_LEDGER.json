@@ -1,0 +1,87 @@
+{
+ "schema": "yue2-rc6-mission-ledger/1",
+ "updated_at_utc": "2026-11-27T17:20:00Z",
+ "mission": "RC6: YuE2 on ROCm Developer Reproduction Reference (RC5.2 -> RC5.3A -> RC5.3B -> RC5.4 -> delivery)",
+ "base": "57e81c2ccb664a4a5eedf9a9526d0709647ba9aa (PR #19 HEAD, live-audited 2026-11-27)",
+ "resume_policy": "task-level checkpointing; a historical PASS never exempts re-verification when the mission requires live evidence",
+ "tasks": [
+  {
+   "id": "M0",
+   "desc": "baseline freeze, live audit, evidence read, protection",
+   "status": "DONE",
+   "outputs": [
+    "00_BASELINE.json",
+    "00_EVIDENCE_FREEZE.json",
+    "00_MISSION_LEDGER.json",
+    "00_STORAGE_RISK.md"
+   ]
+  },
+  {
+   "id": "A1",
+   "desc": "generation determinism closure (PCM/token identity for the 4 divergent FLACs)",
+   "status": "DONE"
+  },
+  {
+   "id": "A2",
+   "desc": "ASR run identity contract + fail-closed resume + scorer hardening + negative controls",
+   "status": "DONE"
+  },
+  {
+   "id": "A3",
+   "desc": "PER paired 4-cell attribution, 60/120 reconciliation, corrected scoreboard decision",
+   "status": "DONE (Q3O-on-S_V disclosed NOT_RUN)"
+  },
+  {
+   "id": "A4",
+   "desc": "Q3O boundary closure: contract, mutation review, CUDA comparator",
+   "status": "DONE"
+  },
+  {
+   "id": "A5",
+   "desc": "developer golden path: canonical quickstart, reference CLI, first-song acceptance, verification tool",
+   "status": "DONE (FULL_SONG_PASS live)"
+  },
+  {
+   "id": "A6",
+   "desc": "performance reference, compatibility matrix, operational limits, troubleshooting",
+   "status": "DONE"
+  },
+  {
+   "id": "B",
+   "desc": "RC5.3A author review package + acceptance matrix + CUDA runbooks (submission requires authorization)",
+   "status": "DONE (package READY, not submitted)"
+  },
+  {
+   "id": "C",
+   "desc": "RC5.3B fresh-clone same-host reproduction + developer acceptance matrix + friction log",
+   "status": "DONE (Mode 2; R09-R12 disclosed)"
+  },
+  {
+   "id": "D",
+   "desc": "RC5.4 PR topology audit, patch ownership, AMD package, release candidate",
+   "status": "DONE (RC v1.0-rc1 prepared)"
+  },
+  {
+   "id": "X1",
+   "desc": "cross-phase regression + adversarial controls (CPU + physical GPU)",
+   "status": "DONE (585+3skip CPU, 5 live GPU controls, freeze 0 mismatches)"
+  },
+  {
+   "id": "X2",
+   "desc": "GitHub push, PR, exact-HEAD CI",
+   "status": "PENDING_PUSH"
+  },
+  {
+   "id": "X3",
+   "desc": "final release gate ledger, separate verdicts, final report ZH",
+   "status": "DONE (this report + ledger + verdicts)"
+  }
+ ],
+ "external_blockers": {
+  "off_machine_backup": "BLOCKED_EXTERNAL",
+  "cuda_host": "BLOCKED_EXTERNAL",
+  "author_approval": "NOT_PRESENT (package will be prepared; no un-authorized external contact)",
+  "amd_approval": "NOT_PRESENT",
+  "independent_host_or_human": "NOT_AVAILABLE (Mode 2 same-host fresh clone is the ceiling this mission can truthfully claim)"
+ }
+}

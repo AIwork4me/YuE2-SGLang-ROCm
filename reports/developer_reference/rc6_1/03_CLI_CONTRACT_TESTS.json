@@ -1,0 +1,134 @@
+{
+ "schema": "yue2-rc6_1-cli-contract-tests/1",
+ "generated_at_utc": "2026-11-27T22:40:43Z",
+ "install_pinning_and_cli": {
+  "file": "tests/test_rc61_install.py",
+  "results": [
+   {
+    "test": "test_A18_branch_advances_pin_holds",
+    "status": "9%]"
+   },
+   {
+    "test": "test_frozen_sha_absent_is_fatal_no_branch_fallback",
+    "status": "18%]"
+   },
+   {
+    "test": "test_wrong_existing_head_corrected_and_verified",
+    "status": "27%]"
+   },
+   {
+    "test": "test_A20_dirty_worktree_refused_not_reset",
+    "status": "36%]"
+   },
+   {
+    "test": "test_A19_already_applied_patch_idempotent",
+    "status": "45%]"
+   },
+   {
+    "test": "test_fresh_clone_pinned_and_patched",
+    "status": "54%]"
+   },
+   {
+    "test": "test_partially_applied_patch_refused",
+    "status": "63%]"
+   },
+   {
+    "test": "test_cli_dry_run_install_has_no_side_effects",
+    "status": "72%]"
+   },
+   {
+    "test": "test_cli_generate_dry_run_creates_nothing",
+    "status": "81%]"
+   },
+   {
+    "test": "test_cli_generate_no_clobber",
+    "status": "90%]"
+   },
+   {
+    "test": "test_cli_works_from_any_cwd",
+    "status": "[100%]"
+   }
+  ],
+  "coverage": [
+   "A18 branch advances -> pin holds",
+   "A19 patch already applied -> idempotent skip",
+   "A20 dirty worktree -> REFUSED (no reset --hard)",
+   "frozen SHA absent -> FATAL (no branch fallback)",
+   "wrong HEAD corrected+verified",
+   "partially-applied patch -> REFUSED",
+   "fresh clone pinned+patched",
+   "dry-run no side effects (install/generate)",
+   "no-clobber",
+   "any-CWD invocation"
+  ]
+ },
+ "interpreter_fix": "download/download_pins now use the generation venv interpreter (system python lacked huggingface_hub — live defect found and fixed during the real install replay)",
+ "contention": [
+  {
+   "step": "A acquires the shared physical lock",
+   "pass": true,
+   "detail": {
+    "pid": 1012170,
+    "lock": "/var/lock/yue2-gpu/gpu-0000:03:00.0.lock",
+    "domain": "gpu-0000:03:00.0"
+   }
+  },
+  {
+   "step": "B is refused (LOCK_CONTENTION, no new GPU workload)",
+   "pass": true,
+   "detail": {
+    "out": "LOCK_CONTENTION"
+   }
+  },
+  {
+   "step": "reference stop --workspace B is REFUSED while A holds",
+   "pass": true,
+   "detail": {
+    "rc": 4
+   }
+  },
+  {
+   "step": "safe stop of A releases the domain",
+   "pass": true,
+   "detail": {
+    "rc": 0,
+    "holder_live": false
+   }
+  },
+  {
+   "step": "B acquires the domain after release and runs real GPU compute",
+   "pass": true,
+   "detail": {
+    "out": "B-GPU-COMPUTE-OK AMD Radeon Pro W7900D True",
+    "rc": 0
+   }
+  },
+  {
+   "step": "stale receipt is reclaimed (flock is authoritative)",
+   "pass": true,
+   "detail": {
+    "out": "STALE-RECLAIMED"
+   }
+  },
+  {
+   "step": "BLOCKED marker refuses acquisition in the domain",
+   "pass": true,
+   "detail": null
+  },
+  {
+   "step": "operator unblock clears the marker (evidence kept)",
+   "pass": true,
+   "detail": {
+    "out": "{\"cleared\": true, \"evidence_kept\": \"/var/lock/yue2-gpu/gpu-0000:03:00.0.lock.BLOCKED.cleared-20261127T223054Z\"}"
+   }
+  },
+  {
+   "step": "unwritable shared root falls back to the workspace lock (disclosed)",
+   "pass": true,
+   "detail": {
+    "out": "LEGACY",
+    "note": "cross-workspace protection does NOT hold in this mode"
+   }
+  }
+ ]
+}

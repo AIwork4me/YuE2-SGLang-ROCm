@@ -23,6 +23,17 @@ import soundfile as sf
 
 RUNS = Path(os.environ.get("YUE2_WORKSPACE", "/home/amd/Desktop/YuE2")) / "runs/phase4"
 
+# RC6: the historical phase-4 audio was produced on the RC2-era image and is
+# gone after the image rebuilds (its evidence lives in reports/gfx1100/ and
+# evidence/). These tests validate REAL server output on hardware: when the
+# files are absent they SKIP with instructions (the repo convention for
+# manifest-dependent tests) instead of failing — never silently passing.
+pytestmark = pytest.mark.skipif(
+    not (RUNS / "full1.wav").is_file(),
+    reason=f"historical phase-4 audio absent ({RUNS}); regenerate via "
+           f"scripts/run_smoke_test.sh + the phase-4 requests (see "
+           f"reports/gfx1100/PHASE4_FIRST_AUDIO.md), then rerun on hardware")
+
 
 def _meta(path: Path):
     audio, sr = sf.read(path)

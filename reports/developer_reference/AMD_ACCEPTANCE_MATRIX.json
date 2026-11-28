@@ -1,0 +1,112 @@
+{
+ "schema": "yue2-rc6-amd-acceptance-matrix/1",
+ "generated_at_utc": "2026-11-27T15:50:00Z",
+ "policy": "statuses update ONLY from real authorized-person review records; AI/self-granted acceptance is prohibited",
+ "status_vocabulary": [
+  "READY_FOR_REVIEW",
+  "SUBMITTED",
+  "ACCEPTED",
+  "CHANGES_REQUESTED",
+  "PENDING_EXTERNAL_VALIDATION",
+  "NOT_SUBMITTED"
+ ],
+ "rows": [
+  {
+   "id": "AMD01",
+   "item": "Hardware validation",
+   "status": "READY_FOR_REVIEW",
+   "reviewer": null,
+   "evidence": "GPU identity chain receipts in every session (gfx1100 W7900D, BDF/uuid/KFD/compute probe)",
+   "review_timestamp": null
+  },
+  {
+   "id": "AMD02",
+   "item": "ROCm compatibility",
+   "status": "READY_FOR_REVIEW",
+   "reviewer": null,
+   "evidence": "pinned 7.14.1 userspace install receipts + effective runtime manifest sha 342b2f53",
+   "review_timestamp": null
+  },
+  {
+   "id": "AMD03",
+   "item": "Runtime reliability",
+   "status": "READY_FOR_REVIEW",
+   "reviewer": null,
+   "evidence": "single-owner lifecycle receipts; restore drill 384/384; RC5.1 tail-checkpoint fix; RC6 fail-closed resume controls",
+   "review_timestamp": null
+  },
+  {
+   "id": "AMD04",
+   "item": "Benchmark integrity",
+   "status": "READY_FOR_REVIEW",
+   "reviewer": null,
+   "evidence": "frozen evaluator verify_release/verify_assets gates; protocol chains; RC6 evaluator provenance audit (0 violations both arms)",
+   "review_timestamp": null
+  },
+  {
+   "id": "AMD05",
+   "item": "Performance reporting",
+   "status": "READY_FOR_REVIEW",
+   "reviewer": null,
+   "evidence": "06_PERFORMANCE_REFERENCE.md (recomputed; GB/GiB discipline; scope labels)",
+   "review_timestamp": null
+  },
+  {
+   "id": "AMD06",
+   "item": "Developer reproducibility",
+   "status": "READY_FOR_REVIEW",
+   "reviewer": null,
+   "evidence": "reference CLI + canonical quickstart + verification tool + RC6 C-phase fresh-clone report",
+   "review_timestamp": null
+  },
+  {
+   "id": "AMD07",
+   "item": "Security / license compliance",
+   "status": "READY_FOR_REVIEW",
+   "reviewer": null,
+   "evidence": "public-evidence guard, lyrics detector, secret scan in CI; licensing review in the package",
+   "review_timestamp": null
+  },
+  {
+   "id": "AMD08",
+   "item": "Upstream maintainability",
+   "status": "READY_FOR_REVIEW",
+   "reviewer": null,
+   "evidence": "UPSTREAM_PATCH_OWNERSHIP.md (per-issue destinations, minimal reproducers, removal conditions)",
+   "review_timestamp": null
+  },
+  {
+   "id": "AMD09",
+   "item": "Public communication accuracy",
+   "status": "READY_FOR_REVIEW",
+   "reviewer": null,
+   "evidence": "PUBLIC_CLAIMS_MATRIX.md + corrected stale statements (Q3O, 60/120, author-verified wording)",
+   "review_timestamp": null
+  },
+  {
+   "id": "AMD10",
+   "item": "Publication approval",
+   "status": "NOT_SUBMITTED",
+   "reviewer": null,
+   "evidence": "external process; no AMD contact authorized",
+   "review_timestamp": null
+  }
+ ],
+ "overall": "AMD_ENGINEERING_ACCEPTANCE_PACKAGE_READY",
+ "submission_record": {
+  "submitted_at_utc": null,
+  "submitted_by": null,
+  "channel": null
+ },
+ "rc6_1_update": {
+  "generated_at_utc": "2026-11-28T00:59:12Z",
+  "new_evidence": [
+   "five-metric Scoreboard B complete (Q3O 192/192 on S_V)",
+   "physical GPU lock domain (BDF-keyed) shared across workspaces with cross-workspace contention evidence",
+   "idempotent pinned installation (2x real replay receipts)",
+   "VRAM evidence reconciled (peak card-total 29.7 GiB; the ~47 GiB figure was capacity, retracted)",
+   "percentile reference with a declared estimator"
+  ],
+  "engineering_acceptance_state": "PACKAGE_READY_NOT_SUBMITTED"
+ }
+}

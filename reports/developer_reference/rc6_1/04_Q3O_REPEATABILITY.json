@@ -1,0 +1,462 @@
+{
+ "schema": "yue2-rc6_1-q3o-repeatability/1",
+ "generated_at_utc": "2026-11-28T01:38:47Z",
+ "subset": [
+  "wsb_164_r1_s831183",
+  "wsb_189_r0_s831190",
+  "wsb_000_r0_s831001",
+  "wsb_002_r0_s831003",
+  "wsb_001_r1_s831020",
+  "wsb_191_r0_s831192",
+  "wsb_190_r0_s831191",
+  "wsb_119_r1_s831138"
+ ],
+ "rows": [
+  {
+   "id": "wsb_164_r1_s831183",
+   "scores": [
+    1.1923076923076923,
+    1.1923076923076923,
+    1.1923076923076923
+   ],
+   "token_identity_intra_process": true,
+   "token_identity_cross_process": true,
+   "score_variance": 0.0,
+   "routing_ties": [
+    {
+     "cpu": {
+      "router_calls": 5502,
+      "routed_token_slots": 30744,
+      "boundary_ties": 5443,
+      "boundary_tie_rate": 0.17704267
+     },
+     "cuda:0": {
+      "router_calls": 13362,
+      "routed_token_slots": 74664,
+      "boundary_ties": 15112,
+      "boundary_tie_rate": 0.20240009
+     }
+    },
+    {
+     "cpu": {
+      "router_calls": 5502,
+      "routed_token_slots": 30744,
+      "boundary_ties": 5443,
+      "boundary_tie_rate": 0.17704267
+     },
+     "cuda:0": {
+      "router_calls": 13362,
+      "routed_token_slots": 74664,
+      "boundary_ties": 15112,
+      "boundary_tie_rate": 0.20240009
+     }
+    },
+    {
+     "cpu": {
+      "router_calls": 5502,
+      "routed_token_slots": 30744,
+      "boundary_ties": 5443,
+      "boundary_tie_rate": 0.17704267
+     },
+     "cuda:0": {
+      "router_calls": 13362,
+      "routed_token_slots": 74664,
+      "boundary_ties": 15112,
+      "boundary_tie_rate": 0.20240009
+     }
+    }
+   ]
+  },
+  {
+   "id": "wsb_189_r0_s831190",
+   "scores": [
+    5.0,
+    5.0,
+    5.0
+   ],
+   "token_identity_intra_process": true,
+   "token_identity_cross_process": true,
+   "score_variance": 0.0,
+   "routing_ties": [
+    {
+     "cpu": {
+      "router_calls": 4746,
+      "routed_token_slots": 19810,
+      "boundary_ties": 4419,
+      "boundary_tie_rate": 0.22306916
+     },
+     "cuda:0": {
+      "router_calls": 11526,
+      "routed_token_slots": 48110,
+      "boundary_ties": 11550,
+      "boundary_tie_rate": 0.24007483
+     }
+    },
+    {
+     "cpu": {
+      "router_calls": 4746,
+      "routed_token_slots": 19810,
+      "boundary_ties": 4419,
+      "boundary_tie_rate": 0.22306916
+     },
+     "cuda:0": {
+      "router_calls": 11526,
+      "routed_token_slots": 48110,
+      "boundary_ties": 11550,
+      "boundary_tie_rate": 0.24007483
+     }
+    },
+    {
+     "cpu": {
+      "router_calls": 4746,
+      "routed_token_slots": 19810,
+      "boundary_ties": 4419,
+      "boundary_tie_rate": 0.22306916
+     },
+     "cuda:0": {
+      "router_calls": 11526,
+      "routed_token_slots": 48110,
+      "boundary_ties": 11550,
+      "boundary_tie_rate": 0.24007483
+     }
+    }
+   ]
+  },
+  {
+   "id": "wsb_000_r0_s831001",
+   "scores": [
+    5.0,
+    5.0,
+    5.0
+   ],
+   "token_identity_intra_process": true,
+   "token_identity_cross_process": true,
+   "score_variance": 0.0,
+   "routing_ties": [
+    {
+     "cpu": {
+      "router_calls": 1400,
+      "routed_token_slots": 15372,
+      "boundary_ties": 3435,
+      "boundary_tie_rate": 0.22345824
+     },
+     "cuda:0": {
+      "router_calls": 3400,
+      "routed_token_slots": 37332,
+      "boundary_ties": 8473,
+      "boundary_tie_rate": 0.22696346
+     }
+    },
+    {
+     "cpu": {
+      "router_calls": 1400,
+      "routed_token_slots": 15372,
+      "boundary_ties": 3435,
+      "boundary_tie_rate": 0.22345824
+     },
+     "cuda:0": {
+      "router_calls": 3400,
+      "routed_token_slots": 37332,
+      "boundary_ties": 8473,
+      "boundary_tie_rate": 0.22696346
+     }
+    },
+    {
+     "cpu": {
+      "router_calls": 1400,
+      "routed_token_slots": 15372,
+      "boundary_ties": 3435,
+      "boundary_tie_rate": 0.22345824
+     },
+     "cuda:0": {
+      "router_calls": 3400,
+      "routed_token_slots": 37332,
+      "boundary_ties": 8473,
+      "boundary_tie_rate": 0.22696346
+     }
+    }
+   ]
+  },
+  {
+   "id": "wsb_002_r0_s831003",
+   "scores": [
+    5.0,
+    5.0,
+    5.0
+   ],
+   "token_identity_intra_process": true,
+   "token_identity_cross_process": true,
+   "score_variance": 0.0,
+   "routing_ties": [
+    {
+     "cpu": {
+      "router_calls": 5404,
+      "routed_token_slots": 23576,
+      "boundary_ties": 4875,
+      "boundary_tie_rate": 0.20677808
+     },
+     "cuda:0": {
+      "router_calls": 13124,
+      "routed_token_slots": 57256,
+      "boundary_ties": 12844,
+      "boundary_tie_rate": 0.22432583
+     }
+    },
+    {
+     "cpu": {
+      "router_calls": 5404,
+      "routed_token_slots": 23576,
+      "boundary_ties": 4875,
+      "boundary_tie_rate": 0.20677808
+     },
+     "cuda:0": {
+      "router_calls": 13124,
+      "routed_token_slots": 57256,
+      "boundary_ties": 12844,
+      "boundary_tie_rate": 0.22432583
+     }
+    },
+    {
+     "cpu": {
+      "router_calls": 5404,
+      "routed_token_slots": 23576,
+      "boundary_ties": 4875,
+      "boundary_tie_rate": 0.20677808
+     },
+     "cuda:0": {
+      "router_calls": 13124,
+      "routed_token_slots": 57256,
+      "boundary_ties": 12844,
+      "boundary_tie_rate": 0.22432583
+     }
+    }
+   ]
+  },
+  {
+   "id": "wsb_001_r1_s831020",
+   "scores": [
+    5.0,
+    5.0,
+    5.0
+   ],
+   "token_identity_intra_process": true,
+   "token_identity_cross_process": true,
+   "score_variance": 0.0,
+   "routing_ties": [
+    {
+     "cpu": {
+      "router_calls": 4550,
+      "routed_token_slots": 24360,
+      "boundary_ties": 5346,
+      "boundary_tie_rate": 0.21945813
+     },
+     "cuda:0": {
+      "router_calls": 11050,
+      "routed_token_slots": 59160,
+      "boundary_ties": 12807,
+      "boundary_tie_rate": 0.21648073
+     }
+    },
+    {
+     "cpu": {
+      "router_calls": 4550,
+      "routed_token_slots": 24360,
+      "boundary_ties": 5346,
+      "boundary_tie_rate": 0.21945813
+     },
+     "cuda:0": {
+      "router_calls": 11050,
+      "routed_token_slots": 59160,
+      "boundary_ties": 12807,
+      "boundary_tie_rate": 0.21648073
+     }
+    },
+    {
+     "cpu": {
+      "router_calls": 4550,
+      "routed_token_slots": 24360,
+      "boundary_ties": 5346,
+      "boundary_tie_rate": 0.21945813
+     },
+     "cuda:0": {
+      "router_calls": 11050,
+      "routed_token_slots": 59160,
+      "boundary_ties": 12807,
+      "boundary_tie_rate": 0.21648073
+     }
+    }
+   ]
+  },
+  {
+   "id": "wsb_191_r0_s831192",
+   "scores": [
+    3.6,
+    3.6,
+    3.6
+   ],
+   "token_identity_intra_process": true,
+   "token_identity_cross_process": true,
+   "score_variance": 0.0,
+   "routing_ties": [
+    {
+     "cpu": {
+      "router_calls": 4354,
+      "routed_token_slots": 25214,
+      "boundary_ties": 5999,
+      "boundary_tie_rate": 0.23792338
+     },
+     "cuda:0": {
+      "router_calls": 10574,
+      "routed_token_slots": 61234,
+      "boundary_ties": 14969,
+      "boundary_tie_rate": 0.24445569
+     }
+    },
+    {
+     "cpu": {
+      "router_calls": 4354,
+      "routed_token_slots": 25214,
+      "boundary_ties": 5999,
+      "boundary_tie_rate": 0.23792338
+     },
+     "cuda:0": {
+      "router_calls": 10574,
+      "routed_token_slots": 61234,
+      "boundary_ties": 14969,
+      "boundary_tie_rate": 0.24445569
+     }
+    },
+    {
+     "cpu": {
+      "router_calls": 4354,
+      "routed_token_slots": 25214,
+      "boundary_ties": 5999,
+      "boundary_tie_rate": 0.23792338
+     },
+     "cuda:0": {
+      "router_calls": 10574,
+      "routed_token_slots": 61234,
+      "boundary_ties": 14969,
+      "boundary_tie_rate": 0.24445569
+     }
+    }
+   ]
+  },
+  {
+   "id": "wsb_190_r0_s831191",
+   "scores": [
+    3.92,
+    3.92,
+    3.92
+   ],
+   "token_identity_intra_process": true,
+   "token_identity_cross_process": true,
+   "score_variance": 0.0,
+   "routing_ties": [
+    {
+     "cpu": {
+      "router_calls": 5516,
+      "routed_token_slots": 21462,
+      "boundary_ties": 4527,
+      "boundary_tie_rate": 0.21093095
+     },
+     "cuda:0": {
+      "router_calls": 13396,
+      "routed_token_slots": 52122,
+      "boundary_ties": 11925,
+      "boundary_tie_rate": 0.22879015
+     }
+    },
+    {
+     "cpu": {
+      "router_calls": 5516,
+      "routed_token_slots": 21462,
+      "boundary_ties": 4527,
+      "boundary_tie_rate": 0.21093095
+     },
+     "cuda:0": {
+      "router_calls": 13396,
+      "routed_token_slots": 52122,
+      "boundary_ties": 11925,
+      "boundary_tie_rate": 0.22879015
+     }
+    },
+    {
+     "cpu": {
+      "router_calls": 5516,
+      "routed_token_slots": 21462,
+      "boundary_ties": 4527,
+      "boundary_tie_rate": 0.21093095
+     },
+     "cuda:0": {
+      "router_calls": 13396,
+      "routed_token_slots": 52122,
+      "boundary_ties": 11925,
+      "boundary_tie_rate": 0.22879015
+     }
+    }
+   ]
+  },
+  {
+   "id": "wsb_119_r1_s831138",
+   "scores": [
+    2.5,
+    2.5,
+    2.5
+   ],
+   "token_identity_intra_process": true,
+   "token_identity_cross_process": true,
+   "score_variance": 0.0,
+   "routing_ties": [
+    {
+     "cpu": {
+      "router_calls": 2086,
+      "routed_token_slots": 16282,
+      "boundary_ties": 3815,
+      "boundary_tie_rate": 0.23430782
+     },
+     "cuda:0": {
+      "router_calls": 5066,
+      "routed_token_slots": 39542,
+      "boundary_ties": 9679,
+      "boundary_tie_rate": 0.2447777
+     }
+    },
+    {
+     "cpu": {
+      "router_calls": 2086,
+      "routed_token_slots": 16282,
+      "boundary_ties": 3815,
+      "boundary_tie_rate": 0.23430782
+     },
+     "cuda:0": {
+      "router_calls": 5066,
+      "routed_token_slots": 39542,
+      "boundary_ties": 9679,
+      "boundary_tie_rate": 0.2447777
+     }
+    },
+    {
+     "cpu": {
+      "router_calls": 2086,
+      "routed_token_slots": 16282,
+      "boundary_ties": 3815,
+      "boundary_tie_rate": 0.23430782
+     },
+     "cuda:0": {
+      "router_calls": 5066,
+      "routed_token_slots": 39542,
+      "boundary_ties": 9679,
+      "boundary_tie_rate": 0.2447777
+     }
+    }
+   ]
+  }
+ ],
+ "verdicts": {
+  "INTRA_ENGINE_REPEATABILITY": "IDENTICAL",
+  "CROSS_PROCESS_DETERMINISM": "IDENTICAL",
+  "CROSS_IMPLEMENTATION_NUMERICAL_EQUIVALENCE": "NOT_TESTED_HERE (same implementation, different processes; official CUDA engine comparison remains NOT_ESTABLISHED)"
+ },
+ "verdict": "PASS"
+}

@@ -1,0 +1,12 @@
+{
+ "schema": "yue2-rc6_1-historical-asr-audit/1",
+ "generated_at_utc": "2026-11-27T22:23:03Z",
+ "transcripts": "/data/yue2-runs/rc5-per-experiments/rc5_1_e2_full/transcripts.jsonl",
+ "rows": 384,
+ "decision_counts": {
+  "HISTORICAL_RECEIPT_VALID_IDENTITY_PARTIAL": 384
+ },
+ "read_only": true,
+ "treatment": "HISTORICAL_RECEIPT_VALID_IDENTITY_PARTIAL \u2014 the frozen 8.4488% PER arm keeps ANALYSIS validity (structure + audio binding + repeat counts verified read-only); strict resume is NOT granted (historical receipts carry no run_identity / receipt hashes). Reuse for new reference runs requires re-executing ASR on the frozen 384 audio, not regeneration.",
+ "resume_allowed": true
+}

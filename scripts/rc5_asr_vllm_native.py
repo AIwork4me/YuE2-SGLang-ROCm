@@ -35,6 +35,9 @@ import sys
 import time
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import rc6_asr_identity as asr_id  # RC6 A2: fail-closed identity + resume
+
 os.environ.setdefault("VLLM_NO_USAGE_STATS", "1")
 os.environ.setdefault("DO_NOT_TRACK", "1")
 os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
@@ -81,6 +84,37 @@ def main() -> int:
         rows = [r for r in rows if r["id"] in want]
     if a.limit:
         rows = rows[:a.limit]
+    # RC6 A2.1: full ASR_RUN_IDENTITY (model files, preprocessor, engine,
+    # chunking sources, decoding, manifest, driver) computed BEFORE any GPU
+    # work; every receipt embeds it.
+    import qwen_asr
+    from qwen_asr.inference import utils as _qa_utils
+    run_identity = asr_id.build_run_identity(
+        model_root=a.asr_root,
+        engine={"engine": "vLLM native Qwen3ASRForConditionalGeneration on ROCm",
+                "engine_class": "vllm.LLM(Qwen3ASRForConditionalGeneration)",
+                "vllm": vllm.__version__, "torch": torch.__version__, "hip": torch.version.hip,
+                "gpu": torch.cuda.get_device_name(0) if torch.cuda.is_available() else None,
+                "platform": "RocmPlatform (registered directly, amdsmi probe shim)",
+                "dtype": a.dtype},
+        preproc={"audio_loading": "qwen_asr.inference.utils.normalize_audios",
+                 "chunking": "qwen_asr.inference.utils.split_audio_into_chunks",
+                 "utils_sha256": asr_id.sha256_file(
+                     Path(_qa_utils.__file__)),
+                 "sample_rate": 16000},
+        decoding={"temperature": 0.0, "top_p": 1.0, "top_k": -1,
+                  "max_tokens": a.max_new_tokens, "seed": a.seed,
+                  "repeats": a.repeats, "batch_songs": a.batch_songs,
+                  "gpu_memory_utilization": a.gpu_memory_utilization},
+        scoring={"scorer_step": "scripts/rc5_score_transcripts.py (separate scoring identity)",
+                 "audio_manifest_sha256": asr_id.sha256_file(a.manifest)},
+        driver_path=Path(__file__).resolve())
+    run_identity["engine"]["vllm"] = vllm.__version__
+    run_identity["engine"]["qwen_asr"] = getattr(qwen_asr, "__version__",
+                                                 Path(qwen_asr.__file__).parent.name)
+    run_identity["run_identity_sha256"] = asr_id.sha256_bytes(
+        json.dumps({k: v for k, v in run_identity.items() if k != "run_identity_sha256"},
+                   sort_keys=True, ensure_ascii=False).encode())
     processor = Qwen3ASRProcessor.from_pretrained(str(a.asr_root))
     t0 = time.time()
     llm = LLM(model=str(a.asr_root), dtype=a.dtype, seed=a.seed,
@@ -91,7 +125,8 @@ def main() -> int:
            "vllm": vllm.__version__, "torch": torch.__version__, "hip": torch.version.hip,
            "gpu": torch.cuda.get_device_name(0), "dtype": a.dtype, "seed": a.seed,
            "gpu_memory_utilization": a.gpu_memory_utilization, "max_new_tokens": a.max_new_tokens,
-           "load_seconds": round(load_s, 1), "asr_root": str(a.asr_root)}
+           "load_seconds": round(load_s, 1), "asr_root": str(a.asr_root),
+           "run_identity": run_identity}
     try:
         from vllm.platforms import current_platform
         env["vllm_platform"] = type(current_platform).__name__
@@ -99,13 +134,27 @@ def main() -> int:
         pass
     sampling = SamplingParams(temperature=0.0, top_p=1.0, top_k=-1, max_tokens=a.max_new_tokens)
     a.out.parent.mkdir(parents=True, exist_ok=True)
+    # RC6.1 M2.4: durable fail-closed resume via prepare_resume():
+    #   * receipt hashes recomputed (tamper -> REFUSED)
+    #   * full identity binding (partial-field acceptance closed)
+    #   * torn tail -> atomic quarantine; incomplete rows -> atomic supersede
+    #     (re-run without leaving duplicate complete ids)
+    #   * anything rejected / duplicated / mid-file corrupt -> REFUSED
     done = set()
     if a.out.is_file():
-        for line in a.out.read_text().splitlines():
-            try:
-                done.add(json.loads(line)["id"])
-            except ValueError:
-                pass
+        res = asr_id.prepare_resume(a.out, rows, run_identity, expected_repeats=a.repeats)
+        audit_out = a.out.with_suffix(a.out.suffix + ".resume_audit.json")
+        audit_out.write_text(json.dumps(res["audit"], indent=1, sort_keys=True) + "\n")
+        if res["action"] == "REFUSED":
+            print(json.dumps({"resume": "REFUSED", "reason": res["reason"],
+                              "hard_errors": res["audit"]["fail_closed_hard_errors"],
+                              "rejected": res["audit"]["rejected"],
+                              "hint": "start a NEW --out path (supersede, never overwrite)"}))
+            return 4
+        if res.get("superseded_file"):
+            print(f"[resume] incomplete receipts superseded to {res['superseded_file']} "
+                  "(will re-run; no duplicate complete ids)")
+        done = set(res["reusable"])
     with a.out.open("a") as fout:
         for start in range(0, len(rows), a.batch_songs):
             batch = [r for r in rows[start:start + a.batch_songs] if r["id"] not in done]
@@ -114,7 +163,7 @@ def main() -> int:
             t1 = time.time()
             wavs = normalize_audios([r["audio_path"] for r in batch])
             inputs, owner = [], []
-            for r, wav in zip(batch, wavs):
+            for r, wav in asr_id.pair_strict(batch, wavs):
                 for _ in range(a.repeats):
                     for cwav, _off in split_audio_into_chunks(wav=wav, sr=SAMPLE_RATE,
                                                               max_chunk_sec=MAX_ASR_INPUT_SECONDS):
@@ -125,7 +174,7 @@ def main() -> int:
                         owner.append(r["id"])
             outputs = llm.generate(inputs, sampling_params=sampling, use_tqdm=False)
             per_song: dict[str, list] = {}
-            for oid, o in zip(owner, outputs):
+            for oid, o in asr_id.pair_strict(owner, outputs):
                 per_song.setdefault(oid, []).append(
                     {"text_raw": o.outputs[0].text, "generated_tokens": len(o.outputs[0].token_ids),
                      "finish_reason": o.outputs[0].finish_reason})
@@ -139,12 +188,17 @@ def main() -> int:
                     chunk_recs = recs[i * n_chunks:(i + 1) * n_chunks]
                     lang, txt = parse_asr_output("".join(c["text_raw"] for c in chunk_recs))
                     reps.append({"repeat": i, "language": lang, "text": txt, "raw_chunks": chunk_recs})
-                fout.write(json.dumps({"id": r["id"], "prompt_index": r["prompt_index"],
-                                       "candidate_index": r["candidate_index"], "lang": r["lang"],
-                                       "audio_sha256": hashlib.sha256(Path(r["audio_path"]).read_bytes()).hexdigest(),
-                                       "chunks": n_chunks, "repeats": reps, "engine": env,
-                                       "batch_seconds": round(elapsed, 2)}, ensure_ascii=False) + "\n")
+                receipt = {"id": r["id"], "prompt_index": r["prompt_index"],
+                           "candidate_index": r["candidate_index"], "lang": r["lang"],
+                           "audio_sha256": hashlib.sha256(Path(r["audio_path"]).read_bytes()).hexdigest(),
+                           "chunks": n_chunks, "repeats": reps, "engine": env,
+                           "run_identity": run_identity, "repeat_count": len(reps),
+                           "status": "complete",
+                           "batch_seconds": round(elapsed, 2)}
+                receipt["transcript_receipt_sha256"] = asr_id.receipt_sha256(receipt)
+                fout.write(json.dumps(receipt, ensure_ascii=False) + "\n")
                 fout.flush()
+                os.fsync(fout.fileno())  # durable journal: survive crash mid-campaign
                 empties = sum(1 for x in reps if not x["text"].strip())
                 caps = sum(1 for x in reps if any(c["finish_reason"] == "length" for c in x["raw_chunks"]))
                 print(f"[vllm-asr] {r['id']} {r['lang']}: empty_repeats={empties}/{a.repeats} cap_repeats={caps} "

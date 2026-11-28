@@ -1,0 +1,38 @@
+{
+ "schema": "yue2-rc6-maintenance-schemas/1",
+ "generated_at_utc": "2026-11-27T16:00:00Z",
+ "purpose": "D7: machine-readable contracts future maintainers execute against",
+ "reference_manifest": {
+  "file": "configs/developer.lock.yaml",
+  "contains": ["repo head", "sglang commit + runtime sha", "torch/roc wheels", "model/dataset pins", "evaluator identities"],
+  "update_rule": "changing any pin = new release candidate + re-run of the CPU suite + a GPU smoke (first song) + pilot regression before any claim extends to the new pin"
+ },
+ "supported_version_policy": {
+  "supported": "exactly the pinned reference stack (see reference manifest)",
+  "policy": "one verified stack at a time; anything else is UNSUPPORTED_CONFIGURATION (the verify tool says so)",
+  "known_good_matrix": "docs/VERSION_MATRIX.md + reports/developer_reference/06_COMPATIBILITY_MATRIX.json"
+ },
+ "procedures": {
+  "update_upstream_pin": [
+    "1. freeze the new upstream head SHA (PR #42106 head, never the merge ref)",
+    "2. diff-review source files that the runtime touches (02_UPSTREAM_DELTA_REVIEW.md precedent)",
+    "3. re-apply/reconcile patches (0001/0003/0008 guards; check absorption)",
+    "4. rc5_runtime_manifest.py -> new yue2_runtime_sha256",
+    "5. GPU smoke (first song) + pilot 5x2 + hash-compare vs frozen campaign",
+    "6. only then extend any claim; the 384-campaign validation NEVER auto-extends"
+  ],
+  "test_new_rocm_release": "install into a FRESH venv (never mutate the pinned one) -> doctor --check-torch -> GPU identity -> first song -> pilot -> compare",
+  "test_new_radeon_gpu": "doctor (arch detection) -> if arch outside the verified matrix: UNSUPPORTED_CONFIGURATION; else first song + pilot + verify; record PHYSICAL_PASS only with receipts",
+  "detect_metric_drift": "re-run verify + compare against the frozen scoreboard; any delta outside disclosed arms = investigate before publishing (never average arms)",
+  "reproduce_reported_failure": "reference status -> gpu_lock state -> run the same command with the same pins -> journals/receipts carry identity chains; scorer failures now raise ScorerValidationError with explicit reasons",
+  "contribute_patches": "UPSTREAM_PATCH_OWNERSHIP.md per-issue plan: problem + minimal reproducer + patch + hardware receipt; no mega-PRs; no un-authorized external filing",
+  "add_benchmark_evidence": "new run_id + new directory (never write frozen trees) + tier receipt + scoreboard update only after full coverage"
+ },
+ "ci_policy": {
+  "cpu_ci": "required on every HEAD (tests/ + guards + compileall + bash -n); documents what it is NOT: no GPU execution",
+  "gpu_smoke_acceptance": "manual/owner-triggered (first song + identity + pilot); requires the physical rig",
+  "optional_benchmark_pilot": "opt-in, long-running; pilot numbers NEVER compared with full numbers",
+  "rule": "CPU CI green is never presented as GPU validation"
+ },
+ "release_gate_schema_pointer": "FINAL_RELEASE_GATE_LEDGER.json (G00-G28)"
+}

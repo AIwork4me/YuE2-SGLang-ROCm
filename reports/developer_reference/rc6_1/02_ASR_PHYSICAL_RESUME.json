@@ -1,0 +1,50 @@
+{
+ "schema": "yue2-rc6_1-asr-physical-resume/1",
+ "generated_at_utc": "2026-11-27T22:23:03Z",
+ "audio_candidates": [
+  {
+   "id": "cand_0",
+   "audio_path": "/data/yue2-runs/rc5-latest-upstream-20261124T065451Z/wsb_full/songbench_sel/audio/wsb_000_r0_s831001/audio.mp3",
+   "audio_sha256": "6b85d6011efa824420647c3e2069f09f72c63fd6079a8d97d35b51e5281b4344"
+  },
+  {
+   "id": "cand_1",
+   "audio_path": "/data/yue2-runs/rc5-latest-upstream-20261124T065451Z/wsb_full/songbench_sel/audio/wsb_000_r1_s831019/audio.mp3",
+   "audio_sha256": "1978489d774eec30d3b9ce226a24117e1877cec6ce78f3d49368bd9c78cf95d0"
+  },
+  {
+   "id": "cand_2",
+   "audio_path": "/data/yue2-runs/rc5-latest-upstream-20261124T065451Z/wsb_full/songbench_sel/audio/wsb_001_r0_s831002/audio.mp3",
+   "audio_sha256": "aa4967b956105879ca95b2f74a7a26bfb014353ec83bc6bf5979a6a23f5fb146"
+  }
+ ],
+ "engine": "MOCK-ENGINE-RESUME-TEST (synthetic transcripts; real audio hashes, manifest binding, identity contract, atomicity)",
+ "steps": [
+  {
+   "step": "start+kill-after-2",
+   "rc": -9
+  },
+  {
+   "step": "resume+torn-tail",
+   "rc": -9
+  },
+  {
+   "step": "resume-final",
+   "rc": 0
+  }
+ ],
+ "final_state": {
+  "complete_receipts": 3,
+  "duplicate_complete_ids": 0,
+  "quarantine_files": [
+   "/tmp/rc61_asr_resume_llt6wr1g/transcripts.jsonl.quarantine-20261127T222303Z"
+  ],
+  "superseded_files": [],
+  "final_audit_all_reusable": true,
+  "stale_identity_refused": true,
+  "tampered_receipt_refused": true,
+  "no_data_loss": true
+ },
+ "verdict": "PASS",
+ "work_dir": "/tmp/rc61_asr_resume_llt6wr1g"
+}

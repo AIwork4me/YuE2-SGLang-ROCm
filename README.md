@@ -2,6 +2,24 @@
 
 ## Generate music with the official YuE2 model on AMD GPUs — native PyTorch and SGLang
 
+**Status (2026-11-28, RC6.1 — v1.0-rc2, this branch):** Developer Trust +
+Five-Metric Scientific Closure. Scoreboard B (corrected vLLM selection S_V)
+now has ALL FIVE metrics — Q3O(S_V) evaluated 192/192 with 132
+identity-verified receipt reuse + 60 newly scored (see
+[RC6.1 reports](reports/developer_reference/rc6_1/)). The developer
+verifier is fail-closed with scope-labelled verdicts
+(VERIFIED_FIRST_SONG / VERIFIED_BENCHMARK_PILOT / VERIFIED_FULL_GENERATION /
+VERIFIED_FULL_BENCHMARK / VERIFIED_REFERENCE_RUN — never an unscoped
+VERIFIED); ASR identity is strictly hash-bound with atomic supersede
+resume; installation is idempotent and pinned to the frozen upstream SHA
+with no branch fallback; all reference GPU work shares ONE physical
+BDF-keyed lock domain across workspaces; the RC6 VRAM contradiction is
+root-caused (capacity/usage conflation — generation peak 29.7 GiB
+card-total) and percentiles are recomputed with a declared estimator.
+Known-open: official CUDA same-audio comparisons, off-machine backup,
+author/AMD acceptance, independent-host reproduction (honestly labelled,
+never claimed).
+
 **Status (2026-11-27, RC5.1 — FINAL, this branch):** the complete
 WildSongBench reproduction on the author's latest SGLang stack
 (`c67d541a`, PR sgl-project/sglang#42106) is **done end-to-end on the
@@ -113,10 +131,13 @@ Historical RC2-era figures remain in [docs/RESULTS.md](docs/RESULTS.md).
 - YuE2 weights are **CC BY-NC 4.0** (individual-creator monetization grant
   exists; companies need a license). No weights or benchmark lyrics are
   redistributed here.
-- SGLang YuE2 support is **unmerged upstream**; Q3O is **NOT TESTED**
-  (needs an 80 GB GPU); PER numbers are labeled with the evaluator backend.
+- SGLang YuE2 support is **unmerged upstream** (PR #42106 snapshot, pinned
+  commit `c67d541a`); PER numbers are labelled with the evaluator arm
+  (frozen transformers arm 17.77% / corrected vLLM arm 8.4488% vs paper
+  8.44%); Q3O on 48 GB runs via the **ROCm-adapted judge** (192/192,
+  official equivalence NOT_ESTABLISHED).
 - Details: `docs/KNOWN_LIMITATIONS.md`, `docs/COMPATIBILITY_MATRIX.md`,
-  `reports/publication/RELEASE_GATE_LEDGER.json`.
+  `reports/developer_reference/` (RC6 developer reproduction reference).
 
 ---
 ## Contents

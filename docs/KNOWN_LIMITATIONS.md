@@ -9,8 +9,21 @@
 2. **HTTP telemetry gaps**: `peak_memory_mb` reports 0.0 and
    `yue2_stage_seconds` nulls on ROCm (probe backend absent). Memory truth:
    rocm-smi; stage truth: server log.
-3. **Q3O NOT RUN**: requires flash-attn 2.8.3 (CUDA-only) and an 80 GB GPU
-   per official docs. W7900 (48 GB) does not attempt it; gfx1151 likewise.
+3. **Q3O (RC6.1 status)**: RUNS on 48 GB with the ROCm-adapted judge —
+   BOTH selection arms now covered 192/192: Scoreboard A (frozen S_T,
+   RC5.1) and Scoreboard B (corrected S_V, RC6.1: 132 identity-verified
+   receipts reused + 60 newly evaluated; Q3O_B = see
+   reports/developer_reference/rc6_1/04_Q3O_CORRECTED_FULL_SUMMARY.json).
+   34 GPU + 14 CPU MoE layers, deterministic tie-break. OFFICIAL
+   equivalence NOT_ESTABLISHED (different engine: HF-ROCm vs vLLM-CUDA;
+   ~18–20% of routed slots are exact boundary ties; no CUDA host for the
+   same-audio comparison). Earlier "Q3O NOT RUN / NOT TESTED on 48 GB"
+   statements are superseded. 24 GB cards: NOT_TESTED (below the measured
+   42.4 GiB judge peak). Historical inaccuracy corrected (RC6.1): the RC6
+   performance reference's "torch-allocated ~47 GiB card saturation" was
+   the card's TOTAL CAPACITY (47.98 GiB) misdescribed as usage — the true
+   generation peak card-total is 29.7 GiB (see
+   reports/developer_reference/rc6_1/06_PERFORMANCE_RECONCILIATION.md).
 4. **Cross-GPU byte-identity not expected**: equal seeds on different GPU
    architectures produce different waveforms (GPU RNG/kernel math). The
    request/config/weights identity hash IS reproducible (verified
@@ -20,11 +33,15 @@
 
 ## Evaluator portability (disclosed, not hidden)
 
-6. **PER ASR backend**: vLLM 0.14.0 has no ROCm build; PER runs the same
-   Qwen3-ASR-1.7B checkpoint through qwen_asr's transformers backend
-   (greedy, same chunking/phonemization/scoring). Parity study included in
-   the evidence; where the reference backend cannot run, reports say
-   "evaluator backend parity not yet established".
+6. **PER ASR backend**: vLLM 0.14.0 has no ROCm build; the FROZEN arm runs
+   the same Qwen3-ASR-1.7B checkpoint through qwen_asr's transformers
+   backend (greedy, same chunking/phonemization/scoring) — this substitution
+   was root-caused in RC5.1 as the dominant driver of the frozen arm's PER
+   gap (repetition-loop on hard candidates; vLLM escapes it). The corrected
+   vLLM 0.19.1 ROCm arm reproduces the paper PER (8.4488% vs 8.44%) and is
+   reported as a SEPARATE arm (never mixed into the frozen scoreboard).
+   Cross-engine equivalence with the official 0.14.0 CUDA backend remains
+   NOT_ESTABLISHED (no CUDA host; handoff package ready).
 7. **torch-family substitution in evaluator venvs** under
    `WSB_ROCM_TORCH_OVERRIDE=1` (receipt records actuals; everything else
    matches the frozen lock; scoring math untouched).
@@ -49,16 +66,16 @@
 
 ## Additions (2026-11 publication-readiness mission)
 
-- **Q3O: NOT TESTED on 48 GB GPUs.** The official protocol requires an 80 GB
-  GPU; the W7900 cannot run it. Never included in "all metrics" claims.
-- **PER evaluator backend substitution (carried over, re-confirmed):** all
-  published PER uses the qwen_asr transformers backend on ROCm (patch 0007,
-  env-gated). Cross-backend equivalence with the official vLLM backend is
-  NOT claimed. Fresh evidence (2026-11-12): the substituted evaluator scores
-  official-range PER (6.5%) on one strong-audio pilot. This does NOT prove
-  evaluator-backend equivalence. The 17% aggregates include capped ASR,
-  empty transcripts, and weak candidates; causal attribution versus the
-  official 8.44% remains OPEN until same-audio cross-evaluator controls.
+- **Q3O on 48 GB GPUs (SUPERSEDED by RC5.1/RC6):** runs with the
+  ROCm-adapted judge (192/192 valid; 34 GPU + 14 CPU MoE layers). The
+  official 80 GB requirement referred to the OFFICIAL engine (vLLM +
+  FlashAttention CUDA); our adapted path trades engine equivalence (NOT
+  ESTABLISHED) for feasibility on 48 GB. Q3O results are labelled
+  ROCm-adapted and never enter "official all-metrics" claims.
+- **PER evaluator backend substitution (SUPerseded note, see item 6 above):**
+  RC5.1 closed the causal attribution (same-audio matrix; corrected vLLM arm
+  8.4488% vs paper 8.44%); cross-backend equivalence with the official
+  vLLM 0.14.0 backend remains NOT_ESTABLISHED (no CUDA host; handoff ready).
 - **Official `--backend torch` (graph capture) is broken on ROCm**
   (`mha_varlen_fwd: seqused_k must be nullopt`); the benchmark Arm A uses
   the official `torch-eager` backend (public SDPA). Disclosed as DEV-1 in

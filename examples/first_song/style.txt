@@ -1,0 +1,5 @@
+[Tags]
+pop, warm, acoustic, female vocals, midtemp
+
+[Form]
+intro, verse, chorus, verse, chorus, outro

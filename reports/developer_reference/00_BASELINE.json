@@ -1,0 +1,112 @@
+{
+ "schema": "yue2-rc6-baseline/1",
+ "generated_at_utc": "2026-11-27T14:30:00Z",
+ "git": {
+  "local_repo": "/data/yue2/upstream/yue2-sglang-rocm",
+  "mission_base": "57e81c2ccb664a4a5eedf9a9526d0709647ba9aa",
+  "mission_base_subject": "rc5.1: final receipts self-consistent (CI-verified content head 7b8f8f2)",
+  "base_branch": "mission/w7900-rc5-latest-upstream-full-reproduction",
+  "remote_head_of_base_branch": "57e81c2ccb664a4a5eedf9a9526d0709647ba9aa",
+  "remote_head_source": "gh api branches/mission/w7900-rc5-latest-upstream-full-reproduction @ 2026-11-27T13:35:43Z (fetched live)",
+  "worktree_dirty_at_base": false,
+  "main_head": "ba99c4d046304f8dca2ca13c28eac507429bab52",
+  "base_branch_vs_main": "4 behind / 170 ahead",
+  "rc6_branch": "mission/rc6-developer-reproduction-reference (created from 57e81c2)"
+ },
+ "github": {
+  "pr19": {
+   "state": "OPEN",
+   "is_draft": true,
+   "head": "mission/w7900-rc5-latest-upstream-full-reproduction @ 57e81c2",
+   "base": "mission/w7900-rc4-1-fail-loud-health-evidence",
+   "mergeable": "MERGEABLE",
+   "reviews": [],
+   "updated_at": "2026-11-27T13:49:58Z",
+   "subject": "[RC5] Latest YuE2 SGLang on Radeon W7900: full WildSongBench reproduction, fail-closed runtime, PER RCA and Q3O evaluation"
+  },
+  "open_prs": [
+   19,
+   18,
+   17,
+   16,
+   15,
+   14,
+   13,
+   12,
+   11,
+   10,
+   9,
+   8
+  ],
+  "pr19_exact_head_ci": [
+   {
+    "name": "cpu",
+    "conclusion": "success",
+    "url": "https://github.com/AIwork4me/YuE2-SGLang-ROCm/actions/runs/46010511499/job/140544510530",
+    "event": "push"
+   },
+   {
+    "name": "q3o-moe-cpu-numerics",
+    "conclusion": "success",
+    "url": "https://github.com/AIwork4me/YuE2-SGLang-ROCm/actions/runs/46010511499/job/140544510850",
+    "event": "push"
+   },
+   {
+    "name": "cpu",
+    "conclusion": "success",
+    "url": "https://github.com/AIwork4me/YuE2-SGLang-ROCm/actions/runs/46010502971/job/140544484037",
+    "event": "pull_request"
+   },
+   {
+    "name": "q3o-moe-cpu-numerics",
+    "conclusion": "success",
+    "url": "https://github.com/AIwork4me/YuE2-SGLang-ROCm/actions/runs/46010502971/job/140544483833",
+    "event": "pull_request"
+   }
+  ],
+  "branch_protection": "base branch not protected (as of audit)"
+ },
+ "upstream": {
+  "repo": "https://github.com/sgl-project/sglang/pull/42106",
+  "frozen_head": "c67d541a40f8bf851e9fc1e925f5316638838cd6",
+  "effective_generation_runtime_sha256": "342b2f531b14a201b4aae1a6a14424bed7f03cd7f993c3a1c09657a6d6109051",
+  "patches_applied": [
+   "0001/0003/0008 (import guards, consolidated in patches/rc5-0001-0003-0008-rocm-import-guards.patch)"
+  ],
+  "historical_0004_0005_status": "absorbed upstream, NOT reapplied (verified in RC5)"
+ },
+ "host": {
+  "gpu": "AMD Radeon Pro W7900D (gfx1100), 48 GiB, BDF 0000:03:00.0, uuid e9d0e20bb686e6c6",
+  "kernel_rocm_module": "ROCk 6.16.13 loaded",
+  "userspace": "venv-local ROCm 7.14.1 (torch 2.12.0+rocm7.14.1)",
+  "cpu": "AMD EPYC 9334 32-Core",
+  "storage": {
+   "overlay_root_free_gb": 1600,
+   "workspace_volume_free_gb": 76,
+   "second_backup_volume": "/workspace/yue2-rc5-backup (18 GB used)"
+  }
+ },
+ "rc5_1_numbers_requiring_recomputation": {
+  "note": "treated as baseline to re-derive, not to trust",
+  "flac_byte_identical": "380/384",
+  "per_frozen_selected_micro": 0.17769855,
+  "per_corrected_vllm_selection_micro": 0.084488,
+  "five_metric_scoreboard": "SongBench 6.736891 / MuLan 0.509395 / AMC 0.405181 / Q3O 4.393986",
+  "performance_p50_wall_s": 275.27
+ },
+ "known_documentation_defects_to_fix": [
+  "docs/BENCHMARK_REPRODUCTION.md says 60 changed prompts; 07_CORRECTED_SELECTION_MANIFEST.json says selection_change_count=120 (needs per-prompt join reconciliation)",
+  "README.md still says 'Q3O is NOT TESTED (needs an 80 GB GPU)' (stale vs RC5.1 192/192 on 48 GB)",
+  "docs/KNOWN_LIMITATIONS.md items 3 and Q3O addition stale (NOT RUN/NOT TESTED)",
+  "docs/QUICKSTART_W7900.md section 3 documents the historical ced0ef7d + 0001-0005 path as the main install path; RC5.1 native-gate path is section 8 only",
+  "QUICKSTART uses 'git -C <upstream> apply patches/...' with a CWD-relative patch path (breaks outside repo root)",
+  "README performance table is RC4-era"
+ ],
+ "external_blockers_declared": {
+  "off_machine_backup": "BLOCKED_EXTERNAL (owner confirmed no backup host)",
+  "official_cuda_per": "BLOCKED_EXTERNAL (no CUDA host; handoff package exists)",
+  "author_approval": "NOT_PRESENT",
+  "amd_publication_approval": "NOT_PRESENT",
+  "independent_third_party_reproduction": "NOT_PRESENT"
+ }
+}

@@ -1,0 +1,16 @@
+{
+ "schema": "yue2-rc6_1-asr-verdict/1",
+ "generated_at_utc": "2026-11-27T22:24:18Z",
+ "verdict": "PASS",
+ "scope": "ASR identity fail-closed audit + durable atomic resume + scorer hardening",
+ "red_evidence": "13/15 desired-behaviour tests failed against the RC6 implementation (defects 1-12 confirmed by execution, not by static review alone)",
+ "green_evidence": {
+  "tests": "35/35 (15 new M2 + 20 RC6 regression; one RC6 legacy fixture's hash made honest — hashed after the legacy-shape mutation)",
+  "physical_resume": "PASS (real SIGKILL x2 incl. mid-line torn write; 3/3 real audio candidates; no data loss / no duplicates / stale identity and tamper REFUSED)",
+  "historical_audit": "384/384 HISTORICAL_RECEIPT_VALID_IDENTITY_PARTIAL (read-only)"
+ },
+ "residual_limitations": [
+  "the physical regression's transcripts are synthetic (mock engine) — it validates receipt durability and resume semantics, not ASR quality",
+  "a full strict-identity ASR re-run over the frozen 384 audio was not executed this round (the frozen 8.4488% arm keeps analysis validity as historical evidence)"
+ ]
+}

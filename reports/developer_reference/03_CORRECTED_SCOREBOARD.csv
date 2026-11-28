@@ -1,0 +1,6 @@
+metric,paper,author_sgl,scoreboard_A_frozen_S_T,scoreboard_B_corrected_S_V,comparability_note
+SongBench GA,6.7316,6.7146,6.736891,6.742109,"official evaluator verbatim; S_V run 2026-11-27 (rc6-corrected-scoreboard, 192/192 complete); SEPARATE arm - never mixed"
+PER micro,8.44%,8.1471%,17.7699%,8.4488%,frozen arm = transformers ASR substitution (root-caused); corrected arm = vLLM 0.19.1 ROCm; paper uses official CUDA vLLM 0.14.0
+MuLan,0.5068,0.49960,0.509395,0.504299,official evaluator verbatim on each arm's own selected-192
+AllMusicCaps,0.4054,0.40825,0.405181,0.403000,official evaluator verbatim on each arm's own selected-192
+Q3O (0-5),4.68,not published,"4.393986 (ROCm-adapted judge, 192/192)",NOT_RUN,S_V Q3O not executed in RC6 (GPU budget allocated to determinism/fresh-clone/controls); judge would reuse 72 identity-matched receipts + score 120 new; frozen-arm result stands under its disclosed protocol
