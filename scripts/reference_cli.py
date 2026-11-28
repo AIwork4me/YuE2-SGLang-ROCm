@@ -286,9 +286,26 @@ def cmd_benchmark(a) -> int:
         if run_dir.exists() and (run_dir / "journal.jsonl").exists():
             print(f"[reference] REFUSED: pilot run dir already has a journal: {run_dir}")
             return EXIT_REJECT
+        manifest = run_dir / "generation_manifest.jsonl"
+        if manifest.is_file():
+            import json as _json
+            rows = [_json.loads(l) for l in manifest.read_text().splitlines() if l.strip()]
+            expected = 10
+            comp = sum(1 for r in rows if r.get("status") == "complete")
+            if comp >= expected:
+                print(f"[reference] REFUSED: pilot already complete: {run_dir}")
+                return EXIT_REJECT
+            print(f"[reference] pilot resume: {comp}/{expected} complete in "
+                  f"{manifest}; run_wsb will skip complete candidates, "
+                  f"quarantine stale bundles and finish the rest")
+        gen_py = W / "environments/generation/bin/python"
+        driver = str(gen_py) if gen_py.exists() else py()
+        if driver != py():
+            print(f"[reference] pilot driver: {driver} (generation venv — the "
+                  f"finalize step imports sglang in-process)")
         cmd = ["bash", str(REPO / "scripts/campaign_ops/run_with_server.sh"),
                "--log-dir", str(W / "logs"), "--",
-               py(), str(REPO / "scripts/run_wsb.py"), "--runs", str(run_dir),
+               driver, str(REPO / "scripts/run_wsb.py"), "--runs", str(run_dir),
                "--indices", "0", "1", "2", "79", "81", "--run-id",
                a.run_id or "rc6-pilot-5x2"]
     elif a.mode == "full":
@@ -341,6 +358,29 @@ def cmd_status(a) -> int:
 def cmd_resume(a) -> int:
     W = ws(a)
     run_dir = Path(a.run_dir).resolve()
+    if (run_dir / "generation_manifest.jsonl").is_file():
+        # run_wsb layout (pilot / legacy): natural resume = re-invoke the
+        # driver; it skips complete candidates, quarantines stale bundles,
+        # and finishes the rest under the same lifecycle supervision
+        indices = ["0", "1", "2", "79", "81"]
+        try:
+            import json as _json
+            rows = [_json.loads(l) for l in
+                    (run_dir / "generation_manifest.jsonl").read_text().splitlines()
+                    if l.strip()]
+            idx = sorted({r["prompt_index"] for r in rows if "prompt_index" in r})
+            if len(idx) not in (0, 10) or any(i not in (0, 1, 2, 79, 81) for i in idx):
+                indices = [str(i) for i in idx] if idx else indices
+        except (OSError, ValueError, KeyError):
+            pass
+        gen_py = W / "environments/generation/bin/python"
+        driver = str(gen_py) if gen_py.exists() else py()
+        cmd = ["bash", str(REPO / "scripts/campaign_ops/run_with_server.sh"),
+               "--log-dir", str(W / "logs"), "--",
+               driver, str(REPO / "scripts/run_wsb.py"), "--runs", str(run_dir),
+               "--indices"] + indices + ["--run-id", a.run_id or "resumed-pilot"]
+        return sh(cmd, a.dry_run, env={"YUE2_WORKSPACE": str(W),
+                                       "YUE2_SERVE_SCRIPT": "scripts/serve_yue2_rc5.sh"})
     if not (run_dir / "journal.jsonl").is_file():
         print(f"[reference] FATAL: no journal at {run_dir} — nothing to resume")
         return EXIT_FATAL
